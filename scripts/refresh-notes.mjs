@@ -7,7 +7,7 @@ for(const skill of pack.skills){
   const location=pack.locations.find(l=>l.skillIds[0]===skill.id);
   if(!location){failures++;console.error('Missing location:',skill.id);continue;}
   const url=new URL('https://learnablemeta.com/api/userscript/location/');
-  url.search=new URLSearchParams({mapId:location.sourceMapId,panoId:location.panoId});
+  url.search=new URLSearchParams({mapId:skill.notesSourceMapId??location.sourceMapId,panoId:location.panoId});
   try{
     const response=await fetch(url,{signal:AbortSignal.timeout(15000)});
     if(!response.ok)throw Error('HTTP '+response.status);

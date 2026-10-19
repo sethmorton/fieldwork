@@ -1,6 +1,7 @@
 import {readFile,writeFile} from 'node:fs/promises';
 import {validatePack} from './next-set.mjs';
 import {regionAt} from './geo.mjs';
+import {expandAustralia} from './expand-australia.mjs';
 
 const read=async name=>JSON.parse(await readFile(new URL(name,import.meta.url),'utf8'));
 const base=await read('./australia-starter-pack.json');
@@ -54,5 +55,6 @@ const pack=validatePack({...base,schemaVersion:1,contentRevision:5,country:'AU',
     missingRegions:locations.filter(location=>!location.region).map(location=>location.id),
     transferLimit:'Source examples are training material. Small five-location pools cannot support full unseen mastery; do not infer comprehensive country ability.'},
 });
-await writeFile(new URL('../content/australia.json',import.meta.url),JSON.stringify(pack,null,2)+'\n');
-console.log(JSON.stringify({skills:skills.length,available,locations:locations.length,missingRegions:pack.curationReport.missingRegions.length}));
+const expanded=validatePack(expandAustralia(pack,await read('./australia-source-c.json'),await read('./australia-source-c-curation.json'),await read('./australia-guide-candidates.json')));
+await writeFile(new URL('../content/australia.json',import.meta.url),JSON.stringify(expanded,null,2)+'\n');
+console.log(JSON.stringify({skills:expanded.skills.length,available:expanded.curationReport.activeRegionalTargets,locations:expanded.locations.length,activePanoramas:expanded.curationReport.activePanoramas,missingRegions:expanded.curationReport.missingRegions.length}));

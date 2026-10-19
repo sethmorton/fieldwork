@@ -1,10 +1,13 @@
 # Content packs and provenance
 
 The engine accepts any country/topic with enough location-backed families.
-The Australian template has 531 source panoramas, 42 stable skill IDs, 36
-active regional targets and 12 families. Only locations attached to active
-targets can be selected. Five country-identification targets and one locally
-unverified target remain deferred.
+The Australian template records 799 distinct source panoramas and 108 stable
+skill IDs. Its 67 active regional targets span 16 families and 695 panoramas.
+Only locations attached to active targets can be selected. The other 41
+targets remain deferred, including national-only recognition, singleton
+examples and uncertain historical coverage claims. Your old skill IDs remain
+unchanged. The scheduler aims for three new targets plus two reviews while
+preserving five different families and a one-set rest for previous targets.
 
 ## Native export → tagged pool → curated pack
 
@@ -59,3 +62,51 @@ Inspect changed labels rather than attaching a different clue to a location.
 
 Use new pack IDs for different topics; keep stable IDs within updates. Do not
 relabel a learned skill as something different while reusing its history ID.
+
+## Full-source reconciliation (content revision 6)
+
+All 103 slides and 74 Plonk It cards have been reviewed and inventoried as
+178 overlapping source units. `content/australia.json` → `sourceCoverage`
+records a disposition for every unit, with actual target associations, active
+subtopics and explicit gaps. No unit is marked comprehensively mastered or
+fully covered. The ten finer-grained distinction groups found in the deck
+audit remain in `sourceCoverage.atomicGaps`.
+
+The new acquisition adds 105 source metas / 222 native-exported positions
+from [A Major Bajor World](https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24).
+Thirty-nine source aliases extend existing target concepts, rather than
+creating duplicate progress identities. The 66 new target candidates yield
+31 additional active targets; others remain held. The Queensland angled
+insulator target is separate from the older A6 pole target.
+
+`src/australia-source-c.json` retains the permitted native coordinates and
+public metadata, without full note HTML. `australia-source-c-curation.json`
+contains explicit semantic mappings, cautions, families and priorities.
+`australia-guide-candidates.json` preserves the guide's example references
+and 59 resolved slide teaching anchors. Foreign foils, unresolved map-view
+coordinates and unsafe absence rules never become positive practice labels.
+The build is reproducible with `node src/build-australia-pack.mjs`.
+
+A new target needs at least two distinct source panoramas for activation.
+These are source-author teaching examples; most have not had an independent
+current-rendering review. A repeated anchor never counts as unseen transfer.
+The 59 slide anchors remain candidates until cue labels and present-day
+imagery are reviewed. They are not silently assigned a clue just because
+their coordinates happen to fall in its region.
+
+The biggest remaining gaps are landline codes, most route-system variants,
+state housing and streetlights. External territories need an explicit
+answer-area decision and matching scoring support. The specialist LM road
+collection has thousands of reported positions, but route/camera labels
+are not proof that a particular sign or house is visible. Do not fill those
+gaps by guessing labels from coordinates.
+
+For acquisition, use sharing-enabled LM metas → an owned personal source
+map → the official Learnable Meta Upload button → native GeoGuessr Export
+JSON → the public-note importer. A third-party practice map that cannot be
+exported through its normal UI is a transfer resource, not a permission to
+harvest private API state. The
+[Plonk It Australia practice map](https://www.geoguessr.com/maps/64a1ceadb96fb3167bb2ad71)
+currently lists 227 locations and covers guide steps 2–3. Its guide links
+provide exact examples we can independently curate without pretending to
+have exported that unowned map.

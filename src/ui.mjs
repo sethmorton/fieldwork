@@ -26,7 +26,8 @@ function clue(section,skill,sourceUrl) {
   if(imageUrl){const img=document.createElement('img');img.src=imageUrl;img.alt=skill.title+' — source example';section.append(img);}
   const details=document.createElement('details');text(details,'summary','Clue & source');
   const parsed=new DOMParser().parseFromString(skill.sourceNoteHtml??'','text/html');const note=(parsed.body.textContent??'').trim();
-  if(note)text(section,'p',note.length>280?note.slice(0,280)+'…':note,'muted');
+  const preview=skill.trainingNote??note;
+  if(preview)text(section,'p',preview.length>280?preview.slice(0,280)+'…':preview,'muted');
   text(details,'p',note);
   if(skill.scoringCaveats?.length)text(details,'p',skill.scoringCaveats.join(' '),'muted');
   if(sourceUrl?.startsWith('https://')){const source=text(details,'a','Original clues');source.href=sourceUrl;source.target='_blank';source.rel='noopener noreferrer';}
@@ -54,7 +55,7 @@ export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],g
 }
 export function startPanel(pack,_set,{onNext,onExport,onImport,error,attempts=[]}) {
   const {section}=panel();header(section,'Fieldwork · practice');text(section,'h2',pack.title);
-  const status=text(section,'p',error??`${pack.answerAreaLabel??pack.title}. Five different clue families. Misses and your progress guide the mix.`,'muted');status.setAttribute('role','status');
+  const status=text(section,'p',error??`${pack.answerAreaLabel??pack.title}. Up to three new targets plus review. Five different clue families.`,'muted');status.setAttribute('role','status');
   const next=button(section,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=error.message;this.disabled=false}},'primary');next.disabled=!!error;
   const details=document.createElement('details');text(details,'summary','Content & progress');
   if(pack.coverageSummary)text(details,'p',pack.coverageSummary,'muted');

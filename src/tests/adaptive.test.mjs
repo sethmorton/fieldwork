@@ -21,6 +21,25 @@ test('insufficient families yield a short explicit plan rather than duplicate cl
 test('misses are reviewed once while retaining four other families',()=>{
  const p=makePack();const r=planPractice(p,[attempt('A',{evidenceValid:false})],{now,size:5});assert.ok(r.focusSkills.some(s=>s.id==='A'));assert.equal(r.locationIds.filter(id=>id.startsWith('A-')).length,1);assert.equal(r.focusSkills.length,5);
 });
+test('new material has three slots even when old mistakes dominate the priority scores',()=>{
+ const p=makePack();
+ const records=['A','B','C','D','E'].map(id=>attempt(id,{correct:false,evidenceValid:false}));
+ const r=planPractice(p,records,{now,size:5});
+ assert.deepEqual(new Set(r.newSkillIds),new Set(['F','G','H']));
+ assert.equal(r.focusSkills.filter(s=>records.some(a=>a.skillId===s.id)).length,2);
+ assert.equal(new Set(familyIds(p,r)).size,5);
+});
+test('an exposed target is review even without recognition feedback',()=>{
+ const p=makePack();
+ const r=planPractice(p,[],{now,size:5,seenLocationRefs:p.skills.slice(0,5).map(s=>s.id+'-0')});
+ assert.deepEqual(new Set(r.newSkillIds),new Set(['F','G','H']));
+ assert.equal(r.focusSkills.filter(s=>['A','B','C','D','E'].includes(s.id)).length,2);
+});
+test('shrinking new-content pools fill remaining slots with varied review, not duplicates',()=>{
+ const p=makePack();const records=p.skills.slice(0,7).map(s=>attempt(s.id));
+ const r=planPractice(p,records,{now,size:5});assert.deepEqual(r.newSkillIds,['H']);
+ assert.equal(r.locationIds.length,5);assert.equal(new Set(familyIds(p,r)).size,5);
+});
 test('a missed target rests for one set, then returns on a fresh panorama',()=>{
  const p=makePack();p.skills.push(skill('I'),skill('J'));
  for(const [j,s]of p.skills.slice(8).entries())p.locations.push({id:s.id+'-0',panoId:s.id+'-0',lat:8+j,lng:0,skillIds:[s.id]});

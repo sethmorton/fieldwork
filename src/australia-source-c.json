@@ -1,0 +1,4275 @@
+{
+  "id": "lm-6ad6a1e8813559bf7d45a33a",
+  "title": "Tagged practice pool",
+  "subject": "GeoGuessr",
+  "skills": [
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Darwin Bus Stop",
+      "title": "Infrastructure - Darwin Bus Stop",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/eJLTSUXkMOP1Y5SVud8MTDey5MQ8TtfQAIF9.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Western Australia Bus Stop",
+      "title": "Infrastructure - Western Australia Bus Stop",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/FRMUCdxCqawoT53yS14bUrobFNwPdpsx1Phg.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - South Australia Bus Stop",
+      "title": "Infrastructure - South Australia Bus Stop",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/SCSqQVG2yT3dxPCml3decfG3oQWrcafBD2Kx.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Tasmania Bus Stop",
+      "title": "Infrastructure - Tasmania Bus Stop",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/SidQT87G3TUvOfwrZONRGh7bbfeUP052xiNB.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria Bus Stop",
+      "title": "Infrastructure - Victoria Bus Stop",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/QT7gWsS8I8N3RigFzGal2VTZ3xnsiuW3Su4S.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - ACT Bus Stop",
+      "title": "Infrastructure - ACT Bus Stop",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/dLVLPVFGtYYEVw1PGWujC5yZtxceFBUVswQQ.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - NSW Bus Stop",
+      "title": "Infrastructure - NSW Bus Stop",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/HtRoZRpmpaJ0C5n5zOLXNx0RN24Vj7xSGwJF.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland Bus Stop",
+      "title": "Infrastructure - Queensland Bus Stop",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/OOBTecs48Je7IbY1SIqm0ZO10lvww37IHeWS.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland License Plate",
+      "title": "Infrastructure - Queensland License Plate",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/V0TqPHxiiAJjy7lXpd39qAIqNLxY2WLZDJSr.avif",
+        "https://learnablemeta.com/images/109/oZKqlnnLROUslBP3YUmfLsLfuA7HRdT8crb3.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Yellow License Plate",
+      "title": "Infrastructure - Yellow License Plate",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/yLar6j1AgMsb248qAPfa5m7AnsW3mQFJj9cg.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - NT License Plate",
+      "title": "Infrastructure - NT License Plate",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/lVBLPoyOTWFZGbRaUmcRC3XWcnx0jzLUp323.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Western Australia License Plate",
+      "title": "Infrastructure - Western Australia License Plate",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/lP3rteBPLaOqBLBkZcdyKYd88iRgmBUvQrLv.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria License Plate",
+      "title": "Infrastructure - Victoria License Plate",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/O9lyr24i254t6LiCaid0kDpWh38rvmqGujN4.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - ш-shaped poletop",
+      "title": "Infrastructure - ш-shaped poletop",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/UNqCZFpYlA2XcpVyu8XS3llpgcMjdtOot3px.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Stobie pole",
+      "title": "Infrastructure - Stobie pole",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/iYiTweNEnpPg8RwS4UW9TQ5PGWARq7IztVXj.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - rusty holey pole",
+      "title": "Infrastructure - rusty holey pole",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/mf7AwX6wj1fdroU7AbgnjIwbjEvF5s0usqKm.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - concrete pole",
+      "title": "Infrastructure - concrete pole",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/L5lBR3iHym8ue3u8KfCEn8y38sUD52Wq3E2w.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - upward pointing trident pole",
+      "title": "Infrastructure - upward pointing trident pole",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/Jl6MtD8CuB8TY14umaiGFcQ5HIhNSEBOFUpA.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland poletop",
+      "title": "Infrastructure - Queensland poletop",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/XPGCANVSE45snU4ZjijJ6oSKdpxMAceSZbmG.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria poletop",
+      "title": "Infrastructure - Victoria poletop",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/Lca6cY9hvQ9ws46rygLjzXTjvv06q0EjYHIj.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - 90° poletop",
+      "title": "Infrastructure - 90° poletop",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/HtsTeweWHAOstrEEV41haKOuceLT0n9oYcr5.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland sticker",
+      "title": "Infrastructure - Queensland sticker",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/ycy2qGZgnQ6yZm5IuaAlrZubBESJpuAYw3wc.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Black pole marking",
+      "title": "Infrastructure - Black pole marking",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/omNDFixsnE9REbaWsARVbEw2T7Bze03FSqNi.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - olive-green possum guard",
+      "title": "Infrastructure - olive-green possum guard",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/xzpTf22rqwwhbiBHc61UZCsmo71VmYj9bljp.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - green pole bottom",
+      "title": "Infrastructure - green pole bottom",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/307irxdM35hlmiH06Fl6W8JJvHDCwYgDliQ1.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with short reflector",
+      "title": "Infrastructure - bollard with short reflector",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/yKSfqPRSpJgf46Z7P4RIvQjTeClWf9gvaGce.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with brown bottom",
+      "title": "Infrastructure - bollard with brown bottom",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/ipjgknl7j3qsfmjGHUe7zzlo5YqCfyT8yoiS.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - black-white striped bollard",
+      "title": "Infrastructure - black-white striped bollard",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/VNm64uAzMVreUQ8My97IFi1MXvgi7bLcVUuF.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - black-yellow striped bollard",
+      "title": "Infrastructure - black-yellow striped bollard",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/iXsok81FKM0T201FWBSwDIArI2k0SbNtngTi.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - yellow signpost",
+      "title": "Infrastructure - yellow signpost",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/hTbLbP748zc4kgU6PDr6mGM1LbcWDZqV1Pkm.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - flat signpost",
+      "title": "Infrastructure - flat signpost",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/720EDDq3hA8HSLWnhZWVfSGQtFZTVH9FFzyb.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - fluoresecent sign border",
+      "title": "Infrastructure - fluoresecent sign border",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/L93aHusRN5SyqDpMue52ZoINvPU5Sh76qLo2.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - red \"No Stopping\" sign",
+      "title": "Infrastructure - red \"No Stopping\" sign",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/VOyTTjaddPI5I90xRp0aO8PF8e6AUfHoqJ5w.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - No-Stopping-sign with text",
+      "title": "Infrastructure - No-Stopping-sign with text",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/rQMcYfDW20LVkCV8XSG6XnzPJ8zT81WTVnnR.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - white directional sign",
+      "title": "Infrastructure - white directional sign",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/V3fQvduzXR0ykaoz3XhWwN5x04hv5sktoHto.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - C-Road",
+      "title": "Infrastructure - C-Road",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/d3rGNxbATla3PMsmeqbgIXXF1r9eQsW6GRAP.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - 25 school zone",
+      "title": "Infrastructure - 25 school zone",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1OnlmITsVtk7WlOhakDEepzZXP45UlCfNJw3.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - 130 km/h speed limit",
+      "title": "Infrastructure - 130 km/h speed limit",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/NAn6DkL6B0iQJAvVe9PozsBb1tUD3P79xpP2.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - thin \"Keep Left\" sign",
+      "title": "Infrastructure - thin \"Keep Left\" sign",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/6fZfhrAhGSpfVHt8fA1NIxU0sDB3jh5xvyy9.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - traffic light with white outline",
+      "title": "Infrastructure - traffic light with white outline",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/OzggKlWVJlJNOgbDmuOQWILUHAMvmmWBUswx.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - traffic light with no outline",
+      "title": "Infrastructure - traffic light with no outline",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/zaUsCW3cvRta1gCNWxwqDrQzAdVSdgE8qtq9.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - green property marker",
+      "title": "Infrastructure - green property marker",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/nvKer181JAJV2TrSEawGyH7VGdGAMSIKW67c.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - white property marker",
+      "title": "Infrastructure - white property marker",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/r0wntRQRMZMcA9UtnwTYdRZO1jhCCvbaOcaA.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Roadline Gap with no Reflector",
+      "title": "Infrastructure - Roadline Gap with no Reflector",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/VKwC9qugFZCKUBeEU3smidLBGgG67D5s86Tx.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://web.archive.org/web/20250201164345/plonkit.net/australia#2\" rel=\"nofollow\" target=\"_blank\">PlonkIt - Archived</a>\nThis meta was removed from the PlonkIt guide. The link leads you to the archived page.</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Roadline gap with Reflector",
+      "title": "Infrastructure - Roadline gap with Reflector",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/KfACXF0Lh0lgdUklY8cz8a7ktyI0UdPjsVQS.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://web.archive.org/web/20250201164345/plonkit.net/australia#2\" rel=\"nofollow\" target=\"_blank\">PlonkIt - Archived</a>\nThis meta was removed from the PlonkIt guide. The link leads you to the archived page.</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - NSW guardrail ending",
+      "title": "Infrastructure - NSW guardrail ending",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/32VmtujrtgUtK582rJzvP9ioKIYGURx4naPt.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - hydrant with blue circle",
+      "title": "Infrastructure - hydrant with blue circle",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/MJ6nvATChDH7rt0UU4BBrVRgf8kzDIKwIT51.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - hydrant with red top",
+      "title": "Infrastructure - hydrant with red top",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/sRkaOcEAkZOsJ2ArzWT6gDEIGfUsOv1kGPQF.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil",
+      "title": "Landscape - Reddish-Orange Soil",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/HcY2NlhTsbtCWVXpwjrr5VzZThQ54ApBQMF1.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Green & Golden Fields",
+      "title": "Landscape - Green & Golden Fields",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/pzcrYHkTPr52ubijagurGf08JF9Kx0tgzUfb.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Kangaroo Island Landscape",
+      "title": "Landscape - Kangaroo Island Landscape",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/Drp1zt9IBOsA6ULXcV7zymoiUmPKzA8GBzOH.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Termite Hills",
+      "title": "Landscape - Termite Hills",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/P66Jnwjc9hoAK45ZyIpSgKc3hzEGp4N0Dvgh.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Coverage Meta - Jervis Bay Meta",
+      "title": "Coverage Meta - Jervis Bay Meta",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/b0EOUvkPQYtf848DFl5C15r6tHnqFuKxqdea.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "Check out  <a href=\"https://www.plonkit.net/australia\" rel=\"nofollow\" target=\"_blank\">www.plonkit.net/australia</a> for more clues.<p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Vegetation - Brush Plant",
+      "title": "Vegetation - Brush Plant",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/VWpwNakQEnsxUU9PcXPfU0rIzYwKP30Ia46A.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Darwin Landscape",
+      "title": "Landscape - Darwin Landscape",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/YV3eCZEWxk5dmgV2SFviWrJr2np3EjjrV24o.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Western South Australia Landscape",
+      "title": "Landscape - Western South Australia Landscape",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/3hsNJPWhpAl2OSgbpZUl2F1jeKzj85sYGGel.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Eastern South Australia Landscape",
+      "title": "Landscape - Eastern South Australia Landscape",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/oa00K6k72S8SBOQBLdashzlOKHYGwQLORpt7.avif",
+        "https://learnablemeta.com/images/109/szE5xZLwLygNOBAELJrnuYuts0jNMCiM2uXB.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Northern Queensland Landscape",
+      "title": "Landscape - Northern Queensland Landscape",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/digYmfbVKIRqtsMogDTFvBejLGPvvkgOoucw.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Agriculture - Sugarcane",
+      "title": "Agriculture - Sugarcane",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/HVkrHc1mKjd1OMCJxuDRx8sNy4L9KtCWtO1K.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Inland New South Wales Landscape",
+      "title": "Landscape - Inland New South Wales Landscape",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/krkfgVTquLSwG3YobNVr7VTdZ0C01okbKwLc.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Tasmania Landscape",
+      "title": "Landscape - Tasmania Landscape",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/w7bMnOaGq7DuOZp13KvjLSPWIggV8ty6lKYO.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Coverage Meta - Gen 2",
+      "title": "Coverage Meta - Gen 2",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/YFKDkqQC1TGXYdcxUEYwkdTJhUzqKCNBpneG.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Coverage Meta - Half Leaf",
+      "title": "Coverage Meta - Half Leaf",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/dnRROXp1W4HIYgzDtvthy82dXZNEDAwNBDak.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Car Meta - Snorkel Car",
+      "title": "Car Meta - Snorkel Car",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/vf2r3wbQQVT7PaEsbe9zzUc9eqO46CQaDMqH.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Tom Price Landscape",
+      "title": "Landscape - Tom Price Landscape",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/VAyliSXnqQDY03bxObZNCxAMWnjfodhirg1F.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Alice Springs",
+      "title": "Landscape - Alice Springs",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/OQgjmIYCajkeDYyACkHDLlolnNaACtqtROsy.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Cairns Landscape",
+      "title": "Landscape - Cairns Landscape",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/IbY8dr0Haoopqk3505B5koqYLN5Yn9aKSXpC.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Mount Gambier Tree Plantations",
+      "title": "Landscape - Mount Gambier Tree Plantations",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/40fiu7Nu95KE9ggx6yrfMoE221gQHenFQr2c.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Nullarbor Highway",
+      "title": "Landscape - Nullarbor Highway",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/zMd1bYew4QobrQBt3bmFCvXkVLkSidVcYZhc.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Car Meta - Wire Car Meta",
+      "title": "Car Meta - Wire Car Meta",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/7H5PErojSjKL4tSxvve0PcYdjQPMo1tkFCax.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Dorat Road",
+      "title": "Infrastructure - Dorat Road",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/9vLFvEKAK9wszZG0l6tY3T4kIJ6eLVoj0nYC.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Triple Broken Roadlines",
+      "title": "Infrastructure - Triple Broken Roadlines",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/UwzuLXUvtqHgd6z3QIDfe8YLmeqLrRSMssLW.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Landscape - Stuart Highway with Blue Car",
+      "title": "Landscape - Stuart Highway with Blue Car",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/2Dkw2kHlg6TRS7PW3WuEfr9AG3FMH22xjd3r.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Sloped Kerbs",
+      "title": "Infrastructure - Sloped Kerbs",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/Ts5pyEyqvumMOySvSh2xbTXKP7HGO6iqNfC9.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Blue Square on Pole",
+      "title": "Infrastructure - Blue Square on Pole",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/YQA5gNiweDmu4ZH4ql9mVC6Dz5qP9bavc8nT.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Mount Kosciuszko",
+      "title": "Infrastructure - Mount Kosciuszko",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/04dJEPO8gX2FF2DEuHXWqgxAsA9QkdTmcPtW.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Coverage Meta - Gen 2 Whole Leaf",
+      "title": "Coverage Meta - Gen 2 Whole Leaf",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/gQo0pFa3c60kRkIyqeprfu4TkmesyAzJ12cj.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Coverage Meta - Gen 2 Twig Meta",
+      "title": "Coverage Meta - Gen 2 Twig Meta",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/B13KvJRsaZCplQ4YA8NE7UooSkT8RcMHmp2j.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Brisbane Streetsign",
+      "title": "Infrastructure - Brisbane Streetsign",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/6uFiz491a93OlvjyAOtoeqUMlnZPf4KwjIDl.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Gold Coast Streetsign",
+      "title": "Infrastructure - Gold Coast Streetsign",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/74eL8odKRq8s0luIoE7Bf0zh5Bi9cJqpyXc0.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Sydney Streetsign",
+      "title": "Infrastructure - Sydney Streetsign",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/kYhkyPQaAwOykvFJ5IzIy9vXitEm08jBr4pO.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Car Meta - Open Trunk Meta",
+      "title": "Car Meta - Open Trunk Meta",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/bwaxQ873d0Lpai6JvNuP22pcouLahJk4faLX.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Coverage Meta - Smoke Coverage",
+      "title": "Coverage Meta - Smoke Coverage",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/0BeaHVoiTdZcQPco9dm1njOSwRnopJtdb7AT.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://plonkit.net/\" rel=\"nofollow\" target=\"_blank\">PlonkIt</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Coverage Meta - Splodgey Sun",
+      "title": "Coverage Meta - Splodgey Sun",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885137246-AcT.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p><a href=\"https://discord.com/channels/854419081813164042/855528394229415966/1084397123103096894\" rel=\"nofollow\" target=\"_blank\">Published by zi8gzag on PlonkIt Discord</a></p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - License Plate - Slim NSW",
+      "title": "Infrastructure - License Plate - Slim NSW",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885367570-5pB.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - License Plate - Slim Victoria",
+      "title": "Infrastructure - License Plate - Slim Victoria",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885358107-f5Z.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - License Plate - Taxi - Blue",
+      "title": "Infrastructure - License Plate - Taxi - Blue",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885375958-rKK.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Octagonal Pole",
+      "title": "Infrastructure - Octagonal Pole",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885347032-kwO.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - Yellow T",
+      "title": "Infrastructure - Poletag - Yellow T",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885283060-DbU.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - Vertical / Regular",
+      "title": "Infrastructure - Poletag - Vertical / Regular",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885254135-PmJ.avif",
+        "https://learnablemeta.com/images/109/1771885258814-PbV.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - NSW - Vertical / Outer White",
+      "title": "Infrastructure - Poletag - NSW - Vertical / Outer White",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885219446-oYL.avif",
+        "https://learnablemeta.com/images/109/1771885225067-SWe.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Charters Towers Red Roads",
+      "title": "Infrastructure - Charters Towers Red Roads",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885205395-vM6.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://discord.com/channels/1451015089996959847/1453278978944143380\" rel=\"nofollow\" target=\"_blank\">Meat of the Day</a> on ScripterCord</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Vegetation - Gregory Tree",
+      "title": "Vegetation - Gregory Tree",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885190234-ziv.avif",
+        "https://learnablemeta.com/images/109/1771885193645-vHe.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://docs.google.com/presentation/d/1kIwMOi6vIc2GIABJ-K4D56mh2KjNyJ0l3RWzEKBJbOo/\" rel=\"nofollow\" target=\"_blank\">Geoguessr: A Guide to Plants</a> by gawynn1</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - NSW - Horizontal",
+      "title": "Infrastructure - Poletag - NSW - Horizontal",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885235011-Kgj.avif",
+        "https://learnablemeta.com/images/109/1771885239376-DV4.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - H",
+      "title": "Infrastructure - Poletag - H",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885296508-aYP.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - NSW - Letter Code",
+      "title": "Infrastructure - Poletag - NSW - Letter Code",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885272603-Oeg.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Dotted Concrete Pole",
+      "title": "Infrastructure - Dotted Concrete Pole",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885314875-vxo.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - ∀-Poletop - Round",
+      "title": "Infrastructure - ∀-Poletop - Round",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885323413-pRA.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - HP",
+      "title": "Infrastructure - Poletag - HP",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885305523-zHe.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Green Dot on Pole",
+      "title": "Infrastructure - Green Dot on Pole",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885289959-MV7.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Hanging Insulator",
+      "title": "Infrastructure - Hanging Insulator",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885337079-kMz.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Vegetation - Queensland Fan Palm",
+      "title": "Vegetation - Queensland Fan Palm",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771884717510-rca.avif",
+        "https://learnablemeta.com/images/109/1771884732653-hbG.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://learnablemeta.com/maps/67af81fe1a552c40e1bd4717\" rel=\"nofollow\" target=\"_blank\">A Learnable Plant World</a> by Zen</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - QLD - Vertical",
+      "title": "Infrastructure - Poletag - QLD - Vertical",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885173006-krQ.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://www.youtube.com/watch?v=qgKRCHGuvTI\" rel=\"nofollow\" target=\"_blank\">Australia Tips and Hints For Geoguessr - Definitive Edition</a> by zi8gzag</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Vegetation - Sand Palm",
+      "title": "Vegetation - Sand Palm",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771884759232-J3l.avif",
+        "https://learnablemeta.com/images/109/1771884761495-hdn.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://learnablemeta.com/maps/67af81fe1a552c40e1bd4717\" rel=\"nofollow\" target=\"_blank\">A Learnable Plant World</a> by Zen</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    },
+    {
+      "id": "6ad6a1e8813559bf7d45a33a:Vegetation - Bottle Tree",
+      "title": "Vegetation - Bottle Tree",
+      "phase": "Imported clues",
+      "prerequisites": [],
+      "imageUrls": [
+        "https://learnablemeta.com/images/109/1771885155106-kIH.avif"
+      ],
+      "source": {
+        "title": "Learnable Meta",
+        "url": "https://learnablemeta.com/maps/6ad6a1e8813559bf7d45a33a"
+      },
+      "attributionHtml": "<p>Source: <a href=\"https://learnablemeta.com/maps/671f7d0a62423ae866572ba6\" rel=\"nofollow\" target=\"_blank\">A Learnable Meta Australia</a> by trausi</p><p>Meta taken from <a href=\"https://learnablemeta.com/maps/678f7bc66a1f9e050835ef24\" rel =\"nofollow\" target=\"_blank\"> A Major Bajor World </a> by <b>Major Bajor</b></p>"
+    }
+  ],
+  "pools": [
+    {
+      "id": "6ad6a1e8813559bf7d45a33a",
+      "title": "Tagged practice pool",
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Darwin Bus Stop",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Western Australia Bus Stop",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - South Australia Bus Stop",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Tasmania Bus Stop",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria Bus Stop",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - ACT Bus Stop",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - NSW Bus Stop",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland Bus Stop",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland License Plate",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Yellow License Plate",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - NT License Plate",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Western Australia License Plate",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria License Plate",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - ш-shaped poletop",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Stobie pole",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - rusty holey pole",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - concrete pole",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - upward pointing trident pole",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland poletop",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria poletop",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - 90° poletop",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland sticker",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Black pole marking",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - olive-green possum guard",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - green pole bottom",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with short reflector",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with brown bottom",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - black-white striped bollard",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - black-yellow striped bollard",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - yellow signpost",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - flat signpost",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - fluoresecent sign border",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - red \"No Stopping\" sign",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - No-Stopping-sign with text",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - white directional sign",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - C-Road",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - 25 school zone",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - 130 km/h speed limit",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - thin \"Keep Left\" sign",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - traffic light with white outline",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - traffic light with no outline",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - green property marker",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - white property marker",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Roadline Gap with no Reflector",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Roadline gap with Reflector",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - NSW guardrail ending",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - hydrant with blue circle",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - hydrant with red top",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Green & Golden Fields",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Kangaroo Island Landscape",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Termite Hills",
+        "6ad6a1e8813559bf7d45a33a:Coverage Meta - Jervis Bay Meta",
+        "6ad6a1e8813559bf7d45a33a:Vegetation - Brush Plant",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Darwin Landscape",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Western South Australia Landscape",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Eastern South Australia Landscape",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Northern Queensland Landscape",
+        "6ad6a1e8813559bf7d45a33a:Agriculture - Sugarcane",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Inland New South Wales Landscape",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Tasmania Landscape",
+        "6ad6a1e8813559bf7d45a33a:Coverage Meta - Gen 2",
+        "6ad6a1e8813559bf7d45a33a:Coverage Meta - Half Leaf",
+        "6ad6a1e8813559bf7d45a33a:Car Meta - Snorkel Car",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Tom Price Landscape",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Alice Springs",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Cairns Landscape",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Mount Gambier Tree Plantations",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Nullarbor Highway",
+        "6ad6a1e8813559bf7d45a33a:Car Meta - Wire Car Meta",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Dorat Road",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Triple Broken Roadlines",
+        "6ad6a1e8813559bf7d45a33a:Landscape - Stuart Highway with Blue Car",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Sloped Kerbs",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Blue Square on Pole",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Mount Kosciuszko",
+        "6ad6a1e8813559bf7d45a33a:Coverage Meta - Gen 2 Whole Leaf",
+        "6ad6a1e8813559bf7d45a33a:Coverage Meta - Gen 2 Twig Meta",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Brisbane Streetsign",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Gold Coast Streetsign",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Sydney Streetsign",
+        "6ad6a1e8813559bf7d45a33a:Car Meta - Open Trunk Meta",
+        "6ad6a1e8813559bf7d45a33a:Coverage Meta - Smoke Coverage",
+        "6ad6a1e8813559bf7d45a33a:Coverage Meta - Splodgey Sun",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - License Plate - Slim NSW",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - License Plate - Slim Victoria",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - License Plate - Taxi - Blue",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Octagonal Pole",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - Yellow T",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - Vertical / Regular",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - NSW - Vertical / Outer White",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Charters Towers Red Roads",
+        "6ad6a1e8813559bf7d45a33a:Vegetation - Gregory Tree",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - NSW - Horizontal",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - H",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - NSW - Letter Code",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Dotted Concrete Pole",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - ∀-Poletop - Round",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - HP",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Green Dot on Pole",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Hanging Insulator",
+        "6ad6a1e8813559bf7d45a33a:Vegetation - Queensland Fan Palm",
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - QLD - Vertical",
+        "6ad6a1e8813559bf7d45a33a:Vegetation - Sand Palm",
+        "6ad6a1e8813559bf7d45a33a:Vegetation - Bottle Tree"
+      ],
+      "mapUrl": "https://www.geoguessr.com/maps/6ad6a1e8813559bf7d45a33a",
+      "locationIds": [
+        "pano:FFTVNK7y8Vw6jW1DeowpOg",
+        "pano:gSmIAd7WzkMjS36xHnXQ_w",
+        "pano:LCmJjmvzrjkZeUTum91apw",
+        "pano:wjmERBn78P0SoQtzf_KESA",
+        "pano:51b21aNRdezzDEEqux7sYg",
+        "pano:2gkLsFebNtG-KeDyNzYoTw",
+        "pano:P4ZS8wayCif8MZ_xzazPMg",
+        "pano:Q1sWExj5bCF_t-25dUy9Pw",
+        "pano:0b_VdCgPfXQVLd32oEkEiQ",
+        "pano:z8TbcakpCyrdX_g0LH__cQ",
+        "pano:SniLJiC02o5f5qPXoWGD0A",
+        "pano:u7YGMWmfqruXWcb9zMJU2w",
+        "pano:-0p08aIYjon-W3OJUo4trw",
+        "pano:BoDznSJ9qxrtzzzcjjWJMw",
+        "pano:gIElJ_X6xAx_LrEPI753cA",
+        "pano:LPR9Q0c0B0eqd7yeRyYl5Q",
+        "pano:JSFNI33bVvbCglg9b10xKQ",
+        "pano:X-3Byfvmf005aRCua1vxzw",
+        "pano:IufhOOWxK-3iCxorI-uI5A",
+        "pano:hXGTps0frK1aTYAoPIMyGw",
+        "pano:oLL8wUJEYunp3ivaWn7DXA",
+        "pano:77ggJdbW9h0RYzPWcMzteQ",
+        "pano:gB8XDbuKUX8W74k37Ak4zw",
+        "pano:jgbw39B7vnmR2qSprLfGaQ",
+        "pano:Ss9VpjfJWSJ-RX1q_2VOfA",
+        "pano:XaYynWfcKyCb6pN8xL1sFg",
+        "pano:E12l_nrTDbFqSpWJ0Htj_g",
+        "pano:Fq36EY4m4Ttd0JFofOx3DA",
+        "pano:rWdLXFWSapyUDgcAlxHfdw",
+        "pano:z_RJOcrY7QSDFvmL0xYHGQ",
+        "pano:6lm44KvsjSFFrnLzfu-mDA",
+        "pano:MltlOEzkMynoLhtqOftQSg",
+        "pano:40Pr5cW7uGA3yB-yLvKxvA",
+        "pano:Uwboeo8gXL3HjTvXk-dY2Q",
+        "pano:CkxRKpuwV4PwfkeqDrayMA",
+        "pano:ejmRpzzXPD8zLwjGa31m0w",
+        "pano:NK3IZY4oUY098jdvH6e3oQ",
+        "pano:QYl01lm6luZTLtue8klMlg",
+        "pano:ZpGP5VCUobTFCMNlkrXaZA",
+        "pano:3bHn8dCgUp90rExR7tKu9Q",
+        "pano:B0jrlbEaSj8xlN8PJjWvPA",
+        "pano:HHZMVnubvPoLnn2EcTmeqg",
+        "pano:JeWbKce9jP1kLNRiVp8pAA",
+        "pano:MU72Wf3nPciWTDTHTHb5Kg",
+        "pano:N47WohKJ3GqjZCIMghuKww",
+        "pano:sUA12boPjQysTRA7auVagw",
+        "pano:wtJcZdrn3jIjZu0JMDsjmQ",
+        "pano:LEK_Gz3m5-v4nTNm8V6NxA",
+        "pano:TKTFEDg58EBPFes0xiZyeQ",
+        "pano:LB2uaJ8kwp_MFzkbDUUe1g",
+        "pano:maalddQhDnhaZeqEKcLDUg",
+        "pano:RqFBnaoTp_4ijGFw2zzhiw",
+        "pano:a5AadctJ1lWbn0pkr9S3BQ",
+        "pano:Ku1GHCqoNZRRKzp2uV9wEw",
+        "pano:VDKngGgqyqHt4bT_G84AQg",
+        "pano:1AtabqenmNkGge-QTJeFGw",
+        "pano:Fu74E4sGi5WGBUDNZeKPYw",
+        "pano:oj6rpNDO7Bz7sFIsaCK7Gg",
+        "pano:Ppo_WLzez421dg2Ub7_wYA",
+        "pano:X2Omn0tBJoftnEKCz85RRg",
+        "pano:93u9XlW5jT0WEtpOwjbXEA",
+        "pano:p2SZwoY6gNB6uMYtyzzywg",
+        "pano:xaY67gZv9lsAYvKVGcHn5Q",
+        "pano:9338xcPgAncEOaXCMaOUJQ",
+        "pano:dA9TwFUsKYj51aiDGJWlAA",
+        "pano:GxHINVMgWshlzkmAOj2iPA",
+        "pano:-I2G29uQXsj9z1xHEcwd6g",
+        "pano:IAjGCkb-kcWN5eyS5KsYrA",
+        "pano:j0T4aVMlA91ueL9N9AmTrg",
+        "pano:KKBuhK5UnyyGIfZlpyXS4g",
+        "pano:mU2nLb4qt9XDNHXI2lw-Ew",
+        "pano:oibO8ODKOqcU0xqIbnAt0A",
+        "pano:QYdZdzZSEeRcDwu8Gc6Xag",
+        "pano:rJ5UhYAlZUIxtolrvixopQ",
+        "pano:SYHK7vf0EukagE7eANNM2g",
+        "pano:57T01or11Gq-SBVBonyOAw",
+        "pano:PrpRwIOMblx3c9IhI6WZDA",
+        "pano:gyz-P343GocXEWfQrky9Wg",
+        "pano:pnrkmwNLt18QDzKl4IVICQ",
+        "pano:tAA1JO32gGgnI-q_icomsg",
+        "pano:rYjs9Txbywc6GeGIXcBvag",
+        "pano:43i1mZDqH4TETRqCvkoaqw",
+        "pano:8WCXdZXJ4LzsHg60QSNUhA",
+        "pano:c7JBmi3cAx-RHCfoMNKqLA",
+        "pano:jhYgcGxs-c_ZLoU2yV0Bug",
+        "pano:NSG7-ZpKlok_KCtOlb9N3g",
+        "pano:uKD4PHrST2cn72bex9f0gA",
+        "pano:5ZK3tL2C6SLmjfWRiTkY3A",
+        "pano:goK4gWzsCM13jqQUpT1pig",
+        "pano:iU4t2KrHPUad3voQD9VwUw",
+        "pano:s1s77eD6FP-ibL63gYi3_Q",
+        "pano:Az0LF2xgyvIW_4YrxBmviw",
+        "pano:j73osefhD9ladmkr-amP5g",
+        "pano:znp54kkX4ZZhwZ-guTp3VQ",
+        "pano:tb7wXPjAyMsG9y6jiaC3jQ",
+        "pano:2PJ_BdtlWXX99BpgdfrfwA",
+        "pano:KeduvZs8HXQvDd-4t3Bh5Q",
+        "pano:Ps_FwTm1BdPPVw2rRDFeNQ",
+        "pano:MPok75T2QCsc9m4buiVPDQ",
+        "pano:uJBgYLQaobthyk7pk8D5ug",
+        "pano:RmF-M4nOI9cz5mAbJPnSOg",
+        "pano:wdGhtZHK61aEQxUlzA5-7g",
+        "pano:j6JG2luxEm4XyU_pyAya-g",
+        "pano:4GiIT4dwelM15_qRFrRvdw",
+        "pano:fwh2ITxFRqKtAUya_mVcJw",
+        "pano:01yOsjCWivEwyTLynY8jUw",
+        "pano:7mZiJ9W5bRFwfB-TjqdSUg",
+        "pano:jDtk6OKSLTuOwj-b5M8tTA",
+        "pano:uL9nXi9-Fma7hXVZMN5CZA",
+        "pano:DED3FSGSNDE86GOaMH2Pbg",
+        "pano:GF9X2K-KiZUxiO5i060KhQ",
+        "pano:mW6OogJkd7YE3WHITNig1w",
+        "pano:QYchgSUlGBZokPLsr0_3rg",
+        "pano:q-YMSjteqsi1jad2_Ah9uA",
+        "pano:rAPQojwvfT9dPV0vRgpvtA",
+        "pano:S35UKlmw59ez0eSAErVk8Q",
+        "pano:FgXF3kOIfYxu9n2WeolB_Q",
+        "pano:_7Rj_vkVg8KhGODkSPhEDA",
+        "pano:CwDkDgsNs1H5O9Tkc2q9sQ",
+        "pano:ET71pQ_2TglubtJitUPiaA",
+        "pano:FVnJPQwUbydsBivDsw4zlg",
+        "pano:FXjO5f32CTx3KDXrLQTpow",
+        "pano:gCvofQSDDVfVpLSxcl2MjQ",
+        "pano:gvCjHfcV6Rq3HTJCWplzBQ",
+        "pano:hjlAXY_GITm2H08ExhheBg",
+        "pano:HTEEDHQuifIQ3DV5N6EPYw",
+        "pano:j32UMO8HriR58-1JiPxtLA",
+        "pano:JalI4DTv-eGKUvn_KvBzdA",
+        "pano:NPkVSZUxZYQ7J-whM8NxgA",
+        "pano:P1RXu6xtCR8t3VdtFjxYgQ",
+        "pano:PlL0Kn8AWWVKCGnE1DHJDw",
+        "pano:riVqLwlk9tEMo29IFDcQTg",
+        "pano:XitqtyYKgvENxKRQvSyAFA",
+        "pano:2F5AkiIqIqWk8ElHsLy4Dg",
+        "pano:2TVBEOMnJG1gCPLc5ercSg",
+        "pano:6MT5broIVmXBVgp816RZKw",
+        "pano:7u0ih0g0NKYlxXK_RIe4Tw",
+        "pano:8i1xxyYqCvRgYraTesgW6w",
+        "pano:c5K4aUbXFJlQ2vbQvxdYsw",
+        "pano:leIquhH6e8fvP3EMDJiWtA",
+        "pano:qj57WhbPStTAYTxowmdBrA",
+        "pano:qPl3RsFogt3uynGl_CIyGQ",
+        "pano:rQ6Rwnkd1umx7rt5QtiuRQ",
+        "pano:vgQl5YOpyKAMMHZ_UzbNSw",
+        "pano:vHksDfzmlGPJBTAggECGEQ",
+        "pano:YVjjbZJcL5F-wKw8CIvrKA",
+        "pano:Ixe4QPSE2WfTaSnTcrcmpQ",
+        "pano:-J6H8ziX5GvFaqJminfMaQ",
+        "pano:jyXaGnaRIoS1RMMT_Yuq1A",
+        "pano:Tz2pv5YfGGBnHS1369mXKg",
+        "pano:-lAUBzULkkbvRn5SeDa5pA",
+        "pano:vfy4fRhHo7TKN34piSeHUQ",
+        "pano:4MEXeqOob-ZinkUeVoj2sg",
+        "pano:ovy_B6Yhs-SONdXDoAN_Vw",
+        "pano:X8x7YzcqBKiISC3-ndLIPg",
+        "pano:BZg1tuklzJSr-RMcJUA-eg",
+        "pano:Pt4dHrd2kfo53ZzN1OQOMA",
+        "pano:qKld_NrLpfhzBGuE2zZafg",
+        "pano:HAROrDocZ1WnBtyAEokXYA",
+        "pano:rlUbRhjM8j3RjBUwW5PtrA",
+        "pano:C1h5fJeyRwlg017J1cBg4Q",
+        "pano:iqhekRpubP_HJ2fYquSrgQ",
+        "pano:ktUWiITbIOnoWcVv6S3mag",
+        "pano:t6tcXhItMQ3PVuV1HbtQlQ",
+        "pano:BwY4559fA5_wD9HMMuS6vQ",
+        "pano:0ukNHsyFNvzhk_kCAXwskw",
+        "pano:KIiBzO06LKSn_hf7axepnQ",
+        "pano:G7UFtBYMosyV0aVtaP7few",
+        "pano:28BrIxMvKk4jYClMsqQPnQ",
+        "pano:cuzZaP7AVnH7uRfJ7HvhgQ",
+        "pano:tBEyxa14uE0MetnOzqZfhg",
+        "pano:Ewvcz4U11RfTpSlujNNgog",
+        "pano:wEHsrL5Chq13s6DHhMZdhQ",
+        "pano:7XMNxgzN2vJM2PZkG7FZFw",
+        "pano:uUz3z2Iy8nX9S2NJrcm1jw",
+        "pano:XhrD1X3lJ0e-KUXqmplRKw",
+        "pano:IiG22-rVf_F3LwhZejI-rg",
+        "pano:xiB_hcwDNM4MQm0oIg2kYA",
+        "pano:uZLAh2E60zXWlzQDaldM7A",
+        "pano:j51WBPUb6373gVXhZoE6jg",
+        "pano:Ib5qlnDkFkDRZmFfPtIn8Q",
+        "pano:CYmWVIic_qbzp6n7xVn-0Q",
+        "pano:oXgJjGrNOuKGE28ke3WlTQ",
+        "pano:Ia1F7N3cBfJB73QmkQs0wA",
+        "pano:rBctaZJZQZTJ_2uPyOSmDg",
+        "pano:XnFjoDbpcqUOzJvjX9NeCw",
+        "pano:Ovx90fUZibVOSnaQ93mrgg",
+        "pano:hYNMsMg_9DSqhbmkPFIg-A",
+        "pano:0wfAO2NSrxA33yjMddEOCg",
+        "pano:ujVq8CjmiB-EKFSJ1X-D5Q",
+        "pano:4OO9If4q6UdNGb31A4Fy0A",
+        "pano:5InlscSjhxHMr4afQZDbbg",
+        "pano:hBHUvf4I93qQgQkMXgXPPg",
+        "pano:YBBBCfGWgWgi8ar00E38qQ",
+        "pano:ZtpSey18N9KgsUWz6RZDCA",
+        "pano:5J2Ce8M8I1zXSJSp-7RHMw",
+        "pano:kHx-6X3q3guiUbuG7mmg0A",
+        "pano:vGIABBtUnosNQLaMuModQw",
+        "pano:1b6BEpVpswBpv8dvmz040A",
+        "pano:q8pHvi3hLPoicTVqMeJBaQ",
+        "pano:PQOXxLU3mNKQL2lVDr2q0Q",
+        "pano:GQQOnbDsQbenf46VCc10fA",
+        "pano:cCassHdUJ7YgTMMWdtr60w",
+        "pano:LiccwgijpeGHwWPIQIsMJg",
+        "pano:XBvfe2Ysj0f9WQRk8x2Aig",
+        "pano:-71zRP1S2l9q3rW4Z5DA3g",
+        "pano:Gy7-Y3b21f8nMJdV48sdSg",
+        "pano:jJ18lk2rkCY854jdzo1lvA",
+        "pano:dyVVUmJ0twKSkJcwYVtQGw",
+        "pano:t8KwYShnWgwkvRTTgKZrLA",
+        "pano:JweiglP8-sk3BvFFZeSCTw",
+        "pano:nSJb5ZVRDI4eCseTSSrUzQ",
+        "pano:gWzHHKSS7_DQzGTB3pBF5Q",
+        "pano:KQLVNGJoD-7Ip0ieGj5gXg",
+        "pano:7nSR7y5eKpvtuv4ravqbnA",
+        "pano:c8PA8F9fkqvT1F1K_WqDyQ",
+        "pano:eL7aoPVu_DxwZiaxjpVppQ",
+        "pano:ipJgBkrOxxfJfdEaPhFC8g",
+        "pano:osJEOlkGoK8TYTD5UQK-pw",
+        "pano:rLYYY4-uRSnApD7qhYNkQw",
+        "pano:xSGIsRIVzfbHWix3ybYA8Q",
+        "pano:8daRxBtVrlsEcoHc9FTsow"
+      ]
+    }
+  ],
+  "locations": [
+    {
+      "id": "pano:FFTVNK7y8Vw6jW1DeowpOg",
+      "lat": -12.395329,
+      "lng": 130.88414,
+      "panoId": "FFTVNK7y8Vw6jW1DeowpOg",
+      "heading": 90.6111,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Darwin Bus Stop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:gSmIAd7WzkMjS36xHnXQ_w",
+      "lat": -31.954287,
+      "lng": 115.91022,
+      "panoId": "gSmIAd7WzkMjS36xHnXQ_w",
+      "heading": 246.0295,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Western Australia Bus Stop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:LCmJjmvzrjkZeUTum91apw",
+      "lat": -34.92388,
+      "lng": 138.56702,
+      "panoId": "LCmJjmvzrjkZeUTum91apw",
+      "heading": 265.52454,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - South Australia Bus Stop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:wjmERBn78P0SoQtzf_KESA",
+      "lat": -42.879013,
+      "lng": 147.32217,
+      "panoId": "wjmERBn78P0SoQtzf_KESA",
+      "heading": 302.83588,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Tasmania Bus Stop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:51b21aNRdezzDEEqux7sYg",
+      "lat": -37.55676,
+      "lng": 143.84816,
+      "panoId": "51b21aNRdezzDEEqux7sYg",
+      "heading": 1.437058,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria Bus Stop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:2gkLsFebNtG-KeDyNzYoTw",
+      "lat": -35.32443,
+      "lng": 149.0363,
+      "panoId": "2gkLsFebNtG-KeDyNzYoTw",
+      "heading": 178.0309,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - ACT Bus Stop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:P4ZS8wayCif8MZ_xzazPMg",
+      "lat": -33.88032,
+      "lng": 151.09705,
+      "panoId": "P4ZS8wayCif8MZ_xzazPMg",
+      "heading": 100.38584,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - NSW Bus Stop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Q1sWExj5bCF_t-25dUy9Pw",
+      "lat": -31.09469,
+      "lng": 150.91682,
+      "panoId": "Q1sWExj5bCF_t-25dUy9Pw",
+      "heading": 341.40778,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - NSW Bus Stop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:0b_VdCgPfXQVLd32oEkEiQ",
+      "lat": -19.259296,
+      "lng": 146.81416,
+      "panoId": "0b_VdCgPfXQVLd32oEkEiQ",
+      "heading": 39.118362,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland Bus Stop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:z8TbcakpCyrdX_g0LH__cQ",
+      "lat": -24.121124,
+      "lng": 143.71385,
+      "panoId": "z8TbcakpCyrdX_g0LH__cQ",
+      "heading": 216,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland Bus Stop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:SniLJiC02o5f5qPXoWGD0A",
+      "lat": -27.012245,
+      "lng": 152.9857,
+      "panoId": "SniLJiC02o5f5qPXoWGD0A",
+      "heading": 75.68713,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland License Plate"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:u7YGMWmfqruXWcb9zMJU2w",
+      "lat": -27.494322,
+      "lng": 153.01178,
+      "panoId": "u7YGMWmfqruXWcb9zMJU2w",
+      "heading": 9.881648,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland License Plate"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:-0p08aIYjon-W3OJUo4trw",
+      "lat": -34.111927,
+      "lng": 151.08618,
+      "panoId": "-0p08aIYjon-W3OJUo4trw",
+      "heading": 9.729222,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Yellow License Plate"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:BoDznSJ9qxrtzzzcjjWJMw",
+      "lat": -29.684315,
+      "lng": 152.9421,
+      "panoId": "BoDznSJ9qxrtzzzcjjWJMw",
+      "heading": 306.5907,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Yellow License Plate"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:gIElJ_X6xAx_LrEPI753cA",
+      "lat": -31.638784,
+      "lng": 152.73328,
+      "panoId": "gIElJ_X6xAx_LrEPI753cA",
+      "heading": 108.310814,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Yellow License Plate"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:LPR9Q0c0B0eqd7yeRyYl5Q",
+      "lat": -32.936657,
+      "lng": 151.75717,
+      "panoId": "LPR9Q0c0B0eqd7yeRyYl5Q",
+      "heading": 218.69083,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Yellow License Plate"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:JSFNI33bVvbCglg9b10xKQ",
+      "lat": -14.461752,
+      "lng": 132.26685,
+      "panoId": "JSFNI33bVvbCglg9b10xKQ",
+      "heading": 34.785515,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - NT License Plate"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:X-3Byfvmf005aRCua1vxzw",
+      "lat": -32.045338,
+      "lng": 117.017586,
+      "panoId": "X-3Byfvmf005aRCua1vxzw",
+      "heading": 93.992004,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Western Australia License Plate"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:IufhOOWxK-3iCxorI-uI5A",
+      "lat": -37.817364,
+      "lng": 145.15062,
+      "panoId": "IufhOOWxK-3iCxorI-uI5A",
+      "heading": 266.50684,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria License Plate"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:hXGTps0frK1aTYAoPIMyGw",
+      "lat": -35.520905,
+      "lng": 139.17776,
+      "panoId": "hXGTps0frK1aTYAoPIMyGw",
+      "heading": 317.03632,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - ш-shaped poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:oLL8wUJEYunp3ivaWn7DXA",
+      "lat": -34.86387,
+      "lng": 138.59422,
+      "panoId": "oLL8wUJEYunp3ivaWn7DXA",
+      "heading": 267.02274,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - ш-shaped poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:77ggJdbW9h0RYzPWcMzteQ",
+      "lat": -32.47115,
+      "lng": 137.79109,
+      "panoId": "77ggJdbW9h0RYzPWcMzteQ",
+      "heading": 278,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Stobie pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:gB8XDbuKUX8W74k37Ak4zw",
+      "lat": -34.72925,
+      "lng": 135.84879,
+      "panoId": "gB8XDbuKUX8W74k37Ak4zw",
+      "heading": 181.76706,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Stobie pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:jgbw39B7vnmR2qSprLfGaQ",
+      "lat": -35.114338,
+      "lng": 139.25835,
+      "panoId": "jgbw39B7vnmR2qSprLfGaQ",
+      "heading": 281,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Stobie pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Ss9VpjfJWSJ-RX1q_2VOfA",
+      "lat": -36.376156,
+      "lng": 140.70155,
+      "panoId": "Ss9VpjfJWSJ-RX1q_2VOfA",
+      "heading": 0.04681766,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Stobie pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:XaYynWfcKyCb6pN8xL1sFg",
+      "lat": -31.960983,
+      "lng": 141.44765,
+      "panoId": "XaYynWfcKyCb6pN8xL1sFg",
+      "heading": 299.47964,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Stobie pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:E12l_nrTDbFqSpWJ0Htj_g",
+      "lat": -12.451496,
+      "lng": 130.9458,
+      "panoId": "E12l_nrTDbFqSpWJ0Htj_g",
+      "heading": 344.65997,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - rusty holey pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Fq36EY4m4Ttd0JFofOx3DA",
+      "lat": -14.924563,
+      "lng": 133.06747,
+      "panoId": "Fq36EY4m4Ttd0JFofOx3DA",
+      "heading": 224.18297,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - rusty holey pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:rWdLXFWSapyUDgcAlxHfdw",
+      "lat": -19.771217,
+      "lng": 134.19518,
+      "panoId": "rWdLXFWSapyUDgcAlxHfdw",
+      "heading": 357.07303,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - rusty holey pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:z_RJOcrY7QSDFvmL0xYHGQ",
+      "lat": -13.007316,
+      "lng": 131.11743,
+      "panoId": "z_RJOcrY7QSDFvmL0xYHGQ",
+      "heading": 53.97986,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - rusty holey pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:6lm44KvsjSFFrnLzfu-mDA",
+      "lat": -37.327354,
+      "lng": 144.52327,
+      "panoId": "6lm44KvsjSFFrnLzfu-mDA",
+      "heading": 187,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - concrete pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:MltlOEzkMynoLhtqOftQSg",
+      "lat": -37.758965,
+      "lng": 145.01323,
+      "panoId": "MltlOEzkMynoLhtqOftQSg",
+      "heading": 7.2341375,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - concrete pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:40Pr5cW7uGA3yB-yLvKxvA",
+      "lat": -38.203686,
+      "lng": 143.10893,
+      "panoId": "40Pr5cW7uGA3yB-yLvKxvA",
+      "heading": 7.3424206,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - upward pointing trident pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Uwboeo8gXL3HjTvXk-dY2Q",
+      "lat": -32.463116,
+      "lng": 115.91037,
+      "panoId": "Uwboeo8gXL3HjTvXk-dY2Q",
+      "heading": 0.5790936,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - upward pointing trident pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:CkxRKpuwV4PwfkeqDrayMA",
+      "lat": -27.456787,
+      "lng": 153.06247,
+      "panoId": "CkxRKpuwV4PwfkeqDrayMA",
+      "heading": 9.800484,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:ejmRpzzXPD8zLwjGa31m0w",
+      "lat": -26.480433,
+      "lng": 152.95128,
+      "panoId": "ejmRpzzXPD8zLwjGa31m0w",
+      "heading": 178.28992,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:NK3IZY4oUY098jdvH6e3oQ",
+      "lat": -27.490927,
+      "lng": 152.97583,
+      "panoId": "NK3IZY4oUY098jdvH6e3oQ",
+      "heading": 193.03171,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:QYl01lm6luZTLtue8klMlg",
+      "lat": -27.67914,
+      "lng": 153.30777,
+      "panoId": "QYl01lm6luZTLtue8klMlg",
+      "heading": 191,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:ZpGP5VCUobTFCMNlkrXaZA",
+      "lat": -27.07829,
+      "lng": 152.95084,
+      "panoId": "ZpGP5VCUobTFCMNlkrXaZA",
+      "heading": 154.94505,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:3bHn8dCgUp90rExR7tKu9Q",
+      "lat": -36.80495,
+      "lng": 146.42892,
+      "panoId": "3bHn8dCgUp90rExR7tKu9Q",
+      "heading": 39.57946,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:B0jrlbEaSj8xlN8PJjWvPA",
+      "lat": -38.398396,
+      "lng": 145.0829,
+      "panoId": "B0jrlbEaSj8xlN8PJjWvPA",
+      "heading": 213.73404,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:HHZMVnubvPoLnn2EcTmeqg",
+      "lat": -38.576538,
+      "lng": 146.01402,
+      "panoId": "HHZMVnubvPoLnn2EcTmeqg",
+      "heading": 182,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:JeWbKce9jP1kLNRiVp8pAA",
+      "lat": -37.20175,
+      "lng": 145.04854,
+      "panoId": "JeWbKce9jP1kLNRiVp8pAA",
+      "heading": 144.80812,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:MU72Wf3nPciWTDTHTHb5Kg",
+      "lat": -36.805492,
+      "lng": 146.42838,
+      "panoId": "MU72Wf3nPciWTDTHTHb5Kg",
+      "heading": 218.86905,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:N47WohKJ3GqjZCIMghuKww",
+      "lat": -38.412823,
+      "lng": 145.42722,
+      "panoId": "N47WohKJ3GqjZCIMghuKww",
+      "heading": 134.27104,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:sUA12boPjQysTRA7auVagw",
+      "lat": -36.5469,
+      "lng": 145.96968,
+      "panoId": "sUA12boPjQysTRA7auVagw",
+      "heading": 189.31609,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:wtJcZdrn3jIjZu0JMDsjmQ",
+      "lat": -36.98015,
+      "lng": 143.95537,
+      "panoId": "wtJcZdrn3jIjZu0JMDsjmQ",
+      "heading": 61.98076,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Victoria poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:LEK_Gz3m5-v4nTNm8V6NxA",
+      "lat": -41.383835,
+      "lng": 147.1247,
+      "panoId": "LEK_Gz3m5-v4nTNm8V6NxA",
+      "heading": 235.26077,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - 90° poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:TKTFEDg58EBPFes0xiZyeQ",
+      "lat": -42.95464,
+      "lng": 147.20688,
+      "panoId": "TKTFEDg58EBPFes0xiZyeQ",
+      "heading": 330.11325,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - 90° poletop"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:LB2uaJ8kwp_MFzkbDUUe1g",
+      "lat": -27.6186,
+      "lng": 152.7526,
+      "panoId": "LB2uaJ8kwp_MFzkbDUUe1g",
+      "heading": 301.3543,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland sticker"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:maalddQhDnhaZeqEKcLDUg",
+      "lat": -23.350197,
+      "lng": 150.54124,
+      "panoId": "maalddQhDnhaZeqEKcLDUg",
+      "heading": 275.08005,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland sticker"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:RqFBnaoTp_4ijGFw2zzhiw",
+      "lat": -27.483131,
+      "lng": 153.00923,
+      "panoId": "RqFBnaoTp_4ijGFw2zzhiw",
+      "heading": 99.74105,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Queensland sticker"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:a5AadctJ1lWbn0pkr9S3BQ",
+      "lat": -27.609064,
+      "lng": 152.86543,
+      "panoId": "a5AadctJ1lWbn0pkr9S3BQ",
+      "heading": 188.91205,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Black pole marking"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Ku1GHCqoNZRRKzp2uV9wEw",
+      "lat": -27.483187,
+      "lng": 153.00964,
+      "panoId": "Ku1GHCqoNZRRKzp2uV9wEw",
+      "heading": 99.857895,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Black pole marking"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:VDKngGgqyqHt4bT_G84AQg",
+      "lat": -27.867281,
+      "lng": 152.4909,
+      "panoId": "VDKngGgqyqHt4bT_G84AQg",
+      "heading": 187.92612,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Black pole marking"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:1AtabqenmNkGge-QTJeFGw",
+      "lat": -41.207172,
+      "lng": 146.44177,
+      "panoId": "1AtabqenmNkGge-QTJeFGw",
+      "heading": 281,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - olive-green possum guard"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Fu74E4sGi5WGBUDNZeKPYw",
+      "lat": -42.867607,
+      "lng": 147.31445,
+      "panoId": "Fu74E4sGi5WGBUDNZeKPYw",
+      "heading": 334.96704,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - olive-green possum guard"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:oj6rpNDO7Bz7sFIsaCK7Gg",
+      "lat": -40.212715,
+      "lng": 148.26654,
+      "panoId": "oj6rpNDO7Bz7sFIsaCK7Gg",
+      "heading": 320,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - olive-green possum guard"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Ppo_WLzez421dg2Ub7_wYA",
+      "lat": -41.945953,
+      "lng": 148.20563,
+      "panoId": "Ppo_WLzez421dg2Ub7_wYA",
+      "heading": 248.38728,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - olive-green possum guard"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:X2Omn0tBJoftnEKCz85RRg",
+      "lat": -41.37443,
+      "lng": 146.39848,
+      "panoId": "X2Omn0tBJoftnEKCz85RRg",
+      "heading": 202.7306,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - olive-green possum guard"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:93u9XlW5jT0WEtpOwjbXEA",
+      "lat": -31.56713,
+      "lng": 117.978096,
+      "panoId": "93u9XlW5jT0WEtpOwjbXEA",
+      "heading": 181.50125,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - green pole bottom"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:p2SZwoY6gNB6uMYtyzzywg",
+      "lat": -31.935673,
+      "lng": 115.8645,
+      "panoId": "p2SZwoY6gNB6uMYtyzzywg",
+      "heading": 273.83322,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - green pole bottom"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:xaY67gZv9lsAYvKVGcHn5Q",
+      "lat": -31.93648,
+      "lng": 115.86247,
+      "panoId": "xaY67gZv9lsAYvKVGcHn5Q",
+      "heading": 270.80225,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - green pole bottom"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:9338xcPgAncEOaXCMaOUJQ",
+      "lat": -23.961172,
+      "lng": 151.15,
+      "panoId": "9338xcPgAncEOaXCMaOUJQ",
+      "heading": 159.13199,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with short reflector"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:dA9TwFUsKYj51aiDGJWlAA",
+      "lat": -25.192406,
+      "lng": 151.61943,
+      "panoId": "dA9TwFUsKYj51aiDGJWlAA",
+      "heading": 59.808666,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with short reflector"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:GxHINVMgWshlzkmAOj2iPA",
+      "lat": -35.712635,
+      "lng": 140.80183,
+      "panoId": "GxHINVMgWshlzkmAOj2iPA",
+      "heading": 178.73346,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with short reflector"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:-I2G29uQXsj9z1xHEcwd6g",
+      "lat": -25.530806,
+      "lng": 148.77112,
+      "panoId": "-I2G29uQXsj9z1xHEcwd6g",
+      "heading": 64.32684,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with short reflector"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:IAjGCkb-kcWN5eyS5KsYrA",
+      "lat": -25.969707,
+      "lng": 153.07582,
+      "panoId": "IAjGCkb-kcWN5eyS5KsYrA",
+      "heading": 16.158394,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with short reflector"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:j0T4aVMlA91ueL9N9AmTrg",
+      "lat": -32.281586,
+      "lng": 138.49513,
+      "panoId": "j0T4aVMlA91ueL9N9AmTrg",
+      "heading": 176.91438,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with short reflector"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:KKBuhK5UnyyGIfZlpyXS4g",
+      "lat": -19.32466,
+      "lng": 146.70651,
+      "panoId": "KKBuhK5UnyyGIfZlpyXS4g",
+      "heading": 288.08963,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with short reflector"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:mU2nLb4qt9XDNHXI2lw-Ew",
+      "lat": -33.638733,
+      "lng": 138.19029,
+      "panoId": "mU2nLb4qt9XDNHXI2lw-Ew",
+      "heading": 81,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with short reflector"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:oibO8ODKOqcU0xqIbnAt0A",
+      "lat": -33.867905,
+      "lng": 138.59993,
+      "panoId": "oibO8ODKOqcU0xqIbnAt0A",
+      "heading": 49.476837,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with short reflector"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:QYdZdzZSEeRcDwu8Gc6Xag",
+      "lat": -28.54173,
+      "lng": 150.88507,
+      "panoId": "QYdZdzZSEeRcDwu8Gc6Xag",
+      "heading": 40,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with short reflector"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:rJ5UhYAlZUIxtolrvixopQ",
+      "lat": -25.667326,
+      "lng": 140.06215,
+      "panoId": "rJ5UhYAlZUIxtolrvixopQ",
+      "heading": 261.0927,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with short reflector"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:SYHK7vf0EukagE7eANNM2g",
+      "lat": -27.808912,
+      "lng": 151.36246,
+      "panoId": "SYHK7vf0EukagE7eANNM2g",
+      "heading": 226.3602,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with short reflector"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:57T01or11Gq-SBVBonyOAw",
+      "lat": -33.77514,
+      "lng": 117.14084,
+      "panoId": "57T01or11Gq-SBVBonyOAw",
+      "heading": 341.5327,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with brown bottom"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:PrpRwIOMblx3c9IhI6WZDA",
+      "lat": -33.916847,
+      "lng": 117.65155,
+      "panoId": "PrpRwIOMblx3c9IhI6WZDA",
+      "heading": 12.944009,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - bollard with brown bottom"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:gyz-P343GocXEWfQrky9Wg",
+      "lat": -31.965126,
+      "lng": 116.53373,
+      "panoId": "gyz-P343GocXEWfQrky9Wg",
+      "heading": 125.51,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - black-white striped bollard"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:pnrkmwNLt18QDzKl4IVICQ",
+      "lat": -32.90111,
+      "lng": 116.70831,
+      "panoId": "pnrkmwNLt18QDzKl4IVICQ",
+      "heading": 317.85025,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - black-white striped bollard"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:tAA1JO32gGgnI-q_icomsg",
+      "lat": -22.933926,
+      "lng": 114.74294,
+      "panoId": "tAA1JO32gGgnI-q_icomsg",
+      "heading": 240.58908,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - black-white striped bollard"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:rYjs9Txbywc6GeGIXcBvag",
+      "lat": -25.82559,
+      "lng": 151.85612,
+      "panoId": "rYjs9Txbywc6GeGIXcBvag",
+      "heading": 4.331439,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - black-yellow striped bollard"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:43i1mZDqH4TETRqCvkoaqw",
+      "lat": -33.19543,
+      "lng": 118.035034,
+      "panoId": "43i1mZDqH4TETRqCvkoaqw",
+      "heading": 251.5806,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - yellow signpost"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:8WCXdZXJ4LzsHg60QSNUhA",
+      "lat": -32.048946,
+      "lng": 115.7477,
+      "panoId": "8WCXdZXJ4LzsHg60QSNUhA",
+      "heading": 219,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - yellow signpost"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:c7JBmi3cAx-RHCfoMNKqLA",
+      "lat": -31.936064,
+      "lng": 115.86452,
+      "panoId": "c7JBmi3cAx-RHCfoMNKqLA",
+      "heading": 182.22668,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - yellow signpost"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:jhYgcGxs-c_ZLoU2yV0Bug",
+      "lat": -32.032795,
+      "lng": 115.97302,
+      "panoId": "jhYgcGxs-c_ZLoU2yV0Bug",
+      "heading": 47.277714,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - yellow signpost"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:NSG7-ZpKlok_KCtOlb9N3g",
+      "lat": -28.777048,
+      "lng": 114.61336,
+      "panoId": "NSG7-ZpKlok_KCtOlb9N3g",
+      "heading": 60.391483,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - yellow signpost"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:uKD4PHrST2cn72bex9f0gA",
+      "lat": -30.831789,
+      "lng": 117.481514,
+      "panoId": "uKD4PHrST2cn72bex9f0gA",
+      "heading": 175.2755,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - yellow signpost"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:5ZK3tL2C6SLmjfWRiTkY3A",
+      "lat": -34.695415,
+      "lng": 138.58089,
+      "panoId": "5ZK3tL2C6SLmjfWRiTkY3A",
+      "heading": 241.7103,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - flat signpost"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:goK4gWzsCM13jqQUpT1pig",
+      "lat": -34.692917,
+      "lng": 135.85487,
+      "panoId": "goK4gWzsCM13jqQUpT1pig",
+      "heading": 187.63214,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - flat signpost"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:iU4t2KrHPUad3voQD9VwUw",
+      "lat": -34.924187,
+      "lng": 138.55916,
+      "panoId": "iU4t2KrHPUad3voQD9VwUw",
+      "heading": 266.63855,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - flat signpost"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:s1s77eD6FP-ibL63gYi3_Q",
+      "lat": -33.471687,
+      "lng": 136.95929,
+      "panoId": "s1s77eD6FP-ibL63gYi3_Q",
+      "heading": 209.84634,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - flat signpost"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Az0LF2xgyvIW_4YrxBmviw",
+      "lat": -27.479378,
+      "lng": 153.00754,
+      "panoId": "Az0LF2xgyvIW_4YrxBmviw",
+      "heading": 189.24258,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - fluoresecent sign border"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:j73osefhD9ladmkr-amP5g",
+      "lat": -33.424946,
+      "lng": 151.34216,
+      "panoId": "j73osefhD9ladmkr-amP5g",
+      "heading": 281,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - red \"No Stopping\" sign"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:znp54kkX4ZZhwZ-guTp3VQ",
+      "lat": -33.891384,
+      "lng": 151.21454,
+      "panoId": "znp54kkX4ZZhwZ-guTp3VQ",
+      "heading": 192.57535,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - red \"No Stopping\" sign"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:tb7wXPjAyMsG9y6jiaC3jQ",
+      "lat": -35.281025,
+      "lng": 149.13179,
+      "panoId": "tb7wXPjAyMsG9y6jiaC3jQ",
+      "heading": 243.8187,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - No-Stopping-sign with text"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:2PJ_BdtlWXX99BpgdfrfwA",
+      "lat": -42.738228,
+      "lng": 147.43056,
+      "panoId": "2PJ_BdtlWXX99BpgdfrfwA",
+      "heading": 248.40862,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - white directional sign"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:KeduvZs8HXQvDd-4t3Bh5Q",
+      "lat": -36.615303,
+      "lng": 145.24037,
+      "panoId": "KeduvZs8HXQvDd-4t3Bh5Q",
+      "heading": 267.96274,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - C-Road"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Ps_FwTm1BdPPVw2rRDFeNQ",
+      "lat": -34.91975,
+      "lng": 138.53844,
+      "panoId": "Ps_FwTm1BdPPVw2rRDFeNQ",
+      "heading": 176.42189,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - 25 school zone"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:MPok75T2QCsc9m4buiVPDQ",
+      "lat": -15.637393,
+      "lng": 130.46606,
+      "panoId": "MPok75T2QCsc9m4buiVPDQ",
+      "heading": 325.8946,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - 130 km/h speed limit"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:uJBgYLQaobthyk7pk8D5ug",
+      "lat": -25.996046,
+      "lng": 133.19817,
+      "panoId": "uJBgYLQaobthyk7pk8D5ug",
+      "heading": 23.99107,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - 130 km/h speed limit"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:RmF-M4nOI9cz5mAbJPnSOg",
+      "lat": -33.857334,
+      "lng": 151.01086,
+      "panoId": "RmF-M4nOI9cz5mAbJPnSOg",
+      "heading": 8.6025505,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - thin \"Keep Left\" sign"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:wdGhtZHK61aEQxUlzA5-7g",
+      "lat": -31.94918,
+      "lng": 115.86482,
+      "panoId": "wdGhtZHK61aEQxUlzA5-7g",
+      "heading": 297.90414,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - traffic light with white outline"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:j6JG2luxEm4XyU_pyAya-g",
+      "lat": -34.77494,
+      "lng": 138.66165,
+      "panoId": "j6JG2luxEm4XyU_pyAya-g",
+      "heading": 37.40232,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - traffic light with no outline"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:4GiIT4dwelM15_qRFrRvdw",
+      "lat": -31.395006,
+      "lng": 116.37518,
+      "panoId": "4GiIT4dwelM15_qRFrRvdw",
+      "heading": 37.96483,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - green property marker"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:fwh2ITxFRqKtAUya_mVcJw",
+      "lat": -32.50311,
+      "lng": 115.92906,
+      "panoId": "fwh2ITxFRqKtAUya_mVcJw",
+      "heading": 335.8699,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - green property marker"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:01yOsjCWivEwyTLynY8jUw",
+      "lat": -35.12886,
+      "lng": 139.08894,
+      "panoId": "01yOsjCWivEwyTLynY8jUw",
+      "heading": 276.27597,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - white property marker"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:7mZiJ9W5bRFwfB-TjqdSUg",
+      "lat": -32.449116,
+      "lng": 134.58913,
+      "panoId": "7mZiJ9W5bRFwfB-TjqdSUg",
+      "heading": 303.2535,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - white property marker"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:jDtk6OKSLTuOwj-b5M8tTA",
+      "lat": -35.76353,
+      "lng": 137.21492,
+      "panoId": "jDtk6OKSLTuOwj-b5M8tTA",
+      "heading": 181.6474,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - white property marker"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:uL9nXi9-Fma7hXVZMN5CZA",
+      "lat": -32.198803,
+      "lng": 138.16373,
+      "panoId": "uL9nXi9-Fma7hXVZMN5CZA",
+      "heading": 225.62175,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Roadline Gap with no Reflector"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:DED3FSGSNDE86GOaMH2Pbg",
+      "lat": -35.440674,
+      "lng": 148.95673,
+      "panoId": "DED3FSGSNDE86GOaMH2Pbg",
+      "heading": 140.86691,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Roadline gap with Reflector"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:GF9X2K-KiZUxiO5i060KhQ",
+      "lat": -35.461586,
+      "lng": 149.0327,
+      "panoId": "GF9X2K-KiZUxiO5i060KhQ",
+      "heading": 259.7079,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Roadline gap with Reflector"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:mW6OogJkd7YE3WHITNig1w",
+      "lat": -34.881775,
+      "lng": 148.22879,
+      "panoId": "mW6OogJkd7YE3WHITNig1w",
+      "heading": 174,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - NSW guardrail ending"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:QYchgSUlGBZokPLsr0_3rg",
+      "lat": -34.371895,
+      "lng": 150.49146,
+      "panoId": "QYchgSUlGBZokPLsr0_3rg",
+      "heading": 31.216972,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - NSW guardrail ending"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:q-YMSjteqsi1jad2_Ah9uA",
+      "lat": -29.817944,
+      "lng": 152.80289,
+      "panoId": "q-YMSjteqsi1jad2_Ah9uA",
+      "heading": 85.678635,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - NSW guardrail ending"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:rAPQojwvfT9dPV0vRgpvtA",
+      "lat": -35.478264,
+      "lng": 149.91768,
+      "panoId": "rAPQojwvfT9dPV0vRgpvtA",
+      "heading": 96.909805,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - NSW guardrail ending"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:S35UKlmw59ez0eSAErVk8Q",
+      "lat": -37.74124,
+      "lng": 144.98953,
+      "panoId": "S35UKlmw59ez0eSAErVk8Q",
+      "heading": 277.7825,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - hydrant with blue circle"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:FgXF3kOIfYxu9n2WeolB_Q",
+      "lat": -37.760117,
+      "lng": 144.95702,
+      "panoId": "FgXF3kOIfYxu9n2WeolB_Q",
+      "heading": 278.78397,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - hydrant with red top"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:_7Rj_vkVg8KhGODkSPhEDA",
+      "lat": -33.708385,
+      "lng": 121.418785,
+      "panoId": "_7Rj_vkVg8KhGODkSPhEDA",
+      "heading": 257,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:CwDkDgsNs1H5O9Tkc2q9sQ",
+      "lat": -32.187195,
+      "lng": 121.338135,
+      "panoId": "CwDkDgsNs1H5O9Tkc2q9sQ",
+      "heading": 271.72,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:ET71pQ_2TglubtJitUPiaA",
+      "lat": -28.948397,
+      "lng": 115.86791,
+      "panoId": "ET71pQ_2TglubtJitUPiaA",
+      "heading": 325.87503,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:FVnJPQwUbydsBivDsw4zlg",
+      "lat": -32.61432,
+      "lng": 117.94382,
+      "panoId": "FVnJPQwUbydsBivDsw4zlg",
+      "heading": 58.443283,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:FXjO5f32CTx3KDXrLQTpow",
+      "lat": -27.386065,
+      "lng": 115.579796,
+      "panoId": "FXjO5f32CTx3KDXrLQTpow",
+      "heading": 257,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:gCvofQSDDVfVpLSxcl2MjQ",
+      "lat": -28.029999,
+      "lng": 114.19486,
+      "panoId": "gCvofQSDDVfVpLSxcl2MjQ",
+      "heading": 190,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:gvCjHfcV6Rq3HTJCWplzBQ",
+      "lat": -28.827639,
+      "lng": 114.89776,
+      "panoId": "gvCjHfcV6Rq3HTJCWplzBQ",
+      "heading": 49.916122,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:hjlAXY_GITm2H08ExhheBg",
+      "lat": -33.04305,
+      "lng": 115.87697,
+      "panoId": "hjlAXY_GITm2H08ExhheBg",
+      "heading": 321.6417,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:HTEEDHQuifIQ3DV5N6EPYw",
+      "lat": -32.12749,
+      "lng": 118.05222,
+      "panoId": "HTEEDHQuifIQ3DV5N6EPYw",
+      "heading": 90,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:j32UMO8HriR58-1JiPxtLA",
+      "lat": -33.386955,
+      "lng": 116.62523,
+      "panoId": "j32UMO8HriR58-1JiPxtLA",
+      "heading": 7,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:JalI4DTv-eGKUvn_KvBzdA",
+      "lat": -26.97811,
+      "lng": 114.65559,
+      "panoId": "JalI4DTv-eGKUvn_KvBzdA",
+      "heading": 10.783988,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:NPkVSZUxZYQ7J-whM8NxgA",
+      "lat": -30.633156,
+      "lng": 117.9115,
+      "panoId": "NPkVSZUxZYQ7J-whM8NxgA",
+      "heading": 178.58653,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:P1RXu6xtCR8t3VdtFjxYgQ",
+      "lat": -31.127502,
+      "lng": 117.21788,
+      "panoId": "P1RXu6xtCR8t3VdtFjxYgQ",
+      "heading": 66.43337,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:PlL0Kn8AWWVKCGnE1DHJDw",
+      "lat": -31.569494,
+      "lng": 116.10615,
+      "panoId": "PlL0Kn8AWWVKCGnE1DHJDw",
+      "heading": 39,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:riVqLwlk9tEMo29IFDcQTg",
+      "lat": -21.324526,
+      "lng": 120.82943,
+      "panoId": "riVqLwlk9tEMo29IFDcQTg",
+      "heading": 91,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:XitqtyYKgvENxKRQvSyAFA",
+      "lat": -27.228382,
+      "lng": 117.76325,
+      "panoId": "XitqtyYKgvENxKRQvSyAFA",
+      "heading": 309,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Reddish-Orange Soil"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:2F5AkiIqIqWk8ElHsLy4Dg",
+      "lat": -36.164577,
+      "lng": 144.44135,
+      "panoId": "2F5AkiIqIqWk8ElHsLy4Dg",
+      "heading": 0.001,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Green & Golden Fields"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:2TVBEOMnJG1gCPLc5ercSg",
+      "lat": -38.034798,
+      "lng": 143.62325,
+      "panoId": "2TVBEOMnJG1gCPLc5ercSg",
+      "heading": 141,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Green & Golden Fields"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:6MT5broIVmXBVgp816RZKw",
+      "lat": -35.8861,
+      "lng": 142.69762,
+      "panoId": "6MT5broIVmXBVgp816RZKw",
+      "heading": 179.25912,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Green & Golden Fields"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:7u0ih0g0NKYlxXK_RIe4Tw",
+      "lat": -35.32195,
+      "lng": 140.52425,
+      "panoId": "7u0ih0g0NKYlxXK_RIe4Tw",
+      "heading": 351.50552,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Green & Golden Fields"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:8i1xxyYqCvRgYraTesgW6w",
+      "lat": -34.428318,
+      "lng": 140.76434,
+      "panoId": "8i1xxyYqCvRgYraTesgW6w",
+      "heading": 185,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Green & Golden Fields"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:c5K4aUbXFJlQ2vbQvxdYsw",
+      "lat": -36.10622,
+      "lng": 141.56259,
+      "panoId": "c5K4aUbXFJlQ2vbQvxdYsw",
+      "heading": 125.59428,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Green & Golden Fields"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:leIquhH6e8fvP3EMDJiWtA",
+      "lat": -37.12625,
+      "lng": 140.81084,
+      "panoId": "leIquhH6e8fvP3EMDJiWtA",
+      "heading": 317.21,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Green & Golden Fields"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:qj57WhbPStTAYTxowmdBrA",
+      "lat": -37.24677,
+      "lng": 142.71104,
+      "panoId": "qj57WhbPStTAYTxowmdBrA",
+      "heading": 302.16592,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Green & Golden Fields"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:qPl3RsFogt3uynGl_CIyGQ",
+      "lat": -35.570446,
+      "lng": 139.97856,
+      "panoId": "qPl3RsFogt3uynGl_CIyGQ",
+      "heading": 85.0794,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Green & Golden Fields"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:rQ6Rwnkd1umx7rt5QtiuRQ",
+      "lat": -37.476738,
+      "lng": 141.91211,
+      "panoId": "rQ6Rwnkd1umx7rt5QtiuRQ",
+      "heading": 233.91924,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Green & Golden Fields"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:vgQl5YOpyKAMMHZ_UzbNSw",
+      "lat": -35.88107,
+      "lng": 142.02914,
+      "panoId": "vgQl5YOpyKAMMHZ_UzbNSw",
+      "heading": 90,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Green & Golden Fields"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:vHksDfzmlGPJBTAggECGEQ",
+      "lat": -34.86494,
+      "lng": 139.19484,
+      "panoId": "vHksDfzmlGPJBTAggECGEQ",
+      "heading": 6.805544,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Green & Golden Fields"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:YVjjbZJcL5F-wKw8CIvrKA",
+      "lat": -33.541313,
+      "lng": 138.78123,
+      "panoId": "YVjjbZJcL5F-wKw8CIvrKA",
+      "heading": 78,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Green & Golden Fields"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Ixe4QPSE2WfTaSnTcrcmpQ",
+      "lat": -35.77554,
+      "lng": 137.31894,
+      "panoId": "Ixe4QPSE2WfTaSnTcrcmpQ",
+      "heading": 258.93695,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Kangaroo Island Landscape"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:-J6H8ziX5GvFaqJminfMaQ",
+      "lat": -35.782543,
+      "lng": 137.48495,
+      "panoId": "-J6H8ziX5GvFaqJminfMaQ",
+      "heading": 207,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Kangaroo Island Landscape"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:jyXaGnaRIoS1RMMT_Yuq1A",
+      "lat": -15.622373,
+      "lng": 130.8937,
+      "panoId": "jyXaGnaRIoS1RMMT_Yuq1A",
+      "heading": 265,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Termite Hills"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Tz2pv5YfGGBnHS1369mXKg",
+      "lat": -14.768967,
+      "lng": 132.86963,
+      "panoId": "Tz2pv5YfGGBnHS1369mXKg",
+      "heading": 299.62714,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Termite Hills"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:-lAUBzULkkbvRn5SeDa5pA",
+      "lat": -35.12879,
+      "lng": 150.75409,
+      "panoId": "-lAUBzULkkbvRn5SeDa5pA",
+      "heading": 174,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Coverage Meta - Jervis Bay Meta"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:vfy4fRhHo7TKN34piSeHUQ",
+      "lat": -32.41398,
+      "lng": 116.28573,
+      "panoId": "vfy4fRhHo7TKN34piSeHUQ",
+      "heading": 317.08188,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Vegetation - Brush Plant"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:4MEXeqOob-ZinkUeVoj2sg",
+      "lat": -13.532205,
+      "lng": 130.87181,
+      "panoId": "4MEXeqOob-ZinkUeVoj2sg",
+      "heading": 180,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Darwin Landscape"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:ovy_B6Yhs-SONdXDoAN_Vw",
+      "lat": -13.075113,
+      "lng": 131.10472,
+      "panoId": "ovy_B6Yhs-SONdXDoAN_Vw",
+      "heading": 180.43732,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Darwin Landscape"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:X8x7YzcqBKiISC3-ndLIPg",
+      "lat": -13.6480665,
+      "lng": 130.74008,
+      "panoId": "X8x7YzcqBKiISC3-ndLIPg",
+      "heading": 176,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Darwin Landscape"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:BZg1tuklzJSr-RMcJUA-eg",
+      "lat": -32.42279,
+      "lng": 134.0952,
+      "panoId": "BZg1tuklzJSr-RMcJUA-eg",
+      "heading": 290.24658,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Western South Australia Landscape"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Pt4dHrd2kfo53ZzN1OQOMA",
+      "lat": -35.166126,
+      "lng": 141.74419,
+      "panoId": "Pt4dHrd2kfo53ZzN1OQOMA",
+      "heading": 88.05829,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Eastern South Australia Landscape"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:qKld_NrLpfhzBGuE2zZafg",
+      "lat": -37.093575,
+      "lng": 142.60518,
+      "panoId": "qKld_NrLpfhzBGuE2zZafg",
+      "heading": 66,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Eastern South Australia Landscape"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:HAROrDocZ1WnBtyAEokXYA",
+      "lat": -16.944956,
+      "lng": 145.88745,
+      "panoId": "HAROrDocZ1WnBtyAEokXYA",
+      "heading": 333.11932,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Northern Queensland Landscape"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:rlUbRhjM8j3RjBUwW5PtrA",
+      "lat": -17.297522,
+      "lng": 145.9281,
+      "panoId": "rlUbRhjM8j3RjBUwW5PtrA",
+      "heading": 185.61142,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Northern Queensland Landscape"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:C1h5fJeyRwlg017J1cBg4Q",
+      "lat": -20.347565,
+      "lng": 148.50526,
+      "panoId": "C1h5fJeyRwlg017J1cBg4Q",
+      "heading": 118.67327,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Agriculture - Sugarcane"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:iqhekRpubP_HJ2fYquSrgQ",
+      "lat": -17.157242,
+      "lng": 145.8688,
+      "panoId": "iqhekRpubP_HJ2fYquSrgQ",
+      "heading": 110.44947,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Agriculture - Sugarcane"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:ktUWiITbIOnoWcVv6S3mag",
+      "lat": -17.14422,
+      "lng": 145.85107,
+      "panoId": "ktUWiITbIOnoWcVv6S3mag",
+      "heading": 321.33182,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Agriculture - Sugarcane"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:t6tcXhItMQ3PVuV1HbtQlQ",
+      "lat": -18.087551,
+      "lng": 145.82652,
+      "panoId": "t6tcXhItMQ3PVuV1HbtQlQ",
+      "heading": 349.39703,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Agriculture - Sugarcane"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:BwY4559fA5_wD9HMMuS6vQ",
+      "lat": -31.521881,
+      "lng": 144.52635,
+      "panoId": "BwY4559fA5_wD9HMMuS6vQ",
+      "heading": 277.85794,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Inland New South Wales Landscape"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:0ukNHsyFNvzhk_kCAXwskw",
+      "lat": -42.444557,
+      "lng": 147.22537,
+      "panoId": "0ukNHsyFNvzhk_kCAXwskw",
+      "heading": 64.884865,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Tasmania Landscape"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:KIiBzO06LKSn_hf7axepnQ",
+      "lat": -41.99984,
+      "lng": 146.85248,
+      "panoId": "KIiBzO06LKSn_hf7axepnQ",
+      "heading": 105.08928,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Coverage Meta - Gen 2"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:G7UFtBYMosyV0aVtaP7few",
+      "lat": -37.85245,
+      "lng": 140.90681,
+      "panoId": "G7UFtBYMosyV0aVtaP7few",
+      "heading": 63.296787,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Coverage Meta - Half Leaf"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:28BrIxMvKk4jYClMsqQPnQ",
+      "lat": -32.095284,
+      "lng": 151.59196,
+      "panoId": "28BrIxMvKk4jYClMsqQPnQ",
+      "heading": 91.9743,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Car Meta - Snorkel Car"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:cuzZaP7AVnH7uRfJ7HvhgQ",
+      "lat": -16.82384,
+      "lng": 124.91415,
+      "panoId": "cuzZaP7AVnH7uRfJ7HvhgQ",
+      "heading": 117.004585,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Car Meta - Snorkel Car"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:tBEyxa14uE0MetnOzqZfhg",
+      "lat": -33.9922,
+      "lng": 122.24079,
+      "panoId": "tBEyxa14uE0MetnOzqZfhg",
+      "heading": 119.19235,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Car Meta - Snorkel Car"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Ewvcz4U11RfTpSlujNNgog",
+      "lat": -23.053534,
+      "lng": 117.60613,
+      "panoId": "Ewvcz4U11RfTpSlujNNgog",
+      "heading": 103.02829,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Tom Price Landscape"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:wEHsrL5Chq13s6DHhMZdhQ",
+      "lat": -23.6912,
+      "lng": 133.87671,
+      "panoId": "wEHsrL5Chq13s6DHhMZdhQ",
+      "heading": 144.94766,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Alice Springs"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:7XMNxgzN2vJM2PZkG7FZFw",
+      "lat": -16.906929,
+      "lng": 145.86513,
+      "panoId": "7XMNxgzN2vJM2PZkG7FZFw",
+      "heading": 113,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Cairns Landscape"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:uUz3z2Iy8nX9S2NJrcm1jw",
+      "lat": -16.905516,
+      "lng": 145.736,
+      "panoId": "uUz3z2Iy8nX9S2NJrcm1jw",
+      "heading": 275.50827,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Cairns Landscape"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:XhrD1X3lJ0e-KUXqmplRKw",
+      "lat": -37.53093,
+      "lng": 140.8157,
+      "panoId": "XhrD1X3lJ0e-KUXqmplRKw",
+      "heading": 5.1016674,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Mount Gambier Tree Plantations"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:IiG22-rVf_F3LwhZejI-rg",
+      "lat": -31.573742,
+      "lng": 129.96303,
+      "panoId": "IiG22-rVf_F3LwhZejI-rg",
+      "heading": 87.40513,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Nullarbor Highway"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:xiB_hcwDNM4MQm0oIg2kYA",
+      "lat": -31.89429,
+      "lng": 127.639786,
+      "panoId": "xiB_hcwDNM4MQm0oIg2kYA",
+      "heading": 84.22548,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Nullarbor Highway"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:uZLAh2E60zXWlzQDaldM7A",
+      "lat": -20.010544,
+      "lng": 137.13322,
+      "panoId": "uZLAh2E60zXWlzQDaldM7A",
+      "heading": 337.75626,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Car Meta - Wire Car Meta"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:j51WBPUb6373gVXhZoE6jg",
+      "lat": -13.371045,
+      "lng": 131.14566,
+      "panoId": "j51WBPUb6373gVXhZoE6jg",
+      "heading": 167.51396,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Dorat Road"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Ib5qlnDkFkDRZmFfPtIn8Q",
+      "lat": -34.545895,
+      "lng": 143.02031,
+      "panoId": "Ib5qlnDkFkDRZmFfPtIn8Q",
+      "heading": 284.91907,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Triple Broken Roadlines"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:CYmWVIic_qbzp6n7xVn-0Q",
+      "lat": -25.806767,
+      "lng": 133.28932,
+      "panoId": "CYmWVIic_qbzp6n7xVn-0Q",
+      "heading": 193,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Stuart Highway with Blue Car"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:oXgJjGrNOuKGE28ke3WlTQ",
+      "lat": -29.875261,
+      "lng": 135.12907,
+      "panoId": "oXgJjGrNOuKGE28ke3WlTQ",
+      "heading": 330.4816,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Landscape - Stuart Highway with Blue Car"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Ia1F7N3cBfJB73QmkQs0wA",
+      "lat": -31.95276,
+      "lng": 115.82119,
+      "panoId": "Ia1F7N3cBfJB73QmkQs0wA",
+      "heading": 3.6132908,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Sloped Kerbs"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:rBctaZJZQZTJ_2uPyOSmDg",
+      "lat": -31.853321,
+      "lng": 115.83323,
+      "panoId": "rBctaZJZQZTJ_2uPyOSmDg",
+      "heading": 195.82558,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Sloped Kerbs"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:XnFjoDbpcqUOzJvjX9NeCw",
+      "lat": -37.810898,
+      "lng": 145.04323,
+      "panoId": "XnFjoDbpcqUOzJvjX9NeCw",
+      "heading": 10.013186,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Blue Square on Pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Ovx90fUZibVOSnaQ93mrgg",
+      "lat": -36.39701,
+      "lng": 148.42464,
+      "panoId": "Ovx90fUZibVOSnaQ93mrgg",
+      "heading": 233.09471,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Mount Kosciuszko"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:hYNMsMg_9DSqhbmkPFIg-A",
+      "lat": -38.222286,
+      "lng": 146.41368,
+      "panoId": "hYNMsMg_9DSqhbmkPFIg-A",
+      "heading": 6.465851,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Coverage Meta - Gen 2 Whole Leaf"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:0wfAO2NSrxA33yjMddEOCg",
+      "lat": -33.32402,
+      "lng": 149.5489,
+      "panoId": "0wfAO2NSrxA33yjMddEOCg",
+      "heading": 89.630585,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Coverage Meta - Gen 2 Twig Meta"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:ujVq8CjmiB-EKFSJ1X-D5Q",
+      "lat": -27.523336,
+      "lng": 152.98038,
+      "panoId": "ujVq8CjmiB-EKFSJ1X-D5Q",
+      "heading": 340.72842,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Brisbane Streetsign"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:4OO9If4q6UdNGb31A4Fy0A",
+      "lat": -28.107357,
+      "lng": 153.46107,
+      "panoId": "4OO9If4q6UdNGb31A4Fy0A",
+      "heading": 251.02287,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Gold Coast Streetsign"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:5InlscSjhxHMr4afQZDbbg",
+      "lat": -33.873104,
+      "lng": 151.20807,
+      "panoId": "5InlscSjhxHMr4afQZDbbg",
+      "heading": 281.52692,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Sydney Streetsign"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:hBHUvf4I93qQgQkMXgXPPg",
+      "lat": -25.0515,
+      "lng": 115.20903,
+      "panoId": "hBHUvf4I93qQgQkMXgXPPg",
+      "heading": 359.33014,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Car Meta - Open Trunk Meta"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:YBBBCfGWgWgi8ar00E38qQ",
+      "lat": -20.573717,
+      "lng": 134.2563,
+      "panoId": "YBBBCfGWgWgi8ar00E38qQ",
+      "heading": 30.64626,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Coverage Meta - Smoke Coverage"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:ZtpSey18N9KgsUWz6RZDCA",
+      "lat": -24.56802,
+      "lng": 119.621185,
+      "panoId": "ZtpSey18N9KgsUWz6RZDCA",
+      "heading": 171.9009,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Coverage Meta - Splodgey Sun"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:5J2Ce8M8I1zXSJSp-7RHMw",
+      "lat": -30.519682,
+      "lng": 151.66855,
+      "panoId": "5J2Ce8M8I1zXSJSp-7RHMw",
+      "heading": 286.45135,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - License Plate - Slim NSW"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:kHx-6X3q3guiUbuG7mmg0A",
+      "lat": -34.67178,
+      "lng": 150.21223,
+      "panoId": "kHx-6X3q3guiUbuG7mmg0A",
+      "heading": 220.19804,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - License Plate - Slim NSW"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:vGIABBtUnosNQLaMuModQw",
+      "lat": -29.810648,
+      "lng": 153.03377,
+      "panoId": "vGIABBtUnosNQLaMuModQw",
+      "heading": 349.97775,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - License Plate - Slim NSW"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:1b6BEpVpswBpv8dvmz040A",
+      "lat": -37.59193,
+      "lng": 144.92929,
+      "panoId": "1b6BEpVpswBpv8dvmz040A",
+      "heading": 9.303297,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - License Plate - Slim Victoria"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:q8pHvi3hLPoicTVqMeJBaQ",
+      "lat": -33.837162,
+      "lng": 151.20602,
+      "panoId": "q8pHvi3hLPoicTVqMeJBaQ",
+      "heading": 343.45276,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - License Plate - Taxi - Blue"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:PQOXxLU3mNKQL2lVDr2q0Q",
+      "lat": -33.87289,
+      "lng": 151.16011,
+      "panoId": "PQOXxLU3mNKQL2lVDr2q0Q",
+      "heading": 161.7908,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Octagonal Pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:GQQOnbDsQbenf46VCc10fA",
+      "lat": -32.648666,
+      "lng": 151.50938,
+      "panoId": "GQQOnbDsQbenf46VCc10fA",
+      "heading": 152.67278,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - Yellow T"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:cCassHdUJ7YgTMMWdtr60w",
+      "lat": -33.737755,
+      "lng": 151.00047,
+      "panoId": "cCassHdUJ7YgTMMWdtr60w",
+      "heading": 300.37585,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - Vertical / Regular"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:LiccwgijpeGHwWPIQIsMJg",
+      "lat": -34.56796,
+      "lng": 147.76755,
+      "panoId": "LiccwgijpeGHwWPIQIsMJg",
+      "heading": 255.49597,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - NSW - Vertical / Outer White"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:XBvfe2Ysj0f9WQRk8x2Aig",
+      "lat": -20.151321,
+      "lng": 146.05605,
+      "panoId": "XBvfe2Ysj0f9WQRk8x2Aig",
+      "heading": 248.91858,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Charters Towers Red Roads"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:-71zRP1S2l9q3rW4Z5DA3g",
+      "lat": -17.849321,
+      "lng": 139.38326,
+      "panoId": "-71zRP1S2l9q3rW4Z5DA3g",
+      "heading": 240.76833,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Vegetation - Gregory Tree"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:Gy7-Y3b21f8nMJdV48sdSg",
+      "lat": -17.927753,
+      "lng": 139.30458,
+      "panoId": "Gy7-Y3b21f8nMJdV48sdSg",
+      "heading": 25.698599,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Vegetation - Gregory Tree"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:jJ18lk2rkCY854jdzo1lvA",
+      "lat": -18.817865,
+      "lng": 139.86806,
+      "panoId": "jJ18lk2rkCY854jdzo1lvA",
+      "heading": 68.388016,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Vegetation - Gregory Tree"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:dyVVUmJ0twKSkJcwYVtQGw",
+      "lat": -28.817947,
+      "lng": 153.27841,
+      "panoId": "dyVVUmJ0twKSkJcwYVtQGw",
+      "heading": 276.88498,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - NSW - Horizontal"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:t8KwYShnWgwkvRTTgKZrLA",
+      "lat": -32.743145,
+      "lng": 151.56386,
+      "panoId": "t8KwYShnWgwkvRTTgKZrLA",
+      "heading": 208.87828,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - H"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:JweiglP8-sk3BvFFZeSCTw",
+      "lat": -32.82109,
+      "lng": 151.47946,
+      "panoId": "JweiglP8-sk3BvFFZeSCTw",
+      "heading": 157.35374,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - NSW - Letter Code"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:nSJb5ZVRDI4eCseTSSrUzQ",
+      "lat": -32.247723,
+      "lng": 148.63092,
+      "panoId": "nSJb5ZVRDI4eCseTSSrUzQ",
+      "heading": 186.97758,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Dotted Concrete Pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:gWzHHKSS7_DQzGTB3pBF5Q",
+      "lat": -35.103065,
+      "lng": 147.34924,
+      "panoId": "gWzHHKSS7_DQzGTB3pBF5Q",
+      "heading": 189.84169,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - ∀-Poletop - Round"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:KQLVNGJoD-7Ip0ieGj5gXg",
+      "lat": -33.89574,
+      "lng": 151.18373,
+      "panoId": "KQLVNGJoD-7Ip0ieGj5gXg",
+      "heading": 71.031204,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - HP"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:7nSR7y5eKpvtuv4ravqbnA",
+      "lat": -35.10963,
+      "lng": 146.60664,
+      "panoId": "7nSR7y5eKpvtuv4ravqbnA",
+      "heading": 73.56632,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Green Dot on Pole"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:c8PA8F9fkqvT1F1K_WqDyQ",
+      "lat": -33.171463,
+      "lng": 147.24352,
+      "panoId": "c8PA8F9fkqvT1F1K_WqDyQ",
+      "heading": 7.521407,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Hanging Insulator"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:eL7aoPVu_DxwZiaxjpVppQ",
+      "lat": -16.477133,
+      "lng": 145.36638,
+      "panoId": "eL7aoPVu_DxwZiaxjpVppQ",
+      "heading": 125.19378,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Vegetation - Queensland Fan Palm"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:ipJgBkrOxxfJfdEaPhFC8g",
+      "lat": -16.792238,
+      "lng": 145.64291,
+      "panoId": "ipJgBkrOxxfJfdEaPhFC8g",
+      "heading": 145.99013,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Vegetation - Queensland Fan Palm"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:osJEOlkGoK8TYTD5UQK-pw",
+      "lat": -17.530186,
+      "lng": 146.064,
+      "panoId": "osJEOlkGoK8TYTD5UQK-pw",
+      "heading": 214.98465,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Vegetation - Queensland Fan Palm"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:rLYYY4-uRSnApD7qhYNkQw",
+      "lat": -22.81565,
+      "lng": 148.68085,
+      "panoId": "rLYYY4-uRSnApD7qhYNkQw",
+      "heading": 273.3433,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Infrastructure - Poletag - QLD - Vertical"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:xSGIsRIVzfbHWix3ybYA8Q",
+      "lat": -12.940349,
+      "lng": 130.96764,
+      "panoId": "xSGIsRIVzfbHWix3ybYA8Q",
+      "heading": 297.41977,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Vegetation - Sand Palm"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    },
+    {
+      "id": "pano:8daRxBtVrlsEcoHc9FTsow",
+      "lat": -26.573662,
+      "lng": 148.78857,
+      "panoId": "8daRxBtVrlsEcoHc9FTsow",
+      "heading": 272.77362,
+      "skillIds": [
+        "6ad6a1e8813559bf7d45a33a:Vegetation - Bottle Tree"
+      ],
+      "sourceMapId": "6ad6a1e8813559bf7d45a33a"
+    }
+  ],
+  "importReport": {
+    "candidates": 222,
+    "tagged": 222,
+    "unmatched": [],
+    "failures": [],
+    "cancelled": false,
+    "limits": "The public endpoint returns one note per panorama. This export does not establish complete multi-clue annotation or an unseen holdout set."
+  }
+}

@@ -1,0 +1,1821 @@
+[
+  {
+    "sourceMetaId": 7468,
+    "sourceMetaName": "Australia - Agriculture - Sugarcane",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7468",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:LyHG"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Sugarcane",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7493,
+    "sourceMetaName": "Australia - Car Meta - Open Trunk Meta",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7493",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:wa-park-cars"
+    ],
+    "practiceFamily": "camera-artifacts",
+    "importance": 5,
+    "title": "Open Trunk Meta",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": "Historical open-boot artifact needs exact-image review before activation."
+  },
+  {
+    "sourceMetaId": 7473,
+    "sourceMetaName": "Australia - Car Meta - Snorkel Car",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7473",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:Gni4"
+    ],
+    "practiceFamily": "camera-artifacts",
+    "importance": 5,
+    "title": "Snorkel Car",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": "Rare-car distribution changes; verify every car and exception before use."
+  },
+  {
+    "sourceMetaId": 7479,
+    "sourceMetaName": "Australia - Car Meta - Wire Car Meta",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7479",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:ePjU"
+    ],
+    "practiceFamily": "camera-artifacts",
+    "importance": 5,
+    "title": "Wire Car Meta",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": "Historical Barkly wire artifact needs exact-image review before activation."
+  },
+  {
+    "sourceMetaId": 7471,
+    "sourceMetaName": "Australia - Coverage Meta - Gen 2",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7471",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:mrYL"
+    ],
+    "practiceFamily": "camera-artifacts",
+    "importance": 5,
+    "title": "Gen 2",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": "Generation-2 absence in NT is a changing coverage claim, not a safe exclusion."
+  },
+  {
+    "sourceMetaId": 7488,
+    "sourceMetaName": "Australia - Coverage Meta - Gen 2 Twig Meta",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7488",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nsw-camera"
+    ],
+    "practiceFamily": "camera-artifacts",
+    "importance": 5,
+    "title": "Gen 2 Twig Meta",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": "Historical twig artifact needs exact-image review before activation."
+  },
+  {
+    "sourceMetaId": 7487,
+    "sourceMetaName": "Australia - Coverage Meta - Gen 2 Whole Leaf",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7487",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:camera-generation"
+    ],
+    "practiceFamily": "camera-artifacts",
+    "importance": 5,
+    "title": "Gen 2 Whole Leaf",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": "Historical leaf artifact needs exact-image review before activation."
+  },
+  {
+    "sourceMetaId": 7472,
+    "sourceMetaName": "Australia - Coverage Meta - Half Leaf",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7472",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:sa-camera-leaf"
+    ],
+    "practiceFamily": "camera-artifacts",
+    "importance": 5,
+    "title": "Half Leaf",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": "Historical camera leaf artifact needs exact-image review and contemporary applicability checks."
+  },
+  {
+    "sourceMetaId": 7462,
+    "sourceMetaName": "Australia - Coverage Meta - Jervis Bay Meta",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7462",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:camera-generation"
+    ],
+    "practiceFamily": "camera-artifacts",
+    "importance": 5,
+    "title": "Jervis Bay Meta",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": "Historical Jervis Bay generation/copyright claim needs a contemporary check; absence is not a safe regional rule."
+  },
+  {
+    "sourceMetaId": 7494,
+    "sourceMetaName": "Australia - Coverage Meta - Smoke Coverage",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7494",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nt-camera"
+    ],
+    "practiceFamily": "camera-artifacts",
+    "importance": 5,
+    "title": "Smoke Coverage",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": "A particular bushfire image is not a general landscape rule; historical recognition only."
+  },
+  {
+    "sourceMetaId": 722385,
+    "sourceMetaName": "Australia - Coverage Meta - Splodgey Sun",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722385",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:wa-park-cars"
+    ],
+    "practiceFamily": "camera-artifacts",
+    "importance": 5,
+    "title": "Splodgey Sun",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": "Historical sun artifact needs exact-image review before activation."
+  },
+  {
+    "sourceMetaId": 722411,
+    "sourceMetaName": "Australia - Infrastructure - ∀-Poletop - Round",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722411",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:pole-materials",
+      "au:deck:nsw-poles",
+      "au:deck:sa-stobie"
+    ],
+    "practiceFamily": "pole-construction",
+    "importance": 25,
+    "title": "∀-Poletop - Round",
+    "scoringCaveats": [
+      "Separate round supporting poles in NSW from the similar crossarm on SA Stobie poles."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7447,
+    "sourceMetaName": "Australia - Infrastructure - 130 km/h speed limit",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7447",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:7ykV",
+      "au:deck:speed-sign-layouts"
+    ],
+    "practiceFamily": "regulatory-signs",
+    "importance": 28,
+    "title": "130 km/h speed limit",
+    "scoringCaveats": [
+      "The visible 130 sign is an NT anchor; verify current regulation before treating the limit as an absolute rule."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7446,
+    "sourceMetaName": "Australia - Infrastructure - 25 school zone",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7446",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:school-zone-panels"
+    ],
+    "practiceFamily": "regulatory-signs",
+    "importance": 28,
+    "title": "25 school zone",
+    "scoringCaveats": [
+      "25 school-zone signs are source-era SA examples; rules and signs can change."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7429,
+    "sourceMetaName": "Australia - Infrastructure - 90° poletop",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:283",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:FQEn"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "90° poletop",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7414,
+    "sourceMetaName": "Australia - Infrastructure - ACT Bus Stop",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:10245",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:6oil",
+      "au:deck:act-transit"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "ACT Bus Stop",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7431,
+    "sourceMetaName": "Australia - Infrastructure - Black pole marking",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:313",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:Aujv"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Black pole marking",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7436,
+    "sourceMetaName": "Australia - Infrastructure - black-white striped bollard",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:287",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:CAL4",
+      "au:deck:bollard-families"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "black-white striped bollard",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7437,
+    "sourceMetaName": "Australia - Infrastructure - black-yellow striped bollard",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7437",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:0nBQ",
+      "au:deck:bollard-families"
+    ],
+    "practiceFamily": "bollards",
+    "importance": 30,
+    "title": "Queensland black-yellow bollards",
+    "scoringCaveats": [
+      "Look for repeated black/yellow paint on roadside bollards, not a generic yellow signpost."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7484,
+    "sourceMetaName": "Australia - Infrastructure - Blue Square on Pole",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:468881",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:OgUS"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Blue Square on Pole",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7435,
+    "sourceMetaName": "Australia - Infrastructure - bollard with brown bottom",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:285",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:uo2W",
+      "au:deck:bollard-families"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "bollard with brown bottom",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7434,
+    "sourceMetaName": "Australia - Infrastructure - bollard with short reflector",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7434",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:NeWE",
+      "au:deck:bollard-families"
+    ],
+    "practiceFamily": "bollards",
+    "importance": 30,
+    "title": "Short bollard reflectors",
+    "scoringCaveats": [
+      "Short reflectors occur in both Queensland and South Australia; combine with landscape and other clues."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7490,
+    "sourceMetaName": "Australia - Infrastructure - Brisbane Streetsign",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7490",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:nO8C",
+      "au:deck:street-name-signs"
+    ],
+    "practiceFamily": "street-signs",
+    "importance": 18,
+    "title": "Brisbane Streetsign",
+    "scoringCaveats": [
+      "Recognize the council emblem and sign layout; this is Brisbane council, not all Queensland."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7445,
+    "sourceMetaName": "Australia - Infrastructure - C-Road",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7445",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:J0tt",
+      "au:deck:route-families"
+    ],
+    "practiceFamily": "route-numbering",
+    "importance": 35,
+    "title": "C-prefixed route signs",
+    "scoringCaveats": [
+      "C-prefixed routes support Victoria/Tasmania, with South Australian border exceptions. Use other clues to separate those states."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722405,
+    "sourceMetaName": "Australia - Infrastructure - Charters Towers Red Roads",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722405",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:qld-pavement"
+    ],
+    "practiceFamily": "landscape",
+    "importance": 38,
+    "title": "Charters Towers Red Roads",
+    "scoringCaveats": [
+      "Red surfacing is a supporting Charters Towers-area pattern, with other QLD corridors and exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7425,
+    "sourceMetaName": "Australia - Infrastructure - concrete pole",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7425",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:UUqd",
+      "au:deck:pole-materials"
+    ],
+    "practiceFamily": "pole-construction",
+    "importance": 25,
+    "title": "Concrete utility poles",
+    "scoringCaveats": [
+      "Concrete is a regional tendency, not exclusive to Victoria; the source percentage is historical."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7409,
+    "sourceMetaName": "Australia - Infrastructure - Darwin Bus Stop",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7409",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nt-transit"
+    ],
+    "practiceFamily": "bus-stops",
+    "importance": 15,
+    "title": "Darwin Bus Stop",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7480,
+    "sourceMetaName": "Australia - Infrastructure - Dorat Road",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7480",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:4Vvd"
+    ],
+    "practiceFamily": "landscape",
+    "importance": 38,
+    "title": "Dorat Road",
+    "scoringCaveats": [
+      "A specific NT road example, not a rule that every unlined tropical road is Dorat Road."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722410,
+    "sourceMetaName": "Australia - Infrastructure - Dotted Concrete Pole",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722410",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nsw-poles"
+    ],
+    "practiceFamily": "pole-construction",
+    "importance": 25,
+    "title": "Dotted Concrete Pole",
+    "scoringCaveats": [
+      "Inspect the dotted concrete construction; concrete alone is not unique to NSW."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7439,
+    "sourceMetaName": "Australia - Infrastructure - flat signpost",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:266",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:11H1"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "flat signpost",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7441,
+    "sourceMetaName": "Australia - Infrastructure - fluoresecent sign border",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7441",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:17uG"
+    ],
+    "practiceFamily": "regulatory-signs",
+    "importance": 28,
+    "title": "Queensland fluorescent sign borders",
+    "scoringCaveats": [
+      "Fluorescent borders support Queensland but can occur elsewhere."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7491,
+    "sourceMetaName": "Australia - Infrastructure - Gold Coast Streetsign",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7491",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:vjrK",
+      "au:deck:street-name-signs"
+    ],
+    "practiceFamily": "street-signs",
+    "importance": 18,
+    "title": "Gold Coast Streetsign",
+    "scoringCaveats": [
+      "Council sign designs identify a local authority, not every road in a whole state."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722413,
+    "sourceMetaName": "Australia - Infrastructure - Green Dot on Pole",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722413",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nsw-pole-tags"
+    ],
+    "practiceFamily": "pole-labels",
+    "importance": 12,
+    "title": "Green Dot on Pole",
+    "scoringCaveats": [
+      "A small green dot is weak evidence; inspect the tag context rather than a generic green spot."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7433,
+    "sourceMetaName": "Australia - Infrastructure - green pole bottom",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:286",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:RFNj"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "green pole bottom",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7451,
+    "sourceMetaName": "Australia - Infrastructure - green property marker",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:556776",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:NPFj",
+      "au:deck:property-markers"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "green property marker",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722414,
+    "sourceMetaName": "Australia - Infrastructure - Hanging Insulator",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722414",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:pole-materials",
+      "au:deck:qld-poles",
+      "au:deck:nsw-poles"
+    ],
+    "practiceFamily": "pole-construction",
+    "importance": 25,
+    "title": "Hanging Insulator",
+    "scoringCaveats": [
+      "Hanging insulators appear in both NSW and QLD; they do not pick a unique state."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7456,
+    "sourceMetaName": "Australia - Infrastructure - hydrant with blue circle",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:373",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:X5tc",
+      "au:deck:hydrants"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "hydrant with blue circle",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7457,
+    "sourceMetaName": "Australia - Infrastructure - hydrant with red top",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7457",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:edFk",
+      "au:deck:hydrants"
+    ],
+    "practiceFamily": "roadside-markers",
+    "importance": 15,
+    "title": "Victorian red-top hydrants",
+    "scoringCaveats": [
+      "Use the complete illustrated hydrant design, not red paint alone."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722398,
+    "sourceMetaName": "Australia - Infrastructure - License Plate - Slim NSW",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722398",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nsw-plates"
+    ],
+    "practiceFamily": "plates",
+    "importance": 25,
+    "title": "License Plate - Slim NSW",
+    "scoringCaveats": [
+      "Slim NSW and Victoria plates overlap; look for the blue text pattern and corroborating evidence."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722399,
+    "sourceMetaName": "Australia - Infrastructure - License Plate - Slim Victoria",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722399",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:vic-plates"
+    ],
+    "practiceFamily": "plates",
+    "importance": 25,
+    "title": "License Plate - Slim Victoria",
+    "scoringCaveats": [
+      "Slim NSW and Victoria plates overlap; look for the blue text pattern and corroborating evidence."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722400,
+    "sourceMetaName": "Australia - Infrastructure - License Plate - Taxi - Blue",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722400",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nsw-plates"
+    ],
+    "practiceFamily": "plates",
+    "importance": 25,
+    "title": "License Plate - Taxi - Blue",
+    "scoringCaveats": [
+      "Blue taxi plates are a specialist source-era design; vehicles and registration schemes change."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7486,
+    "sourceMetaName": "Australia - Infrastructure - Mount Kosciuszko",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7486",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:nMfy"
+    ],
+    "practiceFamily": "road-markings",
+    "importance": 25,
+    "title": "Mount Kosciuszko",
+    "scoringCaveats": [
+      "Alpine yellow road lines are not exclusive to Kosciuszko; compare other Australian alpine areas."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7443,
+    "sourceMetaName": "Australia - Infrastructure - No-Stopping-sign with text",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7443",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:e2I1"
+    ],
+    "practiceFamily": "regulatory-signs",
+    "importance": 28,
+    "title": "No-Stopping-sign with text",
+    "scoringCaveats": [
+      "Inspect the actual no-stopping/no-parking wording and layout; a generic white parking sign is insufficient."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7415,
+    "sourceMetaName": "Australia - Infrastructure - NSW Bus Stop",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:9755",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:6oil",
+      "au:deck:nsw-transit"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "NSW Bus Stop",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7455,
+    "sourceMetaName": "Australia - Infrastructure - NSW guardrail ending",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:370",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:M5MM"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "NSW guardrail ending",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7419,
+    "sourceMetaName": "Australia - Infrastructure - NT License Plate",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7419",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:b54E",
+      "au:deck:nt-plates"
+    ],
+    "practiceFamily": "plates",
+    "importance": 25,
+    "title": "NT License Plate",
+    "scoringCaveats": [
+      "NT red lettering can resemble Queensland; mobile vehicles can travel across state boundaries."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722401,
+    "sourceMetaName": "Australia - Infrastructure - Octagonal Pole",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722401",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nsw-poles"
+    ],
+    "practiceFamily": "pole-construction",
+    "importance": 25,
+    "title": "Octagonal Pole",
+    "scoringCaveats": [
+      "Octagonal timber poles support the Sydney area but are not a hard boundary."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7432,
+    "sourceMetaName": "Australia - Infrastructure - olive-green possum guard",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:283",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:Y0nT"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "olive-green possum guard",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722408,
+    "sourceMetaName": "Australia - Infrastructure - Poletag - H",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722408",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nsw-pole-tags"
+    ],
+    "practiceFamily": "pole-labels",
+    "importance": 12,
+    "title": "Poletag - H",
+    "scoringCaveats": [
+      "An H tag supports NSW in the source examples; it does not by itself locate a town."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722412,
+    "sourceMetaName": "Australia - Infrastructure - Poletag - HP",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722412",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nsw-pole-tags"
+    ],
+    "practiceFamily": "pole-labels",
+    "importance": 12,
+    "title": "Poletag - HP",
+    "scoringCaveats": [
+      "Recognize the actual HP marking and combine it with independent evidence."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722407,
+    "sourceMetaName": "Australia - Infrastructure - Poletag - NSW - Horizontal",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722407",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nsw-pole-tags"
+    ],
+    "practiceFamily": "pole-labels",
+    "importance": 12,
+    "title": "Poletag - NSW - Horizontal",
+    "scoringCaveats": [
+      "Within-NSW refinement; a horizontal tag is not a nationwide proof of one region."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722409,
+    "sourceMetaName": "Australia - Infrastructure - Poletag - NSW - Letter Code",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722409",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nsw-pole-tags"
+    ],
+    "practiceFamily": "pole-labels",
+    "importance": 12,
+    "title": "Poletag - NSW - Letter Code",
+    "scoringCaveats": [
+      "Letter-bearing tags support the Sydney/Newcastle/Scone triangle in the source map; labels and maintenance vary."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722404,
+    "sourceMetaName": "Australia - Infrastructure - Poletag - NSW - Vertical / Outer White",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722404",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nsw-pole-tags"
+    ],
+    "practiceFamily": "pole-labels",
+    "importance": 12,
+    "title": "Poletag - NSW - Vertical / Outer White",
+    "scoringCaveats": [
+      "Within-NSW refinement only; contrast white-ended tags with plain vertical tags near Sydney."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722417,
+    "sourceMetaName": "Australia - Infrastructure - Poletag - QLD - Vertical",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:372",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:deck:qld-pole-tags"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Poletag - QLD - Vertical",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722403,
+    "sourceMetaName": "Australia - Infrastructure - Poletag - Vertical / Regular",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722403",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nsw-pole-tags"
+    ],
+    "practiceFamily": "pole-labels",
+    "importance": 12,
+    "title": "Poletag - Vertical / Regular",
+    "scoringCaveats": [
+      "Within-NSW refinement only; distinguish plain vertical tags from white-ended tags. Confirm with other regional evidence."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722402,
+    "sourceMetaName": "Australia - Infrastructure - Poletag - Yellow T",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722402",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nsw-pole-tags"
+    ],
+    "practiceFamily": "pole-labels",
+    "importance": 12,
+    "title": "Poletag - Yellow T",
+    "scoringCaveats": [
+      "Learn the illustrated T-shaped sticker layout, not any yellow mark."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7416,
+    "sourceMetaName": "Australia - Infrastructure - Queensland Bus Stop",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:9754",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:6oil",
+      "au:deck:qld-transit"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Queensland Bus Stop",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7417,
+    "sourceMetaName": "Australia - Infrastructure - Queensland License Plate",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7417",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:b54E",
+      "au:deck:qld-plates"
+    ],
+    "practiceFamily": "plates",
+    "importance": 25,
+    "title": "Queensland License Plate",
+    "scoringCaveats": [
+      "Blurred text tint is supporting evidence, not a state guarantee. Compare NT red and legacy QLD green designs."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7427,
+    "sourceMetaName": "Australia - Infrastructure - Queensland poletop",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7427",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:dHGl",
+      "au:deck:qld-poles"
+    ],
+    "practiceFamily": "pole-construction",
+    "importance": 25,
+    "title": "Queensland upward-angled insulators",
+    "scoringCaveats": [
+      "Distinguish upward-angled side coils from the separate A6/trident target; the crossarm pattern matters."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7430,
+    "sourceMetaName": "Australia - Infrastructure - Queensland sticker",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:468883",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:tILb"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Queensland sticker",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7442,
+    "sourceMetaName": "Australia - Infrastructure - red \"No Stopping\" sign",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:367",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:W6mM"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "red \"No Stopping\" sign",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7453,
+    "sourceMetaName": "Australia - Infrastructure - Roadline Gap with no Reflector",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7453",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:sa-edge-lines"
+    ],
+    "practiceFamily": "road-markings",
+    "importance": 25,
+    "title": "Roadline Gap with no Reflector",
+    "scoringCaveats": [
+      "Compare gaps with and without reflectors; maintenance and road sections vary."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7454,
+    "sourceMetaName": "Australia - Infrastructure - Roadline gap with Reflector",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:369",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:deck:act-reflector-gap"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Roadline gap with Reflector",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7424,
+    "sourceMetaName": "Australia - Infrastructure - rusty holey pole",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:281",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:Pbiz"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "rusty holey pole",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7483,
+    "sourceMetaName": "Australia - Infrastructure - Sloped Kerbs",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7483",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:wa-pavement"
+    ],
+    "practiceFamily": "street-design",
+    "importance": 18,
+    "title": "Sloped Kerbs",
+    "scoringCaveats": [
+      "Sloped/rolled kerbs support Perth in these examples but are not exclusive to Perth."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7411,
+    "sourceMetaName": "Australia - Infrastructure - South Australia Bus Stop",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:9751",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:6oil",
+      "au:deck:sa-transit"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "South Australia Bus Stop",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7423,
+    "sourceMetaName": "Australia - Infrastructure - Stobie pole",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:282",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:xuhU"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Stobie pole",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7492,
+    "sourceMetaName": "Australia - Infrastructure - Sydney Streetsign",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7492",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:zB6F",
+      "au:deck:street-name-signs"
+    ],
+    "practiceFamily": "street-signs",
+    "importance": 18,
+    "title": "Sydney Streetsign",
+    "scoringCaveats": [
+      "City of Sydney council sign design is narrower than metropolitan Sydney."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7412,
+    "sourceMetaName": "Australia - Infrastructure - Tasmania Bus Stop",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:9752",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:6oil",
+      "au:deck:tas-transit"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Tasmania Bus Stop",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7448,
+    "sourceMetaName": "Australia - Infrastructure - thin \"Keep Left\" sign",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7448",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:2kHn"
+    ],
+    "practiceFamily": "regulatory-signs",
+    "importance": 28,
+    "title": "thin \"Keep Left\" sign",
+    "scoringCaveats": [
+      "The narrow arrowless format spans NSW, QLD and NT; it narrows a group, not one state."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7450,
+    "sourceMetaName": "Australia - Infrastructure - traffic light with no outline",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7450",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:ZZKi",
+      "au:deck:traffic-signals"
+    ],
+    "practiceFamily": "traffic-signals",
+    "importance": 22,
+    "title": "traffic light with no outline",
+    "scoringCaveats": [
+      "An unbordered light is a supporting NT/SA/VIC-group clue, not a unique state answer."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7449,
+    "sourceMetaName": "Australia - Infrastructure - traffic light with white outline",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7449",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:ZZKi",
+      "au:deck:traffic-signals"
+    ],
+    "practiceFamily": "traffic-signals",
+    "importance": 22,
+    "title": "traffic light with white outline",
+    "scoringCaveats": [
+      "Frame colour is a supporting state-group tendency; individual installations vary."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7481,
+    "sourceMetaName": "Australia - Infrastructure - Triple Broken Roadlines",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7481",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:tslH",
+      "au:deck:nsw-pavement"
+    ],
+    "practiceFamily": "road-markings",
+    "importance": 25,
+    "title": "Triple Broken Roadlines",
+    "scoringCaveats": [
+      "Triple broken centre lines occur on several NSW routes; this is not unique to one highway."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7426,
+    "sourceMetaName": "Australia - Infrastructure - upward pointing trident pole",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:286",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:fako"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "upward pointing trident pole",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7413,
+    "sourceMetaName": "Australia - Infrastructure - Victoria Bus Stop",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:9750",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:6oil",
+      "au:deck:vic-transit"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Victoria Bus Stop",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7421,
+    "sourceMetaName": "Australia - Infrastructure - Victoria License Plate",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7421",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:b54E",
+      "au:deck:vic-plates"
+    ],
+    "practiceFamily": "plates",
+    "importance": 25,
+    "title": "Victoria License Plate",
+    "scoringCaveats": [
+      "The blue upper motif is subtle and may disappear under blur; do not infer state from one indistinct car."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7428,
+    "sourceMetaName": "Australia - Infrastructure - Victoria poletop",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:284",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:B6K8"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Victoria poletop",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7410,
+    "sourceMetaName": "Australia - Infrastructure - Western Australia Bus Stop",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:9753",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:6oil",
+      "au:deck:wa-transit"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Western Australia Bus Stop",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7420,
+    "sourceMetaName": "Australia - Infrastructure - Western Australia License Plate",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7420",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:b54E",
+      "au:deck:wa-plates"
+    ],
+    "practiceFamily": "plates",
+    "importance": 25,
+    "title": "Western Australia License Plate",
+    "scoringCaveats": [
+      "The blue upper band is subtle; alternate and older plates exist, and vehicles travel."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7444,
+    "sourceMetaName": "Australia - Infrastructure - white directional sign",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7444",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:cAlQ",
+      "au:deck:tas-routes"
+    ],
+    "practiceFamily": "direction-signs",
+    "importance": 25,
+    "title": "white directional sign",
+    "scoringCaveats": [
+      "Compare the illustrated local direction-sign format; white local or tourist signs alone are not exclusive to Tasmania."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7452,
+    "sourceMetaName": "Australia - Infrastructure - white property marker",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:264",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:1aB4",
+      "au:deck:property-markers"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "white property marker",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7418,
+    "sourceMetaName": "Australia - Infrastructure - Yellow License Plate",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:374",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:b54E",
+      "au:deck:nsw-plates"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Yellow License Plate",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7438,
+    "sourceMetaName": "Australia - Infrastructure - yellow signpost",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:267",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:QQZc"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "yellow signpost",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7422,
+    "sourceMetaName": "Australia - Infrastructure - ш-shaped poletop",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7422",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:sa-stobie"
+    ],
+    "practiceFamily": "pole-construction",
+    "importance": 25,
+    "title": "SA ш-shaped pole tops",
+    "scoringCaveats": [
+      "Compare the crossarm with its Stobie support. Do not treat the shape alone as an absolute boundary."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7475,
+    "sourceMetaName": "Australia - Landscape - Alice Springs",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7475",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:I7Ah"
+    ],
+    "practiceFamily": "landscape",
+    "importance": 38,
+    "title": "Alice Springs rocky backdrop",
+    "scoringCaveats": [
+      "Use the orange rocky ranges with settlement and desert context; one orange rock is insufficient."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7476,
+    "sourceMetaName": "Australia - Landscape - Cairns Landscape",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7476",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:0RLy"
+    ],
+    "practiceFamily": "landscape",
+    "importance": 38,
+    "title": "Cairns tropical mountain backdrop",
+    "scoringCaveats": [
+      "Combine Wet Tropics vegetation with steep green coastal relief; tropical vegetation alone is broader than Cairns."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7464,
+    "sourceMetaName": "Australia - Landscape - Darwin Landscape",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:22766",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:3wyr"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Darwin Landscape",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7466,
+    "sourceMetaName": "Australia - Landscape - Eastern South Australia Landscape",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:22762",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:SH9t"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Eastern South Australia Landscape",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7459,
+    "sourceMetaName": "Australia - Landscape - Green & Golden Fields",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:22763",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:lxhc"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Green & Golden Fields",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7469,
+    "sourceMetaName": "Australia - Landscape - Inland New South Wales Landscape",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:22769",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:5dWF"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Inland New South Wales Landscape",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7460,
+    "sourceMetaName": "Australia - Landscape - Kangaroo Island Landscape",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7460",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:hovh"
+    ],
+    "practiceFamily": "landscape",
+    "importance": 38,
+    "title": "Kangaroo Island Landscape",
+    "scoringCaveats": [
+      "Combine low mallee-like vegetation, soil and island context; mainland scenes can look similar. Ignore historical generation-absence claims."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7477,
+    "sourceMetaName": "Australia - Landscape - Mount Gambier Tree Plantations",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7477",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:ZgT0"
+    ],
+    "practiceFamily": "landscape",
+    "importance": 38,
+    "title": "Mount Gambier Tree Plantations",
+    "scoringCaveats": [
+      "Pine plantations and pale soils support the Mount Gambier district; plantation forestry occurs elsewhere."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7467,
+    "sourceMetaName": "Australia - Landscape - Northern Queensland Landscape",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:22765",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:0lXU"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Northern Queensland Landscape",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7478,
+    "sourceMetaName": "Australia - Landscape - Nullarbor Highway",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7478",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:ttAJ"
+    ],
+    "practiceFamily": "landscape",
+    "importance": 38,
+    "title": "The Nullarbor landscape",
+    "scoringCaveats": [
+      "The treeless plain spans SA and WA; landscape alone cannot decide the border."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7458,
+    "sourceMetaName": "Australia - Landscape - Reddish-Orange Soil",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:22770",
+    "existing": true,
+    "sourceUnitIds": [],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Reddish-Orange Soil",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7482,
+    "sourceMetaName": "Australia - Landscape - Stuart Highway with Blue Car",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7482",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:hYmO"
+    ],
+    "practiceFamily": "landscape",
+    "importance": 38,
+    "title": "Stuart Highway with Blue Car",
+    "scoringCaveats": [
+      "Teach the desert corridor using vegetation and soil; blue-car identity alone is time-sensitive and not unique."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7470,
+    "sourceMetaName": "Australia - Landscape - Tasmania Landscape",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:22767",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:Fm8m"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Tasmania Landscape",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7461,
+    "sourceMetaName": "Australia - Landscape - Termite Hills",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7461",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:S44S"
+    ],
+    "practiceFamily": "vegetation",
+    "importance": 32,
+    "title": "Northern termite mounds",
+    "scoringCaveats": [
+      "Termite mounds occur across northern Australia, including WA and Queensland; they do not uniquely identify NT."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7474,
+    "sourceMetaName": "Australia - Landscape - Tom Price Landscape",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7474",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:vw3g"
+    ],
+    "practiceFamily": "landscape",
+    "importance": 38,
+    "title": "Tom Price rocky landscape",
+    "scoringCaveats": [
+      "Red soil plus rocky Pilbara relief supports the Tom Price area; red soil alone is widespread."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7465,
+    "sourceMetaName": "Australia - Landscape - Western South Australia Landscape",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:22762",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:plonkit:SH9t"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Western South Australia Landscape",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722430,
+    "sourceMetaName": "Australia - Vegetation - Bottle Tree",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:368",
+    "existing": true,
+    "sourceUnitIds": [
+      "au:deck:qld-vegetation"
+    ],
+    "practiceFamily": "existing",
+    "importance": 0,
+    "title": "Bottle Tree",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 7463,
+    "sourceMetaName": "Australia - Vegetation - Brush Plant",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:7463",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:plonkit:pAMj",
+      "au:deck:wa-vegetation"
+    ],
+    "practiceFamily": "vegetation",
+    "importance": 32,
+    "title": "Brush Plant",
+    "scoringCaveats": [
+      "Compare the specific brush-like plant form with the source image; landscaping can move plants."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722406,
+    "sourceMetaName": "Australia - Vegetation - Gregory Tree",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722406",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:qld-vegetation"
+    ],
+    "practiceFamily": "vegetation",
+    "importance": 32,
+    "title": "Gregory Tree",
+    "scoringCaveats": [
+      "Use the complete source pattern as supporting evidence, with regional context and known exceptions."
+    ],
+    "holdReason": "Source distribution is tied to 2025 camera coverage; botanical range must be checked separately."
+  },
+  {
+    "sourceMetaId": 722416,
+    "sourceMetaName": "Australia - Vegetation - Queensland Fan Palm",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722416",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:qld-vegetation"
+    ],
+    "practiceFamily": "vegetation",
+    "importance": 32,
+    "title": "Queensland Fan Palm",
+    "scoringCaveats": [
+      "A fan palm is supporting Wet Tropics evidence; planted palms occur outside their natural range."
+    ],
+    "holdReason": null
+  },
+  {
+    "sourceMetaId": 722418,
+    "sourceMetaName": "Australia - Vegetation - Sand Palm",
+    "sourceMapId": "678f7bc66a1f9e050835ef24",
+    "targetId": "au:lm:722418",
+    "existing": false,
+    "sourceUnitIds": [
+      "au:deck:nt-regional-landscapes"
+    ],
+    "practiceFamily": "vegetation",
+    "importance": 32,
+    "title": "Sand Palm",
+    "scoringCaveats": [
+      "Sand palms support the Top End; separate native vegetation from cultivated palms."
+    ],
+    "holdReason": null
+  }
+]

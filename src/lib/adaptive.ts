@@ -92,6 +92,9 @@ export function planPractice(
   for (const reference of [...seenLocationRefs, ...previousSetLocationRefs, ...records.map(attempt => attempt.locationRef)]) {
     for (const key of referenceKeys(reference)) observed.add(key);
   }
+  const introduced = new Set([...records.map(attempt => attempt.skillId), ...locations
+    .filter(location => aliases(location).some(key => observed.has(key))).map(location => location.skillIds[0])]);
+  const isNew = (skill: PracticeSkill) => !introduced.has(skill.id);
   const recentTargets = new Set([...seenLocationRefs.slice(-10).flatMap(reference => referenceKeys(reference)
     .map(key => byReference.get(key)?.skillIds[0]).filter((id): id is string => !!id)), ...records.slice(-10).map(attempt => attempt.skillId)]);
   const seed = `${pack.id}:${records.map(attempt => attempt.id).join('|')}:${seenLocationRefs.join('|')}:${previousSetLocationRefs.join('|')}`;
@@ -122,8 +125,8 @@ export function planPractice(
     || urgency(b) - urgency(a) || score(b) - score(a) || a.id.localeCompare(b.id));
   const usedFamilies = new Set<string>(), usedPanoramas = new Set<string>();
   const selected: PracticeLocation[] = [], focusSkills: PracticeSkill[] = [];
-  for (const skill of ranked) {
-    if (selected.length >= limit) break;
+  const addTargets = (skills: PracticeSkill[], targetSize: number) => { for (const skill of skills) {
+    if (selected.length >= targetSize) break;
     if (usedFamilies.has(family(skill))) continue;
     const candidates = chosen.members.filter(location => location.skillIds[0] === skill.id
       && !usedPanoramas.has(location.panoId ?? location.id));
@@ -134,14 +137,19 @@ export function planPractice(
     const location = candidates[0];
     if (!location) continue;
     selected.push(location); focusSkills.push(skill); usedFamilies.add(family(skill)); usedPanoramas.add(location.panoId ?? location.id);
-  }
+  }};
+  addTargets(ranked.filter(isNew), Math.min(3, limit));
+  addTargets(ranked.filter(skill => !isNew(skill) && !restingTargets.has(skill.id)), limit);
+  addTargets(ranked.filter(skill => !restingTargets.has(skill.id)), limit);
+  addTargets(ranked, limit);
   // GeoGuessr chooses its own round order; do not publish a syllabus-ordered coordinate list.
   selected.sort((a, b) => hash(seed + ':order:' + a.id) - hash(seed + ':order:' + b.id));
   const reasons = ['One target per clue family; priorities mix foundations, gaps, errors and older review without a sequential completion gate.',
+    'Aim for three previously unexposed targets and two reviews per five, subject to available families and locations.',
     'Targets from the previous set rest for one set when enough other location-backed families are available, including after a miss.',
     `${selected.length} distinct clue families selected; ${selected.filter(location => !aliases(location).some(key => observed.has(key))).length} unseen panoramas.`,
     'Assumed recognition can guide practice, but does not establish verified mastery.'];
   if (selected.length < limit) reasons.push(`Only ${selected.length} distinct location-backed families are available; repeated clues will not fill the missing slots.`);
   return { pool: chosen.pool, focusSkills, reasons, locationIds: selected.map(location => location.id), phase: 'Mixed practice',
-    newSkillIds: focusSkills.filter(skill => statuses.get(skill.id)!.state === 'new').map(skill => skill.id) };
+    newSkillIds: focusSkills.filter(isNew).map(skill => skill.id) };
 }
