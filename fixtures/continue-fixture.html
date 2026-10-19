@@ -1,0 +1,39 @@
+<!doctype html><meta charset="utf-8"><title>Fieldwork continue test</title>
+<body style="font-family:Arial;background:#d6e4e9;padding:30px">
+<p>LOCAL TEST · synthetic data · no GeoGuessr account access</p>
+<main><h1>Practice map fixture</h1><p>No Move · No Time Limit</p><button id="play">Play</button></main>
+<p id="requests">0 requests</p><p id="started">0 games started</p>
+<p id="repeated">No set published</p>
+<script type="module">
+const mode=new URL(location.href).searchParams.get('mode');
+const pack=await (await fetch('/dist/practice-pack.json')).json();
+history.replaceState(null,'','/maps/'+pack.practiceMapId);
+const data={},prefix='fieldwork:'+pack.id+':';
+const previousIds=['au:lm:266','au:lm:369','au:lm:283','au:lm:287','au:lm:22763'];
+if(mode==='spacing'){
+ const previous=previousIds.map(id=>pack.locations.find(l=>l.skillIds[0]===id));
+ data[prefix+'active-set']={locationIds:previous.map(l=>l.id)};
+ data[prefix+'attempts']=previous.map((l,i)=>({id:'synthetic-miss-'+i,skillId:l.skillIds[0],occurredAt:new Date(Date.now()-60000).toISOString(),correct:false,evidenceValid:false,confidence:2,unfamiliar:true,locationRef:l.id,mode:'practice',feedbackSource:'explicit'}));
+}
+if(mode==='pending'||mode==='expired'||mode==='wrong-map')data[prefix+'launch-request']={mapId:mode==='wrong-map'?'wrong':pack.practiceMapId,requestedAt:Date.now()-(mode==='expired'?180000:0)};
+window.GM_getValue=(key,fallback)=>data[key]??fallback;window.GM_setValue=(key,value)=>data[key]=value;
+window.unsafeWindow=window;window.GeoGuessrEventFramework={events:new EventTarget(),state:{round_in_progress:true,map:{id:pack.practiceMapId}}};
+let requests=0,started=0;
+window.fetch=async(url,options={})=>{
+ if(!url.startsWith('/api/v4/user-maps/drafts/'+pack.practiceMapId))throw Error('Unexpected fixture request');
+ document.querySelector('#requests').textContent=(++requests)+' requests';
+ if(mode==='spacing'&&options.method==='PUT'&&!url.endsWith('/publish')){
+  const coords=JSON.parse(options.body).customCoordinates;
+  document.querySelector('#repeated').textContent=coords.filter(l=>previousIds.includes(l.extra.tags[0])).length+' previous-set targets repeated · '+new Set(coords.map(l=>pack.skills.find(s=>s.id===l.extra.tags[0]).practiceFamily)).size+' distinct families';
+ }
+ if(mode==='failure'&&url.endsWith('/publish'))return new Response('Unavailable',{status:503});
+ return new Response(JSON.stringify(options.method?{}:{name:'Fieldwork fixture',version:1,customCoordinates:[]}));
+};
+document.querySelector('#play').onclick=()=>{
+ document.querySelector('#started').textContent=(++started)+' games started';
+ document.querySelector('h1').textContent='Round 1 ready · No Move · No Time Limit';
+ history.replaceState(null,'','/game/continue-fixture');
+ window.GeoGuessrEventFramework.events.dispatchEvent(new CustomEvent('round_start',{detail:window.GeoGuessrEventFramework.state}));
+};
+const script=document.createElement('script');script.src='/dist/fieldwork.user.js';document.body.append(script);
+</script>

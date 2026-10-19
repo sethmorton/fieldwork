@@ -1,0 +1,1485 @@
+{
+  "schemaVersion": 1,
+  "country": "AU",
+  "purpose": "Authored expansion descriptors for real-source acquisition; not active practice skills until imported and validated.",
+  "sourceCoverageReport": "work/geopractice/learnable-location-coverage.json",
+  "selectionCount": 22,
+  "reportedSourceLocationAssignments": 141,
+  "coordinatesImported": true,
+  "stateField": "Single likely state abbreviation when source scope supports one; null for country tasks or cross-border scene families. The correct answer is always the actual reviewed panorama state/country, not this supporting cue prior.",
+  "skills": [
+    {
+      "id": "au:lm:155",
+      "metaId": 155,
+      "sourceMapId": "66fda2e27e08dc03b5bb3d6e",
+      "sourceUrl": "https://learnablemeta.com/maps/66fda2e27e08dc03b5bb3d6e",
+      "sourceMetaName": "Australia - Give way sign",
+      "title": "Give-way sign: Australia versus New Zealand",
+      "country": "AU",
+      "category": "country-recognition",
+      "phase": "Country foundations",
+      "answerLevel": "country",
+      "state": null,
+      "locality": null,
+      "geographicScope": "national-recognition",
+      "scoringCaveats": [
+        "Non-Australia give-way examples, including New Zealand, are required before activating country-identification scoring."
+      ],
+      "contrastIds": [],
+      "availability": "needs-contrasts",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add explicitly tagged non-Australia contrast panoramas before this country-identification skill becomes selectable."
+      ],
+      "sourceLocationCount": 20,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:YdCf",
+          "title": "Give-way typography contrast",
+          "url": "https://www.plonkit.net/australia#YdCf",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:159",
+      "metaId": 159,
+      "sourceMapId": "66fda2e27e08dc03b5bb3d6e",
+      "sourceUrl": "https://learnablemeta.com/maps/66fda2e27e08dc03b5bb3d6e",
+      "sourceMetaName": "Australia - Bollard",
+      "title": "Australian bollards versus lookalikes",
+      "country": "AU",
+      "category": "country-recognition",
+      "phase": "Country foundations",
+      "answerLevel": "country",
+      "state": null,
+      "locality": null,
+      "geographicScope": "national-recognition",
+      "scoringCaveats": [
+        "Include New Zealand and Turkey lookalikes; a white post and red reflector alone cannot prove Australia."
+      ],
+      "contrastIds": [],
+      "availability": "needs-contrasts",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add explicitly tagged non-Australia contrast panoramas before this country-identification skill becomes selectable."
+      ],
+      "sourceLocationCount": 20,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:Snwr",
+          "title": "National bollard versus New Zealand",
+          "url": "https://www.plonkit.net/australia#Snwr",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:bollard-families",
+          "title": "State bollard and reflector families",
+          "sources": [
+            {
+              "slideNumber": 16,
+              "objectId": "g1122d5ba1de_0_25",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_25"
+            },
+            {
+              "slideNumber": 28,
+              "objectId": "g1122d5ba1de_0_166",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_166"
+            },
+            {
+              "slideNumber": 53,
+              "objectId": "g1122d5ba1de_0_256",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_256"
+            },
+            {
+              "slideNumber": 63,
+              "objectId": "g1122d5ba1de_0_754",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_754"
+            },
+            {
+              "slideNumber": 79,
+              "objectId": "g1122d5ba1de_0_745",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_745"
+            },
+            {
+              "slideNumber": 96,
+              "objectId": "g1144b43f990_1_2",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1144b43f990_1_2"
+            },
+            {
+              "slideNumber": 97,
+              "objectId": "g11574d61ff1_0_132",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g11574d61ff1_0_132"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:22765",
+      "metaId": 22765,
+      "sourceMapId": "67d4b7356d77cefed0f90e35",
+      "sourceUrl": "https://learnablemeta.com/maps/67d4b7356d77cefed0f90e35",
+      "sourceMetaName": "Australia - Coastal Queensland",
+      "title": "Tropical coastal Queensland",
+      "country": "AU",
+      "category": "landscape-and-vegetation",
+      "phase": "Broad scenes",
+      "answerLevel": "state",
+      "state": "QLD",
+      "locality": null,
+      "geographicScope": "state-supporting-evidence",
+      "scoringCaveats": [
+        "Tropical appearance overlaps Darwin and other tropical regions; require multiple visible cues."
+      ],
+      "contrastIds": [
+        "au:lm:22766",
+        "au:lm:267"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:0lXU",
+          "title": "Tropical coastal Queensland",
+          "url": "https://www.plonkit.net/australia#0lXU",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:qld-vegetation",
+          "title": "Queensland tropical vegetation and sugar cane",
+          "sources": [
+            {
+              "slideNumber": 31,
+              "objectId": "g11574d61ff1_0_122",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g11574d61ff1_0_122"
+            },
+            {
+              "slideNumber": 32,
+              "objectId": "g1122d5ba1de_0_176",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_176"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:qld-regional-landscapes",
+          "title": "QLD regional landscape contrasts",
+          "sources": [
+            {
+              "slideNumber": 33,
+              "objectId": "g11574d61ff1_0_111",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g11574d61ff1_0_111"
+            },
+            {
+              "slideNumber": 32,
+              "objectId": "g1122d5ba1de_0_176",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_176"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:22766",
+      "metaId": 22766,
+      "sourceMapId": "67d4b7356d77cefed0f90e35",
+      "sourceUrl": "https://learnablemeta.com/maps/67d4b7356d77cefed0f90e35",
+      "sourceMetaName": "Australia - Darwin",
+      "title": "Darwin: dark trunks, grass and red ground",
+      "country": "AU",
+      "category": "landscape-and-vegetation",
+      "phase": "Broad scenes",
+      "answerLevel": "state",
+      "state": "NT",
+      "locality": null,
+      "geographicScope": "local-tendency",
+      "scoringCaveats": [
+        "Darwin is a local landscape, not all NT. Red soil alone does not distinguish NT from WA."
+      ],
+      "contrastIds": [
+        "au:lm:22765",
+        "au:lm:22770"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:3wyr",
+          "title": "Darwin savanna appearance",
+          "url": "https://www.plonkit.net/australia#3wyr",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:nt-regional-landscapes",
+          "title": "NT regional landscape contrasts",
+          "sources": [
+            {
+              "slideNumber": 95,
+              "objectId": "g1122d5ba1de_0_446",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_446"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:soil-colors",
+          "title": "SA/WA/NT soil color as supporting evidence",
+          "sources": [
+            {
+              "slideNumber": 36,
+              "objectId": "g11768db48a6_0_14",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g11768db48a6_0_14"
+            },
+            {
+              "slideNumber": 71,
+              "objectId": "g11768db48a6_0_8",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g11768db48a6_0_8"
+            },
+            {
+              "slideNumber": 86,
+              "objectId": "g11768db48a6_0_20",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g11768db48a6_0_20"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:22763",
+      "metaId": 22763,
+      "sourceMapId": "67d4b7356d77cefed0f90e35",
+      "sourceUrl": "https://learnablemeta.com/maps/67d4b7356d77cefed0f90e35",
+      "sourceMetaName": "Australia - South Fields",
+      "title": "Southern green and golden farmland",
+      "country": "AU",
+      "category": "landscape-and-vegetation",
+      "phase": "Broad scenes",
+      "answerLevel": "state",
+      "state": null,
+      "locality": null,
+      "geographicScope": "cross-border-scene-family",
+      "scoringCaveats": [
+        "Source region spans SA and Victoria; score actual panorama state, never a single fixed state label for this whole skill."
+      ],
+      "contrastIds": [
+        "au:lm:22762",
+        "au:lm:22767"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:lxhc",
+          "title": "Southern agricultural landscape gradient",
+          "url": "https://www.plonkit.net/australia#lxhc",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:sa-regional-landscapes",
+          "title": "SA regional landscape contrasts",
+          "sources": [
+            {
+              "slideNumber": 46,
+              "objectId": "g1122d5ba1de_0_221",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_221"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:vic-regional-landscapes",
+          "title": "VIC regional landscape contrasts",
+          "sources": [
+            {
+              "slideNumber": 68,
+              "objectId": "g1122d5ba1de_0_356",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_356"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:22767",
+      "metaId": 22767,
+      "sourceMapId": "67d4b7356d77cefed0f90e35",
+      "sourceUrl": "https://learnablemeta.com/maps/67d4b7356d77cefed0f90e35",
+      "sourceMetaName": "Australia - Tasmania",
+      "title": "Tasmanian temperate hills",
+      "country": "AU",
+      "category": "landscape-and-vegetation",
+      "phase": "Broad scenes",
+      "answerLevel": "state",
+      "state": "TAS",
+      "locality": null,
+      "geographicScope": "state-supporting-evidence",
+      "scoringCaveats": [
+        "Some Victoria scenes look similar; winter coverage may look dry. Use independent infrastructure when available."
+      ],
+      "contrastIds": [
+        "au:lm:22763",
+        "au:lm:22769"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:Fm8m",
+          "title": "Tasmanian temperate landscape",
+          "url": "https://www.plonkit.net/australia#Fm8m",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:tas-regional-landscapes",
+          "title": "TAS regional landscape contrasts",
+          "sources": [
+            {
+              "slideNumber": 55,
+              "objectId": "g11711f8f513_0_76",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g11711f8f513_0_76"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:22770",
+      "metaId": 22770,
+      "sourceMapId": "67d4b7356d77cefed0f90e35",
+      "sourceUrl": "https://learnablemeta.com/maps/67d4b7356d77cefed0f90e35",
+      "sourceMetaName": "Australia - Western Australia",
+      "title": "Western Australian soil and scrub combinations",
+      "country": "AU",
+      "category": "landscape-and-vegetation",
+      "phase": "Broad scenes",
+      "answerLevel": "state",
+      "state": "WA",
+      "locality": null,
+      "geographicScope": "state-supporting-evidence",
+      "scoringCaveats": [
+        "Red/orange soil occurs outside WA and some WA scenes have pale soil. The current LM prose overstates soil colour unless this caveat is retained."
+      ],
+      "contrastIds": [
+        "au:lm:22769",
+        "au:lm:22762",
+        "au:lm:22766"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "deck",
+          "id": "au:deck:wa-regional-landscapes",
+          "title": "WA regional landscape contrasts",
+          "sources": [
+            {
+              "slideNumber": 83,
+              "objectId": "g11574d61ff1_0_100",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g11574d61ff1_0_100"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:soil-colors",
+          "title": "SA/WA/NT soil color as supporting evidence",
+          "sources": [
+            {
+              "slideNumber": 36,
+              "objectId": "g11768db48a6_0_14",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g11768db48a6_0_14"
+            },
+            {
+              "slideNumber": 71,
+              "objectId": "g11768db48a6_0_8",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g11768db48a6_0_8"
+            },
+            {
+              "slideNumber": 86,
+              "objectId": "g11768db48a6_0_20",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g11768db48a6_0_20"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:wa-vegetation",
+          "title": "WA vegetation forms and grass trees",
+          "sources": [
+            {
+              "slideNumber": 78,
+              "objectId": "g1144b43f61a_0_27",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1144b43f61a_0_27"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:22769",
+      "metaId": 22769,
+      "sourceMapId": "67d4b7356d77cefed0f90e35",
+      "sourceUrl": "https://learnablemeta.com/maps/67d4b7356d77cefed0f90e35",
+      "sourceMetaName": "Australia - Inland New South Wales",
+      "title": "Inland NSW landscape gradient",
+      "country": "AU",
+      "category": "landscape-and-vegetation",
+      "phase": "Broad scenes",
+      "answerLevel": "state",
+      "state": "NSW",
+      "locality": null,
+      "geographicScope": "state-supporting-evidence",
+      "scoringCaveats": [
+        "An inland gradient is probabilistic and overlaps nearby QLD/Victoria landscapes; avoid memorizing dry shrubs as unique NSW."
+      ],
+      "contrastIds": [
+        "au:lm:22770",
+        "au:lm:22763"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:5dWF",
+          "title": "Inland NSW landscape gradient",
+          "url": "https://www.plonkit.net/australia#5dWF",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:nsw-regional-landscapes",
+          "title": "NSW regional landscape contrasts",
+          "sources": [
+            {
+              "slideNumber": 18,
+              "objectId": "g1122d5ba1de_0_30",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_30"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:22762",
+      "metaId": 22762,
+      "sourceMapId": "67d4b7356d77cefed0f90e35",
+      "sourceUrl": "https://learnablemeta.com/maps/67d4b7356d77cefed0f90e35",
+      "sourceMetaName": "Australia - Southwest South Australia Landscape",
+      "title": "Southern dry scrub across state borders",
+      "country": "AU",
+      "category": "landscape-and-vegetation",
+      "phase": "Broad scenes",
+      "answerLevel": "state",
+      "state": null,
+      "locality": null,
+      "geographicScope": "cross-border-scene-family",
+      "scoringCaveats": [
+        "The source extends from SA into WA and explicitly notes similar northwestern Victoria scenes. Score actual location state, not the source title."
+      ],
+      "contrastIds": [
+        "au:lm:22763",
+        "au:lm:22770"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:SH9t",
+          "title": "Southern dry scrubland comparison",
+          "url": "https://www.plonkit.net/australia#SH9t",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:sa-regional-landscapes",
+          "title": "SA regional landscape contrasts",
+          "sources": [
+            {
+              "slideNumber": 46,
+              "objectId": "g1122d5ba1de_0_221",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_221"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:wa-regional-landscapes",
+          "title": "WA regional landscape contrasts",
+          "sources": [
+            {
+              "slideNumber": 83,
+              "objectId": "g11574d61ff1_0_100",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g11574d61ff1_0_100"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:vic-regional-landscapes",
+          "title": "VIC regional landscape contrasts",
+          "sources": [
+            {
+              "slideNumber": 68,
+              "objectId": "g1122d5ba1de_0_356",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_356"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:7468",
+      "metaId": 7468,
+      "sourceMapId": "68447913f27b2258fd67bd7d",
+      "sourceUrl": "https://learnablemeta.com/maps/68447913f27b2258fd67bd7d",
+      "sourceMetaName": "Australia - Agriculture - Sugarcane",
+      "title": "Recognize sugarcane as supporting evidence",
+      "country": "AU",
+      "category": "agriculture",
+      "phase": "Scene refinements",
+      "answerLevel": "state",
+      "state": "QLD",
+      "locality": null,
+      "geographicScope": "state-supporting-evidence",
+      "scoringCaveats": [
+        "Four source examples are a starter pool. Visually confirm sugarcane versus other tall crops; crop recognition does not uniquely identify Queensland."
+      ],
+      "contrastIds": [
+        "au:lm:22765",
+        "au:lm:22763"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 4,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:LyHG",
+          "title": "Sugarcane distribution",
+          "url": "https://www.plonkit.net/australia#LyHG",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:qld-vegetation",
+          "title": "Queensland tropical vegetation and sugar cane",
+          "sources": [
+            {
+              "slideNumber": 31,
+              "objectId": "g11574d61ff1_0_122",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g11574d61ff1_0_122"
+            },
+            {
+              "slideNumber": 32,
+              "objectId": "g1122d5ba1de_0_176",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_176"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:10213",
+      "metaId": 10213,
+      "sourceMapId": "67bcfa50de249626b4a3e177",
+      "sourceUrl": "https://learnablemeta.com/maps/67bcfa50de249626b4a3e177",
+      "sourceMetaName": "Australia - Roadlines",
+      "title": "Mostly white Australian road lines",
+      "country": "AU",
+      "category": "road-lines",
+      "phase": "Country foundations",
+      "answerLevel": "country",
+      "state": null,
+      "locality": null,
+      "geographicScope": "national-recognition",
+      "scoringCaveats": [
+        "White road lines are widespread globally. Use non-Australia contrast cases, and include alpine Australian yellow-line exceptions."
+      ],
+      "contrastIds": [],
+      "availability": "needs-contrasts",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add explicitly tagged non-Australia contrast panoramas before this country-identification skill becomes selectable."
+      ],
+      "sourceLocationCount": 6,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:yxkv",
+          "title": "Country road-line contrast",
+          "url": "https://www.plonkit.net/australia#yxkv",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:10214",
+      "metaId": 10214,
+      "sourceMapId": "67bcfa50de249626b4a3e177",
+      "sourceUrl": "https://learnablemeta.com/maps/67bcfa50de249626b4a3e177",
+      "sourceMetaName": "Australia - Roadlines #2",
+      "title": "Edge rumble strips and their limits",
+      "country": "AU",
+      "category": "road-lines",
+      "phase": "Country foundations",
+      "answerLevel": "country",
+      "state": null,
+      "locality": null,
+      "geographicScope": "national-recognition",
+      "scoringCaveats": [
+        "Rumble strips also occur in New Zealand; absence is weak evidence and NT rarity is not a prohibition. Need non-Australia foils for country transfer."
+      ],
+      "contrastIds": [],
+      "availability": "needs-contrasts",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add explicitly tagged non-Australia contrast panoramas before this country-identification skill becomes selectable."
+      ],
+      "sourceLocationCount": 6,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:0WyC",
+          "title": "Edge rumble-strip recognition",
+          "url": "https://www.plonkit.net/australia#0WyC",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:nt-pavement",
+          "title": "NT reddish roads and rumble strips",
+          "sources": [
+            {
+              "slideNumber": 89,
+              "objectId": "g11574d61ff1_0_16",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g11574d61ff1_0_16"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:10245",
+      "metaId": 10245,
+      "sourceMapId": "67b8db19c812bf41d49b730e",
+      "sourceUrl": "https://learnablemeta.com/maps/67b8db19c812bf41d49b730e",
+      "sourceMetaName": "Australia  - Capital Territory bus stop sign",
+      "title": "ACT bus-stop design",
+      "country": "AU",
+      "category": "urban-bus-stops",
+      "phase": "Urban state clues",
+      "answerLevel": "state",
+      "state": "ACT",
+      "locality": null,
+      "geographicScope": "state-supporting-evidence",
+      "scoringCaveats": [
+        "Five source examples do not cover every ACT operator, stop era or sign variant."
+      ],
+      "contrastIds": [
+        "au:lm:9755",
+        "au:lm:9750"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:6oil",
+          "title": "State bus-stop design families",
+          "url": "https://www.plonkit.net/australia#6oil",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:act-transit",
+          "title": "ACT transit signs and liveries",
+          "sources": [
+            {
+              "slideNumber": 96,
+              "objectId": "g1144b43f990_1_2",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1144b43f990_1_2"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:9755",
+      "metaId": 9755,
+      "sourceMapId": "67b8db19c812bf41d49b730e",
+      "sourceUrl": "https://learnablemeta.com/maps/67b8db19c812bf41d49b730e",
+      "sourceMetaName": "Australia  - New South Wales bus stop signs",
+      "title": "NSW bus-stop designs",
+      "country": "AU",
+      "category": "urban-bus-stops",
+      "phase": "Urban state clues",
+      "answerLevel": "state",
+      "state": "NSW",
+      "locality": null,
+      "geographicScope": "state-supporting-evidence",
+      "scoringCaveats": [
+        "State bus-stop families contain variants; score actual pano state, then assess whether the visual family was recognized."
+      ],
+      "contrastIds": [
+        "au:lm:10245",
+        "au:lm:9754"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:6oil",
+          "title": "State bus-stop design families",
+          "url": "https://www.plonkit.net/australia#6oil",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:nsw-transit",
+          "title": "NSW transit signs and liveries",
+          "sources": [
+            {
+              "slideNumber": 15,
+              "objectId": "g1122d5ba1de_0_125",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_125"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:9754",
+      "metaId": 9754,
+      "sourceMapId": "67b8db19c812bf41d49b730e",
+      "sourceUrl": "https://learnablemeta.com/maps/67b8db19c812bf41d49b730e",
+      "sourceMetaName": "Australia  - Queensland bus top signs",
+      "title": "Queensland bus-stop designs",
+      "country": "AU",
+      "category": "urban-bus-stops",
+      "phase": "Urban state clues",
+      "answerLevel": "state",
+      "state": "QLD",
+      "locality": null,
+      "geographicScope": "state-supporting-evidence",
+      "scoringCaveats": [
+        "Do not assume every Queensland operator uses the example shown."
+      ],
+      "contrastIds": [
+        "au:lm:9755",
+        "au:lm:9753"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:6oil",
+          "title": "State bus-stop design families",
+          "url": "https://www.plonkit.net/australia#6oil",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:qld-transit",
+          "title": "QLD transit signs and liveries",
+          "sources": [
+            {
+              "slideNumber": 26,
+              "objectId": "g1122d5ba1de_0_161",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_161"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:9751",
+      "metaId": 9751,
+      "sourceMapId": "67b8db19c812bf41d49b730e",
+      "sourceUrl": "https://learnablemeta.com/maps/67b8db19c812bf41d49b730e",
+      "sourceMetaName": "Australia  - South Australia bus stop signs",
+      "title": "SA bus-stop designs",
+      "country": "AU",
+      "category": "urban-bus-stops",
+      "phase": "Urban state clues",
+      "answerLevel": "state",
+      "state": "SA",
+      "locality": null,
+      "geographicScope": "state-supporting-evidence",
+      "scoringCaveats": [
+        "Public-transport signs change; compare current examples and multiple designs."
+      ],
+      "contrastIds": [
+        "au:lm:9753",
+        "au:lm:9750"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:6oil",
+          "title": "State bus-stop design families",
+          "url": "https://www.plonkit.net/australia#6oil",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:sa-transit",
+          "title": "SA transit signs and liveries",
+          "sources": [
+            {
+              "slideNumber": 42,
+              "objectId": "g1122d5ba1de_0_206",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_206"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:9750",
+      "metaId": 9750,
+      "sourceMapId": "67b8db19c812bf41d49b730e",
+      "sourceUrl": "https://learnablemeta.com/maps/67b8db19c812bf41d49b730e",
+      "sourceMetaName": "Australia  - Victoria bus stop signs",
+      "title": "Victoria bus-stop designs",
+      "country": "AU",
+      "category": "urban-bus-stops",
+      "phase": "Urban state clues",
+      "answerLevel": "state",
+      "state": "VIC",
+      "locality": null,
+      "geographicScope": "state-supporting-evidence",
+      "scoringCaveats": [
+        "Do not infer statewide exclusivity from one operator design."
+      ],
+      "contrastIds": [
+        "au:lm:9752",
+        "au:lm:9751"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:6oil",
+          "title": "State bus-stop design families",
+          "url": "https://www.plonkit.net/australia#6oil",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:vic-transit",
+          "title": "VIC transit signs and liveries",
+          "sources": [
+            {
+              "slideNumber": 64,
+              "objectId": "g1122d5ba1de_0_341",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_341"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:9752",
+      "metaId": 9752,
+      "sourceMapId": "67b8db19c812bf41d49b730e",
+      "sourceUrl": "https://learnablemeta.com/maps/67b8db19c812bf41d49b730e",
+      "sourceMetaName": "Australia  - Tasmania bus top signs",
+      "title": "Tasmania bus-stop designs",
+      "country": "AU",
+      "category": "urban-bus-stops",
+      "phase": "Urban state clues",
+      "answerLevel": "state",
+      "state": "TAS",
+      "locality": null,
+      "geographicScope": "state-supporting-evidence",
+      "scoringCaveats": [
+        "Compare with Victorian lookalikes and verify sign date/operator variants."
+      ],
+      "contrastIds": [
+        "au:lm:9750",
+        "au:lm:9753"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:6oil",
+          "title": "State bus-stop design families",
+          "url": "https://www.plonkit.net/australia#6oil",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:tas-transit",
+          "title": "TAS transit signs and liveries",
+          "sources": [
+            {
+              "slideNumber": 52,
+              "objectId": "g1122d5ba1de_0_251",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_251"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:9753",
+      "metaId": 9753,
+      "sourceMapId": "67b8db19c812bf41d49b730e",
+      "sourceUrl": "https://learnablemeta.com/maps/67b8db19c812bf41d49b730e",
+      "sourceMetaName": "Australia  - Western Australia bus stop signs",
+      "title": "WA bus-stop designs",
+      "country": "AU",
+      "category": "urban-bus-stops",
+      "phase": "Urban state clues",
+      "answerLevel": "state",
+      "state": "WA",
+      "locality": null,
+      "geographicScope": "state-supporting-evidence",
+      "scoringCaveats": [
+        "Use several current WA variants before transfer testing."
+      ],
+      "contrastIds": [
+        "au:lm:9751",
+        "au:lm:9754"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:6oil",
+          "title": "State bus-stop design families",
+          "url": "https://www.plonkit.net/australia#6oil",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:wa-transit",
+          "title": "WA transit signs and liveries",
+          "sources": [
+            {
+              "slideNumber": 81,
+              "objectId": "g1122d5ba1de_0_617",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_617"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:468883",
+      "metaId": 468883,
+      "sourceMapId": "68459a9bf27b2258fd6b928b",
+      "sourceUrl": "https://learnablemeta.com/maps/68459a9bf27b2258fd6b928b",
+      "sourceMetaName": "Australia - blue circular sticker",
+      "title": "Queensland circular pole markers",
+      "country": "AU",
+      "category": "pole-markings",
+      "phase": "Infrastructure refinements",
+      "answerLevel": "state",
+      "state": "QLD",
+      "locality": null,
+      "geographicScope": "state-supporting-evidence",
+      "scoringCaveats": [
+        "Circular stickers may be faded or another colour; blue stickers also exist in France. Pair recognition with pole/context evidence."
+      ],
+      "contrastIds": [
+        "au:lm:468881",
+        "au:lm:313"
+      ],
+      "availability": "needs-locations",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Add a cue-visible comparison pool from an introduced contrasting skill before using this as a targeted discrimination drill."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:tILb",
+          "title": "Queensland circular pole marker",
+          "url": "https://www.plonkit.net/australia#tILb",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:qld-pole-tags",
+          "title": "Queensland pole tag families",
+          "sources": [
+            {
+              "slideNumber": 22,
+              "objectId": "g1122d5ba1de_0_141",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_141"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:468881",
+      "metaId": 468881,
+      "sourceMapId": "68459a9bf27b2258fd6b928b",
+      "sourceUrl": "https://learnablemeta.com/maps/68459a9bf27b2258fd6b928b",
+      "sourceMetaName": "Australia - blue square",
+      "title": "Melbourne blue-square pole label",
+      "country": "AU",
+      "category": "pole-markings",
+      "phase": "Local refinements",
+      "answerLevel": "state",
+      "state": "VIC",
+      "locality": "Melbourne",
+      "geographicScope": "local-tendency",
+      "scoringCaveats": [
+        "Melbourne-local cue, not an all-Victoria rule. Validate each panorama is within the claimed local scope before enabling local scoring."
+      ],
+      "contrastIds": [
+        "au:lm:468883",
+        "au:lm:284"
+      ],
+      "availability": "needs-local-validation",
+      "availabilityPrerequisites": [
+        "Acquire actual positions through the shared source PersonalMap upload and native GeoGuessr export.",
+        "Verify panorama availability, feature visibility and camera orientation.",
+        "Assign actual state from reviewed coordinates; retain cross-border counterexamples.",
+        "Deduplicate panoramas across train/review/held-out transfer sets.",
+        "Record clue recognition separately from state-guess accuracy; never infer mastery from a correct guess alone.",
+        "Validate Melbourne locality and cue scope; state-level practice may be added only after cue validation, and must not call local accuracy a statewide rule."
+      ],
+      "sourceLocationCount": 5,
+      "actualImportedLocationCount": 0,
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:OgUS",
+          "title": "Melbourne pole label",
+          "url": "https://www.plonkit.net/australia#OgUS",
+          "relationship": "direct-concept-overlap",
+          "doesNotValidateLocations": true
+        },
+        {
+          "kind": "deck",
+          "id": "au:deck:vic-pole-tags",
+          "title": "Victoria pole numbers and danger tags",
+          "sources": [
+            {
+              "slideNumber": 59,
+              "objectId": "g11574d61ff1_0_180",
+              "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g11574d61ff1_0_180"
+            }
+          ],
+          "relationship": "related-source-unit; may include additional untested subfeatures",
+          "doesNotValidateLocations": true
+        }
+      ],
+      "masteryEvidence": {
+        "recognitionSelfReportRequired": true,
+        "stateGuessAloneSufficient": false,
+        "delayedUnseenTransferRequired": true,
+        "sourceCountIsMastery": false
+      }
+    },
+    {
+      "id": "au:lm:13866",
+      "metaId": 13866,
+      "sourceMapId": "67cbdf07d547bc1d1d94b35e",
+      "sourceUrl": "https://learnablemeta.com/maps/67cbdf07d547bc1d1d94b35e",
+      "sourceMetaName": "Australia - Eucalyptus Trees",
+      "title": "Recognize eucalyptus form",
+      "country": "AU",
+      "category": "vegetation",
+      "phase": "National visual foundations",
+      "answerLevel": "recognition",
+      "state": null,
+      "contrastIds": [],
+      "availability": "needs-locations",
+      "sourceLocationCount": 5,
+      "scoringCaveats": [
+        "Eucalyptus also occurs outside Australia. These examples train visual recognition, not country discrimination."
+      ],
+      "associations": [
+        {
+          "kind": "plonkit",
+          "id": "au:plonkit:cP3a",
+          "title": "Eucalyptus recognition",
+          "url": "https://www.plonkit.net/australia#cP3a"
+        }
+      ]
+    }
+  ],
+  "sequenceRules": [
+    "Five different pedagogic clue families per set.",
+    "Source-informed importance, errors, coverage and recency guide a mixed selection; there is no sequential completion gate.",
+    "National features are recognition tasks while country-contrast locations are absent.",
+    "Keep existing history; assumed-on-advance observations are labelled practice, never backfilled."
+  ],
+  "validationStatus": "Exact meta IDs/counts checked against public sharing-enabled source inventories; descriptor caveats/source associations checked against local deck and PlonkIt coverage indexes. No actual new panorama visibility validation or learner mastery claimed."
+}

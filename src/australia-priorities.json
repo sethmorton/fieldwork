@@ -1,0 +1,174 @@
+{
+  "source": "https://www.plonkit.net/australia",
+  "meaning": "Practical importance tiers informed by guide Steps 1\u20133; not a numeric ranking claimed by PlonkIt.",
+  "skills": {
+    "au:lm:13866": {
+      "practiceFamily": "vegetation",
+      "importance": 45
+    },
+    "au:lm:368": {
+      "practiceFamily": "vegetation",
+      "importance": 10
+    },
+    "au:lm:159": {
+      "practiceFamily": "bollards",
+      "importance": 45
+    },
+    "au:lm:287": {
+      "practiceFamily": "bollards",
+      "importance": 30
+    },
+    "au:lm:285": {
+      "practiceFamily": "bollards",
+      "importance": 30
+    },
+    "au:lm:10213": {
+      "practiceFamily": "road-markings",
+      "importance": 45
+    },
+    "au:lm:10214": {
+      "practiceFamily": "road-markings",
+      "importance": 45
+    },
+    "au:lm:369": {
+      "practiceFamily": "road-markings",
+      "importance": 30
+    },
+    "au:lm:155": {
+      "practiceFamily": "regulatory-signs",
+      "importance": 45
+    },
+    "au:lm:367": {
+      "practiceFamily": "regulatory-signs",
+      "importance": 30
+    },
+    "au:lm:22763": {
+      "practiceFamily": "landscape",
+      "importance": 40
+    },
+    "au:lm:22762": {
+      "practiceFamily": "landscape",
+      "importance": 40
+    },
+    "au:lm:22765": {
+      "practiceFamily": "landscape",
+      "importance": 40
+    },
+    "au:lm:22766": {
+      "practiceFamily": "landscape",
+      "importance": 40
+    },
+    "au:lm:22767": {
+      "practiceFamily": "landscape",
+      "importance": 40
+    },
+    "au:lm:22769": {
+      "practiceFamily": "landscape",
+      "importance": 40
+    },
+    "au:lm:22770": {
+      "practiceFamily": "landscape",
+      "importance": 40
+    },
+    "au:lm:7468": {
+      "practiceFamily": "landscape",
+      "importance": 40
+    },
+    "au:lm:374": {
+      "practiceFamily": "plates",
+      "importance": 25
+    },
+    "au:lm:282": {
+      "practiceFamily": "pole-construction",
+      "importance": 25
+    },
+    "au:lm:281": {
+      "practiceFamily": "pole-construction",
+      "importance": 25
+    },
+    "au:lm:284": {
+      "practiceFamily": "pole-construction",
+      "importance": 25
+    },
+    "au:lm:283": {
+      "practiceFamily": "pole-construction",
+      "importance": 25
+    },
+    "au:lm:286": {
+      "practiceFamily": "pole-construction",
+      "importance": 25
+    },
+    "au:lm:659": {
+      "practiceFamily": "pole-construction",
+      "importance": 10
+    },
+    "au:lm:313": {
+      "practiceFamily": "pole-labels",
+      "importance": 15
+    },
+    "au:lm:372": {
+      "practiceFamily": "pole-labels",
+      "importance": 15
+    },
+    "au:lm:468883": {
+      "practiceFamily": "pole-labels",
+      "importance": 15
+    },
+    "au:lm:468881": {
+      "practiceFamily": "pole-labels",
+      "importance": 10
+    },
+    "au:lm:267": {
+      "practiceFamily": "sign-supports",
+      "importance": 25
+    },
+    "au:lm:266": {
+      "practiceFamily": "sign-supports",
+      "importance": 25
+    },
+    "au:lm:264": {
+      "practiceFamily": "property-markers",
+      "importance": 15
+    },
+    "au:lm:556776": {
+      "practiceFamily": "property-markers",
+      "importance": 15
+    },
+    "au:lm:10245": {
+      "practiceFamily": "bus-stops",
+      "importance": 15
+    },
+    "au:lm:9755": {
+      "practiceFamily": "bus-stops",
+      "importance": 15
+    },
+    "au:lm:9754": {
+      "practiceFamily": "bus-stops",
+      "importance": 15
+    },
+    "au:lm:9751": {
+      "practiceFamily": "bus-stops",
+      "importance": 15
+    },
+    "au:lm:9750": {
+      "practiceFamily": "bus-stops",
+      "importance": 15
+    },
+    "au:lm:9752": {
+      "practiceFamily": "bus-stops",
+      "importance": 15
+    },
+    "au:lm:9753": {
+      "practiceFamily": "bus-stops",
+      "importance": 15
+    },
+    "au:lm:370": {
+      "practiceFamily": "roadside-markers",
+      "importance": 15
+    },
+    "au:lm:373": {
+      "practiceFamily": "roadside-markers",
+      "importance": 15
+    }
+  }
+}

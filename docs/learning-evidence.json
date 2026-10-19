@@ -1,0 +1,73 @@
+{
+  "purpose": "Implementation guidance for a visual, adaptive GeoGuessr practice system; evidence reviewed 2026-10-18.",
+  "evidence_boundary": "No cited study validates this complete curriculum, exact phase order, session length, mastery threshold, or scheduler for GeoGuessr. ADHD findings are task- and sample-specific, not universal prescriptions or clinical treatment guidance.",
+  "requirements": [
+    {
+      "id": "active-set",
+      "requirement": "Make Practice the primary action. Maintain a small active set of concepts and generate the next map from demonstrated weaknesses, due reviews, contrasting alternatives, and limited new content. Explain the selection in one sentence.",
+      "basis": "Keybr's official implementation starts with six frequent letters, targets the weakest included key, and expands against a configurable speed target. Adaptive perceptual-category sequencing improved efficiency in Mettler and Kellman's experiments.",
+      "caveat": "Six concepts and any new/review percentage would be product heuristics. Keybr is an implementation analogy, not GeoGuessr learning evidence.",
+      "sources": ["keybr-guided", "mettler2014"]
+    },
+    {
+      "id": "measurement",
+      "requirement": "Store observed attempt, assessed concept, location identifier, correct/incorrect/unknown evidence, cue visibility, self-report versus verified result, date, and whether the example was previously seen. Mark missing observations unknown. Do not infer per-clue mastery from map completion or one multi-cue state guess.",
+      "basis": "Generalization requires classification of unseen instances; visible cues and valid reasoning distinguish evidence of a particular skill from a lucky correct region guess.",
+      "caveat": "These data fields and attribution safeguards are design judgments. Without a reliable results integration, label learner-entered outcomes as self-reported.",
+      "sources": ["mettler2014"]
+    },
+    {
+      "id": "honest-strength",
+      "requirement": "Show concrete evidence such as 7 correct of 10 assessed attempts across 8 locations, with last review date. Use states such as new, practicing, and ready for a mixed check. Avoid precision-looking mastery percentages, repeated mastery celebrations, or permanent mastered labels after one streak.",
+      "basis": "Keybr's confidence is target time divided by measured time; it is not statistical confidence. Immediate success does not establish durable generalization.",
+      "caveat": "A score based on hand-chosen weights must be called a practice-priority estimate, not a calibrated probability. Exact promotion criteria require validation against delayed unseen rounds.",
+      "sources": ["keybr-target", "mettler2014"]
+    },
+    {
+      "id": "contrast-and-variety",
+      "requirement": "Give concise visual orientation, then mix the current concept with its nearest plausible alternatives. Include different appearances, lookalikes, absent-cue scenes, and ordinary locations. Keep advanced exceptions available behind progressive disclosure.",
+      "basis": "Category structure affects blocked versus interleaved advantages. Contrast supports discrimination; within-category comparison can help identify shared features.",
+      "caveat": "Do not claim a long isolated-clue basics phase is necessary. Mettler and Kellman's initial miniblocks never outperformed continuous adaptive interleaving.",
+      "sources": ["carvalho2014", "mettler2014"]
+    },
+    {
+      "id": "retrieval-and-feedback",
+      "requirement": "Let the learner commit a guess before showing the answer. Post-guess feedback should show an annotated visual, the diagnostic feature, and the nearest alternative; deeper explanation is optional. Keep reveal and next under learner control and avoid automatic rapid advance.",
+      "basis": "Retrieval improved retention and inference transfer in prose experiments. A specific ADHD probabilistic-learning study found impairment with immediate feedback but no group difference when feedback was delayed by seconds.",
+      "caveat": "Neither immediate feedback nor deliberate delay is universally best. The proposed reveal control is a usability choice; these studies do not establish its optimal timing for GeoGuessr.",
+      "sources": ["butler2010", "gabay2018"]
+    },
+    {
+      "id": "small-batches-control",
+      "requirement": "Offer one finite round batch at a time, show remaining rounds, save after each observation, and provide pause/resume and stop without losing progress. Make batch size adjustable. Use one primary action and suppress nonessential animation and notification clutter.",
+      "basis": "Recent ADHD visual-discrimination research found comparable eventual performance with greater variability and lapses; a different category-learning study found poorer acquisition and slower strategy adoption. A single performance dip should not trigger punitive resets.",
+      "caveat": "These studies did not test this interface, a fixed five-minute interval, or mandatory breaks. Batch size, visual simplicity, and learner control are accessibility-oriented design choices to evaluate with the user.",
+      "sources": ["kuznetsova2025", "roark2025"]
+    },
+    {
+      "id": "review-and-transfer",
+      "requirement": "Revisit errors after intervening items, retain older concepts in later sessions, and reserve unseen locations for delayed mixed checks. Use neutral test-map titles and hold out local road corridors where feasible. Confirm a concept across multiple examples before reducing its practice priority.",
+      "basis": "Spacing depends on desired retention duration; adaptive category studies assessed unseen exemplars and a one-week delayed test.",
+      "caveat": "Review intervals, corridor separation, per-concept minimums, and mix ratios are operational safeguards to pilot, not established optimal parameters.",
+      "sources": ["cepeda2008", "mettler2014"]
+    },
+    {
+      "id": "reusable-engine",
+      "requirement": "Separate country/topic content from the scheduler. A topic provides concept identifiers, prerequisites if defensible, contrast links, source references, annotated visuals, and eligible locations; the engine keeps observations and selects batches. Track clue recognition and independent regionguessing separately.",
+      "basis": "A correct cue-label association and unprompted application are different tasks; adaptive selection requires observable evidence at the relevant skill level.",
+      "caveat": "This is architecture and measurement judgment, not an experimental result. Geography, landscape, and ordinary no-feature scenes must supplement a clue-only source collection.",
+      "sources": []
+    }
+  ],
+  "sources": {
+    "keybr-guided": {"type": "official implementation", "title": "GuidedLesson", "url": "https://github.com/aradzie/keybr.com/blob/master/packages/keybr-lesson/lib/guided.ts"},
+    "keybr-target": {"type": "official implementation", "title": "Target.confidence", "url": "https://github.com/aradzie/keybr.com/blob/master/packages/keybr-lesson/lib/target.ts"},
+    "mettler2014": {"type": "general primary experiments", "title": "Adaptive Response-Time-based Category Sequencing in Perceptual Learning", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6124487/", "scope": "Natural butterfly categories, not GeoGuessr; accuracy and speed informed sequencing."},
+    "carvalho2014": {"type": "general primary experiments", "title": "Putting category learning in order", "url": "https://pubmed.ncbi.nlm.nih.gov/24092426/", "scope": "Category structure moderated scheduling benefits."},
+    "butler2010": {"type": "general primary experiments", "title": "Repeated testing produces superior transfer of learning relative to repeated studying", "url": "https://pubmed.ncbi.nlm.nih.gov/20804289/", "scope": "Four prose-knowledge experiments; inference transfer after one week."},
+    "cepeda2008": {"type": "general primary experiment", "title": "Spacing effects in learning: A temporal ridgeline of optimal retention", "url": "https://escholarship.org/uc/item/0kp5q19x", "scope": "Fact learning; optimal spacing varied with retention interval."},
+    "gabay2018": {"type": "ADHD primary experiment", "title": "Feedback Timing Modulates Probabilistic Learning in Adults with ADHD", "url": "https://www.nature.com/articles/s41598-018-33551-3", "scope": "Laboratory probabilistic associations; does not prescribe one feedback schedule for all tasks."},
+    "kuznetsova2025": {"type": "ADHD primary study", "title": "Mechanisms of Learning in Adults With ADHD During an Ecologically-Valid Visual Discrimination Task", "url": "https://doi.org/10.1177/10870547251356744", "scope": "Published online 2025, issue 2026; 53 ADHD adults and 18 controls; visual gestalt discrimination, not a UX intervention."},
+    "roark2025": {"type": "ADHD primary study", "title": "Category learning difficulties in ADHD across modalities and multiple learning systems", "url": "https://link.springer.com/article/10.3758/s13423-025-02743-0", "scope": "29 ADHD and 31 control young adults in final sample; laboratory auditory/visual rule-based and information-integration categories; heterogeneous strategy adoption."}
+  }
+}

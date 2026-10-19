@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.fieldwork.local.json
+local/
+*.notes-cache.json
+learner-*.json
+fieldwork-progress-*.json
+.env
+.env.*
+.DS_Store
