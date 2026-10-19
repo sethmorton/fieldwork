@@ -64,6 +64,10 @@ the current UI imports packs, not progress backups. Do not commit exports.
 | Need a different map binding | Re-run setup for that map, rebuild, then import `dist/practice-pack.json` through **Content & progress** and update the userscript |
 
 Updates are explicit: pull the repository, run `npm ci`, `npm run check`,
-`npm run build`, and install the regenerated script. Personalized builds do
+refresh your configured content, run `npm run build`, and install the regenerated script.
+For the supplied Australia setup, `npm run content:refresh` replaces the local
+hydrated pack with the latest template and source notes. For a custom topic,
+refresh/re-curate that topic's pack instead; do not replace it with Australia.
+Personalized builds do
 not auto-download a universal GitHub userscript with somebody else's map ID.
 Content migration preserves the locally configured map and existing history.
