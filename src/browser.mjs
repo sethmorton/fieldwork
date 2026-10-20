@@ -2,6 +2,8 @@ import defaultPack from '../dist/practice-pack.json';
 import {makeNextSet,validatePack,updatedPack} from './next-set.mjs';
 import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet} from './session.mjs';
 import {reviewPanel,startPanel} from './ui.mjs';
+import {stateFromGameData} from './game-state.mjs';
+const gameResponses=unsafeWindow.GEFFetchEvents;
 
 const storedPack=GM_getValue('fieldwork:pack',null);
 let pack=updatedPack(storedPack,defaultPack);
@@ -55,7 +57,7 @@ async function prepare() {
 let mounted='',lastState=null;
 const remove=()=>{document.getElementById('fieldwork-practice')?.remove();mounted=''};
 function render() {
-  const state=lastState??unsafeWindow.GeoGuessrEventFramework?.state;
+  const state=lastState??(gameResponses?null:unsafeWindow.GeoGuessrEventFramework?.state);
   commitPendingReview(state);
   const mapPage=location.pathname===`/maps/${pack.practiceMapId}`||location.pathname===`/map-maker/${pack.practiceMapId}`;
   if(mapPage){
@@ -83,7 +85,7 @@ function render() {
 }
 function start() {
   const framework=unsafeWindow.GeoGuessrEventFramework;
-  if(framework){
+  if(framework&&!gameResponses){
     framework.events.addEventListener('round_start',event=>{commitPendingReview(event.detail);lastState=event.detail;launching=false;remove()});
     framework.events.addEventListener('round_end',event=>{lastState=event.detail;render()});
   }
@@ -96,4 +98,11 @@ function start() {
   new MutationObserver(()=>render()).observe(document.body,{childList:true,subtree:true});
   window.addEventListener('popstate',()=>{remove();render()});window.addEventListener('load',render,{once:true});render();
 }
+// Subscribe before DOMContentLoaded: the initial game response can arrive first.
+gameResponses?.addEventListener('received_data',event=>{
+  const state=stateFromGameData(event.detail);if(!state)return;
+  commitPendingReview(state);
+  if(lastState?.current_game_id!==state.current_game_id||lastState?.current_round!==state.current_round){launching=false;remove();}
+  lastState=state;if(document.body)render();
+});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();

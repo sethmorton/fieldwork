@@ -62,6 +62,11 @@ verify zero previous-set targets repeated, five distinct families and one
 game started. No account or real learner state is used. Other modes include
 `failure`, `pending`, `expired`, `wrong-map`.
 
+`fixtures/game-fixture.html?mode=missed-start` retains a stale framework game
+while emitting completed `GEFFetchEvents` responses. Verify the round-2 clue
+recovers, Next hides it and saves only round 2, and round 3 shows its own card.
+Do not reload a learner's results to test: GeoGuessr can resume the next round.
+
 For a real browser check, get consent for the dedicated map writes, preserve
 the current game, verify post-guess feedback only after a real guess, and
 never insert synthetic attempts into the user's userscript storage.
