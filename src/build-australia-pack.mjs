@@ -55,6 +55,6 @@ const pack=validatePack({...base,schemaVersion:1,contentRevision:5,country:'AU',
     missingRegions:locations.filter(location=>!location.region).map(location=>location.id),
     transferLimit:'Source examples are training material. Small five-location pools cannot support full unseen mastery; do not infer comprehensive country ability.'},
 });
-const expanded=validatePack(expandAustralia(pack,await read('./australia-source-c.json'),await read('./australia-source-c-curation.json'),await read('./australia-guide-candidates.json')));
+const expanded=validatePack(expandAustralia(pack,await read('./australia-source-c.json'),await read('./australia-source-c-curation.json'),await read('./australia-guide-candidates.json'),await read('./australia-field-verified.json')));
 await writeFile(new URL('../content/australia.json',import.meta.url),JSON.stringify(expanded,null,2)+'\n');
 console.log(JSON.stringify({skills:expanded.skills.length,available:expanded.curationReport.activeRegionalTargets,locations:expanded.locations.length,activePanoramas:expanded.curationReport.activePanoramas,missingRegions:expanded.curationReport.missingRegions.length}));

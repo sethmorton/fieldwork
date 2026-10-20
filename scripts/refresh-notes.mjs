@@ -4,6 +4,10 @@ const pack=JSON.parse(await readFile(input,'utf8'));
 let failures=0;
 for(const skill of pack.skills){
   if(skill.availability&&skill.availability!=='available')continue;
+  if(skill.noteOrigin==='fieldwork-authored'){
+    if(typeof skill.trainingNote!=='string'||!skill.trainingNote.trim())throw Error('Authored field targets need a teaching note: '+skill.id);
+    continue;
+  }
   const location=pack.locations.find(l=>l.skillIds[0]===skill.id);
   if(!location){failures++;console.error('Missing location:',skill.id);continue;}
   const url=new URL('https://learnablemeta.com/api/userscript/location/');

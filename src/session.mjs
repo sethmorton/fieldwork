@@ -22,8 +22,9 @@ export function recordRecognition(pack,history,round,{recognized,familiar=false,
   const wasSeen=history.some(attempt=>attempt.id!==round.id&&attempt.locationRef===round.location.id);
   const attempt={id:round.id,skillId:round.location.skillIds[0],occurredAt:now.toISOString(),
     correct:skill.recognitionOnly?recognized:correct,regionCorrect:correct,evidenceValid:recognized,confidence:2,unfamiliar:!familiar&&!wasSeen,
-    locationRef:round.location.id,mode:assumed||(!skill.recognitionOnly&&correct===null)?'practice':'assessment',feedbackSource:assumed?'assumed-on-advance':'explicit',
+    locationRef:round.location.id,mode:assumed||round.location.assessmentEligible===false||(!skill.recognitionOnly&&correct===null)?'practice':'assessment',feedbackSource:assumed?'assumed-on-advance':'explicit',
     reason:assumed?'Recognition assumed on advance by learner preference; not verified mastery evidence.'
+      :round.location.assessmentEligible===false?'Source teaching example; practice only, not unseen assessment evidence.'
       :skill.recognitionOnly?'Explicit visual-feature recognition; geographic result recorded separately. Country discrimination was not tested.'
         :'Region result plus self-reported clue recognition after reveal. Confidence was not measured (neutral default).'};
   // Duplicate framework events and reloads cannot create extra evidence.

@@ -82,3 +82,14 @@ test('twenty assumed observations cannot establish mastery',()=>{
  const records=Array.from({length:20},(_,i)=>({id:String(i),skillId:'clue',occurredAt:`2026-10-${i<10?'17':'19'}T00:00:0${i%10}Z`,correct:true,evidenceValid:true,confidence:2,unfamiliar:true,locationRef:'pano:'+i,mode:'practice',feedbackSource:'assumed-on-advance'}));
  const status=skillStatus('clue',records,'2026-10-20T00:00:00Z');assert.equal(status.eligibleCount,0);assert.equal(status.state,'learning');
 });
+
+test('explicit recognition of teaching anchors stays practice even across twenty unique scenes',()=>{
+ const original=completedRound(pack,state);let records=[];
+ for(let i=0;i<20;i++){
+  const round={...original,id:'teaching-round-'+i,location:{...original.location,id:'teaching-location-'+i,panoId:'teaching-pano-'+i,assessmentEligible:false}};
+  records=recordRecognition(pack,records,round,{recognized:true},new Date(Date.UTC(2026,9,1+i)));
+ }
+ assert.ok(records.every(record=>record.mode==='practice'&&record.feedbackSource==='explicit'&&record.evidenceValid));
+ const progress=skillStatus('clue',records,'2026-11-01T00:00:00Z');
+ assert.equal(progress.eligibleCount,0);assert.equal(progress.state,'learning');
+});

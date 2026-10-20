@@ -1,7 +1,7 @@
 import {regionAt} from './geo.mjs';
 
 // Keep source acquisition separate from authored labels and runtime availability.
-export function expandAustralia(pack,imported,curation,candidates) {
+export function expandAustralia(pack,imported,curation,candidates,field) {
   const skills=structuredClone(pack.skills), locations=structuredClone(pack.locations);
   const sourceToTarget=new Map(), byId=new Map(skills.map(skill=>[skill.id,skill]));
   for(const item of curation){
@@ -54,8 +54,18 @@ export function expandAustralia(pack,imported,curation,candidates) {
     if(!item.holdReason&&examples.length>=2){skill.availability='available';delete skill.deferredReason;}
     else if(!item.holdReason)skill.deferredReason='Only one distinct source panorama. Acquire another cue-visible example before adaptive activation.';
   }
+  for(const skill of field.skills){
+    if(byId.has(skill.id))throw Error('Field target would overwrite an existing progress identity');
+    skills.push(skill);byId.set(skill.id,skill);
+  }
+  for(const location of field.locations){
+    if(!location.provenance?.visualChecked||location.provenance.actualPanoId!==location.panoId)throw Error('Field locations need a reviewed exact panorama');
+    if(locations.some(existing=>existing.panoId===location.panoId))throw Error('Reconcile a shared panorama before assigning a new primary target');
+    locations.push({...location,region:location.region??regionAt(location.lat,location.lng,pack.regionFeatures)??undefined});
+  }
+  for(const skill of field.skills)if(locations.filter(location=>location.skillIds[0]===skill.id).length<2)throw Error('A new field target needs at least two reviewed examples');
   const guideMappings=pack.curriculum.sourceUnits.map(unit=>{
-    const targets=[...new Set([...unit.existingPracticeSkillIds,...curation.filter(item=>item.sourceUnitIds.includes(unit.id)).map(item=>item.targetId)])];
+    const targets=[...new Set([...unit.existingPracticeSkillIds,...curation.filter(item=>item.sourceUnitIds.includes(unit.id)).map(item=>item.targetId),...field.skills.filter(skill=>skill.sourceUnitIds.includes(unit.id)).map(skill=>skill.id)])];
     const card=candidates.plonkit.find(card=>card.sourceId===unit.id);
     const active=targets.filter(id=>byId.get(id)?.availability==='available'||(byId.has(id)&&!byId.get(id).availability));
     const excluded=card?.status.startsWith('excluded')||unit.id==='au:deck:camera-generation';
@@ -66,16 +76,20 @@ export function expandAustralia(pack,imported,curation,candidates) {
   });
   const active=skills.filter(skill=>!skill.availability||skill.availability==='available');
   const availableIds=new Set(active.map(skill=>skill.id));
-  return {...pack,contentRevision:6,skills:skills.sort((a,b)=>(b.importance??0)-(a.importance??0)||a.id.localeCompare(b.id)),locations,
+  return {...pack,contentRevision:7,skills:skills.sort((a,b)=>(b.importance??0)-(a.importance??0)||a.id.localeCompare(b.id)),locations,
     pools:[{...pack.pools[0],skillIds:skills.map(skill=>skill.id),locationIds:locations.map(location=>location.id)}],
     coverageSummary:`${active.length} active regional targets across ${new Set(active.map(skill=>skill.practiceFamily)).size} families. Up to three new targets plus review. ${guideMappings.length} source units tracked; coverage remains partial.`,
-    sourceCoverage:{schemaVersion:1,sourceUnits:guideMappings,deckTeachingAnchors:candidates.deckAnchors,atomicGaps:candidates.atomicGaps,
+    sourceCoverage:{schemaVersion:1,sourceUnits:guideMappings,deckTeachingAnchors:candidates.deckAnchors.map(anchor=>{
+        const reviewed=field.locations.find(location=>location.provenance.originalPanoId===anchor.panoId);
+        return reviewed?{...anchor,locationStatus:'live-panorama-and-cue-reviewed',activeTargetIds:reviewed.skillIds,currentPanoId:reviewed.panoId,visualValidation:reviewed.provenance.observedCue,testEligibility:'teaching-only; no unseen mastery credit'}:anchor;
+      }),atomicGaps:candidates.atomicGaps,
       limitations:['All 103 slides and 74 Plonk It cards are inventoried. Aggregate units are not independent mastery targets.',
-        '59 resolved slide teaching anchors remain candidates until cue labels and present-day imagery are checked.',
+        'Slide anchors remain candidates except those explicitly linked to a field-reviewed teaching example.',
         'Source-author examples are training material, not independently validated unseen transfer tests.',
-        'Phone codes, many route variants, housing, streetlights and external territories still need dedicated tagged examples.']},
+        ...field.unresolved]},
     curationReport:{...pack.curationReport,sourcePanoramas:locations.length,activeRegionalTargets:active.length,
       activePanoramas:locations.filter(location=>availableIds.has(location.skillIds[0])).length,
+      fieldVerified:{targets:field.skills.length,panoramas:field.locations.length,reviewedAt:field.reviewedAt},
       sourceC:{sourceClues:imported.skills.length,nativePanoramas:imported.locations.length,failures:imported.importReport.failures,unmatched:imported.importReport.unmatched},
       missingRegions:locations.filter(location=>!location.region).map(location=>location.id),
       deferred:skills.filter(skill=>skill.availability&&skill.availability!=='available').map(({id,title,availability,deferredReason})=>({id,title,availability,deferredReason}))}};

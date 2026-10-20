@@ -22,10 +22,10 @@ function header(section,label) {const head=document.createElement('header');sect
 function clue(section,skill,sourceUrl) {
   sourceUrl=skill.notesSourceUrl??sourceUrl;
   text(section,'h2',skill.title);
-  const imageUrl=skill.imageUrls?.find(url=>url.startsWith('https://learnablemeta.com/images/'));
+  const imageUrl=skill.imageUrls?.find(url=>url.startsWith('https://learnablemeta.com/images/')||url.startsWith('https://ocsc00skc0wokcs8kw8g8k84.geohints.com/storage/'));
   if(imageUrl){const img=document.createElement('img');img.src=imageUrl;img.alt=skill.title+' — source example';section.append(img);}
   const details=document.createElement('details');text(details,'summary','Clue & source');
-  const parsed=new DOMParser().parseFromString(skill.sourceNoteHtml??'','text/html');const note=(parsed.body.textContent??'').trim();
+  const parsed=new DOMParser().parseFromString(skill.sourceNoteHtml??skill.trainingNote??'','text/html');const note=(parsed.body.textContent??'').trim();
   const preview=skill.trainingNote??note;
   if(preview)text(section,'p',preview.length>280?preview.slice(0,280)+'…':preview,'muted');
   text(details,'p',note);
@@ -37,6 +37,7 @@ function clue(section,skill,sourceUrl) {
 export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],getAttempts=()=>attempts,onChange=()=>{},onSave,onNext}) {
   const {section}=panel();header(section,`Fieldwork · round ${round.round}/5`);
   clue(section,pack.skills.find(skill=>skill.id===round.location.skillIds[0]),pack.notesSourceUrl);
+  if(round.location.assessmentEligible===false)text(section,'p','Teaching example · practice credit only.','muted');
   const progress=skillStatus(round.location.skillIds[0],attempts);
   const skill=pack.skills.find(skill=>skill.id===round.location.skillIds[0]);
   const progressLine=text(section,'p',progressText(progress,attempts.filter(item=>item.skillId===skill.id)),'muted');

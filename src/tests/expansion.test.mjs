@@ -10,14 +10,15 @@ const imported=await read('../australia-foundations-imported-pool.json');
 const sourceC=await read('../australia-source-c.json');
 const candidates=await read('../australia-guide-candidates.json');
 const curation=await read('../australia-source-c-curation.json');
+const field=await read('../australia-field-verified.json');
 test('expansion retains old progress identities and adds only actual tagged panoramas',()=>{
  assert.equal(pack.id,starter.id);assert.deepEqual(pack.initialSkillIds,[]);
  for(const skill of starter.skills)assert.ok(pack.skills.some(current=>current.id===skill.id));
  for(const location of starter.locations)assert.deepEqual(pack.locations.find(current=>current.id===location.id),location);
- assert.equal(imported.locations.length,141);assert.equal(pack.locations.length,799);
- assert.equal(new Set(pack.locations.map(location=>location.panoId)).size,799);
- for(const location of pack.locations)assert.ok([...starter.locations,...imported.locations,...sourceC.locations,...candidates.plonkit.flatMap(card=>card.locationCandidates.filter(example=>example.coordinates).map(example=>({panoId:example.panoId,lat:example.coordinates.lat,lng:example.coordinates.lng})))].some(source=>source.panoId===location.panoId&&source.lat===location.lat&&source.lng===location.lng));
- assert.equal(pack.skills.filter(skill=>skill.availability==='available'||!skill.availability).length,67);
+ assert.equal(imported.locations.length,141);assert.equal(pack.locations.length,815);
+ assert.equal(new Set(pack.locations.map(location=>location.panoId)).size,815);
+ for(const location of pack.locations)assert.ok([...starter.locations,...imported.locations,...sourceC.locations,...field.locations,...candidates.plonkit.flatMap(card=>card.locationCandidates.filter(example=>example.coordinates).map(example=>({panoId:example.panoId,lat:example.coordinates.lat,lng:example.coordinates.lng})))].some(source=>source.panoId===location.panoId&&source.lat===location.lat&&source.lng===location.lng));
+ assert.equal(pack.skills.filter(skill=>skill.availability==='available'||!skill.availability).length,74);
  assert.equal(pack.skills.filter(skill=>skill.availability&&skill.availability!=='available').length,41);
  assert.ok(pack.skills.filter(skill=>skill.recognitionOnly).every(skill=>skill.availability==='needs-contrasts'));
 });
@@ -59,7 +60,8 @@ test('every source unit is accounted for without implying full coverage or maste
  }
  assert.equal(pack.sourceCoverage.deckTeachingAnchors.length,59);
  assert.ok(pack.sourceCoverage.deckTeachingAnchors.every(a=>a.panoId&&Number.isFinite(a.latitude)&&Number.isFinite(a.longitude)));
- assert.equal(units.find(u=>u.sourceUnitId==='au:deck:phone-area').status,'needs-tagged-locations');
+ assert.equal(units.find(u=>u.sourceUnitId==='au:deck:phone-area').status,'partial-location-backed');
+ assert.equal(units.find(u=>u.sourceUnitId==='au:deck:phone-local').status,'needs-tagged-locations');
 });
 test('unreliable historical claims and singleton new targets remain inactive',()=>{
  for(const item of curation.filter(c=>!c.existing)){
@@ -72,4 +74,25 @@ test('unreliable historical claims and singleton new targets remain inactive',()
  const foreign=new Set(candidates.plonkit.flatMap(card=>card.locationCandidates.filter(e=>e.exampleRole==='comparison-foil').map(e=>e.panoId)));
  for(const l of pack.locations.filter(l=>l.provenance))assert.ok(!foreign.has(l.panoId));
  assert.equal(JSON.stringify(pack).includes('sourceNoteHtml'),false);
+});
+
+
+test('field-reviewed examples use the actually visible panorama and do not relabel old targets',()=>{
+ assert.equal(field.skills.length,7);assert.equal(field.locations.length,16);
+ for(const target of field.skills){
+  assert.equal(target.noteOrigin,'fieldwork-authored');assert.ok(target.trainingNote.trim());
+  const examples=pack.locations.filter(l=>l.skillIds[0]===target.id);
+  assert.ok(new Set(examples.map(l=>l.panoId)).size>=2);
+  for(const example of examples){
+   assert.equal(example.assessmentEligible,false);assert.equal(example.provenance.visualChecked,true);
+   assert.equal(example.panoId,example.provenance.actualPanoId);assert.ok(example.region);
+   assert.ok(example.provenance.observedCue&&example.provenance.sourceUrl.startsWith('https://'));
+  }
+ }
+ for(const code of ['02','03','07','08'])assert.ok(field.skills.some(s=>s.id==='au:phone:'+code&&s.practiceFamily==='phone-codes'));
+ // A stale source ID must not inherit visual confirmation from its replacement.
+ const replaced=field.locations.filter(l=>l.provenance.originalPanoId!==l.panoId);
+ assert.ok(replaced.length>=5);
+ for(const l of replaced)assert.ok(!field.locations.some(other=>other.panoId===l.provenance.originalPanoId));
+ assert.equal(new Set(field.skills.map(s=>s.practiceFamily)).size,4);
 });

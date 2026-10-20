@@ -10,6 +10,9 @@ continue to apply; source/author attribution is retained in the content data.
   Images are referenced by original URLs, not copied into this repository.
 - Plonk It Australia: https://www.plonkit.net/australia — reference coverage
   and priorities. The source inventory is not an endorsement by Plonk It.
+- GeoHints: https://geohints.com/ — linked architecture and route-shield
+  examples. Images remain at their original host; they are not bundled or
+  relicensed as Fieldwork assets.
 - Australia reference slides: https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit
   — source associations; the slide deck and rendered slide images are not bundled.
 - GeoGuessr Event Framework by miraclewhips:

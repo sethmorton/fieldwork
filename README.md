@@ -10,7 +10,7 @@ Australia is the first content pack. The engine accepts other countries and topi
 
 ![Practice loop: curated locations become five varied targets; guess, review after reveal, and use local progress to shape the next set.](docs/practice-loop.svg)
 
-> **Working prototype.** The Australian pack has 67 active regional targets across 16 families. It is useful practice, not a complete Australian curriculum or a validated measure of mastery.
+> **Working prototype.** The Australian pack has 74 active regional targets across 19 families. It is useful practice, not a complete Australian curriculum or a validated measure of mastery.
 
 ## Set it up with an agent
 

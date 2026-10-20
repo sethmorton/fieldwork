@@ -1,0 +1,673 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-10-20",
+  "skills": [
+    {
+      "id": "au:phone:02",
+      "title": "02 landline region group",
+      "phase": "Regional foundations",
+      "prerequisites": [],
+      "practiceFamily": "phone-codes",
+      "importance": 35,
+      "availability": "available",
+      "noteOrigin": "fieldwork-authored",
+      "trainingNote": "02 landlines usually indicate NSW or the ACT. Numbering areas cross state borders, so use other clues to choose the state. Ignore 04 mobiles and 13/18 service numbers.",
+      "sourceUnitIds": [
+        "au:deck:phone-area",
+        "au:plonkit:8smD"
+      ],
+      "source": {
+        "title": "ACMA: geographic and mobile numbers",
+        "url": "https://www.acma.gov.au/choose-your-phone-number"
+      },
+      "notesSourceUrl": "https://www.acma.gov.au/choose-your-phone-number",
+      "imageUrls": [
+        "https://learnablemeta.com/images/1398/kk6hWCWuTDAUhYkOfRRex4Vd2U60WpdR38wC.avif"
+      ],
+      "scoringCaveats": [
+        "These source examples teach recognition; they are not independent unseen assessments."
+      ],
+      "attributionHtml": "Original Fieldwork teaching note. Phone examples from Area Codes (World - ALM) by ValP; schematic reference image hosted by Learnable Meta, linked by the source to Plonk It. Original image rights apply."
+    },
+    {
+      "id": "au:phone:03",
+      "title": "03 landline region group",
+      "phase": "Regional foundations",
+      "prerequisites": [],
+      "practiceFamily": "phone-codes",
+      "importance": 35,
+      "availability": "available",
+      "noteOrigin": "fieldwork-authored",
+      "trainingNote": "03 landlines usually indicate Victoria or Tasmania, with border-area exceptions. Separate those states using the scene and infrastructure. The reference map is schematic, not an exact boundary.",
+      "sourceUnitIds": [
+        "au:deck:phone-area",
+        "au:plonkit:8smD"
+      ],
+      "source": {
+        "title": "ACMA: geographic and mobile numbers",
+        "url": "https://www.acma.gov.au/choose-your-phone-number"
+      },
+      "notesSourceUrl": "https://www.acma.gov.au/choose-your-phone-number",
+      "imageUrls": [
+        "https://learnablemeta.com/images/1398/kk6hWCWuTDAUhYkOfRRex4Vd2U60WpdR38wC.avif"
+      ],
+      "scoringCaveats": [
+        "These source examples teach recognition; they are not independent unseen assessments."
+      ],
+      "attributionHtml": "Original Fieldwork teaching note. Phone examples from Area Codes (World - ALM) by ValP; schematic reference image hosted by Learnable Meta, linked by the source to Plonk It. Original image rights apply."
+    },
+    {
+      "id": "au:phone:07",
+      "title": "07 landline region group",
+      "phase": "Regional foundations",
+      "prerequisites": [],
+      "practiceFamily": "phone-codes",
+      "importance": 35,
+      "availability": "available",
+      "noteOrigin": "fieldwork-authored",
+      "trainingNote": "07 landlines support Queensland and nearby numbering-border areas. Read the actual leading digits; 04 is a mobile prefix and does not identify a region.",
+      "sourceUnitIds": [
+        "au:deck:phone-area",
+        "au:plonkit:8smD"
+      ],
+      "source": {
+        "title": "ACMA: geographic and mobile numbers",
+        "url": "https://www.acma.gov.au/choose-your-phone-number"
+      },
+      "notesSourceUrl": "https://www.acma.gov.au/choose-your-phone-number",
+      "imageUrls": [
+        "https://learnablemeta.com/images/1398/kk6hWCWuTDAUhYkOfRRex4Vd2U60WpdR38wC.avif"
+      ],
+      "scoringCaveats": [
+        "These source examples teach recognition; they are not independent unseen assessments."
+      ],
+      "attributionHtml": "Original Fieldwork teaching note. Phone examples from Area Codes (World - ALM) by ValP; schematic reference image hosted by Learnable Meta, linked by the source to Plonk It. Original image rights apply."
+    },
+    {
+      "id": "au:phone:08",
+      "title": "08 landline region group",
+      "phase": "Regional foundations",
+      "prerequisites": [],
+      "practiceFamily": "phone-codes",
+      "importance": 35,
+      "availability": "available",
+      "noteOrigin": "fieldwork-authored",
+      "trainingNote": "08 is shared by WA, SA and the NT, and parts of western NSW. It narrows a broad area, not one state. The reference map simplifies the true numbering boundaries.",
+      "sourceUnitIds": [
+        "au:deck:phone-area",
+        "au:plonkit:8smD"
+      ],
+      "source": {
+        "title": "ACMA: geographic and mobile numbers",
+        "url": "https://www.acma.gov.au/choose-your-phone-number"
+      },
+      "notesSourceUrl": "https://www.acma.gov.au/choose-your-phone-number",
+      "imageUrls": [
+        "https://learnablemeta.com/images/1398/kk6hWCWuTDAUhYkOfRRex4Vd2U60WpdR38wC.avif"
+      ],
+      "scoringCaveats": [
+        "These source examples teach recognition; they are not independent unseen assessments."
+      ],
+      "attributionHtml": "Original Fieldwork teaching note. Phone examples from Area Codes (World - ALM) by ValP; schematic reference image hosted by Learnable Meta, linked by the source to Plonk It. Original image rights apply."
+    },
+    {
+      "id": "au:routes:act-numbered",
+      "title": "Canberra numbered route shields",
+      "phase": "Regional refinements",
+      "prerequisites": [],
+      "practiceFamily": "route-numbering",
+      "importance": 22,
+      "availability": "available",
+      "noteOrigin": "fieldwork-authored",
+      "trainingNote": "These Canberra examples use black numbers in pointed hexagonal shields. Recognize the complete numbered-panel pattern and combine it with city context; a hexagonal shape alone is not ACT-exclusive. Older route markers may remain in historical imagery.",
+      "sourceUnitIds": [
+        "au:deck:route-families"
+      ],
+      "source": {
+        "title": "GeoHints: road numbering examples",
+        "url": "https://geohints.com/meta/signs/roadNumbering"
+      },
+      "notesSourceUrl": "https://geohints.com/meta/signs/roadNumbering",
+      "imageUrls": [
+        "https://ocsc00skc0wokcs8kw8g8k84.geohints.com/storage/signs/numaustralia_2.jpg"
+      ],
+      "scoringCaveats": [
+        "These source examples teach recognition; they are not independent unseen assessments."
+      ],
+      "attributionHtml": "Original Fieldwork teaching note. Regional reference: Definitive Australia Guide 2022 by zi8gzag, Eddie, Macca and Denis. Reference images, where shown, are hosted by GeoHints; original rights apply."
+    },
+    {
+      "id": "au:housing:qld-high-set",
+      "title": "Queensland high-set housing",
+      "phase": "Regional foundations",
+      "prerequisites": [],
+      "practiceFamily": "architecture",
+      "importance": 32,
+      "availability": "available",
+      "noteOrigin": "fieldwork-authored",
+      "trainingNote": "Look for an elevated living floor, light timber-style cladding, stairs and a veranda. The space below may be open or enclosed; roof materials vary. This is a Queensland tendency, with similar houses elsewhere, especially northern NSW.",
+      "sourceUnitIds": [
+        "au:deck:qld-houses"
+      ],
+      "source": {
+        "title": "Definitive Australia Guide: Queensland houses",
+        "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1144b43f61a_0_67"
+      },
+      "notesSourceUrl": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1144b43f61a_0_67",
+      "imageUrls": [
+        "https://ocsc00skc0wokcs8kw8g8k84.geohints.com/storage/architecture/australia_4.jpg"
+      ],
+      "scoringCaveats": [
+        "These source examples teach recognition; they are not independent unseen assessments."
+      ],
+      "attributionHtml": "Original Fieldwork teaching note. Regional reference: Definitive Australia Guide 2022 by zi8gzag, Eddie, Macca and Denis. Reference images, where shown, are hosted by GeoHints; original rights apply."
+    },
+    {
+      "id": "au:streetlights:darwin-outreach",
+      "title": "Darwin-area long-arm streetlights",
+      "phase": "Regional refinements",
+      "prerequisites": [],
+      "practiceFamily": "street-lights",
+      "importance": 18,
+      "availability": "available",
+      "noteOrigin": "fieldwork-authored",
+      "trainingNote": "Look for a long, straight, gently rising arm attached below a short mast-top stub. Single- and twin-arm versions occur. Use this as supporting Darwin-area evidence; neither the arm shape nor a replacement LED head proves a state.",
+      "sourceUnitIds": [
+        "au:deck:nt-lights"
+      ],
+      "source": {
+        "title": "Definitive Australia Guide: NT streetlights",
+        "url": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_411"
+      },
+      "notesSourceUrl": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_411",
+      "imageUrls": [],
+      "scoringCaveats": [
+        "These source examples teach recognition; they are not independent unseen assessments."
+      ],
+      "attributionHtml": "Original Fieldwork teaching note. Regional reference: Definitive Australia Guide 2022 by zi8gzag, Eddie, Macca and Denis. Reference images, where shown, are hosted by GeoHints; original rights apply."
+    }
+  ],
+  "locations": [
+    {
+      "id": "pano:pHmWe0e9Q19MqNheBfCpOg",
+      "panoId": "pHmWe0e9Q19MqNheBfCpOg",
+      "lat": -34.8690814,
+      "lng": 138.5480455,
+      "heading": 122.51,
+      "pitch": -4.6200000000000045,
+      "zoom": 1.2876492,
+      "skillIds": [
+        "au:phone:08"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "(08) 8244 9444 — Nhu Lan takeaway shop window, phone number under the shop name. Fully readable at heading122.51,pitch−4.62.",
+        "captureDate": "Aug 2024",
+        "originalPanoId": "6r2rHQz5rwmcsDFVlUzXFw",
+        "actualPanoId": "pHmWe0e9Q19MqNheBfCpOg",
+        "sourceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 60.0,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "reviewedMapsUrl": "https://www.google.com/maps/@-34.8690814,138.5480455,11a,60y,122.51h,85.38t/data=!3m7!1e1!3m5!1spHmWe0e9Q19MqNheBfCpOg!2e0!6shttps:%2F%2Fstreetviewpixels-pa.clients6.google.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D4.6199299999999965%26panoid%3DpHmWe0e9Q19MqNheBfCpOg%26yaw%3D122.506966!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI2MTAxNC4wIKXMDSoASAFQAw%3D%3D",
+      "visibleText": "(08) 8244 9444",
+      "region": "South Australia"
+    },
+    {
+      "id": "pano:bRNI-KAFa189XtT8fSCMig",
+      "panoId": "bRNI-KAFa189XtT8fSCMig",
+      "lat": -12.4588734,
+      "lng": 130.8394567,
+      "heading": 79.49,
+      "pitch": -5.810000000000002,
+      "zoom": 3.0951176,
+      "skillIds": [
+        "au:phone:08"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "(08) 8981 7431 — All Aspects recruitment sign, legible on a stand outside the office. Read at FOV15, heading79.49,pitch−5.81.",
+        "captureDate": "Aug 2023",
+        "originalPanoId": "bRNI-KAFa189XtT8fSCMig",
+        "actualPanoId": "bRNI-KAFa189XtT8fSCMig",
+        "sourceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 15,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "reviewedMapsUrl": "https://www.google.com/maps/@-12.4588734,130.8394567,30a,15y,79.49h,84.19t/data=!3m7!1e1!3m5!1sbRNI-KAFa189XtT8fSCMig!2e0!6shttps:%2F%2Fstreetviewpixels-pa.clients6.google.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D5.812839999999994%26panoid%3DbRNI-KAFa189XtT8fSCMig%26yaw%3D79.494576!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI2MTAxNC4wIKXMDSoASAFQAw%3D%3D",
+      "visibleText": "(08) 8981 7431",
+      "region": "Northern Territory"
+    },
+    {
+      "id": "pano:tNubBMC5P-QWq4OtOsMDlQ",
+      "panoId": "tNubBMC5P-QWq4OtOsMDlQ",
+      "lat": -27.4513496,
+      "lng": 153.0109873,
+      "heading": 125.22,
+      "pitch": -4.8799999999999955,
+      "zoom": 1.4915472,
+      "skillIds": [
+        "au:phone:07"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "07 3161 6699 — GBS beauty salon fascia: large pink fixed-line number, readable at FOV40, heading125.22,pitch−4.88.",
+        "captureDate": "Dec 2022",
+        "originalPanoId": "bZ2PqZIU3xoedkosXPekwg",
+        "actualPanoId": "tNubBMC5P-QWq4OtOsMDlQ",
+        "sourceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 40.0,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "reviewedMapsUrl": "https://www.google.com/maps/@-27.4513496,153.0109873,53a,40y,125.22h,85.12t/data=!3m7!1e1!3m5!1stNubBMC5P-QWq4OtOsMDlQ!2e0!6shttps:%2F%2Fstreetviewpixels-pa.clients6.google.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D4.880529999999993%26panoid%3DtNubBMC5P-QWq4OtOsMDlQ%26yaw%3D125.22158!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI2MTAxNC4wIKXMDSoASAFQAw%3D%3D",
+      "visibleText": "07 3161 6699",
+      "region": "Queensland"
+    },
+    {
+      "id": "pano:cgqsGQ8-VDCNqJd4n8Hukw",
+      "panoId": "cgqsGQ8-VDCNqJd4n8Hukw",
+      "lat": -35.2702878,
+      "lng": 149.1309605,
+      "heading": 190.85,
+      "pitch": -5.239999999999995,
+      "zoom": 3.0951176,
+      "skillIds": [
+        "au:phone:02"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "02 6243 8333 — Madison Capital Executive Apartment Hotel sign bottom line, readable at FOV15. Capital/place/address text leaks geography; teaching-only example.",
+        "captureDate": "Jun 2026",
+        "originalPanoId": "Pvgd-udqnJQQkc4eM3lXwA",
+        "actualPanoId": "cgqsGQ8-VDCNqJd4n8Hukw",
+        "sourceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 15,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "reviewedMapsUrl": "https://www.google.com/maps/@-35.2702878,149.1309605,572a,15y,190.85h,84.76t/data=!3m7!1e1!3m5!1scgqsGQ8-VDCNqJd4n8Hukw!2e0!6shttps:%2F%2Fstreetviewpixels-pa.clients6.google.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D5.238100000000003%26panoid%3DcgqsGQ8-VDCNqJd4n8Hukw%26yaw%3D190.85194!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI2MTAxNC4wIKXMDSoASAFQAw%3D%3D",
+      "visibleText": "02 6243 8333",
+      "region": "Australian Capital Territory"
+    },
+    {
+      "id": "pano:qhqfXLT0h0y_jRnZgUxa_Q",
+      "panoId": "qhqfXLT0h0y_jRnZgUxa_Q",
+      "lat": -20.3134103,
+      "lng": 118.5765316,
+      "heading": 121.34,
+      "pitch": 4.269999999999996,
+      "zoom": 2.1884186,
+      "skillIds": [
+        "au:phone:08"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "08 9173 1600 — DFP Recruitment fascia; large phone number is clearly legible at FOV30 and heading121.34,pitch4.27.",
+        "captureDate": "Nov 2018",
+        "originalPanoId": "qhqfXLT0h0y_jRnZgUxa_Q",
+        "actualPanoId": "qhqfXLT0h0y_jRnZgUxa_Q",
+        "sourceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 30.0,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "reviewedMapsUrl": "https://www.google.com/maps/@-20.3134103,118.5765316,11a,30y,121.34h,94.27t/data=!3m7!1e1!3m5!1sqhqfXLT0h0y_jRnZgUxa_Q!2e0!6shttps:%2F%2Fstreetviewpixels-pa.clients6.google.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D-4.266310000000004%26panoid%3DqhqfXLT0h0y_jRnZgUxa_Q%26yaw%3D121.34029!7i13312!8i6656?entry=ttu&g_ep=EgoyMDI2MTAxNC4wIKXMDSoASAFQAw%3D%3D",
+      "visibleText": "08 9173 1600",
+      "region": "Western Australia"
+    },
+    {
+      "id": "pano:rBgwI-F77kd_2R8DA7jruQ",
+      "panoId": "rBgwI-F77kd_2R8DA7jruQ",
+      "lat": -42.8733119,
+      "lng": 147.3155848,
+      "heading": 178.95056,
+      "pitch": -14.473867,
+      "zoom": 0.16992432,
+      "skillIds": [
+        "au:phone:03"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "03 6224 7123 — Bus advertising Macquarie Skin Clinic; number legible with source heading at fov60",
+        "captureDate": "May 2024",
+        "originalPanoId": "rBgwI-F77kd_2R8DA7jruQ",
+        "actualPanoId": "rBgwI-F77kd_2R8DA7jruQ",
+        "sourceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 60,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "visibleText": "03 6224 7123",
+      "reviewedMapsUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=rBgwI-F77kd_2R8DA7jruQ&viewpoint=-42.8733119%2C147.3155848&heading=178.95056&pitch=-14.473867&fov=60",
+      "region": "Tasmania"
+    },
+    {
+      "id": "pano:1iM_56gqrdrWxp7gDzNw0w",
+      "panoId": "1iM_56gqrdrWxp7gDzNw0w",
+      "lat": -32.5348064,
+      "lng": 115.7202844,
+      "heading": 174.99017,
+      "pitch": -16.457178,
+      "zoom": 2.6806903,
+      "skillIds": [
+        "au:phone:08"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "(08) 9581 1281 — MoneyMentors shop-window business contact; clearly legible at fov30, source heading",
+        "captureDate": "Oct 2024",
+        "originalPanoId": "SLOVCgxII3jGIfzG83eJAw",
+        "actualPanoId": "1iM_56gqrdrWxp7gDzNw0w",
+        "sourceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 30,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "visibleText": "(08) 9581 1281",
+      "reviewedMapsUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=1iM_56gqrdrWxp7gDzNw0w&viewpoint=-32.5348064%2C115.7202844&heading=174.99017&pitch=-16.457178&fov=30",
+      "region": "Western Australia"
+    },
+    {
+      "id": "pano:vk3GMbN7SIH5ckJ9GTBp7Q",
+      "panoId": "vk3GMbN7SIH5ckJ9GTBp7Q",
+      "lat": -16.9224455,
+      "lng": 145.7777424,
+      "heading": 244.59242,
+      "pitch": 10.376633,
+      "zoom": 2.515754,
+      "skillIds": [
+        "au:phone:07"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "07 4211 4977 — OrientExpressSushiTrain shop sign; readable at fov30 and source heading",
+        "captureDate": "Nov 2023",
+        "originalPanoId": "vk3GMbN7SIH5ckJ9GTBp7Q",
+        "actualPanoId": "vk3GMbN7SIH5ckJ9GTBp7Q",
+        "sourceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 30,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "visibleText": "07 4211 4977",
+      "reviewedMapsUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=vk3GMbN7SIH5ckJ9GTBp7Q&viewpoint=-16.9224455%2C145.7777424&heading=244.59242&pitch=10.376633&fov=30",
+      "region": "Queensland"
+    },
+    {
+      "id": "pano:vO4c9QGwUxOmreXaq4Z_EQ",
+      "panoId": "vO4c9QGwUxOmreXaq4Z_EQ",
+      "lat": -32.2533468,
+      "lng": 148.6017542,
+      "heading": 239.28947,
+      "pitch": 10.054976,
+      "zoom": 2.5086224,
+      "skillIds": [
+        "au:phone:02"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "(02) 6884 1700 — TheAberdeenMotel roadside sign; legible at fov30 and source heading; place text also visible (must acknowledge answer leakage)",
+        "captureDate": "Mar 2024",
+        "originalPanoId": "vO4c9QGwUxOmreXaq4Z_EQ",
+        "actualPanoId": "vO4c9QGwUxOmreXaq4Z_EQ",
+        "sourceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 30,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "visibleText": "(02) 6884 1700",
+      "reviewedMapsUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=vO4c9QGwUxOmreXaq4Z_EQ&viewpoint=-32.2533468%2C148.6017542&heading=239.28947&pitch=10.054976&fov=30",
+      "region": "New South Wales"
+    },
+    {
+      "id": "pano:ybdghLnLhjiPn9dEjjQ2aA",
+      "panoId": "ybdghLnLhjiPn9dEjjQ2aA",
+      "lat": -37.7424017,
+      "lng": 142.0211417,
+      "heading": 147.13644,
+      "pitch": -0.12786621,
+      "zoom": 3.0951176,
+      "skillIds": [
+        "au:phone:03"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "(03) 5572 1748 — AutoproHamilton opening-hours board; source heading, zoomed once from API fov30 for a clear full number; townnamealso visible",
+        "captureDate": "Jun 2024",
+        "originalPanoId": "w-F_8CfIDH54G7HzNlbI0Q",
+        "actualPanoId": "ybdghLnLhjiPn9dEjjQ2aA",
+        "sourceUrl": "https://learnablemeta.com/maps/6824efee8646292930db9807",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 15,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "visibleText": "(03) 5572 1748",
+      "reviewedMapsUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=ybdghLnLhjiPn9dEjjQ2aA&viewpoint=-37.7424017%2C142.0211417&heading=147.13644&pitch=-0.12786621&fov=15",
+      "region": "Victoria"
+    },
+    {
+      "id": "pano:JWLpewCBZgliAEE3X-aCXA",
+      "panoId": "JWLpewCBZgliAEE3X-aCXA",
+      "lat": -35.3008439,
+      "lng": 149.1239579,
+      "heading": 322.36,
+      "pitch": 1.8100000000000023,
+      "zoom": 0,
+      "skillIds": [
+        "au:routes:act-numbered"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://geohints.com/meta/signs/roadNumbering",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "Black route number6 inside black outlined pointed/hexagonal shield on reflective pale rectangular panel, below GIVEWAYsign; separate leftarrowbelow",
+        "captureDate": "2021-11",
+        "originalPanoId": "JWLpewCBZgliAEE3X-aCXA",
+        "actualPanoId": "JWLpewCBZgliAEE3X-aCXA",
+        "sourceUrl": "https://geohints.com/meta/signs/roadNumbering",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 45.0,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "reviewedMapsUrl": "https://www.google.com/maps/@-35.3008439,149.1239579,561a,45y,322.36h,91.81t/data=!3m7!1e1!3m5!1sJWLpewCBZgliAEE3X-aCXA!2e0!6shttps:%2F%2Fstreetviewpixels-pa.clients6.google.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D-1.8100000000000023%26panoid%3DJWLpewCBZgliAEE3X-aCXA%26yaw%3D322.36!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI2MTAxNC4wIKXMDSoASAFQAw%3D%3D",
+      "region": "Australian Capital Territory"
+    },
+    {
+      "id": "pano:7AJHOEjciJc7Mx1vtW3Y0g",
+      "panoId": "7AJHOEjciJc7Mx1vtW3Y0g",
+      "lat": -35.3009078,
+      "lng": 149.1263175,
+      "heading": 210.0,
+      "pitch": -3.569999999999993,
+      "zoom": 0,
+      "skillIds": [
+        "au:routes:act-numbered"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://geohints.com/meta/signs/roadNumbering",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "Black route number7 inside outlined pointed/hexagonal shield on yellow rectangular panel; right arrow above the shield; mounted to light pole",
+        "captureDate": "2026-03",
+        "originalPanoId": "PEQeGEKSxWfYVWy8XA6JaQ",
+        "actualPanoId": "7AJHOEjciJc7Mx1vtW3Y0g",
+        "sourceUrl": "https://geohints.com/meta/signs/roadNumbering",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 15.0,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "reviewedMapsUrl": "https://www.google.com/maps/@-35.3009078,149.1263175,567a,15y,210h,86.43t/data=!3m7!1e1!3m5!1s7AJHOEjciJc7Mx1vtW3Y0g!2e0!6shttps:%2F%2Fstreetviewpixels-pa.clients6.google.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D3.569999999999993%26panoid%3D7AJHOEjciJc7Mx1vtW3Y0g%26yaw%3D210!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI2MTAxNC4wIKXMDSoASAFQAw%3D%3D",
+      "region": "Australian Capital Territory"
+    },
+    {
+      "id": "pano:L1js4i19vwyz7LJVipqp3w",
+      "panoId": "L1js4i19vwyz7LJVipqp3w",
+      "lat": -27.4687137,
+      "lng": 153.0460932,
+      "heading": 230.65,
+      "pitch": -1.6500000000000057,
+      "zoom": 0,
+      "skillIds": [
+        "au:housing:qld-high-set"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://geohints.com/meta/architecture",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "Raised weatherboard house, external stairs, corrugated-metal hipped/gabled roof, front veranda and window awning",
+        "captureDate": "2022-06",
+        "originalPanoId": "L1js4i19vwyz7LJVipqp3w",
+        "actualPanoId": "L1js4i19vwyz7LJVipqp3w",
+        "sourceUrl": "https://geohints.com/meta/architecture",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 32.5,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "reviewedMapsUrl": "https://www.google.com/maps/@-27.4687137,153.0460932,5a,32.5y,230.65h,88.35t/data=!3m7!1e1!3m5!1sL1js4i19vwyz7LJVipqp3w!2e0!6shttps:%2F%2Fstreetviewpixels-pa.clients6.google.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D1.6500000000000057%26panoid%3DL1js4i19vwyz7LJVipqp3w%26yaw%3D230.65!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI2MTAxNC4wIKXMDSoASAFQAw%3D%3D",
+      "region": "Queensland"
+    },
+    {
+      "id": "pano:qx44VRYUU4HSaG4uiItzDw",
+      "panoId": "qx44VRYUU4HSaG4uiItzDw",
+      "lat": -27.4966321,
+      "lng": 153.0606187,
+      "heading": 290.0,
+      "pitch": -0.12000000000000455,
+      "zoom": 0,
+      "skillIds": [
+        "au:housing:qld-high-set"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://goo.gl/maps/XrtpVDhuYKkbra249",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "High-set light-clad weatherboard/fibro dwelling with upper living-storey windows and enclosed lower level; tiled hipped roof. Not an exposed-stump or corrugated-roof heritageQueenslander, so retain this as the enclosed-base variant.",
+        "captureDate": "2021-04",
+        "originalPanoId": "qx44VRYUU4HSaG4uiItzDw",
+        "actualPanoId": "qx44VRYUU4HSaG4uiItzDw",
+        "sourceUrl": "https://goo.gl/maps/XrtpVDhuYKkbra249",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 60.0,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "reviewedMapsUrl": "https://www.google.com/maps/@-27.4966321,153.0606187,29a,60y,290h,89.88t/data=!3m7!1e1!3m5!1sqx44VRYUU4HSaG4uiItzDw!2e0!6shttps:%2F%2Fstreetviewpixels-pa.clients6.google.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D0.12000000000000455%26panoid%3Dqx44VRYUU4HSaG4uiItzDw%26yaw%3D290!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI2MTAxNC4wIKXMDSoASAFQAw%3D%3D",
+      "region": "Queensland"
+    },
+    {
+      "id": "pano:kzkogE-jA-KLRIN3t_XmLA",
+      "panoId": "kzkogE-jA-KLRIN3t_XmLA",
+      "lat": -12.473128,
+      "lng": 130.9908238,
+      "heading": 326.79,
+      "pitch": 8.469999999999999,
+      "zoom": 0,
+      "skillIds": [
+        "au:streetlights:darwin-outreach"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_411",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "Illumination mast with a long straight gently rising outreach arm attached just below a short vertical top stub, compact horizontal lamp head. Arm is an actual streetlight, distinct from adjacent perforated utility-pole crossbars. The shape corresponds to the central typical-Darwin lamp example on deck slide 87.",
+        "captureDate": "Aug 2026",
+        "originalPanoId": "94uH2vbdthuJxiwYLurEoQ",
+        "actualPanoId": "kzkogE-jA-KLRIN3t_XmLA",
+        "sourceUrl": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_411",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 37.5,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "reviewedMapsUrl": "https://www.google.com/maps/@-12.473128,130.9908238,43a,37.5y,326.79h,98.47t/data=!3m7!1e1!3m5!1skzkogE-jA-KLRIN3t_XmLA!2e0!6shttps:%2F%2Fstreetviewpixels-pa.clients6.google.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D-8.473900138619967%26panoid%3DkzkogE-jA-KLRIN3t_XmLA%26yaw%3D326.7892853197888!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI2MTAxNC4wIKXMDSoASAFQAw%3D%3D",
+      "region": "Northern Territory"
+    },
+    {
+      "id": "pano:JKzlBtIUlcEOoBivqO0MLA",
+      "panoId": "JKzlBtIUlcEOoBivqO0MLA",
+      "lat": -12.43596,
+      "lng": 130.8435908,
+      "heading": 219.96,
+      "pitch": 0.10999999999999943,
+      "zoom": 0,
+      "skillIds": [
+        "au:streetlights:darwin-outreach"
+      ],
+      "assessmentEligible": false,
+      "sourceReferenceUrl": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_411",
+      "provenance": {
+        "visualChecked": true,
+        "reviewedAt": "2026-10-20",
+        "observedCue": "Repeated median illumination masts with twin very long straight gently upward-rising arms below a short vertical central top stub, small compact luminaires at tips. Multiple assemblies visible and separate from traffic signals.",
+        "captureDate": "Nov 2018",
+        "originalPanoId": "JKzlBtIUlcEOoBivqO0MLA",
+        "actualPanoId": "JKzlBtIUlcEOoBivqO0MLA",
+        "sourceUrl": "https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit#slide=id.g1122d5ba1de_0_411",
+        "assessment": "Source teaching example; no unseen mastery credit.",
+        "reviewFov": 40.3,
+        "regionBasis": "Live Google Maps address caption; coastal generalization in the scoring geometry is not the source label."
+      },
+      "reviewedMapsUrl": "https://www.google.com.au/maps/@-12.43596,130.8435908,29a,40.3y,219.96h,90.11t/data=!3m7!1e1!3m5!1sJKzlBtIUlcEOoBivqO0MLA!2e0!6shttps:%2F%2Fstreetviewpixels-pa.clients6.google.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D-0.10999999999999943%26panoid%3DJKzlBtIUlcEOoBivqO0MLA%26yaw%3D219.96!7i13312!8i6656?entry=ttu&g_ep=EgoyMDI2MTAxNC4wIKXMDSoASAFQAw%3D%3D",
+      "region": "Northern Territory"
+    }
+  ],
+  "acquisition": {
+    "phones": "Share-enabled LM meta438367 copied to an owned source pool, official userscript upload, native GeoGuessr Export JSON, then manual live inspection of every number. Original national-format note is not reused.",
+    "routesHousingLights": "Source-linked panoramas inspected in live Google Street View; actual replacement identities retained where old links substituted imagery."
+  },
+  "unresolved": [
+    "Detailed local phone prefixes need more independent, specifically labelled examples.",
+    "Most state M/A/B/numbered-shield route variants remain uncurated.",
+    "Adelaide brush fences and heritage housing still need exact matching examples; generic Tasmanian brick houses are not a state discriminator.",
+    "Other states lamp variants and ACT flowerpot lights need verified examples. Denis specialist document requires access; no access request sent."
+  ],
+  "referenceMaps": [
+    {
+      "title": "Australian States Practice",
+      "url": "https://www.geoguessr.com/maps/664de7511a67ab939b367ff5",
+      "exportStatus": "No public export found; creator-shared JSON needed for bulk acquisition."
+    },
+    {
+      "title": "Australia phone codes",
+      "url": "https://www.geoguessr.com/maps/6995f7519b2124c0b992c603",
+      "locations": 53,
+      "exportStatus": "Native search verified map; public export not found."
+    }
+  ]
+}

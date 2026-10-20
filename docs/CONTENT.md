@@ -1,8 +1,8 @@
 # Content packs and provenance
 
 The engine accepts any country/topic with enough location-backed families.
-The Australian template records 799 distinct source panoramas and 108 stable
-skill IDs. Its 67 active regional targets span 16 families and 695 panoramas.
+The Australian template records 815 distinct source panoramas and 115 stable
+skill IDs. Its 74 active regional targets span 19 families and 711 panoramas.
 Only locations attached to active targets can be selected. The other 41
 targets remain deferred, including national-only recognition, singleton
 examples and uncertain historical coverage claims. Your old skill IDs remain
@@ -90,12 +90,13 @@ The build is reproducible with `node src/build-australia-pack.mjs`.
 A new target needs at least two distinct source panoramas for activation.
 These are source-author teaching examples; most have not had an independent
 current-rendering review. A repeated anchor never counts as unseen transfer.
-The 59 slide anchors remain candidates until cue labels and present-day
-imagery are reviewed. They are not silently assigned a clue just because
+Slide anchors remain candidates until cue labels and present-day
+imagery are reviewed; one Brisbane anchor now has an explicitly checked
+high-set housing label. They are not silently assigned a clue just because
 their coordinates happen to fall in its region.
 
-The biggest remaining gaps are landline codes, most route-system variants,
-state housing and streetlights. External territories need an explicit
+The biggest remaining gaps are detailed local landline prefixes, most
+state route-system variants, Adelaide housing, and other states’ streetlights. External territories need an explicit
 answer-area decision and matching scoring support. The specialist LM road
 collection has thousands of reported positions, but route/camera labels
 are not proof that a particular sign or house is visible. Do not fill those
@@ -110,3 +111,43 @@ harvest private API state. The
 currently lists 227 locations and covers guide steps 2–3. Its guide links
 provide exact examples we can independently curate without pretending to
 have exported that unowned map.
+
+## Live field checks (content revision 7)
+
+Seven additional targets have 16 live-reviewed panorama examples:
+
+- Four geographic landline groups: 02, 03, 07, 08 (ten readable phone signs).
+- Canberra numbered route shields (two examples).
+- Queensland high-set housing, including an enclosed lower-storey variant (two).
+- Darwin-area long straight streetlight outreach arms (two).
+
+`src/australia-field-verified.json` contains authored notes, source links,
+visible-feature descriptions, imagery dates, camera orientation, actual loaded
+panorama IDs and original IDs. Several Maps links substituted newer imagery;
+only the actually reviewed panorama inherits the visual check. Region labels
+come from live address captions, retaining explicit labels where generalized
+coastal boundary polygons omit the point.
+
+These teaching anchors set `assessmentEligible: false`. Explicit and assumed
+recognition still guide practice, but cannot become unfamiliar assessment or
+mastery evidence. Some signs also show place names. No synthetic observations
+were added to the learner's history.
+
+Phone areas cross state borders; 08 also occurs in western NSW. The original
+LM national-format note incorrectly describes mobile-number length and is not
+reused. Fieldwork's authored notes use the
+[ACMA geographic-number guidance](https://www.acma.gov.au/choose-your-phone-number)
+and retain broad-region caveats. The phone map image is a schematic.
+
+[Australia phone codes](https://www.geoguessr.com/maps/6995f7519b2124c0b992c603)
+was verified through native GeoGuessr search: 53 locations by Baga #banalts.
+Neither it nor Australian States Practice exposes a public JSON export in
+the inspected UI. Public location datasets from
+[Miss-Inputs](https://github.com/Miss-Inputs/GeoGuessr-maps) provide large real
+residential/POI search spaces, but metadata alone never confirms a phone sign
+or architectural feature. Do not import them as prelabelled clues.
+
+The deck-linked Denis streetlight document currently requires access. No
+request was sent. Generic QLD masts and an obscured Canberra lamp were
+reviewed and held; LED replacements make old lamp-head claims unreliable.
+The two new Darwin examples support a regional tendency, not exclusivity.
