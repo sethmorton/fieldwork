@@ -44,6 +44,16 @@ assumed recognition; **Missed it** records an explicit miss. On round five,
 use **Continue practice** for the next set. Source examples may have caveats;
 not every occurrence is a hard state boundary.
 
+Open **Content & progress** on your practice map to see the current pack's
+progress tree. Expand a family and select a target to see its reviews,
+assumed recognition and unfamiliar checks. The same tree is available under
+**Your progress tree** after a guess and updates when feedback is saved.
+Untouched, practising, provisional and mastered are separate states; amber
+rings flag the latest missed check or a due review. Family fractions count
+targets practised, not mastery. Assumed recognition and source teaching
+examples cannot establish mastery. The tree is hidden during guessing and
+does not reveal the next set's targets.
+
 Progress lives in Tampermonkey's local storage, separate from GeoGuessr scores.
 It is not GitHub cloud sync. Clearing script storage, changing profile or using
 another computer does not carry it over automatically. Export it under

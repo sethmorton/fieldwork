@@ -1,0 +1,14 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fieldwork progress tree test</title>
+<body style="font-family:Arial;background:#d6e4e9;padding:30px"><p>LOCAL TEST · synthetic progress · no GeoGuessr account access</p>
+<script type="module">
+import {startPanel} from '/dist/preview-ui.js';
+const pack=await(await fetch('/dist/practice-pack.json')).json();
+const skills=pack.skills.filter(s=>!s.availability||s.availability==='available');
+const attempts=[];
+for(let index=0;index<4;index++)for(let i=0;i<(index<2?20:index===2?10:1);i++)attempts.push({
+ id:index+':'+i,skillId:skills[index].id,occurredAt:new Date(Date.now()-(25-i)*86400000).toISOString(),
+ correct:index!==3,evidenceValid:index!==3,confidence:2,unfamiliar:true,locationRef:index+':pano:'+i,
+ mode:index===1?'practice':'assessment',feedbackSource:index===1?'assumed-on-advance':'explicit',
+});
+startPanel(pack,null,{attempts,onNext:()=>{},onExport:()=>{},onImport:()=>{}});
+</script>

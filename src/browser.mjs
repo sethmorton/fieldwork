@@ -63,7 +63,7 @@ function render() {
     if(startPreparedGame()){remove();return}
     if(mounted==='start')return;
     let set,error;try{set=nextSet()}catch(cause){error=cause.message}
-    startPanel(pack,set,{onNext:prepare,error,attempts:history(),
+    startPanel(pack,set,{onNext:prepare,error,attempts:history(),getAttempts:history,
       onExport:()=>download({packId:pack.id,attempts:history(),exposures:exposures(),previousDraft:GM_getValue(key('previous-draft'),null),pendingBackup:GM_getValue(key('pending-backup'),null)},`fieldwork-progress-${pack.id}.json`),
       onImport:async imported=>{validatePack(imported);if(!/^[a-f\d]{24}$/i.test(imported.practiceMapId??''))throw Error('The pack needs a dedicated owned practiceMapId.');
         GM_setValue('fieldwork:pack',imported);pack=imported;location.assign(`/maps/${pack.practiceMapId}`)},

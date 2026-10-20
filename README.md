@@ -49,6 +49,7 @@ You can stop the local server after installation. Everyday practice runs in GeoG
 - **Review after guessing.** Upcoming targets stay hidden. The result shows the source image, explanation and attribution.
 - **Low-friction feedback.** Moving on means “assumed spotted.” Press **Missed it** when needed; explicit feedback wins.
 - **Keep progress local.** Reviews and exposure history live in Tampermonkey's storage. Export them under **Content & progress**.
+- **See your progress tree.** Expand **Content & progress** on the practice map, or **Your progress tree** after a guess. Each pack branches into clue families and individual targets; practice, mastery and review needs stay distinct.
 
 Australia-only practice excludes clues that merely identify Australia. It focuses on differences *within* the country. A correct state guess alone does not prove clue recognition, and assumed feedback never counts as verified mastery.
 

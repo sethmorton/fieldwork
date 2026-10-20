@@ -1,4 +1,5 @@
 import {skillStatus} from './lib/mastery.ts';
+import {renderProgressTree} from './progress.mjs';
 // Compact post-guess UI. Source HTML is converted to text, never executed.
 export function panel() {
   document.getElementById('fieldwork-practice')?.remove();
@@ -11,7 +12,11 @@ export function panel() {
     header{display:flex;align-items:center;justify-content:space-between;gap:12px}small{font:11px/1.5 ui-monospace,monospace;text-transform:uppercase;letter-spacing:.06em}
     h2{font:600 19px/1.2 'Trebuchet MS',Arial,sans-serif;margin:10px 0}p{margin:8px 0}img{display:block;width:100%;max-height:160px;object-fit:contain;background:#d9e7ec;border-radius:6px}
     button,a{font:inherit}button{border:1px solid #9bb7c2;background:white;color:#153946;border-radius:7px;padding:9px 12px;cursor:pointer}button.primary{background:#176b86;color:white;border-color:#176b86}button:disabled{opacity:.6;cursor:wait}
-    button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #d1961f;outline-offset:3px}.actions{display:flex;gap:8px;margin-top:12px}.actions>*{flex:1}label{display:block;font-size:12px;margin:10px 0}input{margin-right:6px}a{color:#176b86}.muted{font-size:12px;color:#496b79}details{margin-top:10px}.close{padding:2px 7px;font-size:17px;border:0;background:none}
+    button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #d1961f;outline-offset:3px}.actions{display:flex;gap:8px;margin-top:12px}.actions>*{flex:1}label{display:block;font-size:12px;margin:10px 0}input{margin-right:6px}a{color:#176b86}.muted{font-size:12px;color:#496b79}details{margin-top:10px}summary{cursor:pointer}.close{padding:2px 7px;font-size:17px;border:0;background:none}
+    .tree-root{margin:16px auto 0;padding:12px;text-align:center;border:1px solid #a9c2cb;border-radius:8px;background:#d9e7ec;max-width:360px}.tree-root strong{font:600 18px 'Trebuchet MS',Arial,sans-serif}
+    .tree-legend{display:flex;flex-wrap:wrap;gap:12px;margin:14px 0;font-size:12px}.tree-key{display:flex;align-items:center;gap:5px}.tree-dot{display:inline-grid;place-items:center;width:14px;height:14px;border:1px dashed #9bb7c2;border-radius:50%;font-style:normal;font-size:10px}
+    .tree-branches{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0 20px;border-top:1px solid #a9c2cb;margin-top:18px}.tree-branch{position:relative;margin:0;padding:20px 0 14px 16px;border-left:1px solid #a9c2cb}.tree-branch:before{content:'';position:absolute;left:0;top:30px;width:10px;border-top:1px solid #a9c2cb}.tree-family{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px}.tree-family:before{content:'+'}.tree-branch[open]>.tree-family:before{content:'−'}.tree-family strong{flex:1}.tree-preview{display:flex;flex-wrap:wrap;gap:6px;width:100%;padding-left:16px}.tree-preview .needs-review{box-shadow:0 0 0 2px #d1961f}.tree-branch[open] .tree-preview{display:none}.tree-leaves{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}
+    .tree-node{display:flex;align-items:center;gap:10px;width:100%;padding:4px 0;text-align:left;border:0;background:none;border-radius:4px;font-size:12px}.tree-count{display:inline-grid;place-items:center;width:28px;height:28px;flex-shrink:0;border:1px dashed #9bb7c2;border-radius:50%;font:12px ui-monospace,monospace}.learning{background:#d2e8f0;border:1px solid #176b86;color:#153946}.provisional{background:#176b86;border:3px double #eff6f8;color:white;outline:1px solid #176b86}.mastered{background:#276b50;border:1px solid #276b50;color:white}.needs-review .tree-count{box-shadow:0 0 0 3px #d1961f}.tree-node[aria-pressed=true] .tree-name{font-weight:bold;text-decoration:underline}.tree-node:focus-visible{outline:3px solid #d1961f;outline-offset:3px}.tree-inspect{min-height:24px;font-size:12px}.tree-inspect p{margin:4px 0}
   `;root.append(style);const section=document.createElement('section');root.append(section);document.body.append(host);
   return {host,section};
 }
@@ -19,6 +24,12 @@ const text=(parent,tag,content,cls)=>{const node=document.createElement(tag);nod
 const button=(parent,label,handler,cls)=>{const node=text(parent,'button',label,cls);node.type='button';node.onclick=handler;return node};
 const progressText=(progress,records=[])=>`${progress.state==='mastered'?'Mastered on explicit checks':progress.state==='new'?'New clue':'Learning'} · ${records.length} ${records.length===1?'review':'reviews'} · ${records.filter(item=>item.feedbackSource==='assumed-on-advance').length} assumed`;
 function header(section,label) {const head=document.createElement('header');section.append(head);text(head,'small',label);const close=button(head,'×',()=>section.getRootNode().host.remove(),'close');close.setAttribute('aria-label','Close practice panel');}
+function treeDetails(section,pack,getAttempts,title){
+  const details=document.createElement('details');text(details,'summary',title);const tree=document.createElement('div');details.append(tree);section.append(details);
+  const refresh=()=>{if(details.open)renderProgressTree(tree,pack,getAttempts());};
+  details.ontoggle=()=>{const host=section.getRootNode().host;host.style.width=details.open?'min(850px, calc(100vw - 36px))':'min(340px, calc(100vw - 36px))';section.style.maxHeight=details.open?'80vh':'65vh';refresh();};
+  return {details,refresh};
+}
 function clue(section,skill,sourceUrl) {
   sourceUrl=skill.notesSourceUrl??sourceUrl;
   text(section,'h2',skill.title);
@@ -49,17 +60,17 @@ export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],g
   if(result===null&&!skill.recognitionOnly){text(section,'p','Was your guess in the right region?','muted');const choices=document.createElement('div');choices.className='actions';section.append(choices);for(const [title,value] of [['Yes',true],['No',false]])button(choices,title,()=>{result=value;onChange({familiar:seen.checked,correct:result});for(const child of choices.children)child.classList.remove('primary');choices.children[value?0:1].classList.add('primary');});}
   const status=text(section,'p',saved?'Saved on this device.':'','muted');status.setAttribute('role','status');
   const actions=document.createElement('div');actions.className='actions';section.append(actions);
-  const save=recognized=>{try{const updated=onSave({recognized,familiar:seen.checked,correct:result});if(Array.isArray(updated))progressLine.textContent=progressText(skillStatus(skill.id,updated),updated.filter(item=>item.skillId===skill.id));for(const child of actions.children)child.disabled=true;status.textContent='Saved on this device.';}catch(error){status.textContent=error.message}};
+  const save=recognized=>{try{const updated=onSave({recognized,familiar:seen.checked,correct:result});if(Array.isArray(updated))progressLine.textContent=progressText(skillStatus(skill.id,updated),updated.filter(item=>item.skillId===skill.id));tree.refresh();for(const child of actions.children)child.disabled=true;status.textContent='Saved on this device.';}catch(error){status.textContent=error.message}};
   button(actions,'Missed it',()=>save(false),'primary');button(actions,'Confirm spotted it',()=>save(true));
   for(const child of actions.children)child.disabled=saved;
   if(round.round===5){const next=button(section,'Continue practice',async()=>{next.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){const updated=getAttempts();progressLine.textContent=progressText(skillStatus(skill.id,updated),updated.filter(item=>item.skillId===skill.id));status.textContent=error.message;next.disabled=false}},'primary');next.style.marginTop='12px';}
+  const tree=treeDetails(section,pack,getAttempts,'Your progress tree');
 }
-export function startPanel(pack,_set,{onNext,onExport,onImport,error,attempts=[]}) {
+export function startPanel(pack,_set,{onNext,onExport,onImport,error,attempts=[],getAttempts=()=>attempts}) {
   const {section}=panel();header(section,'Fieldwork · practice');text(section,'h2',pack.title);
   const status=text(section,'p',error??`${pack.answerAreaLabel??pack.title}. Up to three new targets plus review. Five different clue families.`,'muted');status.setAttribute('role','status');
   const next=button(section,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=error.message;this.disabled=false}},'primary');next.disabled=!!error;
-  const details=document.createElement('details');text(details,'summary','Content & progress');
-  if(pack.coverageSummary)text(details,'p',pack.coverageSummary,'muted');
-  for(const skill of pack.skills){const progress=skillStatus(skill.id,attempts);if(progress.state!=='new')text(details,'p',`${skill.title}: ${progressText(progress,attempts.filter(item=>item.skillId===skill.id))}`,'muted')}
-  button(details,'Export progress',onExport);const label=text(details,'label','Import a practice pack');const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async()=>{try{await onImport(JSON.parse(await input.files[0].text()));status.textContent='Pack imported.';}catch(error){status.textContent=error.message}};label.append(input);section.append(details);
+  const {details}=treeDetails(section,pack,getAttempts,'Content & progress');
+  if(pack.coverageSummary){const coverage=document.createElement('details');text(coverage,'summary','Source coverage');text(coverage,'p',pack.coverageSummary,'muted');details.append(coverage);}
+  button(details,'Export progress',onExport);const label=text(details,'label','Import a practice pack');const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async()=>{try{await onImport(JSON.parse(await input.files[0].text()));status.textContent='Pack imported.';}catch(error){status.textContent=error.message}};label.append(input);
 }
