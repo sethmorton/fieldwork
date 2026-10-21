@@ -50,6 +50,10 @@ export async function publishPracticeSet(pack,set,request,backup) {
     return skill.practiceFamily??skill.id;
   });
   if(new Set(families).size!==5)throw Error('A practice map requires five different clue families.');
+  if(pack.maxLocationsPerCountry){
+    const countries=coordinates.map(location=>pack.locations.find(source=>source.panoId===location.panoId).country);
+    if(countries.some(country=>!country||countries.filter(value=>value===country).length>pack.maxLocationsPerCountry))throw Error('This practice pack requires a varied set of known countries.');
+  }
   const url=`/api/v4/user-maps/drafts/${id}`;
   const draft=await request(url);
   if(typeof draft.name!=='string'||!draft.name.startsWith('Fieldwork')||!Number.isInteger(draft.version)) throw Error('Open your dedicated Fieldwork map; its draft could not be verified.');

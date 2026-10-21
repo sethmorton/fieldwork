@@ -24,3 +24,12 @@ test('cancellation produces an explicit partial report',async()=>{
   assert.equal(p.locations.length,1);assert.equal(p.importReport.cancelled,true);
 });
 test('invalid map IDs reject before any network request',async()=>{await assert.rejects(exportTaggedPool({mapId:'bad',coordinates:[a],getMeta:async()=>{throw Error('should not be called')}}),/valid GeoGuessr/)});
+
+test('worldwide imports keep identically named clues in different countries separate',async()=>{
+ const p=await exportTaggedPool({mapId,coordinates:[a,b],getMeta:async id=>({country:id==='test-a'?'France':'Spain',metaName:'Bollard'})});
+ assert.equal(p.skills.length,2);assert.equal(p.skills[0].title,'France - Bollard');assert.equal(p.skills[1].title,'Spain - Bollard');
+ assert.notEqual(p.locations[0].skillIds[0],p.locations[1].skillIds[0]);
+});
+test('native camera pitch and zoom survive import for cue visibility',()=>{
+ const actual={...a,pitch:17.5,zoom:1.5};assert.deepEqual(normalizeCoordinate(actual),actual);
+});

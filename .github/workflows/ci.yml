@@ -18,4 +18,5 @@ jobs:
       # Synthetic binding builds the bundle; no browser or live account is used.
       - run: npm run setup -- --map 111111111111111111111111
       - run: npm run setup -- --map 222222222222222222222222 --pack content/philippines.json --add
+      - run: npm run setup -- --map 333333333333333333333333 --pack content/worldwide.json --add
       - run: node --check dist/fieldwork.user.js

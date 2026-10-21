@@ -93,3 +93,10 @@ test('explicit recognition of teaching anchors stays practice even across twenty
  const progress=skillStatus('clue',records,'2026-11-01T00:00:00Z');
  assert.equal(progress.eligibleCount,0);assert.equal(progress.state,'learning');
 });
+
+test('worldwide publication enforces country diversity before making account requests',async()=>{
+ const worldwide={...pack,maxLocationsPerCountry:1,locations:pack.locations.map(l=>({...l,country:'Japan'}))};
+ const set={mapMaking:{customCoordinates:worldwide.locations}};let requests=0;
+ await assert.rejects(()=>publishPracticeSet(worldwide,set,async()=>{requests++;},()=>{}),/varied set of known countries/);
+ assert.equal(requests,0);
+});

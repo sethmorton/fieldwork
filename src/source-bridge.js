@@ -5,7 +5,8 @@
     if (!value || typeof value !== 'object' || !Number.isFinite(value.lat) || !Number.isFinite(value.lng)
       || value.lat < -90 || value.lat > 90 || value.lng < -180 || value.lng > 180
       || typeof value.panoId !== 'string' || !value.panoId.trim()) return null;
-    return { lat: value.lat, lng: value.lng, panoId: value.panoId, heading: Number.isFinite(value.heading) ? value.heading : 0 };
+    return { lat: value.lat, lng: value.lng, panoId: value.panoId, heading: Number.isFinite(value.heading) ? value.heading : 0,
+      ...(Number.isFinite(value.pitch) ? {pitch:value.pitch} : {}), ...(Number.isFinite(value.zoom) ? {zoom:value.zoom} : {}) };
   }
   function uniqueCoordinates(values) {
     if (!Array.isArray(values)) throw new Error('This draft contains no coordinate array.');
@@ -27,7 +28,9 @@
         const meta = await getMeta(coordinate.panoId);
         if (!meta || typeof meta.metaName !== 'string' || !meta.metaName.trim()) unmatched.push(coordinate.panoId);
         else {
-          const name = meta.metaName.trim();
+          const rawName = meta.metaName.trim();
+          const country = typeof meta.country === 'string' ? meta.country.trim() : '';
+          const name = country && !rawName.toLowerCase().startsWith(country.toLowerCase()+' - ') ? `${country} - ${rawName}` : rawName;
           const id = `${mapId}:${name}`;
           if (!skills.has(id)) skills.set(id, { id, title: name, phase: 'Imported clues', prerequisites: [],
             imageUrls: Array.isArray(meta.images) ? meta.images.filter(url => typeof url === 'string' && url.startsWith('https://')) : [],

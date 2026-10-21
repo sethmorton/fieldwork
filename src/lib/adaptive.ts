@@ -27,6 +27,7 @@ export type PracticeLocation = {
   lng: number;
   skillIds: string[];
   region?: string;
+  country?: string;
   panoId?: string;
   heading?: number;
   sourceMapId?: string;
@@ -39,6 +40,7 @@ export type PracticePack = {
   pools: PracticePool[];
   locations?: PracticeLocation[];
   initialSkillIds?: string[];
+  maxLocationsPerCountry?: number;
 };
 type Clock = Date | string | number;
 type Plan = {
@@ -129,7 +131,8 @@ export function planPractice(
     if (selected.length >= targetSize) break;
     if (usedFamilies.has(family(skill))) continue;
     const candidates = chosen.members.filter(location => location.skillIds[0] === skill.id
-      && !usedPanoramas.has(location.panoId ?? location.id));
+      && !usedPanoramas.has(location.panoId ?? location.id)
+      && (!pack.maxLocationsPerCountry || (location.country && selected.filter(other=>other.country===location.country).length<pack.maxLocationsPerCountry)));
     const seen = (location: PracticeLocation) => aliases(location).some(key => observed.has(key));
     const regionCount = (location: PracticeLocation) => location.region ? selected.filter(other => other.region === location.region).length : 0;
     candidates.sort((a, b) => Number(seen(a)) - Number(seen(b)) || regionCount(a) - regionCount(b)

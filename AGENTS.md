@@ -2,7 +2,7 @@
 
 ## Goal and commands
 
-Country/topic-agnostic adaptive GeoGuessr practice. Australia and the Philippines are supplied packs.
+Country/topic-agnostic adaptive GeoGuessr practice. Australia, the Philippines and Worldwide are supplied packs.
 Use Node 24.12+; package-lock.json pins dependencies.
 
 - Install: `npm ci`
@@ -10,6 +10,7 @@ Use Node 24.12+; package-lock.json pins dependencies.
 - Single test: `node --test src/tests/adaptive.test.mjs`
 - Fetch AU notes locally: `npm run content:refresh`
 - Fetch PH notes: `node scripts/refresh-notes.mjs content/philippines.json local/philippines-pack.json`
+- Fetch World notes: `node scripts/refresh-notes.mjs content/worldwide.json local/worldwide-pack.json`
 - Append a country: `npm run setup -- --map <different-owned-map> --pack local/philippines-pack.json --add`
 - Configure/build: `npm run setup -- --map <owned-map-ID-or-URL> --pack local/pack.json`
 - Rebuild: `npm run build`
@@ -21,7 +22,7 @@ installation or successful live publication based on a build passing.
 ## First-run workflow
 
 1. Ask only for missing information: country/topic and the user's separate
-   owned practice map URL. Australia and the Philippines are supplied packs. Never use the
+   owned practice map URL. Australia, the Philippines and Worldwide are supplied packs. Never use the
    author's or another learner's map as a shared writable practice map.
 2. Have the user create/save a dedicated map named `Fieldwork - Practice`
    in native GeoGuessr Map Maker. Read the actual map ID; never invent one.
@@ -45,6 +46,8 @@ installation or successful live publication based on a build passing.
   not account access or writable practice-map bindings.
 - Preserve the user's practiceMapId during content migration. Preserve pack
   IDs/skill IDs so existing feedback remains attached to the right targets.
+- In worldwide packs, retain `notesCountry` when matching identically named clues
+  and enforce the configured country cap during selection and publication.
 - Five distinct pedagogic families per set; rest previous-set targets when
   alternatives exist. A miss must not cause every-set repetition.
 - No pre-guess hints or upcoming target names. Correct geography alone is

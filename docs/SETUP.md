@@ -66,6 +66,31 @@ current official administrative regions. Generalized coastlines can leave a
 location unclassified; then the panel asks for your regional result. Source
 teaching examples grow practice progress but cannot establish unseen mastery.
 
+## Add worldwide foundations and intermediate clues
+
+Create another separate owned map named `Fieldwork - Worldwide practice`:
+
+```sh
+node scripts/refresh-notes.mjs content/worldwide.json local/worldwide-pack.json
+npm run setup -- --map YOUR_WORLDWIDE_MAP_ID --pack local/worldwide-pack.json --add
+npm run serve
+```
+
+For a Worldwide-only first setup, omit `--add`. Keep the other packs' local
+files and configuration. Install the rebuilt script and open your Worldwide
+map in a fresh tab. It uses five different clue families **and five different
+countries** per set. Unknown-country locations cannot silently fill a slot.
+
+The mix includes bollards, pedestrian signs, language, utility poles and
+stickers, chevrons, road markings, plates and Brazilian phone codes. Broad
+Brazil area-code structure and basic Japanese poles precede finer regional
+variants by priority. Phone codes, all pedestrian signs and all utility-pole
+variants each share one family; they cannot fill a set with related clues.
+Country feedback uses the actual country polygons. Recognizing a regional
+pole variant or telephone code is tracked separately through clue feedback;
+a correct country guess is not proof of that finer distinction. Teaching
+pools are practice-only until a separate unseen assessment pool is verified.
+
 ## During practice
 
 Guess normally. After revealing the answer, review the clue. **Next** records

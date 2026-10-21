@@ -85,3 +85,14 @@ test('a source pool with enough families is chosen over a single-clue drill',()=
 test('size zero and bad clocks are handled honestly',()=>{
  const p=makePack();assert.deepEqual(planPractice(p,[],{now,size:0}).locationIds,[]);assert.throws(()=>planPractice(p,[],{now:'bad'}),/Invalid current date/);
 });
+test('worldwide sets can require five countries as well as five clue families',()=>{
+ const p=makePack();p.maxLocationsPerCountry=1;
+ p.skills.slice(0,4).forEach(s=>s.importance=100);
+ for(const l of p.locations)l.country=['A','B','C','D'].includes(l.skillIds[0])?'JP':l.skillIds[0];
+ const plan=planPractice(p,[],{now,size:5});
+ assert.equal(plan.locationIds.length,5);
+ assert.equal(new Set(plan.locationIds.map(id=>p.locations.find(l=>l.id===id).country)).size,5);
+ assert.equal(new Set(familyIds(p,plan)).size,5);
+ // A country-only pack keeps its existing behavior unless the cap is requested.
+ delete p.maxLocationsPerCountry;assert.equal(planPractice(p,[],{now,size:5}).locationIds.length,5);
+});

@@ -1,0 +1,21 @@
+<!doctype html><meta charset="utf-8"><title>Worldwide Fieldwork verification</title><body style="font:16px Arial;background:#d6e4e9;padding:30px">
+<p>LOCAL TEST · synthetic data · no account access</p><main><h1>Worldwide practice fixture</h1><button id="play">Play</button></main><button id="finish">Simulate guess</button><button id="native-next">Next</button><p id="status">No set published</p><p id="history"></p>
+<script type="module">
+const packs=await(await fetch('/dist/practice-packs.json')).json(),pack=packs.find(p=>p.id==='worldwide-foundations-intermediate');
+const auKey='fieldwork:australia-infrastructure:attempts',phKey='fieldwork:philippines-regions:attempts',worldKey='fieldwork:'+pack.id+':attempts';
+const data={'fieldwork:pack':packs[0],[auKey]:[{id:'synthetic-au'}],[phKey]:[{id:'synthetic-ph'}]};
+const report=()=>document.querySelector('#history').textContent=`AU ${data[auKey].length} · PH ${data[phKey].length} · World ${data[worldKey]?.length??0} observations`;
+window.GM_getValue=(key,fallback)=>data[key]??fallback;window.GM_setValue=(key,value)=>{data[key]=value;report()};window.unsafeWindow=window;window.GEFFetchEvents=new EventTarget();
+history.replaceState(null,'','/maps/'+pack.practiceMapId);let published=[],requests=0;
+window.fetch=async(url,options={})=>{
+ if(!url.startsWith('/api/v4/user-maps/drafts/'+pack.practiceMapId))throw Error('Unexpected request');requests++;
+ if(options.method==='PUT'&&!url.endsWith('/publish'))published=JSON.parse(options.body).customCoordinates;
+ const sources=published.map(p=>pack.locations.find(l=>l.panoId===p.panoId));
+ document.querySelector('#status').textContent=`${requests} requests · ${new Set(sources.map(l=>l.country)).size} countries · ${new Set(sources.map(l=>pack.skills.find(s=>s.id===l.skillIds[0]).practiceFamily)).size} families`;
+ return {ok:true,text:async()=>options.method?'':JSON.stringify({name:'Fieldwork - synthetic world',version:1,avatar:{},description:'Fixture only',highlighted:false,customCoordinates:[]})};
+};
+document.querySelector('#play').onclick=()=>{history.replaceState(null,'','/game/worldwide-fixture');window.dispatchEvent(new PopStateEvent('popstate'));};
+document.querySelector('#finish').onclick=()=>{const source=published[0];if(!source)throw Error('Prepare a set first');const result=document.createElement('div');result.dataset.qa='result-view-top';document.body.append(result);window.GEFFetchEvents.dispatchEvent(new CustomEvent('received_data',{detail:{token:'worldwide-fixture',map:pack.practiceMapId,round:1,rounds:[source],player:{guesses:[{lat:source.lat,lng:source.lng}]}}}));};
+document.querySelector('#native-next').onclick=()=>document.querySelector('[data-qa="result-view-top"]')?.remove();
+report();const script=document.createElement('script');script.src='/dist/fieldwork.user.js';document.body.append(script);
+</script>

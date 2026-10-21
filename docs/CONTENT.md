@@ -189,3 +189,45 @@ practice areas**, not official current regions. Geographic labels describe
 the actual coordinates, never the source clue's claimed distribution. Unknown
 coastal geometry remains unknown. Boundaries and changing province names do
 not establish a cue's exclusivity.
+
+## Worldwide foundations and intermediate pack
+
+`content/worldwide.json` supplies 535 active targets across 13 families and
+8,120 practice panoramas across 86 countries. Seven shared source collections
+provide real coordinates, source labels and original image references:
+
+- A Learnable Meta World (trausi), including its foundational and intermediate content.
+- European pedestrian crosswalk signs (Swaggely).
+- European languages (Niklas).
+- World chevrons (Lireax, LordKeks).
+- Brazilian phone codes (chrispunkt).
+- The Brazil overview from Area Codes World (ValP).
+- The basic Japanese pole examples from Identify Every Country (Lireax).
+
+Native Map Maker export acquired 8,779 distinct location records. Public note
+matching completed for every record; unresolved country labels and 22
+source-versus-boundary disagreements remain out of the active pool. Some of
+these may be valid cross-border examples, but they require review. Four
+explicit chevron/pedestrian aliases extend the same target rather than
+creating duplicate progress identities. Source metadata's `country` and
+`metaName` must be combined during matching: the short name `Bollard` alone
+would incorrectly merge countries. `notesCountry` also guards future note
+refreshes against a different country's identically named clue.
+
+All 190 official World Intermediate source labels receive a disposition in
+`sourceCoverage.intermediateInventory`: 185 active, four deferred for
+historical coverage verification, and one lacking a usable country match.
+The broader pack also contains foundation and specialist targets; this is
+not a claim to cover every intermediate clue in the world. All image URLs
+reference their original host; no third-party imagery or full note HTML is
+bundled into the public template.
+
+`maxLocationsPerCountry: 1` adds country diversity to the normal five-family
+rule. The publication guard enforces it before making an account request.
+It is optional: existing country-only packs retain their behavior. Priorities
+favor national infrastructure, signs and language ahead of fine regional
+power-provider plates or individual Brazilian area codes. Source-country
+metadata and generalized geometry are not evidence of political boundaries
+or clue exclusivity. Regional distinctions remain recognition practice;
+country scoring alone cannot establish them. Every current Worldwide
+location is a source teaching example, excluded from unseen mastery credit.

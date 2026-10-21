@@ -11,6 +11,11 @@ continue to apply; source/author attribution is retained in the content data.
   share-disabled collection.
   Full source-note HTML is fetched into ignored local files during setup.
   Images are referenced by original URLs, not copied into this repository.
+- Worldwide source collections: trausi (World), Swaggely (European pedestrian
+  signs), Niklas (European languages), Lireax and LordKeks (chevrons),
+  chrispunkt (Brazilian phone codes), ValP (area codes), and Lireax
+  (Japanese pole foundations). Exact shared collection URLs and per-location
+  provenance are retained in `content/worldwide.json`.
 - Plonk It Australia: https://www.plonkit.net/australia — reference coverage
   and priorities. The source inventory is not an endorsement by Plonk It.
 - Plonk It Philippines: https://www.plonkit.net/philippines — regional
