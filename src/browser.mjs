@@ -17,6 +17,7 @@ function fetchText(url) {
 const store=createContentStore({get:GM_getValue,set:GM_setValue,catalog,fetchText});
 const packs=store.catalog;
 let pack=null,context='',loading='',stateQueue=Promise.resolve();
+const gameStates=new Map(),recoveryAttempts=new Set(),recovering=new Set();
 const gameId=()=>/^\/(?:game|results)\/([^/]+)$/.exec(location.pathname)?.[1];
 const contextFor=entry=>`${entry.id}:${gameId()??'map'}`;
 const importPack=async imported=>{store.add(imported);location.assign(`/maps/${imported.practiceMapId}`)};
@@ -70,7 +71,16 @@ async function prepare() {
 let mounted='',lastState=null;
 const remove=()=>{document.getElementById('fieldwork-practice')?.remove();mounted=''};
 function render() {
-  const state=lastState??(gameResponses?null:unsafeWindow.GeoGuessrEventFramework?.state);
+  const currentGame=gameId();
+  const state=gameStates.get(currentGame)??lastState??(gameResponses?null:unsafeWindow.GeoGuessrEventFramework?.state);
+  const marker=document.querySelector('[data-qa="result-view-top"], [class*="result-list_listWrapper"]');
+  const resultsVisible=!!marker&&(!marker.getClientRects||marker.getClientRects().length>0);
+  const shownRound=location.pathname.startsWith('/results/')?5:Number(marker?.textContent?.match(/\bROUND\s+([1-5])\s*\/\s*5\b/i)?.[1])||null;
+  if(currentGame&&(!state||state.current_game_id!==currentGame||(resultsVisible&&(state.round_in_progress||shownRound&&shownRound!==state.current_round)))){
+    // Events can be missed at startup or arrive before native navigation. Recover without reloading.
+    if(!state||state.current_game_id!==currentGame||!shownRound||state.current_round<=shownRound)recoverGame(currentGame,resultsVisible?shownRound??'result':'start');
+    if(mounted)remove();return;
+  }
   const selected=packForPage(packs,location.pathname,state);
   if(!selected){if(mounted||loading)remove();loading='';return;}
   const wanted=contextFor(selected);
@@ -102,7 +112,6 @@ function render() {
   }
   const round=completedRound(pack,state);
   const routeId=location.pathname.split('/').filter(Boolean).at(-1);
-  const resultsVisible=!!document.querySelector('[data-qa="result-view-top"], [class*="result-list_listWrapper"]');
   if(!round||routeId!==round.gameId||!resultsVisible){if(mounted)remove();return;}
   if(mounted===round.id)return;
   const seen=exposures();const familiar=seen.some(item=>item.locationRef===round.location.id&&item.id!==round.id);
@@ -126,21 +135,38 @@ function start() {
       stateQueue=stateQueue.then(()=>{if(!pack)return;const pending=GM_getValue(key('pending-review'),null);if(pending?.round.gameId===routeId)commitPendingReview(null,true)});
     }
   },true);
-  new MutationObserver(()=>render()).observe(document.body,{childList:true,subtree:true});
+  new MutationObserver(()=>render()).observe(document.body,{childList:true,characterData:true,subtree:true});
   window.addEventListener('popstate',()=>{remove();render()});window.addEventListener('load',render,{once:true});render();
 }
 // Serialize early game events while a first-use content download is pending.
 function receiveState(state) {
-  const route=location.pathname;
+  const selected=packs.find(item=>item.practiceMapId===state.map?.id);if(!selected)return Promise.resolve();
+  const prior=gameStates.get(state.current_game_id);
+  if(prior&&(prior.current_round>state.current_round||(prior.current_round===state.current_round&&!prior.round_in_progress&&state.round_in_progress)))return Promise.resolve();
+  // Keep authoritative responses by token even while GeoGuessr still shows the previous URL.
+  gameStates.set(state.current_game_id,state);
   stateQueue=stateQueue.then(async()=>{
-    const selected=packForPage(packs,route,state);if(!selected)return;
+    if(gameId()!==state.current_game_id)return;
     const value=await store.load(selected.id,{gameId:state.current_game_id});
     // A navigation can finish during the download. Never show an old game's card there.
-    if(location.pathname!==route)return;
+    if(gameId()!==state.current_game_id)return;
     if(lastState?.current_game_id!==state.current_game_id||lastState?.current_round!==state.current_round){launching=false;remove();}
     pack=value;context=contextFor(selected);loading='';store.pinGame(pack.id,state.current_game_id);
     commitPendingReview(state);lastState=state;if(document.body)render();
-  }).catch(error=>{loading='';if(document.body&&location.pathname===route)loadingPanel(packs.find(item=>item.practiceMapId===state.map?.id)??packs[0],{error:error.message,onRetry:()=>receiveState(state),onImport:importPack})});
+  }).catch(error=>{loading='';if(document.body&&gameId()===state.current_game_id)loadingPanel(selected,{error:error.message,onRetry:()=>receiveState(state),onImport:importPack})});
+  return stateQueue;
+}
+function recoverGame(id,round){
+  const attempt=`${id}:${round}`;
+  if(recovering.has(id)||recoveryAttempts.has(attempt))return;
+  recovering.add(id);recoveryAttempts.add(attempt);
+  request(`/api/v3/games/${encodeURIComponent(id)}`).then(data=>{
+    const state=stateFromGameData(data);
+    if(state?.current_game_id===id)return receiveState(state);
+  }).catch(error=>{
+    const known=packs.find(item=>GM_getValue(`fieldwork:${item.id}:game:${id}`,null));
+    if(known&&gameId()===id&&document.body){remove();loadingPanel(known,{error:error.message,onRetry:()=>{recoveryAttempts.delete(attempt);recoverGame(id,round)},onImport:importPack})}
+  }).finally(()=>{recovering.delete(id);if(gameId()===id&&document.body)render()});
 }
 // Subscribe before DOMContentLoaded: the initial game response can arrive first.
 gameResponses?.addEventListener('received_data',event=>{

@@ -77,6 +77,11 @@ while emitting completed `GEFFetchEvents` responses. Verify the round-2 clue
 recovers, Next hides it and saves only round 2, and round 3 shows its own card.
 Do not reload a learner's results to test: GeoGuessr can resume the next round.
 
+`fixtures/recovery-fixture.html` emits a game response before navigation, then
+reveals results without framework events. Verify each card recovers through a
+read-only game request, Next saves once, and stale responses cannot replace the
+current card. Retain responses by game token even before the URL switches.
+
 For a real browser check, get consent for the dedicated map writes, preserve
 the current game, verify post-guess feedback only after a real guess, and
 never insert synthetic attempts into the user's userscript storage.

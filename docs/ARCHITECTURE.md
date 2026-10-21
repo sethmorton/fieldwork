@@ -40,6 +40,12 @@ versions are retained for those games; their notes and scoring boundaries cannot
 change because a newer pack arrives. Early framework events are serialized while
 first-use content loads. No learner event is created merely by downloading data.
 
+Game responses are retained by token across native URL transitions. If the
+current game's event is missing or behind the visible results round, a bounded
+read-only game request resynchronizes the card without reloading the page.
+Only completed guesses are normalized for feedback. Late older responses cannot
+replace a newer round, and recovery itself never creates recognition evidence.
+
 For custom packs, the local installer serves separate content files for the
 first cache fill; leave it running until the pack appears, or manually import
 `dist/practice-pack.json`. A manually imported pack is locally managed and will

@@ -1,0 +1,24 @@
+<!doctype html><meta charset="utf-8"><title>Fieldwork game recovery verification</title><body style="font:16px Arial;background:#d6e4e9;padding:30px">
+<p>LOCAL TEST · synthetic storage · no account access</p><main><h1>Game transition recovery</h1></main>
+<button id="launch">Launch with response before URL</button><button id="finish">Reveal without a framework event</button><button id="native-next">Next</button><button id="stale">Send stale response</button>
+<div data-qa="result-view-top" style="display:none">ROUND 1 / 5</div><p id="status"></p>
+<script type="module">
+const packs=await(await fetch('/dist/practice-packs.json')).json(),pack=packs.find(item=>item.id==='worldwide-foundations-intermediate');
+const sources=[...new Set(pack.locations.map(item=>item.skillIds[0]))].slice(0,5).map(id=>pack.locations.find(item=>item.skillIds[0]===id));
+const data={'fieldwork:packs':packs};let round=1,complete=false,requests=0;
+const report=()=>document.querySelector('#status').textContent=`${requests} read-only game requests · ${data['fieldwork:'+pack.id+':attempts']?.length??0} observations · round ${round}`;
+window.GM_getValue=(key,fallback)=>data[key]??fallback;window.GM_setValue=(key,value)=>{data[key]=value;report()};window.unsafeWindow=window;window.GEFFetchEvents=new EventTarget();
+const response=(r=round,finished=complete)=>({token:'recovery-fixture',map:pack.practiceMapId,round:r,rounds:sources,player:{guesses:Array.from({length:r-(finished?0:1)},(_,index)=>({lat:sources[index].lat,lng:sources[index].lng}))}});
+window.fetch=async url=>{if(url!=='/api/v3/games/recovery-fixture')throw Error('Unexpected fixture request');requests++;report();return {ok:true,text:async()=>JSON.stringify(response())}};
+history.replaceState(null,'','/maps/'+pack.practiceMapId);
+const marker=document.querySelector('[data-qa="result-view-top"]');
+document.querySelector('#launch').onclick=()=>{
+ window.GEFFetchEvents.dispatchEvent(new CustomEvent('received_data',{detail:response()}));
+ // Let the response queue start while the old map URL is still present.
+ setTimeout(()=>{history.replaceState(null,'','/game/recovery-fixture');document.querySelector('h1').textContent='New game ready';},0);
+};
+document.querySelector('#finish').onclick=()=>{complete=true;marker.style.display='block';marker.firstChild.data=`ROUND ${round} / 5`;report()};
+document.querySelector('#native-next').onclick=()=>{marker.style.display='none';round++;complete=false;marker.firstChild.data=`ROUND ${round} / 5`;report()};
+document.querySelector('#stale').onclick=()=>window.GEFFetchEvents.dispatchEvent(new CustomEvent('received_data',{detail:response(1,true)}));
+report();const script=document.createElement('script');script.src='/dist/fieldwork.user.js';document.body.append(script);
+</script>
