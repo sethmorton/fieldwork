@@ -14,6 +14,8 @@ Use Node 24.12+; package-lock.json pins dependencies.
 - Append a country: `npm run setup -- --map <different-owned-map> --pack local/philippines-pack.json --add`
 - Configure/build: `npm run setup -- --map <owned-map-ID-or-URL> --pack local/pack.json`
 - Rebuild: `npm run build`
+- Build public content only: `npm run content:build`
+- Verify engine size/assets after build: `node scripts/verify-build.mjs`
 - Installer: `npm run serve` → http://127.0.0.1:8787
 
 Read docs/SETUP.md before guiding first-run setup. Do not claim browser
@@ -44,6 +46,9 @@ installation or successful live publication based on a build passing.
 - `.fieldwork.local.json`, `local/`, `dist/`, progress exports and learner
   backups must remain untracked. Published source-map IDs are provenance,
   not account access or writable practice-map bindings.
+- Never embed content packs in the userscript. Keep runtime content, audit inventories
+  and local learner state separate. Public publishing reads only unbound `content/*.json`.
+- Verify old/new next-set equivalence and pinned-game behavior when changing content storage.
 - Preserve the user's practiceMapId during content migration. Preserve pack
   IDs/skill IDs so existing feedback remains attached to the right targets.
 - In worldwide packs, retain `notesCountry` when matching identically named clues

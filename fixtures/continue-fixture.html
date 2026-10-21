@@ -8,7 +8,7 @@
 const mode=new URL(location.href).searchParams.get('mode');
 const pack=await (await fetch('/dist/practice-pack.json')).json();
 history.replaceState(null,'','/maps/'+pack.practiceMapId);
-const data={},prefix='fieldwork:'+pack.id+':';
+const data={'fieldwork:pack':pack},prefix='fieldwork:'+pack.id+':';
 const previousIds=['au:lm:266','au:lm:369','au:lm:283','au:lm:287','au:lm:22763'];
 if(mode==='spacing'){
  const previous=previousIds.map(id=>pack.locations.find(l=>l.skillIds[0]===id));

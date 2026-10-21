@@ -63,6 +63,22 @@ Inspect changed labels rather than attaching a different clue to a location.
 Use new pack IDs for different topics; keep stable IDs within updates. Do not
 relabel a learned skill as something different while reusing its history ID.
 
+## Delivery and revisions
+
+The userscript contains a small map-binding catalog, not the content library.
+`npm run content:build` writes separate runtime and audit assets under
+`dist/content-host/`. CI publishes those public templates to GitHub Pages after
+checks pass. Increment `contentRevision` for content changes; retain pack and
+skill IDs so existing feedback stays attached. Do not change an existing skill
+ID's meaning. The delivery schema is version 1; incompatible future schemas
+must require an engine update rather than silently reinterpret cached data.
+
+Public assets omit owned practice-map bindings and full source-note HTML.
+The browser caches the selected pack and fetches source explanations locally
+after guessing. Inventory exports load separately on demand. Ongoing games
+pin their cached content version; new revisions affect future prepared sets.
+Manual imports are locally managed and are not overwritten by the public host.
+
 ## Full-source reconciliation (content revision 6)
 
 All 103 slides and 74 Plonk It cards have been reviewed and inventoried as

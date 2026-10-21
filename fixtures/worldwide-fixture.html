@@ -3,7 +3,7 @@
 <script type="module">
 const packs=await(await fetch('/dist/practice-packs.json')).json(),pack=packs.find(p=>p.id==='worldwide-foundations-intermediate');
 const auKey='fieldwork:australia-infrastructure:attempts',phKey='fieldwork:philippines-regions:attempts',worldKey='fieldwork:'+pack.id+':attempts';
-const data={'fieldwork:pack':packs[0],[auKey]:[{id:'synthetic-au'}],[phKey]:[{id:'synthetic-ph'}]};
+const data={'fieldwork:packs':packs,'fieldwork:pack':packs[0],[auKey]:[{id:'synthetic-au'}],[phKey]:[{id:'synthetic-ph'}]};
 const report=()=>document.querySelector('#history').textContent=`AU ${data[auKey].length} · PH ${data[phKey].length} · World ${data[worldKey]?.length??0} observations`;
 window.GM_getValue=(key,fallback)=>data[key]??fallback;window.GM_setValue=(key,value)=>{data[key]=value;report()};window.unsafeWindow=window;window.GEFFetchEvents=new EventTarget();
 history.replaceState(null,'','/maps/'+pack.practiceMapId);let published=[],requests=0;

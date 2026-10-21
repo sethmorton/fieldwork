@@ -1,0 +1,29 @@
+<!doctype html><meta charset="utf-8"><title>Fieldwork content loading verification</title><body style="font:16px Arial;background:#d6e4e9;padding:30px">
+<p>LOCAL TEST · synthetic storage · no account access</p><main><h1>Content loading verification</h1><button id="play">Play</button></main>
+<button id="finish">Simulate completed round</button><button id="native-next">Next</button><button id="offline">Reopen cached pack offline</button>
+<p id="network"></p><p id="saved"></p><p id="storage"></p>
+<script type="module">
+const offline=new URL(location.href).searchParams.get('mode')==='offline';
+const catalog=await(await fetch('/dist/content-host/catalog.json')).json(),entry=catalog.packs[0];
+const pack=await(await fetch('/dist/content-host/'+entry.url)).json();
+const configured=await(await fetch('/dist/practice-catalog.json')).json(),binding=configured.find(item=>item.id===pack.id);pack.practiceMapId=binding.practiceMapId;
+const key='fieldwork:content-fixture',data=JSON.parse(sessionStorage.getItem(key)??'{}');let requests=0,notes=0,bulkReads=0;
+const report=()=>{document.querySelector('#network').textContent=`${requests} content requests · ${notes} note requests · ${offline?'offline':'online'}`;document.querySelector('#saved').textContent=`${data['fieldwork:'+pack.id+':attempts']?.length??0} synthetic observations`;
+  document.querySelector('#storage').textContent=`${bulkReads} legacy bulk reads · ${Object.keys(data).filter(key=>key.startsWith('fieldwork:content:')).length} cached content packs`;};
+window.GM_getValue=(name,fallback)=>{if(name==='fieldwork:packs'||name==='fieldwork:pack')bulkReads++;return data[name]??fallback};
+window.GM_setValue=(name,value)=>{data[name]=value;sessionStorage.setItem(key,JSON.stringify(data));report()};window.unsafeWindow=window;window.GEFFetchEvents=new EventTarget();
+const nativeFetch=window.fetch.bind(window);
+window.GM_xmlhttpRequest=options=>{
+  const isNote=options.url.startsWith('https://learnablemeta.com/');if(isNote)notes++;else requests++;report();
+  if(offline){options.onerror();return;}
+  const pathname=new URL(options.url).pathname.split('/').at(-1);
+  if(isNote){const skill=pack.skills.find(s=>s.id===source.skillIds[0]);options.onload({status:200,responseText:JSON.stringify({metaName:skill.sourceMetaName??skill.title,country:skill.notesCountry,note:'Synthetic source explanation loaded after guessing.',footer:'Fixture source'})});return;}
+  nativeFetch('/dist/content-host/'+pathname).then(async response=>options.onload({status:response.status,responseText:await response.text()})).catch(options.onerror);
+};
+history.replaceState(null,'','/maps/'+pack.practiceMapId);
+const source=pack.locations.find(l=>l.skillIds[0]==='au:lm:283');
+document.querySelector('#finish').onclick=()=>{history.replaceState(null,'','/game/content-fixture');const result=document.createElement('div');result.dataset.qa='result-view-top';document.body.append(result);window.GEFFetchEvents.dispatchEvent(new CustomEvent('received_data',{detail:{token:'content-fixture',map:pack.practiceMapId,round:1,rounds:[source],player:{guesses:[{lat:source.lat,lng:source.lng}]}}}));};
+document.querySelector('#native-next').onclick=()=>document.querySelector('[data-qa="result-view-top"]')?.remove();
+document.querySelector('#offline').onclick=()=>location.assign('/fixtures/content-fixture.html?mode=offline');
+report();const script=document.createElement('script');script.src='/dist/fieldwork.user.js';document.body.append(script);
+</script>

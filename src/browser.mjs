@@ -1,20 +1,31 @@
-import defaultPacks from '../dist/practice-packs.json';
-import {makeNextSet,validatePack} from './next-set.mjs';
-import {mergePacks,packForPage} from './packs.mjs';
+import catalog from '../dist/practice-catalog.json';
+import {createContentStore} from './content-store.mjs';
+import {sourceNote} from './source-note.mjs';
+import {makeNextSet} from './next-set.mjs';
+import {packForPage} from './packs.mjs';
 import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet} from './session.mjs';
-import {reviewPanel,startPanel} from './ui.mjs';
+import {reviewPanel,startPanel,loadingPanel} from './ui.mjs';
 import {stateFromGameData} from './game-state.mjs';
 const gameResponses=unsafeWindow.GEFFetchEvents;
 
-const storedPack=GM_getValue('fieldwork:pack',null);
-let packs=mergePacks(GM_getValue('fieldwork:packs',[]),storedPack,defaultPacks);
-GM_setValue('fieldwork:packs',packs);
-let pack=packForPage(packs,location.pathname,null)??packs.find(item=>item.id===storedPack?.id)??packs[0];
-const key=suffix=>`fieldwork:${pack.id}:${suffix}`;
-const history=()=>GM_getValue(key('attempts'),[]);
-const exposures=()=>GM_getValue(key('exposures'),[]);
-const nextSet=()=>makeNextSet(pack,history(),{size:5,seenLocationRefs:exposures().map(item=>item.locationRef),previousSetLocationRefs:GM_getValue(key('active-set'),null)?.locationIds??[]});
+function fetchText(url) {
+  if(typeof GM_xmlhttpRequest==='function')return new Promise((resolve,reject)=>GM_xmlhttpRequest({url,method:'GET',anonymous:true,timeout:20000,
+    onload:response=>response.status>=200&&response.status<300?resolve(response.responseText):reject(Error(`Content returned ${response.status}.`)),
+    onerror:()=>reject(Error('Content could not be downloaded.')),ontimeout:()=>reject(Error('Content download timed out.'))}));
+  return fetch(url,{credentials:'omit',signal:AbortSignal.timeout(20000)}).then(response=>{if(!response.ok)throw Error(`Content returned ${response.status}.`);return response.text()});
+}
+const store=createContentStore({get:GM_getValue,set:GM_setValue,catalog,fetchText});
+const packs=store.catalog;
+let pack=null,context='',loading='',stateQueue=Promise.resolve();
+const gameId=()=>/^\/(?:game|results)\/([^/]+)$/.exec(location.pathname)?.[1];
+const contextFor=entry=>`${entry.id}:${gameId()??'map'}`;
+const importPack=async imported=>{store.add(imported);location.assign(`/maps/${imported.practiceMapId}`)};
+const key=(suffix,id=pack.id)=>`fieldwork:${id}:${suffix}`;
+const history=(id=pack.id)=>GM_getValue(key('attempts',id),[]);
+const exposures=(id=pack.id)=>GM_getValue(key('exposures',id),[]);
+const nextSet=(subject=pack)=>makeNextSet(subject,history(subject.id),{size:5,seenLocationRefs:exposures(subject.id).map(item=>item.locationRef),previousSetLocationRefs:GM_getValue(key('active-set',subject.id),null)?.locationIds??[]});
 function commitPendingReview(nextState,advance=false) {
+  if(!pack)return;
   const pending=GM_getValue(key('pending-review'),null);
   if(!pending)return;
   const old=history();
@@ -47,20 +58,36 @@ function startPreparedGame() {
 }
 async function prepare() {
   if(GM_getValue(key('pending-review'),null)?.round.round===5)commitPendingReview(null,true);
-  const set=nextSet();
-  await publishPracticeSet(pack,set,request,draft=>{if(!GM_getValue(key('pending-backup'),null))GM_setValue(key('pending-backup'),draft)});
-  GM_setValue(key('previous-draft'),GM_getValue(key('pending-backup'),null));GM_setValue(key('pending-backup'),null);
-  GM_setValue(key('active-set'),{locationIds:set.selectedLocations.map(location=>location.id),preparedAt:new Date().toISOString()});
-  GM_setValue(key('launch-request'),{mapId:pack.practiceMapId,requestedAt:Date.now()});
-  if(location.pathname===`/maps/${pack.practiceMapId}`&&startPreparedGame())return;
-  location.assign(`/maps/${pack.practiceMapId}`);
+  const route=location.pathname,chosen=await store.load(pack.id),set=nextSet(chosen),chosenKey=suffix=>key(suffix,chosen.id);
+  await publishPracticeSet(chosen,set,request,draft=>{if(!GM_getValue(chosenKey('pending-backup'),null))GM_setValue(chosenKey('pending-backup'),draft)});
+  GM_setValue(chosenKey('previous-draft'),GM_getValue(chosenKey('pending-backup'),null));GM_setValue(chosenKey('pending-backup'),null);
+  store.pinSet(chosen.id,set,chosen);
+  GM_setValue(chosenKey('launch-request'),{mapId:chosen.practiceMapId,requestedAt:Date.now()});
+  if(location.pathname!==route)return;
+  if(location.pathname===`/maps/${chosen.practiceMapId}`&&startPreparedGame())return;
+  location.assign(`/maps/${chosen.practiceMapId}`);
 }
 let mounted='',lastState=null;
 const remove=()=>{document.getElementById('fieldwork-practice')?.remove();mounted=''};
 function render() {
   const state=lastState??(gameResponses?null:unsafeWindow.GeoGuessrEventFramework?.state);
   const selected=packForPage(packs,location.pathname,state);
-  if(selected&&selected.id!==pack.id){remove();pack=selected;launching=false;}
+  if(!selected){if(mounted||loading)remove();loading='';return;}
+  const wanted=contextFor(selected);
+  if(context!==wanted){
+    if(loading===wanted)return;
+    loading=wanted;const route=location.pathname;
+    if(!gameId())loadingPanel(selected,{onImport:importPack});
+    store.load(selected.id,{gameId:gameId()}).then(value=>{
+      if(location.pathname!==route)return;
+      pack=value;context=wanted;loading='';launching=false;
+      if(gameId())store.pinGame(pack.id,gameId());
+      remove();render();
+      // Warm-cache practice never waits for the content host. Apply updates to the next set.
+      if(!gameId())store.refresh(pack.id).catch(()=>{});
+    }).catch(error=>{if(location.pathname===route)loadingPanel(selected,{error:error.message,onRetry:()=>{loading='';render()},onImport:importPack})});
+    return;
+  }
   commitPendingReview(state);
   const mapPage=location.pathname===`/maps/${pack.practiceMapId}`||location.pathname===`/map-maker/${pack.practiceMapId}`;
   if(mapPage){
@@ -70,8 +97,7 @@ function render() {
     let set,error;try{set=nextSet()}catch(cause){error=cause.message}
     startPanel(pack,set,{onNext:prepare,error,attempts:history(),getAttempts:history,packs,onChoosePack:id=>location.assign(`/maps/${packs.find(item=>item.id===id).practiceMapId}`),
       onExport:()=>download({packId:pack.id,attempts:history(),exposures:exposures(),previousDraft:GM_getValue(key('previous-draft'),null),pendingBackup:GM_getValue(key('pending-backup'),null)},`fieldwork-progress-${pack.id}.json`),
-      onImport:async imported=>{validatePack(imported);if(!/^[a-f\d]{24}$/i.test(imported.practiceMapId??''))throw Error('The pack needs a dedicated owned practiceMapId.');
-        packs=mergePacks([...packs.filter(item=>item.id!==imported.id),imported],null,[]);GM_setValue('fieldwork:packs',packs);pack=imported;location.assign(`/maps/${pack.practiceMapId}`)},
+      onImport:importPack,onCoverage:async()=>download(await store.audit(pack.id),`fieldwork-sources-${pack.id}.json`),
     });mounted='start';return;
   }
   const round=completedRound(pack,state);
@@ -84,28 +110,40 @@ function render() {
   if(!history().some(item=>item.id===round.id))GM_setValue(key('pending-review'),{round,familiar,correct:round.correct});
   reviewPanel(pack,round,{familiar,attempts:history(),getAttempts:history,saved:history().some(item=>item.id===round.id&&item.feedbackSource!=='assumed-on-advance'),
     onChange:response=>{const pending=GM_getValue(key('pending-review'),null);if(pending?.round.id===round.id)GM_setValue(key('pending-review'),{...pending,...response})},
+    loadNote:skill=>sourceNote(skill,round.location,{fetchText,get:GM_getValue,set:GM_setValue,revision:pack.contentRevision}),
     onSave:response=>{const updated=recordRecognition(pack,history(),round,response);GM_setValue(key('attempts'),updated);GM_setValue(key('pending-review'),null);return updated},onNext:prepare});mounted=round.id;
 }
 function start() {
   const framework=unsafeWindow.GeoGuessrEventFramework;
   if(framework&&!gameResponses){
-    framework.events.addEventListener('round_start',event=>{commitPendingReview(event.detail);lastState=event.detail;launching=false;remove()});
-    framework.events.addEventListener('round_end',event=>{lastState=event.detail;render()});
+    framework.events.addEventListener('round_start',event=>receiveState(structuredClone(event.detail)));
+    framework.events.addEventListener('round_end',event=>receiveState(structuredClone(event.detail)));
   }
   document.addEventListener('click',event=>{
     const target=event.target.closest?.('button,[role="button"],a');
-    const pending=GM_getValue(key('pending-review'),null);
-    if(pending&&target&&!target.disabled&&target.textContent.trim().toUpperCase()==='NEXT'
-      &&location.pathname.split('/').at(-1)===pending.round.gameId)commitPendingReview(null,true);
+    if(target&&!target.disabled&&target.textContent.trim().toUpperCase()==='NEXT'){
+      const routeId=gameId();
+      stateQueue=stateQueue.then(()=>{if(!pack)return;const pending=GM_getValue(key('pending-review'),null);if(pending?.round.gameId===routeId)commitPendingReview(null,true)});
+    }
   },true);
   new MutationObserver(()=>render()).observe(document.body,{childList:true,subtree:true});
   window.addEventListener('popstate',()=>{remove();render()});window.addEventListener('load',render,{once:true});render();
 }
+// Serialize early game events while a first-use content download is pending.
+function receiveState(state) {
+  const route=location.pathname;
+  stateQueue=stateQueue.then(async()=>{
+    const selected=packForPage(packs,route,state);if(!selected)return;
+    const value=await store.load(selected.id,{gameId:state.current_game_id});
+    // A navigation can finish during the download. Never show an old game's card there.
+    if(location.pathname!==route)return;
+    if(lastState?.current_game_id!==state.current_game_id||lastState?.current_round!==state.current_round){launching=false;remove();}
+    pack=value;context=contextFor(selected);loading='';store.pinGame(pack.id,state.current_game_id);
+    commitPendingReview(state);lastState=state;if(document.body)render();
+  }).catch(error=>{loading='';if(document.body&&location.pathname===route)loadingPanel(packs.find(item=>item.practiceMapId===state.map?.id)??packs[0],{error:error.message,onRetry:()=>receiveState(state),onImport:importPack})});
+}
 // Subscribe before DOMContentLoaded: the initial game response can arrive first.
 gameResponses?.addEventListener('received_data',event=>{
-  const state=stateFromGameData(event.detail);if(!state)return;
-  commitPendingReview(state);
-  if(lastState?.current_game_id!==state.current_game_id||lastState?.current_round!==state.current_round){launching=false;remove();}
-  lastState=state;if(document.body)render();
+  const state=stateFromGameData(event.detail);if(state)receiveState(state);
 });
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();

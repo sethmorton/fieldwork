@@ -6,7 +6,7 @@
 
 Fieldwork turns a curated pool of real locations into adaptive five-round maps. Guess normally, review the visual clue after the reveal, and keep going. Your next set aims for three new targets and two reviews, across five different clue families.
 
-Australia, the Philippines and Worldwide are supplied packs. One userscript keeps separate maps and progress for each.
+Australia, the Philippines and Worldwide are supplied packs. One small userscript keeps separate maps and progress for each; content packs download separately and stay cached.
 
 ![Practice loop: curated locations become five varied targets; guess, review after reveal, and use local progress to shape the next set.](docs/practice-loop.svg)
 
@@ -40,7 +40,11 @@ Requires **Node.js 24.12+**, npm, Chrome/Chromium and [Tampermonkey](https://www
 3. Open **http://127.0.0.1:8787**, install the generated userscript, and follow its link to your map in a **fresh Chrome tab**.
 4. Click **Continue practice** in the Fieldwork panel. It publishes five locations and starts the game. Bookmark your own map URL for future sessions.
 
-You can stop the local server after installation. Everyday practice runs in GeoGuessr; it does not need this repository or a server running. See [setup and troubleshooting](docs/SETUP.md) if the panel does not appear.
+You can stop the local server after installation and the first pack has loaded. Everyday practice runs in GeoGuessr; it does not need this repository or a server running. See [setup and troubleshooting](docs/SETUP.md) if the panel does not appear.
+
+The supplied packs receive background content updates without reinstalling the
+script. Cached content survives a content-host outage; your progress stays local.
+Engine updates preserve existing history and in-flight games.
 
 ## What practice does
 
@@ -87,4 +91,4 @@ Built by [Seth Morton](https://github.com/sethmorton). Report reproducible bugs 
 
 Content is informed by [Learnable Meta](https://learnablemeta.com/), [Plonk It Australia](https://www.plonkit.net/australia) and the [Australia reference deck](https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit). Browser events use [GeoGuessr Event Framework](https://github.com/miraclewhips/geoguessr-event-framework), pinned to a commit. Fieldwork is unaffiliated with these projects or GeoGuessr.
 
-Original Fieldwork code is MIT licensed. Third-party notes, images, reference material and geographic data retain their original rights and attribution; see [THIRD_PARTY.md](THIRD_PARTY.md). Full Learnable Meta explanation text is fetched into ignored local files during setup, rather than bundled into the public pack.
+Original Fieldwork code is MIT licensed. Third-party notes, images, reference material and geographic data retain their original rights and attribution; see [THIRD_PARTY.md](THIRD_PARTY.md). Full Learnable Meta explanation text is fetched locally during setup or after a guess, rather than republished with public content assets.

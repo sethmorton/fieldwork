@@ -50,14 +50,16 @@ npm run serve
 
 For a Philippines-only first setup, omit `--add`. The explicit output filename
 keeps the Australian `local/pack.json` intact. Install the rebuilt userscript
-once; it contains both configured packs. Each bookmarked map URL selects its
+once; it contains the bindings for both packs, whose content is cached separately. Each bookmarked map URL selects its
 own country. The compact **Practice pack** selector on the start panel also
 switches countries. History, exposures, pending reviews, map backups and the
 progress tree are stored separately under each pack ID. Legacy Australia
 history and map bindings are preserved during migration.
 
-To update content later, refresh each configured template to its **existing
-local filename**, then run `npm run build` and update the script. Do not run
+The supplied packs check for published content updates in the background when
+you open a practice map. No script reinstall is needed for those content updates.
+For locally authored packs, refresh the **existing local filename**, rebuild,
+then import the regenerated JSON through **Content & progress**. Do not run
 first-pack setup again when you mean to append another country. A pack and a
 writable practice map may each appear only once in the local configuration.
 
@@ -127,11 +129,29 @@ the current UI imports packs, not progress backups. Do not commit exports.
 | Port 8787 already in use | Stop the previous installer server; routine practice does not need it running |
 | Need a different map binding | Re-run setup for that map, rebuild, then import `dist/practice-pack.json` through **Content & progress** and update the userscript |
 
-Updates are explicit: pull the repository, run `npm ci`, `npm run check`,
-refresh your configured content, run `npm run build`, and install the regenerated script.
-For the supplied Australia setup, `npm run content:refresh` replaces the local
-hydrated pack with the latest template and source notes. For a custom topic,
-refresh/re-curate that topic's pack instead; do not replace it with Australia.
-Personalized builds do
-not auto-download a universal GitHub userscript with somebody else's map ID.
-Content migration preserves the locally configured map and existing history.
+## Engine and content updates
+
+Engine updates still require installing the regenerated userscript. Content is
+separate: the supplied packs load from `https://sethmorton.github.io/fieldwork/`
+and cache in the userscript manager. First use requires a download; after that,
+the content host can be unavailable and cached practice still works (GeoGuessr
+itself still needs internet). A failed first download shows **Retry** and a pack
+import option. Background update checks never block cached Continue practice.
+
+Version 0.10 migrates your installed packs once. Keep the same script identity
+and Chrome profile: **update** the existing script rather than deleting it.
+Existing history, map bindings, exposures and pending feedback remain local.
+Updates pin the content of each active game, and only affect newly prepared
+sets. Older cached versions and the legacy registry remain for rollback.
+
+For engine changes: pull the repository, run `npm ci`, `npm run check`,
+`npm run build`, and install the regenerated script. Public content publishing
+runs only from public templates after CI passes; it never publishes your
+`.fieldwork.local.json`, hydrated local files, or progress. Public packs retain
+source links/attribution; their full explanations are fetched locally after a
+reveal rather than republished in the content host.
+
+A custom pack with a new ID is served by the local installer for its initial
+cache fill. Keep that server running until the practice panel appears. You can
+also import `dist/practice-pack.json` through the panel's import control. Manual
+imports are locally managed and do not receive automatic public updates.
