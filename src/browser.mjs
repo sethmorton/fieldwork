@@ -6,6 +6,7 @@ import {packForPage} from './packs.mjs';
 import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet} from './session.mjs';
 import {reviewPanel,startPanel,loadingPanel} from './ui.mjs';
 import {stateFromGameData} from './game-state.mjs';
+import {observeGameResponses} from './game-responses.mjs';
 const gameResponses=unsafeWindow.GEFFetchEvents;
 
 function fetchText(url) {
@@ -17,7 +18,7 @@ function fetchText(url) {
 const store=createContentStore({get:GM_getValue,set:GM_setValue,catalog,fetchText});
 const packs=store.catalog;
 let pack=null,context='',loading='',stateQueue=Promise.resolve();
-const gameStates=new Map(),recoveryAttempts=new Set(),recovering=new Set();
+const gameStates=new Map();
 const gameId=()=>/^\/(?:game|results)\/([^/]+)$/.exec(location.pathname)?.[1];
 const contextFor=entry=>`${entry.id}:${gameId()??'map'}`;
 const importPack=async imported=>{store.add(imported);location.assign(`/maps/${imported.practiceMapId}`)};
@@ -72,13 +73,12 @@ let mounted='',lastState=null;
 const remove=()=>{document.getElementById('fieldwork-practice')?.remove();mounted=''};
 function render() {
   const currentGame=gameId();
-  const state=gameStates.get(currentGame)??lastState??(gameResponses?null:unsafeWindow.GeoGuessrEventFramework?.state);
+  const frameworkState=unsafeWindow.GeoGuessrEventFramework?.state;
+  const state=gameStates.get(currentGame)??(lastState?.current_game_id===currentGame?lastState:null)??(frameworkState?.current_game_id===currentGame?frameworkState:null);
   const marker=document.querySelector('[data-qa="result-view-top"], [class*="result-list_listWrapper"]');
   const resultsVisible=!!marker&&(!marker.getClientRects||marker.getClientRects().length>0);
   const shownRound=location.pathname.startsWith('/results/')?5:Number(marker?.textContent?.match(/\bROUND\s+([1-5])\s*\/\s*5\b/i)?.[1])||null;
   if(currentGame&&(!state||state.current_game_id!==currentGame||(resultsVisible&&(state.round_in_progress||shownRound&&shownRound!==state.current_round)))){
-    // Events can be missed at startup or arrive before native navigation. Recover without reloading.
-    if(!state||state.current_game_id!==currentGame||!shownRound||state.current_round<=shownRound)recoverGame(currentGame,resultsVisible?shownRound??'result':'start');
     if(mounted)remove();return;
   }
   const selected=packForPage(packs,location.pathname,state);
@@ -156,20 +156,8 @@ function receiveState(state) {
   }).catch(error=>{loading='';if(document.body&&gameId()===state.current_game_id)loadingPanel(selected,{error:error.message,onRetry:()=>receiveState(state),onImport:importPack})});
   return stateQueue;
 }
-function recoverGame(id,round){
-  const attempt=`${id}:${round}`;
-  if(recovering.has(id)||recoveryAttempts.has(attempt))return;
-  recovering.add(id);recoveryAttempts.add(attempt);
-  request(`/api/v3/games/${encodeURIComponent(id)}`).then(data=>{
-    const state=stateFromGameData(data);
-    if(state?.current_game_id===id)return receiveState(state);
-  }).catch(error=>{
-    const known=packs.find(item=>GM_getValue(`fieldwork:${item.id}:game:${id}`,null));
-    if(known&&gameId()===id&&document.body){remove();loadingPanel(known,{error:error.message,onRetry:()=>{recoveryAttempts.delete(attempt);recoverGame(id,round)},onImport:importPack})}
-  }).finally(()=>{recovering.delete(id);if(gameId()===id&&document.body)render()});
-}
 // Subscribe before DOMContentLoaded: the initial game response can arrive first.
-gameResponses?.addEventListener('received_data',event=>{
-  const state=stateFromGameData(event.detail);if(state)receiveState(state);
-});
+const acceptData=data=>{const state=stateFromGameData(data);if(state)receiveState(state)};
+gameResponses?.addEventListener('received_data',event=>acceptData(event.detail));
+observeGameResponses(unsafeWindow,acceptData);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();

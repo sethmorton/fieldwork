@@ -78,8 +78,8 @@ recovers, Next hides it and saves only round 2, and round 3 shows its own card.
 Do not reload a learner's results to test: GeoGuessr can resume the next round.
 
 `fixtures/recovery-fixture.html` emits a game response before navigation, then
-reveals results without framework events. Verify each card recovers through a
-read-only game request, Next saves once, and stale responses cannot replace the
+reveals results through native relative fetch responses without framework events.
+Verify each card recovers without issuing any additional game requests, Next saves once, and stale responses cannot replace the
 current card. Retain responses by game token even before the URL switches.
 
 For a real browser check, get consent for the dedicated map writes, preserve

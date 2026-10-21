@@ -41,10 +41,12 @@ change because a newer pack arrives. Early framework events are serialized while
 first-use content loads. No learner event is created merely by downloading data.
 
 Game responses are retained by token across native URL transitions. If the
-current game's event is missing or behind the visible results round, a bounded
-read-only game request resynchronizes the card without reloading the page.
+framework misses an event, a separate observer captures normal game responses
+from absolute URLs, relative URLs and Request objects, without adding requests.
+Never GET a game merely to recover a clue: that endpoint can advance its round.
 Only completed guesses are normalized for feedback. Late older responses cannot
-replace a newer round, and recovery itself never creates recognition evidence.
+replace a newer round. Unshown rounds are not backfilled; normal advance feedback
+only applies to a previously displayed pending card.
 
 For custom packs, the local installer serves separate content files for the
 first cache fill; leave it running until the pack appears, or manually import
