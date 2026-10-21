@@ -11,8 +11,8 @@ export function panel() {
     section{background:#eff6f8;border:1px solid #a9c2cb;border-radius:12px;padding:16px;box-shadow:0 8px 30px #10263633;max-height:65vh;overflow:auto}
     header{display:flex;align-items:center;justify-content:space-between;gap:12px}small{font:11px/1.5 ui-monospace,monospace;text-transform:uppercase;letter-spacing:.06em}
     h2{font:600 19px/1.2 'Trebuchet MS',Arial,sans-serif;margin:10px 0}p{margin:8px 0}img{display:block;width:100%;max-height:160px;object-fit:contain;background:#d9e7ec;border-radius:6px}
-    button,a{font:inherit}button{border:1px solid #9bb7c2;background:white;color:#153946;border-radius:7px;padding:9px 12px;cursor:pointer}button.primary{background:#176b86;color:white;border-color:#176b86}button:disabled{opacity:.6;cursor:wait}
-    button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #d1961f;outline-offset:3px}.actions{display:flex;gap:8px;margin-top:12px}.actions>*{flex:1}label{display:block;font-size:12px;margin:10px 0}input{margin-right:6px}a{color:#176b86}.muted{font-size:12px;color:#496b79}details{margin-top:10px}summary{cursor:pointer}.close{padding:2px 7px;font-size:17px;border:0;background:none}
+    button,a,select{font:inherit}select{display:block;width:100%;margin-top:5px;padding:8px;border:1px solid #9bb7c2;border-radius:6px;background:white;color:#153946}button{border:1px solid #9bb7c2;background:white;color:#153946;border-radius:7px;padding:9px 12px;cursor:pointer}button.primary{background:#176b86;color:white;border-color:#176b86}button:disabled{opacity:.6;cursor:wait}
+    button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #d1961f;outline-offset:3px}.actions{display:flex;gap:8px;margin-top:12px}.actions>*{flex:1}label{display:block;font-size:12px;margin:10px 0}input{margin-right:6px}a{color:#176b86}.muted{font-size:12px;color:#496b79}details{margin-top:10px}summary{cursor:pointer}.close{padding:2px 7px;font-size:17px;border:0;background:none}
     .tree-root{margin:16px auto 0;padding:12px;text-align:center;border:1px solid #a9c2cb;border-radius:8px;background:#d9e7ec;max-width:360px}.tree-root strong{font:600 18px 'Trebuchet MS',Arial,sans-serif}
     .tree-legend{display:flex;flex-wrap:wrap;gap:12px;margin:14px 0;font-size:12px}.tree-key{display:flex;align-items:center;gap:5px}.tree-dot{display:inline-grid;place-items:center;width:14px;height:14px;border:1px dashed #9bb7c2;border-radius:50%;font-style:normal;font-size:10px}
     .tree-branches{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0 20px;border-top:1px solid #a9c2cb;margin-top:18px}.tree-branch{position:relative;margin:0;padding:20px 0 14px 16px;border-left:1px solid #a9c2cb}.tree-branch:before{content:'';position:absolute;left:0;top:30px;width:10px;border-top:1px solid #a9c2cb}.tree-family{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px}.tree-family:before{content:'+'}.tree-branch[open]>.tree-family:before{content:'−'}.tree-family strong{flex:1}.tree-preview{display:flex;flex-wrap:wrap;gap:6px;width:100%;padding-left:16px}.tree-preview .needs-review{box-shadow:0 0 0 2px #d1961f}.tree-branch[open] .tree-preview{display:none}.tree-leaves{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}
@@ -33,7 +33,7 @@ function treeDetails(section,pack,getAttempts,title){
 function clue(section,skill,sourceUrl) {
   sourceUrl=skill.notesSourceUrl??sourceUrl;
   text(section,'h2',skill.title);
-  const imageUrl=skill.imageUrls?.find(url=>url.startsWith('https://learnablemeta.com/images/')||url.startsWith('https://ocsc00skc0wokcs8kw8g8k84.geohints.com/storage/'));
+  const imageUrl=skill.imageUrls?.find(url=>url.startsWith('https://learnablemeta.com/images/')||url.startsWith('https://www.plonkit.net/images/')||url.startsWith('https://ocsc00skc0wokcs8kw8g8k84.geohints.com/storage/'));
   if(imageUrl){const img=document.createElement('img');img.src=imageUrl;img.alt=skill.title+' — source example';section.append(img);}
   const details=document.createElement('details');text(details,'summary','Clue & source');
   const parsed=new DOMParser().parseFromString(skill.sourceNoteHtml??skill.trainingNote??'','text/html');const note=(parsed.body.textContent??'').trim();
@@ -66,8 +66,9 @@ export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],g
   if(round.round===5){const next=button(section,'Continue practice',async()=>{next.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){const updated=getAttempts();progressLine.textContent=progressText(skillStatus(skill.id,updated),updated.filter(item=>item.skillId===skill.id));status.textContent=error.message;next.disabled=false}},'primary');next.style.marginTop='12px';}
   const tree=treeDetails(section,pack,getAttempts,'Your progress tree');
 }
-export function startPanel(pack,_set,{onNext,onExport,onImport,error,attempts=[],getAttempts=()=>attempts}) {
+export function startPanel(pack,_set,{onNext,onExport,onImport,error,attempts=[],getAttempts=()=>attempts,packs=[],onChoosePack}) {
   const {section}=panel();header(section,'Fieldwork · practice');text(section,'h2',pack.title);
+  if(packs.length>1){const label=text(section,'label','Practice pack');const choose=document.createElement('select');choose.setAttribute('aria-label','Practice pack');for(const item of packs){const option=text(choose,'option',item.title);option.value=item.id;option.selected=item.id===pack.id;}choose.onchange=()=>onChoosePack(choose.value);label.append(choose);}
   const status=text(section,'p',error??`${pack.answerAreaLabel??pack.title}. Up to three new targets plus review. Five different clue families.`,'muted');status.setAttribute('role','status');
   const next=button(section,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=error.message;this.disabled=false}},'primary');next.disabled=!!error;
   const {details}=treeDetails(section,pack,getAttempts,'Content & progress');

@@ -151,3 +151,41 @@ The deck-linked Denis streetlight document currently requires access. No
 request was sent. Generic QLD masts and an obscured Canberra lamp were
 reviewed and held; LED replacements make old lamp-head claims unreliable.
 The two new Darwin examples support a regional tendency, not exclusivity.
+
+## Philippines pack
+
+`content/philippines.json` contains 177 stable targets, of which 166 currently
+have at least two actual panoramas and are active: 922 playable practice
+panoramas across 15 families. Eleven singleton targets remain inactive.
+The record includes 933 distinct panoramas total, with original camera
+orientation and public-source attribution. Native export acquired 920 source
+records (919 distinct panoramas); public note matching had zero failures or
+unmatched records. Semantic aliases extend existing concepts instead of
+creating duplicate learning tasks. Fourteen additional distinct, live-checked
+guide examples supplement that source pool.
+
+Every one of the 47 Plonk It Philippines cards is inventoried under
+`sourceCoverage.guide`. Thirteen country-identification cards are excluded
+from Philippines-only practice. Active overlap is recorded as partial;
+phone area codes, municipality abbreviations, historical camera cars and
+other missing examples remain explicit gaps. Shared Learnable Meta sources
+cover regional landscapes, vegetation, infrastructure, poles, trikes,
+motorcycle plates and province names. The two principal Philippines maps
+currently disable sharing and were not imported through hidden endpoints.
+
+Priorities start with pine highlands, albizia, broad crop patterns, regional
+guardrail paint and pole construction, then mix in local infrastructure,
+trikes, plates and place-name knowledge. All trike variants share one family,
+as do motorcycle plate bands and province names. Housing and meter examples
+are deliberately small comparison targets, not complete distributions.
+Crop, architecture and meter guide anchors were checked in live Street View;
+bulk Learnable Meta annotations have not all been independently rechecked.
+The actual loaded panorama ID is retained when a source link substitutes newer
+imagery. All Philippines locations are teaching examples (`assessmentEligible:
+false`); a separate delayed, unseen assessment pool is still needed for mastery.
+
+Regional scoring groups Natural Earth Admin 1 polygons into 11 **editorial
+practice areas**, not official current regions. Geographic labels describe
+the actual coordinates, never the source clue's claimed distribution. Unknown
+coastal geometry remains unknown. Boundaries and changing province names do
+not establish a cue's exclusivity.

@@ -11,11 +11,21 @@ export function configurePack(template,map) {
 }
 async function main(){
   const args=process.argv.slice(2),map=args[args.indexOf('--map')+1];
-  if(!args.includes('--map')||!map)throw Error('Usage: npm run setup -- --map <owned-map-URL-or-ID> [--pack content/australia.json]');
+  if(!args.includes('--map')||!map)throw Error('Usage: npm run setup -- --map <owned-map-URL-or-ID> [--pack content/australia.json] [--add]');
   const packPath=args.includes('--pack')?args[args.indexOf('--pack')+1]:'content/australia.json';
   const template=JSON.parse(await readFile(packPath,'utf8'));
   const pack=configurePack(template,map);
-  await writeFile('.fieldwork.local.json',JSON.stringify({packPath,practiceMapId:pack.practiceMapId},null,2)+'\n');
+  const entry={packPath,practiceMapId:pack.practiceMapId};
+  let config=entry;
+  if(args.includes('--add')){
+    try{config=JSON.parse(await readFile('.fieldwork.local.json','utf8'))}catch{throw Error('Set up the first pack before using --add.');}
+    for(const existing of [config,...(config.additionalPacks??[])]){
+      const current=JSON.parse(await readFile(existing.packPath,'utf8'));
+      if(current.id===pack.id||existing.practiceMapId===pack.practiceMapId)throw Error('That pack or practice map is already configured. Update its existing local configuration.');
+    }
+    config={...config,additionalPacks:[...(config.additionalPacks??[]),entry]};
+  }
+  await writeFile('.fieldwork.local.json',JSON.stringify(config,null,2)+'\n');
   const {buildFieldwork}=await import('./build.mjs');await buildFieldwork();
   console.log('Ready: npm run serve, then open http://127.0.0.1:8787 and install the userscript.');
 }

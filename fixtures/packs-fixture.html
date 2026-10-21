@@ -1,0 +1,15 @@
+<!doctype html><meta charset="utf-8"><title>Fieldwork multi-pack test</title><body style="font-family:Arial;background:#d6e4e9;padding:30px"><p>LOCAL TEST · synthetic learner only · no account access</p><button id="au">Australia</button><button id="ph">Philippines</button><button id="result">Philippines result</button><button id="native-next">Next</button><p id="status"></p><script type="module">
+const packs=await(await fetch('/dist/practice-packs.json')).json(),au=packs[0],ph=packs[1];
+const auKey='fieldwork:'+au.id+':attempts',phKey='fieldwork:'+ph.id+':attempts';
+const existing=[{id:'synthetic-australia-history',skillId:au.skills.find(s=>s.availability==='available').id,occurredAt:new Date().toISOString(),correct:true,evidenceValid:true,confidence:2,unfamiliar:true,locationRef:'synthetic-existing-location',mode:'practice',feedbackSource:'assumed-on-advance'}];
+const data={'fieldwork:pack':au,[auKey]:existing};
+const status=()=>document.querySelector('#status').textContent=`AU ${data[auKey]?.length??0} saved · PH ${data[phKey]?.length??0} saved · legacy AU ${JSON.stringify(data[auKey])===JSON.stringify(existing)?'unchanged':'changed'} · ${data['fieldwork:packs']?.length??0} packs`;
+window.GM_getValue=(key,fallback)=>data[key]??fallback;window.GM_setValue=(key,value)=>{data[key]=value;status()};window.unsafeWindow=window;window.GEFFetchEvents=new EventTarget();
+const navigate=pack=>{document.querySelector('[data-qa="result-view-top"]')?.remove();history.pushState(null,'','/maps/'+pack.practiceMapId);window.dispatchEvent(new PopStateEvent('popstate'));};
+const skillId=new URL(location.href).searchParams.get('skill')??'ph:lm:15346';
+const source=ph.locations.find(l=>l.skillIds[0]===skillId);
+document.querySelector('#au').onclick=()=>navigate(au);document.querySelector('#ph').onclick=()=>navigate(ph);
+document.querySelector('#result').onclick=()=>{history.pushState(null,'','/game/ph-synthetic');const result=document.createElement('div');result.dataset.qa='result-view-top';document.body.append(result);window.GEFFetchEvents.dispatchEvent(new CustomEvent('received_data',{detail:{token:'ph-synthetic',map:ph.practiceMapId,round:1,rounds:[source],player:{guesses:[{lat:source.lat,lng:source.lng}]}}}));};
+document.querySelector('#native-next').onclick=()=>{document.querySelector('[data-qa="result-view-top"]')?.remove();};
+navigate(ph);status();const script=document.createElement('script');script.src='/dist/fieldwork.user.js';document.body.append(script);
+</script>

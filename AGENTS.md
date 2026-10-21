@@ -2,13 +2,15 @@
 
 ## Goal and commands
 
-Country/topic-agnostic adaptive GeoGuessr practice. Australia is the first pack.
+Country/topic-agnostic adaptive GeoGuessr practice. Australia and the Philippines are supplied packs.
 Use Node 24.12+; package-lock.json pins dependencies.
 
 - Install: `npm ci`
 - Tests + typecheck: `npm run check`
 - Single test: `node --test src/tests/adaptive.test.mjs`
-- Fetch source explanations locally: `npm run content:refresh`
+- Fetch AU notes locally: `npm run content:refresh`
+- Fetch PH notes: `node scripts/refresh-notes.mjs content/philippines.json local/philippines-pack.json`
+- Append a country: `npm run setup -- --map <different-owned-map> --pack local/philippines-pack.json --add`
 - Configure/build: `npm run setup -- --map <owned-map-ID-or-URL> --pack local/pack.json`
 - Rebuild: `npm run build`
 - Installer: `npm run serve` → http://127.0.0.1:8787
@@ -19,7 +21,7 @@ installation or successful live publication based on a build passing.
 ## First-run workflow
 
 1. Ask only for missing information: country/topic and the user's separate
-   owned practice map URL. Australia is the supplied pack. Never use the
+   owned practice map URL. Australia and the Philippines are supplied packs. Never use the
    author's or another learner's map as a shared writable practice map.
 2. Have the user create/save a dedicated map named `Fieldwork - Practice`
    in native GeoGuessr Map Maker. Read the actual map ID; never invent one.

@@ -10,6 +10,12 @@ continue to apply; source/author attribution is retained in the content data.
   Images are referenced by original URLs, not copied into this repository.
 - Plonk It Australia: https://www.plonkit.net/australia — reference coverage
   and priorities. The source inventory is not an endorsement by Plonk It.
+- Plonk It Philippines: https://www.plonkit.net/philippines — regional
+  priorities, audited guide references and individual teaching examples.
+- GeoPinning Philippines: https://geopinning.space/en/rule/asia/philippines/
+  — three individually checked banana, pineapple and sugarcane teaching examples.
+- Philippines electricity-counter guide: https://docs.google.com/document/d/1rO9360kGXASORPft6Y2HwjOewlt_R98vJ6E_jsmGyRI/edit
+  — comparison guidance; the complete guide and specialist datasets are not bundled.
 - GeoHints: https://geohints.com/ — linked architecture and route-shield
   examples. Images remain at their original host; they are not bundled or
   relicensed as Fieldwork assets.
@@ -22,7 +28,8 @@ continue to apply; source/author attribution is retained in the content data.
   references; neither imagery nor these services are provided by Fieldwork.
 
 The geographic boundary source is recorded under `geographySource` in the
-Australian content pack. Dependencies installed by npm retain their licenses.
+country content packs. Natural Earth data is public domain; the Philippines
+practice-area grouping is editorial and is not an official administrative map. Dependencies installed by npm retain their licenses.
 
 Respect content sharing settings when importing additional sources. Publishing
 this repository does not grant permission to redistribute another creator's

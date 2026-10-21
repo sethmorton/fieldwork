@@ -1,14 +1,15 @@
-import defaultPack from '../dist/practice-pack.json';
-import {makeNextSet,validatePack,updatedPack} from './next-set.mjs';
+import defaultPacks from '../dist/practice-packs.json';
+import {makeNextSet,validatePack} from './next-set.mjs';
+import {mergePacks,packForPage} from './packs.mjs';
 import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet} from './session.mjs';
 import {reviewPanel,startPanel} from './ui.mjs';
 import {stateFromGameData} from './game-state.mjs';
 const gameResponses=unsafeWindow.GEFFetchEvents;
 
 const storedPack=GM_getValue('fieldwork:pack',null);
-let pack=updatedPack(storedPack,defaultPack);
-if(pack!==storedPack)GM_setValue('fieldwork:pack',pack);
-validatePack(pack);
+let packs=mergePacks(GM_getValue('fieldwork:packs',[]),storedPack,defaultPacks);
+GM_setValue('fieldwork:packs',packs);
+let pack=packForPage(packs,location.pathname,null)??packs.find(item=>item.id===storedPack?.id)??packs[0];
 const key=suffix=>`fieldwork:${pack.id}:${suffix}`;
 const history=()=>GM_getValue(key('attempts'),[]);
 const exposures=()=>GM_getValue(key('exposures'),[]);
@@ -58,6 +59,8 @@ let mounted='',lastState=null;
 const remove=()=>{document.getElementById('fieldwork-practice')?.remove();mounted=''};
 function render() {
   const state=lastState??(gameResponses?null:unsafeWindow.GeoGuessrEventFramework?.state);
+  const selected=packForPage(packs,location.pathname,state);
+  if(selected&&selected.id!==pack.id){remove();pack=selected;launching=false;}
   commitPendingReview(state);
   const mapPage=location.pathname===`/maps/${pack.practiceMapId}`||location.pathname===`/map-maker/${pack.practiceMapId}`;
   if(mapPage){
@@ -65,10 +68,10 @@ function render() {
     if(startPreparedGame()){remove();return}
     if(mounted==='start')return;
     let set,error;try{set=nextSet()}catch(cause){error=cause.message}
-    startPanel(pack,set,{onNext:prepare,error,attempts:history(),getAttempts:history,
+    startPanel(pack,set,{onNext:prepare,error,attempts:history(),getAttempts:history,packs,onChoosePack:id=>location.assign(`/maps/${packs.find(item=>item.id===id).practiceMapId}`),
       onExport:()=>download({packId:pack.id,attempts:history(),exposures:exposures(),previousDraft:GM_getValue(key('previous-draft'),null),pendingBackup:GM_getValue(key('pending-backup'),null)},`fieldwork-progress-${pack.id}.json`),
       onImport:async imported=>{validatePack(imported);if(!/^[a-f\d]{24}$/i.test(imported.practiceMapId??''))throw Error('The pack needs a dedicated owned practiceMapId.');
-        GM_setValue('fieldwork:pack',imported);pack=imported;location.assign(`/maps/${pack.practiceMapId}`)},
+        packs=mergePacks([...packs.filter(item=>item.id!==imported.id),imported],null,[]);GM_setValue('fieldwork:packs',packs);pack=imported;location.assign(`/maps/${pack.practiceMapId}`)},
     });mounted='start';return;
   }
   const round=completedRound(pack,state);

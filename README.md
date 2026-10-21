@@ -6,11 +6,11 @@
 
 Fieldwork turns a curated pool of real locations into adaptive five-round maps. Guess normally, review the visual clue after the reveal, and keep going. Your next set aims for three new targets and two reviews, across five different clue families.
 
-Australia is the first content pack. The engine accepts other countries and topics.
+Australia and the Philippines are supplied content packs. One userscript can keep separate practice maps and progress for both.
 
 ![Practice loop: curated locations become five varied targets; guess, review after reveal, and use local progress to shape the next set.](docs/practice-loop.svg)
 
-> **Working prototype.** The Australian pack has 74 active regional targets across 19 families. It is useful practice, not a complete Australian curriculum or a validated measure of mastery.
+> **Working prototype.** The Australian pack has 74 active regional targets across 19 families. The Philippines pack adds 166 active regional targets across 15 families and 922 practice panoramas. These are partial teaching pools, not complete curricula or validated measures of mastery.
 
 ## Set it up with an agent
 
@@ -51,11 +51,13 @@ You can stop the local server after installation. Everyday practice runs in GeoG
 - **Keep progress local.** Reviews and exposure history live in Tampermonkey's storage. Export them under **Content & progress**.
 - **See your progress tree.** Expand **Content & progress** on the practice map, or **Your progress tree** after a guess. Each pack branches into clue families and individual targets; practice, mastery and review needs stay distinct.
 
-Australia-only practice excludes clues that merely identify Australia. It focuses on differences *within* the country. A correct state guess alone does not prove clue recognition, and assumed feedback never counts as verified mastery.
+Country-only practice excludes clues that merely identify the country. It focuses on differences *within* the country. A correct state guess alone does not prove clue recognition, and assumed feedback never counts as verified mastery.
 
 ## Bring your own content
 
 Use a distinct pack ID and dedicated practice map for each country/topic. Packs define clue families, priorities, real panorama locations, source attribution and optional regional boundaries. A slide deck or guide helps define targets; it does not magically provide playable, correctly tagged locations.
+
+To add the Philippines alongside Australia, see [multiple-pack setup](docs/SETUP.md#add-the-philippines-or-another-pack).
 
 The [content guide](docs/CONTENT.md) covers native Map Maker exports, Learnable Meta imports, curation and activation checks. The Australian source inventory is included to show coverage and gaps; its 178 source units are **not** 178 available learning tasks.
 
@@ -73,7 +75,7 @@ npm run build  # after local setup
 | `src/lib/mastery.ts` | Conservative evidence and review status |
 | `src/browser.mjs`, `session.mjs`, `ui.mjs` | Browser integration, publication and post-guess feedback |
 | `src/tests/`, `scripts/*.test.mjs` | Automated checks with synthetic learner observations |
-| `content/australia.json` | Unbound Australian pack; no personal practice-map binding |
+| `content/australia.json`, `content/philippines.json` | Unbound country packs; no personal practice-map binding |
 | `scripts/` | Local setup, build, source-note refresh and installer server |
 | `fixtures/` | Isolated browser checks; never connected to a real account |
 

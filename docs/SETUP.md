@@ -37,6 +37,35 @@ post-guess source card. Running both may show two cards.
 8. Bookmark `https://www.geoguessr.com/maps/<YOUR_MAP_ID>`. Use that URL and
    **Continue practice** next time. Ctrl+C can stop the installer server now.
 
+## Add the Philippines or another pack
+
+Create a **different owned map** for each country. To add the supplied
+Philippines pack without replacing your Australia configuration:
+
+```sh
+node scripts/refresh-notes.mjs content/philippines.json local/philippines-pack.json
+npm run setup -- --map YOUR_PHILIPPINES_MAP_ID --pack local/philippines-pack.json --add
+npm run serve
+```
+
+For a Philippines-only first setup, omit `--add`. The explicit output filename
+keeps the Australian `local/pack.json` intact. Install the rebuilt userscript
+once; it contains both configured packs. Each bookmarked map URL selects its
+own country. The compact **Practice pack** selector on the start panel also
+switches countries. History, exposures, pending reviews, map backups and the
+progress tree are stored separately under each pack ID. Legacy Australia
+history and map bindings are preserved during migration.
+
+To update content later, refresh each configured template to its **existing
+local filename**, then run `npm run build` and update the script. Do not run
+first-pack setup again when you mean to append another country. A pack and a
+writable practice map may each appear only once in the local configuration.
+
+Philippines geography feedback uses 11 broad editorial practice areas, not
+current official administrative regions. Generalized coastlines can leave a
+location unclassified; then the panel asks for your regional result. Source
+teaching examples grow practice progress but cannot establish unseen mastery.
+
 ## During practice
 
 Guess normally. After revealing the answer, review the clue. **Next** records
