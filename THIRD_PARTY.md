@@ -6,6 +6,9 @@ coordinates, map boundaries or dependencies. Their original rights and terms
 continue to apply; source/author attribution is retained in the content data.
 
 - Learnable Meta: https://learnablemeta.com/ and the per-skill source links.
+  Publicly displayed image references from Oliver’s Philippines guide are used
+  for crop and woven-wall previews; no locations were exported from that
+  share-disabled collection.
   Full source-note HTML is fetched into ignored local files during setup.
   Images are referenced by original URLs, not copied into this repository.
 - Plonk It Australia: https://www.plonkit.net/australia — reference coverage

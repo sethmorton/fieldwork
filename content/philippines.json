@@ -4,7 +4,7 @@
   "subject": "GeoGuessr",
   "country": "PH",
   "schemaVersion": 1,
-  "contentRevision": 1,
+  "contentRevision": 2,
   "answerAreaLabel": "Anywhere in the Philippines; region feedback uses named practice areas, not the guess-map viewport",
   "practiceMapId": "000000000000000000000000",
   "initialSkillIds": [],
@@ -133,7 +133,7 @@
       "trainingNote": "Low, dense rows of stiff, spiky rosettes are pineapple plants. Extensive plantations favor Mindanao, particularly its upland growing areas; the crop is not exclusive to one province.",
       "country": "PH",
       "imageUrls": [
-        "https://www.plonkit.net/images/philippines/2_pineapple.png"
+        "https://learnablemeta.com/images/269/OkUlVUu1Vjs3rt2rnmLs8G72z1qQR8G4yYNT.avif"
       ],
       "source": {
         "title": "Plonk It Philippines and linked specialist guides",
@@ -143,8 +143,15 @@
       "scoringCaveats": [
         "Small, known teaching-anchor pool; practice only. Obtain more independent examples before using this for mastery."
       ],
-      "attributionHtml": "Regional claims and source examples: Plonk It Philippines and the specialist guides linked there. Fieldwork summaries are original.",
-      "actualImportedLocationCount": 2
+      "attributionHtml": "Regional claims and source examples: Plonk It Philippines and the specialist guides linked there. Fieldwork summaries are original. Image reference: A Learnable Philippines by Oliver; imagery retains its original attribution.",
+      "actualImportedLocationCount": 2,
+      "imageSource": {
+        "title": "A Learnable Philippines",
+        "url": "https://learnablemeta.com/maps/678821e4ea6d67d630d365f8",
+        "author": "Oliver",
+        "metaId": 6239,
+        "usage": "Publicly displayed image reference only. Locations were acquired independently from guide-linked examples, not exported from this unshared map."
+      }
     },
     {
       "id": "ph:field:crop-bananas",
@@ -158,7 +165,7 @@
       "trainingNote": "Broad drooping leaves arranged in repeated cultivated rows indicate a banana plantation. Large export plantations favor central and southern Mindanao; a few garden banana plants do not localize a scene.",
       "country": "PH",
       "imageUrls": [
-        "https://www.plonkit.net/images/philippines/2_banana.png"
+        "https://learnablemeta.com/images/269/syLnJWYdfh48jdJbCVNC8eUWrIESQwqYBlXH.avif"
       ],
       "source": {
         "title": "Plonk It Philippines and linked specialist guides",
@@ -168,8 +175,15 @@
       "scoringCaveats": [
         "Small, known teaching-anchor pool; practice only. Obtain more independent examples before using this for mastery."
       ],
-      "attributionHtml": "Regional claims and source examples: Plonk It Philippines and the specialist guides linked there. Fieldwork summaries are original.",
-      "actualImportedLocationCount": 2
+      "attributionHtml": "Regional claims and source examples: Plonk It Philippines and the specialist guides linked there. Fieldwork summaries are original. Image reference: A Learnable Philippines by Oliver; imagery retains its original attribution.",
+      "actualImportedLocationCount": 2,
+      "imageSource": {
+        "title": "A Learnable Philippines",
+        "url": "https://learnablemeta.com/maps/678821e4ea6d67d630d365f8",
+        "author": "Oliver",
+        "metaId": 6242,
+        "usage": "Publicly displayed image reference only. Locations were acquired independently from guide-linked examples, not exported from this unshared map."
+      }
     },
     {
       "id": "ph:field:crop-oil-palms",
@@ -183,7 +197,7 @@
       "trainingNote": "Look for cultivated rows of oil palms, with dense spiky fronds and stout trunks. A plantation favors Mindanao; distinguish oil palms from common coconut palms.",
       "country": "PH",
       "imageUrls": [
-        "https://www.plonkit.net/images/philippines/2_oilpalms.png"
+        "https://learnablemeta.com/images/269/2xcXC2lsGD55eMeyYvV3VGaL1l5ZwSeFbJmz.avif"
       ],
       "source": {
         "title": "Plonk It Philippines and linked specialist guides",
@@ -193,9 +207,16 @@
       "scoringCaveats": [
         "Small, known teaching-anchor pool; practice only. Obtain more independent examples before using this for mastery."
       ],
-      "attributionHtml": "Regional claims and source examples: Plonk It Philippines and the specialist guides linked there. Fieldwork summaries are original.",
+      "attributionHtml": "Regional claims and source examples: Plonk It Philippines and the specialist guides linked there. Fieldwork summaries are original. Image reference: A Learnable Philippines by Oliver; imagery retains its original attribution.",
       "actualImportedLocationCount": 1,
-      "deferredReason": "Only one source panorama. Acquire another independent, cue-visible example before activation."
+      "deferredReason": "Only one source panorama. Acquire another independent, cue-visible example before activation.",
+      "imageSource": {
+        "title": "A Learnable Philippines",
+        "url": "https://learnablemeta.com/maps/678821e4ea6d67d630d365f8",
+        "author": "Oliver",
+        "metaId": 6232,
+        "usage": "Publicly displayed image reference only. Locations were acquired independently from guide-linked examples, not exported from this unshared map."
+      }
     },
     {
       "id": "ph:field:crop-sugarcane",
@@ -209,7 +230,7 @@
       "trainingNote": "Tall cane planted densely across broad fields favors the Negros and Panay sugar-growing belts. Compare with shorter corn and with other clues; cane also grows elsewhere.",
       "country": "PH",
       "imageUrls": [
-        "https://www.plonkit.net/images/philippines/2_sugarcane.png"
+        "https://learnablemeta.com/images/269/SRV38feh0DWpfp9opFnbfHYT1hR5Wf2fnvzn.avif"
       ],
       "source": {
         "title": "Plonk It Philippines and linked specialist guides",
@@ -219,8 +240,15 @@
       "scoringCaveats": [
         "Small, known teaching-anchor pool; practice only. Obtain more independent examples before using this for mastery."
       ],
-      "attributionHtml": "Regional claims and source examples: Plonk It Philippines and the specialist guides linked there. Fieldwork summaries are original.",
-      "actualImportedLocationCount": 2
+      "attributionHtml": "Regional claims and source examples: Plonk It Philippines and the specialist guides linked there. Fieldwork summaries are original. Image reference: A Learnable Philippines by Oliver; imagery retains its original attribution.",
+      "actualImportedLocationCount": 2,
+      "imageSource": {
+        "title": "A Learnable Philippines",
+        "url": "https://learnablemeta.com/maps/678821e4ea6d67d630d365f8",
+        "author": "Oliver",
+        "metaId": 6246,
+        "usage": "Publicly displayed image reference only. Locations were acquired independently from guide-linked examples, not exported from this unshared map."
+      }
     },
     {
       "id": "ph:lm:84203",
@@ -290,7 +318,7 @@
       "trainingNote": "Inspect the weave itself: diamond-shaped patterns are a Mindanao tendency; diagonal weaving is associated with Palawan and northern Luzon. These two known anchors teach a contrast, not a complete housing distribution.",
       "country": "PH",
       "imageUrls": [
-        "https://www.plonkit.net/images/philippines/2_diamondpatternhouse.png"
+        "https://learnablemeta.com/images/269/bob3GA7Kf0htqcK6uF77c3bAWW8M3dKupbHu.avif"
       ],
       "source": {
         "title": "Plonk It Philippines and linked specialist guides",
@@ -300,8 +328,15 @@
       "scoringCaveats": [
         "Small, known teaching-anchor pool; practice only. Obtain more independent examples before using this for mastery."
       ],
-      "attributionHtml": "Regional claims and source examples: Plonk It Philippines and the specialist guides linked there. Fieldwork summaries are original.",
-      "actualImportedLocationCount": 2
+      "attributionHtml": "Regional claims and source examples: Plonk It Philippines and the specialist guides linked there. Fieldwork summaries are original. Image reference: A Learnable Philippines by Oliver; imagery retains its original attribution.",
+      "actualImportedLocationCount": 2,
+      "imageSource": {
+        "title": "A Learnable Philippines",
+        "url": "https://learnablemeta.com/maps/678821e4ea6d67d630d365f8",
+        "author": "Oliver",
+        "metaId": 6237,
+        "usage": "Publicly displayed image reference only. Locations were acquired independently from guide-linked examples, not exported from this unshared map."
+      }
     },
     {
       "id": "ph:lm:15345",
@@ -368,7 +403,7 @@
       "trainingNote": "Look for upright stalks, narrow leaves and tassels in cultivated rows. Corn occurs in northern Luzon and Mindanao; use it with terrain and other cues, never as a one-region answer.",
       "country": "PH",
       "imageUrls": [
-        "https://www.plonkit.net/images/philippines/2_corn.png"
+        "https://learnablemeta.com/images/269/BGsb1p7tDSlqoLSywKhrEesRac0mafSjpMrl.avif"
       ],
       "source": {
         "title": "Plonk It Philippines and linked specialist guides",
@@ -378,9 +413,16 @@
       "scoringCaveats": [
         "Small, known teaching-anchor pool; practice only. Obtain more independent examples before using this for mastery."
       ],
-      "attributionHtml": "Regional claims and source examples: Plonk It Philippines and the specialist guides linked there. Fieldwork summaries are original.",
+      "attributionHtml": "Regional claims and source examples: Plonk It Philippines and the specialist guides linked there. Fieldwork summaries are original. Image reference: A Learnable Philippines by Oliver; imagery retains its original attribution.",
       "actualImportedLocationCount": 1,
-      "deferredReason": "Only one source panorama. Acquire another independent, cue-visible example before activation."
+      "deferredReason": "Only one source panorama. Acquire another independent, cue-visible example before activation.",
+      "imageSource": {
+        "title": "A Learnable Philippines",
+        "url": "https://learnablemeta.com/maps/678821e4ea6d67d630d365f8",
+        "author": "Oliver",
+        "metaId": 6243,
+        "usage": "Publicly displayed image reference only. Locations were acquired independently from guide-linked examples, not exported from this unshared map."
+      }
     },
     {
       "id": "ph:lm:15343",
