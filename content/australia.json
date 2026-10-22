@@ -490,7 +490,19 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "landscape",
-      "importance": 40
+      "importance": 40,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 6,
+        "source": {
+          "guide": "australia",
+          "tipId": "SH9t",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:22763",
@@ -590,7 +602,19 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "landscape",
-      "importance": 40
+      "importance": 40,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 7,
+        "source": {
+          "guide": "australia",
+          "tipId": "lxhc",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:22765",
@@ -700,7 +724,19 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "landscape",
-      "importance": 40
+      "importance": 40,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 8,
+        "source": {
+          "guide": "australia",
+          "tipId": "0lXU",
+          "section": 2,
+          "sourceOrder": 18,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:22766",
@@ -810,7 +846,19 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "landscape",
-      "importance": 40
+      "importance": 40,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 10,
+        "source": {
+          "guide": "australia",
+          "tipId": "3wyr",
+          "section": 2,
+          "sourceOrder": 20,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:22767",
@@ -896,7 +944,19 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "landscape",
-      "importance": 40
+      "importance": 40,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 11,
+        "source": {
+          "guide": "australia",
+          "tipId": "Fm8m",
+          "section": 2,
+          "sourceOrder": 21,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:22769",
@@ -982,7 +1042,19 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "landscape",
-      "importance": 40
+      "importance": 40,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 9,
+        "source": {
+          "guide": "australia",
+          "tipId": "5dWF",
+          "section": 2,
+          "sourceOrder": 19,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:22770",
@@ -1100,7 +1172,17 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "landscape",
-      "importance": 40
+      "importance": 40,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 17,
+        "source": {
+          "guide": "australia",
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "au:lm:7468",
@@ -1191,7 +1273,20 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "landscape",
-      "importance": 40
+      "importance": 40,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 12,
+        "source": {
+          "guide": "australia",
+          "tipId": "LyHG",
+          "section": 2,
+          "sourceOrder": 24,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Guide tip covers more than this narrower target."
+        }
+      }
     },
     {
       "id": "au:lm:722405",
@@ -1254,7 +1349,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 63,
+        "source": {
+          "guide": "australia",
+          "tipId": "hovh",
+          "section": 3,
+          "sourceOrder": 66,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7474",
@@ -1285,7 +1392,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 59,
+        "source": {
+          "guide": "australia",
+          "tipId": "vw3g",
+          "section": 3,
+          "sourceOrder": 61,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7475",
@@ -1316,7 +1435,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 60,
+        "source": {
+          "guide": "australia",
+          "tipId": "I7Ah",
+          "section": 3,
+          "sourceOrder": 62,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7476",
@@ -1347,7 +1478,20 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 61,
+        "source": {
+          "guide": "australia",
+          "tipId": "0RLy",
+          "section": 3,
+          "sourceOrder": 63,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Guide tip covers more than this narrower target."
+        }
+      }
     },
     {
       "id": "au:lm:7477",
@@ -1378,7 +1522,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 62,
+        "source": {
+          "guide": "australia",
+          "tipId": "ZgT0",
+          "section": 3,
+          "sourceOrder": 65,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7478",
@@ -1409,7 +1565,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 64,
+        "source": {
+          "guide": "australia",
+          "tipId": "ttAJ",
+          "section": 3,
+          "sourceOrder": 68,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7480",
@@ -1440,7 +1608,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 65,
+        "source": {
+          "guide": "australia",
+          "tipId": "4Vvd",
+          "section": 3,
+          "sourceOrder": 70,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7482",
@@ -1471,7 +1651,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 66,
+        "source": {
+          "guide": "australia",
+          "tipId": "hYmO",
+          "section": 3,
+          "sourceOrder": 72,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7445",
@@ -1502,7 +1694,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 29,
+        "source": {
+          "guide": "australia",
+          "tipId": "J0tt",
+          "section": 2,
+          "sourceOrder": 48,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:phone:02",
@@ -1529,7 +1733,20 @@
       "scoringCaveats": [
         "These source examples teach recognition; they are not independent unseen assessments."
       ],
-      "attributionHtml": "Original Fieldwork teaching note. Phone examples from Area Codes (World - ALM) by ValP; schematic reference image hosted by Learnable Meta, linked by the source to Plonk It. Original image rights apply."
+      "attributionHtml": "Original Fieldwork teaching note. Phone examples from Area Codes (World - ALM) by ValP; schematic reference image hosted by Learnable Meta, linked by the source to Plonk It. Original image rights apply.",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 13,
+        "source": {
+          "guide": "australia",
+          "tipId": "8smD",
+          "section": 2,
+          "sourceOrder": 13,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "The guide tip teaches state area codes; this target is one code group."
+        }
+      }
     },
     {
       "id": "au:phone:03",
@@ -1556,7 +1773,20 @@
       "scoringCaveats": [
         "These source examples teach recognition; they are not independent unseen assessments."
       ],
-      "attributionHtml": "Original Fieldwork teaching note. Phone examples from Area Codes (World - ALM) by ValP; schematic reference image hosted by Learnable Meta, linked by the source to Plonk It. Original image rights apply."
+      "attributionHtml": "Original Fieldwork teaching note. Phone examples from Area Codes (World - ALM) by ValP; schematic reference image hosted by Learnable Meta, linked by the source to Plonk It. Original image rights apply.",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 14,
+        "source": {
+          "guide": "australia",
+          "tipId": "8smD",
+          "section": 2,
+          "sourceOrder": 13,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "The guide tip teaches state area codes; this target is one code group."
+        }
+      }
     },
     {
       "id": "au:phone:07",
@@ -1583,7 +1813,20 @@
       "scoringCaveats": [
         "These source examples teach recognition; they are not independent unseen assessments."
       ],
-      "attributionHtml": "Original Fieldwork teaching note. Phone examples from Area Codes (World - ALM) by ValP; schematic reference image hosted by Learnable Meta, linked by the source to Plonk It. Original image rights apply."
+      "attributionHtml": "Original Fieldwork teaching note. Phone examples from Area Codes (World - ALM) by ValP; schematic reference image hosted by Learnable Meta, linked by the source to Plonk It. Original image rights apply.",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 15,
+        "source": {
+          "guide": "australia",
+          "tipId": "8smD",
+          "section": 2,
+          "sourceOrder": 13,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "The guide tip teaches state area codes; this target is one code group."
+        }
+      }
     },
     {
       "id": "au:phone:08",
@@ -1610,7 +1853,20 @@
       "scoringCaveats": [
         "These source examples teach recognition; they are not independent unseen assessments."
       ],
-      "attributionHtml": "Original Fieldwork teaching note. Phone examples from Area Codes (World - ALM) by ValP; schematic reference image hosted by Learnable Meta, linked by the source to Plonk It. Original image rights apply."
+      "attributionHtml": "Original Fieldwork teaching note. Phone examples from Area Codes (World - ALM) by ValP; schematic reference image hosted by Learnable Meta, linked by the source to Plonk It. Original image rights apply.",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 16,
+        "source": {
+          "guide": "australia",
+          "tipId": "8smD",
+          "section": 2,
+          "sourceOrder": 13,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "The guide tip teaches state area codes; this target is one code group."
+        }
+      }
     },
     {
       "id": "au:housing:qld-high-set",
@@ -1636,7 +1892,17 @@
       "scoringCaveats": [
         "These source examples teach recognition; they are not independent unseen assessments."
       ],
-      "attributionHtml": "Original Fieldwork teaching note. Regional reference: Definitive Australia Guide 2022 by zi8gzag, Eddie, Macca and Denis. Reference images, where shown, are hosted by GeoHints; original rights apply."
+      "attributionHtml": "Original Fieldwork teaching note. Regional reference: Definitive Australia Guide 2022 by zi8gzag, Eddie, Macca and Denis. Reference images, where shown, are hosted by GeoHints; original rights apply.",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 18,
+        "source": {
+          "guide": "australia",
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "au:lm:722406",
@@ -1701,7 +1967,20 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 19,
+        "source": {
+          "guide": "australia",
+          "tipId": "0lXU",
+          "section": 2,
+          "sourceOrder": 18,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Paraphrased source note; matched by keyword overlap (0.41), not by quoted text."
+        }
+      }
     },
     {
       "id": "au:lm:722418",
@@ -1765,7 +2044,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 20,
+        "source": {
+          "guide": "australia",
+          "tipId": "S44S",
+          "section": 2,
+          "sourceOrder": 22,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7463",
@@ -1796,7 +2087,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 21,
+        "source": {
+          "guide": "australia",
+          "tipId": "pAMj",
+          "section": 2,
+          "sourceOrder": 23,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:285",
@@ -1815,7 +2118,20 @@
       "sourceMetaId": 285,
       "practiceFamily": "bollards",
       "importance": 30,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 3,
+        "source": {
+          "guide": "australia",
+          "tipId": "uo2W",
+          "section": 2,
+          "sourceOrder": 38,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Guide tip covers more than this narrower target."
+        }
+      }
     },
     {
       "id": "au:lm:287",
@@ -1834,7 +2150,19 @@
       "sourceMetaId": 287,
       "practiceFamily": "bollards",
       "importance": 30,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 4,
+        "source": {
+          "guide": "australia",
+          "tipId": "CAL4",
+          "section": 2,
+          "sourceOrder": 39,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:367",
@@ -1853,7 +2181,19 @@
       "sourceMetaId": 367,
       "practiceFamily": "regulatory-signs",
       "importance": 30,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 42,
+        "source": {
+          "guide": "australia",
+          "tipId": "W6mM",
+          "section": 2,
+          "sourceOrder": 45,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:369",
@@ -1872,7 +2212,17 @@
       "sourceMetaId": 369,
       "practiceFamily": "road-markings",
       "importance": 30,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 1,
+        "source": {
+          "guide": "australia",
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "au:lm:7434",
@@ -1903,7 +2253,20 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 12
+      "actualImportedLocationCount": 12,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 2,
+        "source": {
+          "guide": "australia",
+          "tipId": "NeWE",
+          "section": 2,
+          "sourceOrder": 37,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Guide tip covers more than this narrower target."
+        }
+      }
     },
     {
       "id": "au:lm:7437",
@@ -1934,7 +2297,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 5,
+        "source": {
+          "guide": "australia",
+          "tipId": "0nBQ",
+          "section": 2,
+          "sourceOrder": 40,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7441",
@@ -1965,7 +2340,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 44,
+        "source": {
+          "guide": "australia",
+          "tipId": "17uG",
+          "section": 2,
+          "sourceOrder": 44,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7443",
@@ -1996,7 +2383,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 45,
+        "source": {
+          "guide": "australia",
+          "tipId": "e2I1",
+          "section": 2,
+          "sourceOrder": 46,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7446",
@@ -2059,7 +2458,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 47,
+        "source": {
+          "guide": "australia",
+          "tipId": "7ykV",
+          "section": 2,
+          "sourceOrder": 49,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7448",
@@ -2090,7 +2501,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 48,
+        "source": {
+          "guide": "australia",
+          "tipId": "2kHn",
+          "section": 2,
+          "sourceOrder": 50,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:266",
@@ -2112,7 +2535,17 @@
       ],
       "practiceFamily": "sign-supports",
       "importance": 25,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 30,
+        "source": {
+          "guide": "australia",
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "au:lm:267",
@@ -2134,7 +2567,20 @@
       ],
       "practiceFamily": "sign-supports",
       "importance": 25,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 46,
+        "source": {
+          "guide": "australia",
+          "tipId": "QQZc",
+          "section": 2,
+          "sourceOrder": 41,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Guide tip covers more than this narrower target."
+        }
+      }
     },
     {
       "id": "au:lm:281",
@@ -2156,7 +2602,20 @@
       ],
       "practiceFamily": "pole-construction",
       "importance": 25,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 27,
+        "source": {
+          "guide": "australia",
+          "tipId": "Pbiz",
+          "section": 2,
+          "sourceOrder": 27,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Source note only partly overlaps this guide tip."
+        }
+      }
     },
     {
       "id": "au:lm:282",
@@ -2178,7 +2637,19 @@
       ],
       "practiceFamily": "pole-construction",
       "importance": 25,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 25,
+        "source": {
+          "guide": "australia",
+          "tipId": "xuhU",
+          "section": 2,
+          "sourceOrder": 26,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:283",
@@ -2200,7 +2671,20 @@
       ],
       "practiceFamily": "pole-construction",
       "importance": 25,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 41,
+        "source": {
+          "guide": "australia",
+          "tipId": "Y0nT",
+          "section": 2,
+          "sourceOrder": 35,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Paraphrased source note; matched by keyword overlap (0.53), not by quoted text."
+        }
+      }
     },
     {
       "id": "au:lm:284",
@@ -2222,7 +2706,19 @@
       ],
       "practiceFamily": "pole-construction",
       "importance": 25,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 32,
+        "source": {
+          "guide": "australia",
+          "tipId": "B6K8",
+          "section": 2,
+          "sourceOrder": 31,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:286",
@@ -2241,7 +2737,20 @@
       "sourceMetaId": 286,
       "practiceFamily": "pole-construction",
       "importance": 25,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 43,
+        "source": {
+          "guide": "australia",
+          "tipId": "RFNj",
+          "section": 2,
+          "sourceOrder": 36,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Multi-cue WA pole target; the tip covers painted bases and stickers, not every listed cue."
+        }
+      }
     },
     {
       "id": "au:lm:374",
@@ -2263,7 +2772,20 @@
       ],
       "practiceFamily": "plates",
       "importance": 25,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 22,
+        "source": {
+          "guide": "australia",
+          "tipId": "b54E",
+          "section": 2,
+          "sourceOrder": 12,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "The guide tip says state plate designs differ; this target is one NSW design."
+        }
+      }
     },
     {
       "id": "au:lm:722398",
@@ -2294,7 +2816,20 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 23,
+        "source": {
+          "guide": "australia",
+          "tipId": "b54E",
+          "section": 2,
+          "sourceOrder": 12,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "The guide tip says state plate designs differ; this target is one NSW design."
+        }
+      }
     },
     {
       "id": "au:lm:722399",
@@ -2518,7 +3053,20 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 24,
+        "source": {
+          "guide": "australia",
+          "tipId": "b54E",
+          "section": 2,
+          "sourceOrder": 12,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Paraphrased source note; matched by keyword overlap (0.36), not by quoted text."
+        }
+      }
     },
     {
       "id": "au:lm:7419",
@@ -2645,7 +3193,20 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 26,
+        "source": {
+          "guide": "australia",
+          "tipId": "xuhU",
+          "section": 2,
+          "sourceOrder": 26,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Source note only partly overlaps this guide tip."
+        }
+      }
     },
     {
       "id": "au:lm:7425",
@@ -2676,7 +3237,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 28,
+        "source": {
+          "guide": "australia",
+          "tipId": "UUqd",
+          "section": 2,
+          "sourceOrder": 28,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7427",
@@ -2707,7 +3280,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 6
+      "actualImportedLocationCount": 6,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 31,
+        "source": {
+          "guide": "australia",
+          "tipId": "dHGl",
+          "section": 2,
+          "sourceOrder": 30,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7444",
@@ -2738,7 +3323,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 49,
+        "source": {
+          "guide": "australia",
+          "tipId": "cAlQ",
+          "section": 2,
+          "sourceOrder": 47,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7453",
@@ -2801,7 +3398,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 58,
+        "source": {
+          "guide": "australia",
+          "tipId": "tslH",
+          "section": 3,
+          "sourceOrder": 71,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7486",
@@ -2923,7 +3532,17 @@
       "scoringCaveats": [
         "These source examples teach recognition; they are not independent unseen assessments."
       ],
-      "attributionHtml": "Original Fieldwork teaching note. Regional reference: Definitive Australia Guide 2022 by zi8gzag, Eddie, Macca and Denis. Reference images, where shown, are hosted by GeoHints; original rights apply."
+      "attributionHtml": "Original Fieldwork teaching note. Regional reference: Definitive Australia Guide 2022 by zi8gzag, Eddie, Macca and Denis. Reference images, where shown, are hosted by GeoHints; original rights apply.",
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 67,
+        "source": {
+          "guide": "australia",
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "au:lm:7483",
@@ -2954,7 +3573,17 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 68,
+        "source": {
+          "guide": "australia",
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "au:lm:7490",
@@ -2985,7 +3614,20 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 72,
+        "source": {
+          "guide": "australia",
+          "tipId": "nO8C",
+          "section": 3,
+          "sourceOrder": 76,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Paraphrased source note; matched by keyword overlap (0.47), not by quoted text."
+        }
+      }
     },
     {
       "id": "au:lm:7491",
@@ -3016,7 +3658,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 73,
+        "source": {
+          "guide": "australia",
+          "tipId": "vjrK",
+          "section": 3,
+          "sourceOrder": 77,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7492",
@@ -3047,7 +3701,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 74,
+        "source": {
+          "guide": "australia",
+          "tipId": "zB6F",
+          "section": 3,
+          "sourceOrder": 78,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:streetlights:darwin-outreach",
@@ -3071,7 +3737,17 @@
       "scoringCaveats": [
         "These source examples teach recognition; they are not independent unseen assessments."
       ],
-      "attributionHtml": "Original Fieldwork teaching note. Regional reference: Definitive Australia Guide 2022 by zi8gzag, Eddie, Macca and Denis. Reference images, where shown, are hosted by GeoHints; original rights apply."
+      "attributionHtml": "Original Fieldwork teaching note. Regional reference: Definitive Australia Guide 2022 by zi8gzag, Eddie, Macca and Denis. Reference images, where shown, are hosted by GeoHints; original rights apply.",
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 69,
+        "source": {
+          "guide": "australia",
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "au:lm:10245",
@@ -3157,7 +3833,19 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "bus-stops",
-      "importance": 15
+      "importance": 15,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 33,
+        "source": {
+          "guide": "australia",
+          "tipId": "6oil",
+          "section": 2,
+          "sourceOrder": 14,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:264",
@@ -3179,7 +3867,19 @@
       ],
       "practiceFamily": "property-markers",
       "importance": 15,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 54,
+        "source": {
+          "guide": "australia",
+          "tipId": "1aB4",
+          "section": 2,
+          "sourceOrder": 53,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:313",
@@ -3198,7 +3898,19 @@
       "sourceMetaId": 313,
       "practiceFamily": "pole-labels",
       "importance": 15,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 52,
+        "source": {
+          "guide": "australia",
+          "tipId": "Aujv",
+          "section": 2,
+          "sourceOrder": 34,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:370",
@@ -3217,7 +3929,19 @@
       "sourceMetaId": 370,
       "practiceFamily": "roadside-markers",
       "importance": 15,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 55,
+        "source": {
+          "guide": "australia",
+          "tipId": "M5MM",
+          "section": 2,
+          "sourceOrder": 54,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:372",
@@ -3236,7 +3960,17 @@
       "sourceMetaId": 372,
       "practiceFamily": "pole-labels",
       "importance": 15,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 50,
+        "source": {
+          "guide": "australia",
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "au:lm:373",
@@ -3255,7 +3989,20 @@
       "sourceMetaId": 373,
       "practiceFamily": "roadside-markers",
       "importance": 15,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 56,
+        "source": {
+          "guide": "australia",
+          "tipId": "X5tc",
+          "section": 2,
+          "sourceOrder": 55,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Source note only partly overlaps this guide tip."
+        }
+      }
     },
     {
       "id": "au:lm:468883",
@@ -3341,7 +4088,19 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "pole-labels",
-      "importance": 15
+      "importance": 15,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 51,
+        "source": {
+          "guide": "australia",
+          "tipId": "tILb",
+          "section": 2,
+          "sourceOrder": 33,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:556776",
@@ -3363,7 +4122,19 @@
       ],
       "practiceFamily": "property-markers",
       "importance": 15,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 53,
+        "source": {
+          "guide": "australia",
+          "tipId": "NPFj",
+          "section": 2,
+          "sourceOrder": 52,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:7409",
@@ -3394,7 +4165,20 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 34,
+        "source": {
+          "guide": "australia",
+          "tipId": "6oil",
+          "section": 2,
+          "sourceOrder": 14,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Paraphrased source note; matched by keyword overlap (0.49), not by quoted text."
+        }
+      }
     },
     {
       "id": "au:lm:7457",
@@ -3425,7 +4209,19 @@
         "appearance": "Source-author examples; current rendering and cue visibility have not all been independently reviewed.",
         "retention": "Teaching examples are not an unseen assessment pool."
       },
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 57,
+        "source": {
+          "guide": "australia",
+          "tipId": "edFk",
+          "section": 2,
+          "sourceOrder": 56,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:9750",
@@ -3511,7 +4307,19 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "bus-stops",
-      "importance": 15
+      "importance": 15,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 35,
+        "source": {
+          "guide": "australia",
+          "tipId": "6oil",
+          "section": 2,
+          "sourceOrder": 14,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:9751",
@@ -3597,7 +4405,19 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "bus-stops",
-      "importance": 15
+      "importance": 15,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 36,
+        "source": {
+          "guide": "australia",
+          "tipId": "6oil",
+          "section": 2,
+          "sourceOrder": 14,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:9752",
@@ -3683,7 +4503,19 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "bus-stops",
-      "importance": 15
+      "importance": 15,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 37,
+        "source": {
+          "guide": "australia",
+          "tipId": "6oil",
+          "section": 2,
+          "sourceOrder": 14,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:9753",
@@ -3769,7 +4601,19 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "bus-stops",
-      "importance": 15
+      "importance": 15,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 38,
+        "source": {
+          "guide": "australia",
+          "tipId": "6oil",
+          "section": 2,
+          "sourceOrder": 14,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:9754",
@@ -3855,7 +4699,19 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "bus-stops",
-      "importance": 15
+      "importance": 15,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 39,
+        "source": {
+          "guide": "australia",
+          "tipId": "6oil",
+          "section": 2,
+          "sourceOrder": 14,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:9755",
@@ -3941,7 +4797,19 @@
         "retention": "Small source pools cannot establish 20-unseen-location mastery; more transfer locations are needed."
       },
       "practiceFamily": "bus-stops",
-      "importance": 15
+      "importance": 15,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 40,
+        "source": {
+          "guide": "australia",
+          "tipId": "6oil",
+          "section": 2,
+          "sourceOrder": 14,
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "au:lm:722402",
@@ -4219,7 +5087,17 @@
       "sourceMetaId": 368,
       "practiceFamily": "vegetation",
       "importance": 10,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 70,
+        "source": {
+          "guide": "australia",
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "au:lm:468881",
@@ -4324,7 +5202,17 @@
       "sourceMetaId": 659,
       "practiceFamily": "pole-construction",
       "importance": 10,
-      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6"
+      "notesSourceUrl": "https://learnablemeta.com/maps/671f7d0a62423ae866572ba6",
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 71,
+        "source": {
+          "guide": "australia",
+          "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "au:lm:722385",
