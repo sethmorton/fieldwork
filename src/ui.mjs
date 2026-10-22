@@ -88,7 +88,7 @@ export function startPanel(pack,{onNext,onExport,onImport,onCoverage,attempts=[]
   const {section}=panel();header(section,'Fieldwork · practice');text(section,'h2',pack.title);
   if(packs.length>1){const label=text(section,'label','Practice pack');const choose=document.createElement('select');choose.setAttribute('aria-label','Practice pack');for(const item of packs){const option=text(choose,'option',item.title);option.value=item.id;option.selected=item.id===pack.id;}choose.onchange=()=>onChoosePack(choose.value);label.append(choose);}
   text(section,'p',curriculumProgress(pack,attempts).message,'muted');
-  const status=text(section,'p',`${pack.answerAreaLabel??pack.title}. Five different clue families; new clues adapt to recent practice.`,'muted');status.setAttribute('role','status');
+  const status=text(section,'p',`${pack.answerAreaLabel??pack.title}. At most two clues per family. New clues adapt to recent practice.`,'muted');status.setAttribute('role','status');
   button(section,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=error.message;this.disabled=false}},'primary');
   const {details}=treeDetails(section,pack,getAttempts,'Content & progress');
   if(pack.coverageSummary){const coverage=document.createElement('details');text(coverage,'summary','Source coverage');text(coverage,'p',pack.coverageSummary,'muted');details.append(coverage);}

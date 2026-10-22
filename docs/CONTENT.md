@@ -7,7 +7,7 @@ Only locations attached to active targets can be selected. The other 41
 targets remain deferred, including national-only recognition, singleton
 examples and uncertain historical coverage claims. Your old skill IDs remain
 unchanged. The scheduler aims for three new targets plus two reviews while
-preserving five different families and a one-set rest for previous targets.
+keeping at most two clues per family and a one-set rest for recent previous targets.
 
 ## Native export → tagged pool → curated pack
 
@@ -29,7 +29,7 @@ preserving five different families and a one-set rest for previous targets.
 4. Author stable skill IDs, meaningful `practiceFamily`, `importance`, real
    prerequisites if needed, and availability. Keep original attribution.
    Each location's first `skillIds` entry is its primary training target.
-5. A usable set requires five different families. Do not pad it with duplicate
+5. A usable set allows at most two clues per family. Do not pad it with duplicate
    clues. Inspect cue visibility, heading and exceptions before activation.
 
 See `content/australia.json` for the full schema. Required top-level fields:

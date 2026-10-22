@@ -71,9 +71,12 @@ test('publishing is limited to a distinct verified owned map, after a backup, wi
   await assert.rejects(()=>publishPracticeSet({...pack,pools:[{id:mapId,mapUrl:'https://example.test'}]},set,request,async()=>{}),/never the source/);
   await assert.rejects(()=>publishPracticeSet(pack,{mapMaking:{customCoordinates:[...pack.locations.slice(1),{...pack.locations[0],lat:99}]}},request,async()=>{}),/source panoramas/);
 });
-test('publishing rejects repeated clue families before making any request',async()=>{
- const p={...pack,skills:pack.skills.map(skill=>({...skill,practiceFamily:'same'}))};let calls=0;
- await assert.rejects(()=>publishPracticeSet(p,{mapMaking:{customCoordinates:p.locations}},()=>calls++,()=>{}),/five different clue families/);assert.equal(calls,0);
+test('publishing allows two clues per family and rejects a third before making any request',async()=>{
+ const withFamilies=families=>({...pack,skills:pack.skills.map((skill,i)=>({...skill,practiceFamily:families[i]}))});
+ const set={mapMaking:{customCoordinates:pack.locations}};let calls=0;
+ await publishPracticeSet(withFamilies(['x','x','y','y','z']),set,async()=>{calls++;return {name:'Fieldwork - Practice',version:1}},async()=>{});
+ assert.equal(calls,3);calls=0;
+ await assert.rejects(()=>publishPracticeSet(withFamilies(['x','x','x','y','z']),set,()=>calls++,()=>{}),/at most 2 clues per family/);assert.equal(calls,0);
 });
 test('failed draft update never attempts publication',async()=>{
   const methods=[];

@@ -28,13 +28,14 @@ test('worldwide mix includes requested infrastructure, language and phone famili
  assert.ok(active.some(s=>s.title.startsWith('Brazil')&&s.practiceFamily==='phone-codes'));
  assert.ok(!active.some(s=>s.practiceFamily==='coverage-meta'));
 });
-test('worldwide practice keeps five countries and five families while rotating gaps and new targets',()=>{
+test('worldwide practice keeps five countries and at most two per family while rotating gaps and new targets',()=>{
  let attempts=[],seen=[],previous=[],covered=new Set();
  for(let step=0;step<10;step++){
   const set=makeNextSet(pack,attempts,{now,seenLocationRefs:seen,previousSetLocationRefs:previous});
   assert.equal(set.selectedLocations.length,5);
   assert.equal(new Set(set.selectedLocations.map(l=>l.country)).size,5);
-  assert.equal(new Set(set.focus.map(f=>pack.skills.find(s=>s.id===f.id).practiceFamily)).size,5);
+  const families=set.focus.map(f=>pack.skills.find(s=>s.id===f.id).practiceFamily);
+  assert.ok(families.every(f=>families.filter(other=>other===f).length<=2));
   assert.ok(set.selectedLocations.every(l=>!previous.some(id=>pack.locations.find(p=>p.id===id).skillIds[0]===l.skillIds[0])));
   previous=set.selectedLocations.map(l=>l.id);seen.push(...previous);
   for(const [i,l]of set.selectedLocations.entries()){

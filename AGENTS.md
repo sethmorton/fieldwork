@@ -57,8 +57,10 @@ installation or successful live publication based on a build passing.
   IDs/skill IDs so existing feedback remains attached to the right targets.
 - In worldwide packs, retain `notesCountry` when matching identically named clues
   and enforce the configured country cap during selection and publication.
-- Five distinct pedagogic families per set; rest previous-set targets when
-  alternatives exist. A miss must not cause every-set repetition.
+- At most two clues of one pedagogic family per set (`MAX_PER_FAMILY`), reviews and
+  introductions alike, enforced again at publication. Rest previous-set targets practised
+  within 20 hours when alternatives exist. A miss must not cause every-set repetition.
+  A reviewed clue rotates to a panorama other than its latest when one fits.
 - Curriculum introductions use `skill.curriculum.scope` then `rank`; absent metadata
   is an unranked country foundation, never hidden. Preserve source provenance separately.
 - Readiness is not mastery: 17/20 recent successes across eight skills (or all if fewer),
@@ -73,7 +75,8 @@ installation or successful live publication based on a build passing.
   lowest supplied scope, without an absent country-identification gate.
 - New-clue budgets are 1/2/3 below 70% / below 85% / at least 85% recent success
   (two with no feedback), and only fill slots placeable due reviews leave (reviews first).
-  Normally at most one target per advanced scope per set, review or introduction.
+  Foundational first: no introduction slot is reserved for an advanced scope while base-scope
+  clues remain un-introduced. Normally at most one target per advanced scope per set, review or introduction.
   Review is scheduled by FSRS-6 (`src/lib/fsrs.ts`, ts-fsrs defaults) replayed from attempts: passed = Good,
   recognition miss or wrong answer = Again, unknown answer = no review; never store scheduler state.
   Packs with `gradingPolicy: 'recognition'` grade spotted = Good / missed = Again regardless of the
@@ -99,7 +102,7 @@ installation or successful live publication based on a build passing.
 
 `fixtures/continue-fixture.html?mode=spacing` seeds synthetic misses and
 exposes publication counters in the DOM. With the installer server running,
-verify zero previous-set targets repeated, five distinct families and one
+verify zero previous-set targets repeated, at most two clues per family and one
 game started. No account or real learner state is used. Other modes include
 `failure`, `pending`, `expired`, `wrong-map`.
 

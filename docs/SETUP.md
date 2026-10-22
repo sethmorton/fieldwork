@@ -80,7 +80,7 @@ npm run serve
 
 For a Worldwide-only first setup, omit `--add`. Keep the other packs' local
 files and configuration. Install the rebuilt script and open your Worldwide
-map in a fresh tab. It uses five different clue families **and five different
+map in a fresh tab. It uses at most two clues per family **and five different
 countries** per set. Unknown-country locations cannot silently fill a slot.
 
 The mix includes bollards, pedestrian signs, language, utility poles and

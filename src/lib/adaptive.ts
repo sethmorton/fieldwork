@@ -4,6 +4,10 @@ export type CurriculumScope = 'country-identification' | 'within-country-regiona
 const scopes: CurriculumScope[] = ['country-identification', 'within-country-regional', 'specialist'];
 const scopeIndex = (skill: PracticeSkill) => scopes.indexOf(skill.curriculum?.scope ?? 'country-identification');
 const passed = (attempt: Attempt) => attempt.correct === true && attempt.evidenceValid;
+/** At most this many clues of one practiceFamily per set, reviews and introductions alike; publication enforces it too. */
+export const MAX_PER_FAMILY = 2;
+// Previous-set rest expires overnight: a target rests only if its latest attempt is younger than this.
+const REST_MS = 20 * 3600000;
 
 export type PracticeSkill = {
   id: string;
@@ -162,7 +166,8 @@ export function planPractice(
     ...(location.panoId ? [location.panoId, `pano:${location.panoId}`] : [])];
   const byReference = new Map(locations.flatMap(location => aliases(location).map(key => [key, location] as const)));
   const restingTargets = new Set(previousSetLocationRefs.flatMap(reference => referenceKeys(reference)
-    .map(key => byReference.get(key)?.skillIds[0]).filter((id): id is string => !!id)));
+    .map(key => byReference.get(key)?.skillIds[0]).filter((id): id is string => !!id))
+    .filter(id => latest.has(id) && nowMs - Date.parse(latest.get(id)!.occurredAt) < REST_MS));
   const observed = new Set<string>();
   for (const reference of [...seenLocationRefs, ...previousSetLocationRefs, ...records.map(attempt => attempt.locationRef)]) {
     for (const key of referenceKeys(reference)) observed.add(key);
@@ -251,7 +256,7 @@ export function planPractice(
     || score(b) - score(a) || a.id.localeCompare(b.id));
   const membersBySkill = new Map<string, PracticeLocation[]>();
   for (const location of chosen.members) { const list = membersBySkill.get(location.skillIds[0]); if (list) list.push(location); else membersBySkill.set(location.skillIds[0], [location]); }
-  const usedFamilies = new Set<string>(), usedPanoramas = new Set<string>();
+  const familyCounts = new Map<string, number>(), usedPanoramas = new Set<string>();
   const selected: PracticeLocation[] = [], focusSkills: PracticeSkill[] = [], options: PracticeLocation[][] = [];
   const cap = pack.maxLocationsPerCountry;
   // Augmenting path over the ≤limit picks: free a full country by moving earlier picks to their other eligible panoramas.
@@ -272,21 +277,24 @@ export function planPractice(
   };
   const addTargets = (skills: PracticeSkill[], targetSize: number, relaxScope = false) => { for (const skill of skills) {
     if (selected.length >= targetSize) break;
-    if (usedFamilies.has(family(skill))) continue;
+    if (focusSkills.includes(skill) || (familyCounts.get(family(skill)) ?? 0) >= MAX_PER_FAMILY) continue;
     if (!relaxScope && (!scopeOpen(skill) || (scopeIndex(skill) > progression.base
       && focusSkills.some(other => scopeIndex(other) === scopeIndex(skill))))) continue;
     const eligible = (membersBySkill.get(skill.id) ?? []).filter(location => !usedPanoramas.has(location.panoId ?? location.id)
       && (relaxScope || progression.base > 0 || scopeIndex(skill) === 0 || !isNew(skill) || countryOpen(location.country)));
     const seen = (location: PracticeLocation) => aliases(location).some(key => observed.has(key));
+    // Rotate: this clue's most recently reviewed panorama goes last, so it is reused only when nothing else fits.
+    const lastKeys = referenceKeys(latest.get(skill.id)?.locationRef ?? '');
+    const isLast = (location: PracticeLocation) => aliases(location).some(key => lastKeys.includes(key));
     const regionCount = (location: PracticeLocation) => location.region ? selected.filter(other => other.region === location.region).length : 0;
-    eligible.sort((a, b) => Number(seen(a)) - Number(seen(b)) || regionCount(a) - regionCount(b)
-      || hash(a.id) - hash(b.id));
+    eligible.sort((a, b) => Number(seen(a)) - Number(seen(b)) || Number(isLast(a)) - Number(isLast(b))
+      || regionCount(a) - regionCount(b) || hash(a.id) - hash(b.id));
     const location = !cap ? eligible[0]
       : eligible.find(location => location.country && selected.filter(other => other.country === location.country).length < cap)
       ?? eligible.find(location => location.country && freeCountry(location.country, new Set()));
     if (!location) continue;
     selected.push(location); focusSkills.push(skill); options.push(eligible);
-    usedFamilies.add(family(skill)); usedPanoramas.add(location.panoId ?? location.id);
+    familyCounts.set(family(skill), (familyCounts.get(family(skill)) ?? 0) + 1); usedPanoramas.add(location.panoId ?? location.id);
   }};
   const dueReviews = ranked.filter(skill => !isNew(skill) && !restingTargets.has(skill.id) && urgency(skill) > 0);
   // Bounded waiting: the longest-overdue due review is placed first and counts toward its scope's one-per-set quota,
@@ -300,14 +308,16 @@ export function planPractice(
   addTargets(dueReviews, limit);
   // Reviews first: new clues only take slots due reviews did not need; with nothing due the 1-3 budget applies.
   const newEnd = Math.min(selected.length + progression.newLimit, limit);
-  // Reserve one introduction per open advanced scope within that budget.
-  for (let level = progression.base + 1; level <= progression.open; level++) {
-    addTargets(introductions.filter(skill => scopeIndex(skill) === level), Math.min(selected.length + 1, newEnd));
+  // Foundational first: reserve one introduction per open advanced scope only once the base scope is fully introduced.
+  if (!introductions.some(skill => scopeIndex(skill) === progression.base)) {
+    for (let level = progression.base + 1; level <= progression.open; level++) {
+      addTargets(introductions.filter(skill => scopeIndex(skill) === level), Math.min(selected.length + 1, newEnd));
+    }
   }
   addTargets(introductions.filter(skill => !restingTargets.has(skill.id)), newEnd);
   // Not-yet-due reviews (most forgotten first) only when the set is still short.
   addTargets(ranked.filter(skill => !isNew(skill) && !restingTargets.has(skill.id)), limit);
-  // Five families and previous-set rest outrank the new-item budget during cold start/replenishment.
+  // Family/country caps and previous-set rest outrank the new-item budget during cold start/replenishment.
   addTargets(introductions.filter(skill => !restingTargets.has(skill.id)), limit);
   addTargets(ranked.filter(scopeOpen), limit);
   // Sparse/custom packs must remain playable. Relax curriculum only after exhausting open material.
@@ -317,14 +327,14 @@ export function planPractice(
   selected.sort((a, b) => hash(':order:' + a.id) - hash(':order:' + b.id));
   const reasons = [progression.message,
     `Due reviews first; up to ${progression.newLimit} new clues fill the rest. Cold starts and family/country constraints can require more.`,
-    'Targets from the previous set rest for one set when enough other location-backed families are available, including after a miss.',
-    `${selected.length} distinct clue families selected; ${selected.filter(location => !aliases(location).some(key => observed.has(key))).length} unseen panoramas.`,
+    'Targets practised in the previous set within 20 hours rest for one set when enough other location-backed clues are available, including after a miss.',
+    `${new Set(focusSkills.map(family)).size} clue families selected (at most ${MAX_PER_FAMILY} clues each); ${selected.filter(location => !aliases(location).some(key => observed.has(key))).length} unseen panoramas.`,
     'Assumed recognition can guide practice, but does not establish verified mastery.'];
-  if (selected.length > beforeFallback) reasons.push('Curriculum limits relaxed to fill distinct families in this small pool.');
+  if (selected.length > beforeFallback) reasons.push('Curriculum limits relaxed to fill the set in this small pool.');
   const countries = new Set(chosen.members.map(location => location.country).filter(Boolean)).size;
-  if (selected.length < limit) reasons.push(chosen.families >= limit && (!cap || countries * cap >= limit)
-    ? `Enough clue families and countries exist, but no combination of ${limit} distinct families within the country limit was found (${selected.length} placed).`
-    : `Only ${selected.length} distinct location-backed families are available; repeated clues will not fill the missing slots.`);
+  if (selected.length < limit) reasons.push(Math.min(chosen.skills.length, chosen.families * MAX_PER_FAMILY) >= limit && (!cap || countries * cap >= limit)
+    ? `Enough clue families and countries exist, but no combination of ${limit} clues within the family and country limits was found (${selected.length} placed).`
+    : `Only ${selected.length} location-backed clues can be placed with at most ${MAX_PER_FAMILY} per family; repeated clues will not fill the missing slots.`);
   return { pool: chosen.pool, focusSkills, reasons, locationIds: selected.map(location => location.id), phase: 'Mixed practice',
     newSkillIds: focusSkills.filter(isNew).map(skill => skill.id) };
 }

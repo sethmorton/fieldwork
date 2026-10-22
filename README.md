@@ -4,7 +4,7 @@
 
 **GeoGuessr practice that remembers what you miss—and gives you room to learn something else.**
 
-Fieldwork turns a curated pool of real locations into adaptive five-round maps. Guess normally, review the visual clue after the reveal, and keep going. Your next set aims for three new targets and two reviews, across five different clue families.
+Fieldwork turns a curated pool of real locations into adaptive five-round maps. Guess normally, review the visual clue after the reveal, and keep going. Your next set aims for three new targets and two reviews, with at most two clues per family.
 
 Australia, the Philippines and Worldwide are supplied packs. One small userscript keeps separate maps and progress for each; content packs download separately and stay cached.
 
@@ -48,8 +48,8 @@ Engine updates preserve existing history and in-flight games.
 
 ## What practice does
 
-- **Five different clue families per set.** Related subtypes cannot fill all five slots.
-- **Space retries.** Previous-set targets rest for one set when enough alternatives exist, including after a miss. Prefer unfamiliar panoramas.
+- **At most two clues per family per set.** Related subtypes cannot fill the set.
+- **Space retries.** Targets practised in the previous set within 20 hours rest for one set when enough alternatives exist, including after a miss. Prefer unfamiliar panoramas, then any panorama other than the one last reviewed.
 - **Review after guessing.** Upcoming targets stay hidden. The result shows the source image, explanation and attribution.
 - **Low-friction feedback.** Moving on means “assumed spotted.” Press **Missed it** when needed; explicit feedback wins.
 - **Keep progress local.** Reviews and exposure history live in Tampermonkey's storage. Export them under **Content & progress**.

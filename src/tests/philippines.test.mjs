@@ -28,7 +28,7 @@ test('Philippines starts with regional fundamentals and keeps successive sets va
  for(let step=0;step<8;step++){
   const set=makeNextSet(pack,records,{now,seenLocationRefs:seen,previousSetLocationRefs:previous});
   const skills=set.focus.map(f=>pack.skills.find(s=>s.id===f.id));
-  assert.equal(new Set(skills.map(s=>s.practiceFamily)).size,5);
+  assert.ok(skills.every(s=>skills.filter(other=>other.practiceFamily===s.practiceFamily).length<=2));
   assert.ok(skills.every(s=>!s.recognitionOnly&&s.availability==='available'));
   assert.ok(set.selectedLocations.every(l=>!previous.some(id=>pack.locations.find(p=>p.id===id)?.skillIds[0]===l.skillIds[0])));
   if(step===0)assert.ok(skills.every(s=>s.importance>=75),'Start with regional fundamentals, not rare microvariants.');

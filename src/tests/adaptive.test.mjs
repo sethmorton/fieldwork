@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {planPractice} from '../lib/adaptive.ts';
+import {curriculumProgress,planPractice} from '../lib/adaptive.ts';
 const now='2026-10-19T08:00:00Z';
 // Synthetic fixtures only; no learner observations or fabricated production locations.
 const skill=(id,extra={})=>({id,title:id,phase:'Mixed',prerequisites:[],practiceFamily:id,importance:25,...extra});
@@ -8,16 +8,26 @@ const makePack=()=>{const skills=['A','B','C','D','E','F','G','H'].map(id=>skill
 // Default outcomes are five minutes old: a first success is not yet due (FSRS ten-minute step), a miss is (one minute).
 const attempt=(id,extra={})=>({id:'check-'+id,skillId:id,occurredAt:'2026-10-19T07:55:00Z',correct:true,evidenceValid:true,confidence:2,unfamiliar:true,locationRef:id+'-0',mode:'assessment',...extra});
 const familyIds=(pack,plan)=>plan.focusSkills.map(s=>s.practiceFamily??s.id);
-test('five different clue families from the outset, without a sequential clean-run gate',()=>{
+const atMostTwoPerFamily=families=>families.every(f=>families.filter(other=>other===f).length<=2);
+test('five distinct clues from the outset, without a sequential clean-run gate',()=>{
  const p=makePack(),r=planPractice(p,[attempt('A',{correct:false})],{now,size:5});
  assert.equal(r.locationIds.length,5);assert.equal(new Set(familyIds(p,r)).size,5);assert.ok(r.focusSkills.some(s=>s.id==='A'));assert.ok(r.newSkillIds.length>=4);
 });
-test('different landscape or pole labels cannot evade the family cap',()=>{
+test('different landscape or pole labels cannot evade the two-per-family cap',()=>{
  const p=makePack();p.skills.slice(0,4).forEach(s=>{s.practiceFamily='landscape';s.importance=100});
- const r=planPractice(p,[],{now,size:5});assert.equal(r.locationIds.length,5);assert.equal(r.focusSkills.filter(s=>s.practiceFamily==='landscape').length,1);
+ const r=planPractice(p,[],{now,size:5});assert.equal(r.locationIds.length,5);assert.equal(r.focusSkills.filter(s=>s.practiceFamily==='landscape').length,2);
+});
+test('two clues of a family may share a set, reviews and introductions alike, but never three',()=>{
+ const p=makePack();p.skills.slice(0,5).forEach(s=>{s.practiceFamily='poles';s.importance=100});
+ // A and B are due misses in the same family. C-E are new clues of that family.
+ const r=planPractice(p,[attempt('A',{correct:false}),attempt('B',{correct:false})],{now,size:5});
+ assert.ok(['A','B'].every(id=>r.focusSkills.some(s=>s.id===id)));
+ assert.equal(r.focusSkills.filter(s=>s.practiceFamily==='poles').length,2);
+ const fresh=planPractice(p,[],{now,size:5});
+ assert.equal(fresh.focusSkills.filter(s=>s.practiceFamily==='poles').length,2);assert.equal(fresh.newSkillIds.length,5);
 });
 test('insufficient families yield a short explicit plan rather than duplicate clues',()=>{
- const p=makePack();p.skills.forEach(s=>s.practiceFamily='same');const r=planPractice(p,[],{now,size:5});assert.equal(r.locationIds.length,1);assert.match(r.reasons.join(' '),/repeated clues will not fill/);
+ const p=makePack();p.skills.forEach(s=>s.practiceFamily='same');const r=planPractice(p,[],{now,size:5});assert.equal(r.locationIds.length,2);assert.match(r.reasons.join(' '),/repeated clues will not fill/);
 });
 test('misses are reviewed once while retaining four other families',()=>{
  const p=makePack();const r=planPractice(p,[attempt('A',{evidenceValid:false})],{now,size:5});assert.ok(r.focusSkills.some(s=>s.id==='A'));assert.equal(r.locationIds.filter(id=>id.startsWith('A-')).length,1);assert.equal(r.focusSkills.length,5);
@@ -48,12 +58,32 @@ test('a missed target rests for one set, then returns on a fresh panorama',()=>{
  const p=makePack();p.skills.push(skill('I'),skill('J'));
  for(const [j,s]of p.skills.slice(8).entries())p.locations.push({id:s.id+'-0',panoId:s.id+'-0',lat:8+j,lng:0,skillIds:[s.id]});
  p.pools[0].skillIds=p.skills.map(s=>s.id);
- const records=[attempt('A',{correct:false})];
+ const records=[attempt('A',{correct:false}),...['B','C','D','E'].map(id=>attempt(id))];
  const rested=planPractice(p,records,{now,size:5,previousSetLocationRefs:['A-0','B-0','C-0','D-0','E-0']});
  assert.deepEqual(new Set(rested.focusSkills.map(s=>s.id)),new Set(['F','G','H','I','J']));
  const review=planPractice(p,records,{now,size:5,previousSetLocationRefs:rested.locationIds});
  assert.ok(review.focusSkills.some(s=>s.id==='A'));
  assert.ok(review.locationIds.some(id=>id.startsWith('A-')&&id!=='A-0'));
+});
+test('previous-set rest expires once the targets were last practised 20 hours ago',()=>{
+ const p=makePack(),previousSetLocationRefs=['A-0','B-0','C-0','D-0','E-0'];
+ const at=hoursAgo=>['A','B','C','D','E'].map(id=>attempt(id,{correct:false,occurredAt:new Date(Date.parse(now)-hoursAgo*3600000).toISOString()}));
+ // F-H can fill three slots, so the due misses A-E rest rather than being relaxed back in.
+ const rested=planPractice(p,at(19.9),{now,size:3,previousSetLocationRefs});
+ assert.deepEqual(new Set(rested.focusSkills.map(s=>s.id)),new Set(['F','G','H']));
+ const expired=planPractice(p,at(20),{now,size:5,previousSetLocationRefs});
+ assert.deepEqual(new Set(expired.focusSkills.map(s=>s.id)),new Set(['A','B','C','D','E']));
+});
+test('a reviewed clue rotates away from its latest panorama once every panorama has been seen',()=>{
+ const p=makePack(),seen=p.locations.map(l=>l.id);
+ for(const latest of ['A-0','A-1','A-2','A-3']){
+  const plan=planPractice(p,[attempt('A',{correct:false,locationRef:latest})],{now,size:5,seenLocationRefs:seen});
+  const a=plan.locationIds.find(id=>id.startsWith('A-'));
+  assert.ok(a&&a!==latest,`A reused its latest panorama ${latest}`);
+ }
+ // With a single panorama the latest is still reused rather than dropping the review.
+ p.locations=p.locations.filter(l=>l.skillIds[0]!=='A'||l.id==='A-0');
+ assert.ok(planPractice(p,[attempt('A',{correct:false})],{now,size:5,seenLocationRefs:seen}).locationIds.includes('A-0'));
 });
 test('small pools relax spacing only when needed to keep five distinct families',()=>{
  const p=makePack();p.skills=p.skills.slice(0,5);p.pools[0].skillIds=p.skills.map(s=>s.id);
@@ -116,7 +146,7 @@ function simulate(pack,sets,correct) {
  for(let step=0;step<sets;step++){
   const plan=planPractice(pack,records,{now,seenLocationRefs:seen,previousSetLocationRefs:previous});
   assert.equal(plan.locationIds.length,5);
-  assert.equal(new Set(plan.focusSkills.map(s=>s.practiceFamily)).size,5);
+  assert.ok(atMostTwoPerFamily(plan.focusSkills.map(s=>s.practiceFamily)));
   const locations=plan.locationIds.map(id=>pack.locations.find(l=>l.id===id));
   assert.equal(new Set(locations.map(l=>l.country)).size,5);
   const previousSkills=new Set(previous.map(id=>pack.locations.find(l=>l.id===id).skillIds[0]));
@@ -159,7 +189,7 @@ test('sparse curricula and regional-only packs remain playable without relaxing 
   const p=curriculumPack();p.skills=p.skills.filter(s=>regionalOnly?s.id.startsWith('1:'):['0:0','0:1','1:2','1:3','2:4'].includes(s.id));
   p.pools[0].skillIds=p.skills.map(s=>s.id);
   const plan=planPractice(p,[],{now});
-  assert.equal(plan.locationIds.length,5);assert.equal(new Set(plan.focusSkills.map(s=>s.practiceFamily)).size,5);
+  assert.equal(plan.locationIds.length,5);assert.ok(atMostTwoPerFamily(plan.focusSkills.map(s=>s.practiceFamily)));
   if(!regionalOnly)assert.match(plan.reasons.join(' '),/Curriculum limits relaxed/);
  }
 });
@@ -200,25 +230,43 @@ test('a ranked introduction cannot take the family slot needed for a weak review
 test('strong recent answers do not bypass forty distinct foundation introductions',()=>{
  const p=curriculumPack(100);
  const records=Array.from({length:40},(_,i)=>attempt(`0:${i%10}`,{id:'repeat-'+i,mode:'practice'}));
- const plan=planPractice(p,records,{now});
- assert.ok(plan.focusSkills.every(s=>s.curriculum.scope==='country-identification'));
+ assert.ok(planPractice(p,records,{now}).focusSkills.every(s=>s.curriculum.scope==='country-identification'));
+ assert.equal(curriculumProgress(p,records,now).open,0);
  const covered=Array.from({length:40},(_,i)=>attempt(`0:${i}`,{id:'covered-'+i,mode:'practice'}));
- assert.ok(planPractice(p,covered,{now}).focusSkills.some(s=>s.curriculum.scope==='within-country-regional'));
+ assert.equal(curriculumProgress(p,covered,now).open,1);
+});
+// Foundational first: advanced clues are introduced only in budget slots base introductions cannot use. Moving every
+// un-introduced foundation into one country leaves one base introduction per set, so the gates below are observable.
+const crowdFoundations=(p,records)=>{const done=new Set(records.map(a=>a.skillId));
+ p.locations.filter(l=>l.skillIds[0].startsWith('0:')&&!done.has(l.skillIds[0])).forEach(l=>l.country='country-base');};
+test('no new specialist or regional clue takes a budget slot while base foundations remain placeable',()=>{
+ const p=curriculumPack(100),covered=Array.from({length:40},(_,i)=>attempt(`0:${i}`,{id:'covered-'+i,mode:'practice'}));
+ assert.equal(curriculumProgress(p,covered,now).open,1);
+ const plan=planPractice(p,covered,{now});
+ assert.ok(plan.newSkillIds.length>0);
+ assert.ok(plan.focusSkills.every(s=>s.curriculum.scope==='country-identification'));
+ // Once every foundation is introduced, one introduction per open advanced scope is reserved again.
+ const all=Array.from({length:100},(_,i)=>attempt(`0:${i}`,{id:'all-'+i,mode:'practice'}));
+ assert.ok(planPractice(p,all,{now}).newSkillIds.some(id=>id.startsWith('1:')));
 });
 test('regional introductions require successful practice of that country, not only other countries',()=>{
  const p=curriculumPack(100);
- const records=Array.from({length:50},(_,i)=>i).filter(i=>i%10!==0)
-  .map(i=>attempt(`0:${i}`,{id:'foundation-'+i,mode:'practice'}));
+ const records=[...Array.from({length:50},(_,i)=>i).filter(i=>i%10!==0)
+  .map(i=>attempt(`0:${i}`,{id:'foundation-'+i,mode:'practice'})),attempt('0:0',{id:'country-0',mode:'practice'})];
+ crowdFoundations(p,records);
+ assert.ok(planPractice(p,records,{now}).newSkillIds.some(id=>id.startsWith('1:')));
  assert.ok(!planPractice(p,records,{now}).focusSkills.some(s=>s.id==='1:0'));
- records.push(...Array.from({length:3},(_,i)=>attempt('0:0',{id:'country-'+i,mode:'practice'})));
+ records.push(...Array.from({length:2},(_,i)=>attempt('0:0',{id:'country-'+(i+1),mode:'practice'})));
  assert.ok(planPractice(p,records,{now}).focusSkills.some(s=>s.id==='1:0'));
- records.push(attempt('0:0',{id:'country-miss',mode:'practice',correct:false,evidenceValid:false}));
+ // A miss 30 seconds ago is not yet due, so 1:0's country slot is free. Only the country gate excludes it.
+ records.push(attempt('0:0',{id:'country-miss',mode:'practice',correct:false,evidenceValid:false,occurredAt:'2026-10-19T07:59:30Z'}));
  assert.ok(!planPractice(p,records,{now}).focusSkills.some(s=>s.id==='1:0'));
 });
 test('countries with no foundation lessons wait for eighty percent foundation coverage',()=>{
  const p=curriculumPack(100);
  p.locations.filter(l=>l.skillIds[0]==='1:0').forEach(l=>l.country='missing-country');
  const records=Array.from({length:40},(_,i)=>attempt(`0:${i}`,{id:'foundation-'+i,mode:'practice'}));
+ crowdFoundations(p,records);
  assert.ok(!planPractice(p,records,{now}).focusSkills.some(s=>s.id==='1:0'));
  records.push(...Array.from({length:40},(_,i)=>attempt(`0:${i+40}`,{id:'later-'+i,mode:'practice'})));
  assert.ok(planPractice(p,records,{now}).focusSkills.some(s=>s.id==='1:0'));

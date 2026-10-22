@@ -79,7 +79,7 @@ No local progress or GeoGuessr credentials are sent to the content host.
 
 Skills may supply `curriculum.scope` (country-identification, within-country-regional,
 specialist) and integer `rank`. Introductions follow rank within scope, subject to
-five distinct families, country caps and previous-set rest; unannotated skills are
+at most two clues per family, country caps and previous-set rest; unannotated skills are
 unranked country foundations. Provenance is audit metadata, not a selection signal.
 A regional-only pack starts at its lowest supplied scope rather than waiting for
 absent country foundations.
@@ -111,7 +111,15 @@ feedback, and one below 70%, over the latest 20 outcomes. Reviews come first, as
 standard spaced repetition: new clues only take slots that placeable due reviews
 leave, so a set with five due reviews introduces nothing and a set with nothing due
 gets the full budget. At most one target from each advanced scope normally appears
-per set, review or introduction. Unseen panoramas and regional variety remain preferred.
+per set, review or introduction. Foundational first: while any base-scope clue (the
+pack's lowest open scope) remains un-introduced, no introduction slot is reserved for
+an advanced scope, so base clues take the budget first. Introduced advanced clues are
+still reviewed. At most two clues of one `practiceFamily` share a set (`MAX_PER_FAMILY`
+in `src/lib/adaptive.ts`, reviews and introductions alike, enforced again at
+publication). With a strict one-per-family cap a simulated 3-set/day learner never
+introduced all 715 base clues of the world pack; two per family completed them.
+Unseen panoramas are preferred, then any panorama other than the clue's most recently
+reviewed one (the latest is reused only when nothing else fits), then regional variety.
 Cold starts and diversity/rest constraints can require more new clues. Small pools
 relax curriculum limits only after exhausting open material; they never relax
 family/country/publication guards. Prerequisites accept three latest successful
@@ -136,11 +144,13 @@ A new clue becomes due about ten minutes after its first success, then 2, 11,
 46, 163 days later when reviewed on time; a miss becomes due within ten minutes.
 Due is a priority, not a promise of the next set. Within each set the previous set
 rests and family/country/panorama caps and the one-target-per-advanced-scope rule
-hold. The longest-overdue due clue is placed first and counts toward its scope's
+hold. Rest covers only previous-set targets whose latest attempt is under 20 hours
+old, so it expires overnight instead of delaying a daily learner's due review by a day.
+The longest-overdue due clue is placed first and counts toward its scope's
 quota (bounded waiting: misses cannot starve a due success, in any scope). Then one
 due clue per open advanced scope, then the other due clues (misses first, then
 lowest retrievability), then new clues in the slots left (one reserved per open
-advanced scope within the budget). Not-yet-due clues only fill a set that would
+advanced scope within the budget once the base scope is fully introduced). Not-yet-due clues only fill a set that would
 otherwise be short. When the country limit blocks a pick, earlier picks move to their other
 panoramas before the set is declared short; a short set says whether content is
 missing or no valid combination was found. The progress tree's amber "review

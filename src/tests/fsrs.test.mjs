@@ -50,14 +50,14 @@ test('a long-unreviewed clue becomes due and keeps losing retrievability',()=>{
 
 test('due reviews are chosen most-forgotten first, misses lead, and family/country caps still hold',()=>{
  // Eight graduated clues (each reviewed twice); older reviews have lower retrievability now.
- const ids=['A','B','C','D','E','F','G','H'],p=makePack(ids.map(id=>skill(id,id==='B'?'shared':id==='C'?'shared':id)));
+ const ids=['A','B','C','D','E','F','G','H'],p=makePack(ids.map(id=>skill(id,['B','C','E'].includes(id)?'shared':id)));
  p.maxLocationsPerCountry=1;p.locations.filter(l=>l.skillIds[0]==='D').forEach(l=>l.country='C0');
  const records=ids.flatMap((id,i)=>[outcome(id,start+i*DAY),outcome(id,start+i*DAY+15*60000,true,1)]);
  const now=start+40*DAY;
  assert.ok(ids.every(id=>skillStatus(id,records,now).due));
- const plan=planPractice(p,records,{now,size:3});
- // A is most forgotten; B and C share a family (B is older); D shares A's country, so E is next.
- assert.deepEqual(plan.focusSkills.map(s=>s.id),['A','B','E']);
+ const plan=planPractice(p,records,{now,size:4});
+ // A is most forgotten. B, C and E share a family, so only two fit. D shares A's country, so F is next.
+ assert.deepEqual(plan.focusSkills.map(s=>s.id),['A','B','C','F']);
  records.push(outcome('G',now-DAY,false,2));
  // The longest-overdue due clue (A) keeps its reserved slot; the fresh miss leads the remaining reviews.
  assert.deepEqual(planPractice(p,records,{now,size:3}).focusSkills.slice(0,2).map(s=>s.id),['A','G']);
@@ -71,8 +71,12 @@ test('not-yet-due reviews are skipped while due ones fill the set, and used only
  assert.ok(!skillStatus('G',records,now).due&&!skillStatus('H',records,now).due);
  const plan=planPractice(p,records,{now});
  assert.equal(plan.locationIds.length,5);assert.ok(plan.focusSkills.every(s=>!['G','H'].includes(s.id)));
- // With the due clues resting from the previous set, not-due reviews fill the set instead of repeating a family.
- const rested=planPractice(p,records,{now,previousSetLocationRefs:['A-0','B-0','C-0','D-0','E-0']});
+ // Previous-set rest only covers targets practised within 20 hours. A-E were last seen weeks ago, so they do not rest.
+ const stale=planPractice(p,records,{now,previousSetLocationRefs:['A-0','B-0','C-0','D-0','E-0']});
+ assert.ok(stale.focusSkills.every(s=>!['G','H'].includes(s.id)));
+ // With A-E missed 15 minutes ago (due) and resting from that set, not-due reviews fill the set instead.
+ const missed=[...records,...['A','B','C','D','E'].map(id=>outcome(id,now-15*60000,false,2))];
+ const rested=planPractice(p,missed,{now,previousSetLocationRefs:['A-0','B-0','C-0','D-0','E-0']});
  assert.equal(rested.locationIds.length,5);assert.ok(['F','G','H'].every(id=>rested.focusSkills.some(s=>s.id===id)));
 });
 
@@ -89,18 +93,19 @@ test('due reviews come first; new clues only take the slots they leave, and the 
 });
 
 test('a due success is not starved by clues missed every session',()=>{
- // Ten clues missed every time they appear and one clue G answered correctly once; one five-round set a day, previous set resting.
+ // Ten clues missed every time they appear and one clue G answered correctly once. Two sets a day, 12 hours apart,
+ // so the previous set still rests (rest expires after 20 hours).
  const ids=[...Array.from({length:10},(_,i)=>'M'+i),'G'],p=makePack(ids.map(id=>skill(id)));
  const records=ids.map(id=>outcome(id,start,id==='G')),seen=[];
  let previous=[],waited=0,picked=0,lowest=1;
- for(let day=1;day<=365;day++){
-  const now=start+day*DAY,g=skillStatus('G',records,now),plan=planPractice(p,records,{now,seenLocationRefs:seen,previousSetLocationRefs:previous});
+ for(let set=1;set<=730;set++){
+  const now=start+set*DAY/2,g=skillStatus('G',records,now),plan=planPractice(p,records,{now,seenLocationRefs:seen,previousSetLocationRefs:previous});
   assert.equal(plan.locationIds.length,5);
   const hasG=plan.focusSkills.some(s=>s.id==='G');
   // Only clues that fell due before G (here the day-0 misses) may go first: G waits at most two sets.
   if(g.due){waited=hasG?0:waited+1;assert.ok(waited<=2,`G waited ${waited} sets while due`);lowest=Math.min(lowest,g.retrievability);}
   picked+=hasG;
-  plan.focusSkills.forEach((s,i)=>records.push(outcome(s.id,now+i*60000,s.id==='G',day)));
+  plan.focusSkills.forEach((s,i)=>records.push(outcome(s.id,now+i*60000,s.id==='G',set)));
   previous=plan.locationIds;seen.push(...previous);
  }
  assert.ok(picked>=4);assert.ok(lowest>0.85,`G retrievability fell to ${lowest}`);
@@ -139,10 +144,11 @@ test('the country limit repairs earlier picks instead of returning a short set',
  const set=makeNextSet(p,records,{now,seenLocationRefs:['A-seen']});
  assert.deepEqual(set.selectedLocations.map(l=>l.id).sort(),['A-seen','B-0','C-0','D-0','E-0']);
  // Truly short content says so; enough families and countries without any valid assignment is named as that.
- assert.throws(()=>makeNextSet({...p,locations:p.locations.filter(l=>l.id!=='E-0')},records,{now}),/Only 4 distinct/);
- const tight={...p,skills:[...p.skills,skill('F','C')],pools:[{...p.pools[0],skillIds:['A','B','C','D','E','F']}],
+ assert.throws(()=>makeNextSet({...p,locations:p.locations.filter(l=>l.id!=='E-0')},records,{now}),/Only 4 location-backed clues can be placed/);
+ // A and B now share country cA, and C-F share one family: three families and five countries, but only three clues fit.
+ const tight={...p,skills:[...p.skills.map(s=>['D','E'].includes(s.id)?skill(s.id,'C'):s),skill('F','C')],pools:[{...p.pools[0],skillIds:['A','B','C','D','E','F']}],
   locations:[...p.locations.filter(l=>l.id!=='A-new').map(l=>l.id==='B-0'?{...l,country:'cA'}:l),{id:'F-0',panoId:'F-0',lat:9,lng:9,skillIds:['F'],country:'cF'}]};
- assert.throws(()=>makeNextSet(tight,records,{now}),/no combination of 5 distinct families/);
+ assert.throws(()=>makeNextSet(tight,records,{now}),/no combination of 5 clues within the family and country limits/);
 });
 
 test('mastery and scheduling stay linear on one heavily practised clue',()=>{
