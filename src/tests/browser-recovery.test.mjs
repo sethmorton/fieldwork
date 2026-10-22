@@ -11,8 +11,8 @@ const raw=(round=2)=>({token:'current-game',map,round,rounds:Array.from({length:
 const built=await build({entryPoints:[new URL('../browser.mjs',import.meta.url).pathname],bundle:true,write:false,format:'iife',platform:'browser',target:'es2022',plugins:[{
   name:'isolated-browser-fixture',setup(plugin){
     plugin.onResolve({filter:/practice-catalog\.json$/},()=>({path:'catalog',namespace:'synthetic-catalog'}));
-    plugin.onLoad({filter:/.*/,namespace:'synthetic-catalog'},()=>({loader:'json',contents:JSON.stringify([{id:pack.id,title:pack.title,subject:pack.subject,practiceMapId:map}])}));
-    plugin.onLoad({filter:/\/ui\.mjs$/},()=>({loader:'js',contents:`export function reviewPanel(pack,round,options){testUI.review(pack,round,options)} export function startPanel(){testUI.start()} export function loadingPanel(){}` }));
+    plugin.onLoad({filter:/.*/,namespace:'synthetic-catalog'},()=>({loader:'json',contents:JSON.stringify([{id:pack.id,title:pack.title,subject:pack.subject,practiceMapId:map},{id:'unbound',title:'Unbound',subject:'test'}])}));
+    plugin.onLoad({filter:/\/ui\.mjs$/},()=>({loader:'js',contents:`export function reviewPanel(pack,round,options){testUI.review(pack,round,options)} export function startPanel(){testUI.start()} export function loadingPanel(){} export function bindPanel(packs,options){testUI.bind(packs,options)}` }));
     plugin.onLoad({filter:/\/content-cache\.mjs$/},()=>({loader:'js',contents:`export function indexedDbCache(){const saved=new Map();return {get:async key=>structuredClone(saved.get(key)),set:async(key,value)=>{saved.set(key,structuredClone(value))}}}`}));
   }
 }]});
@@ -20,7 +20,7 @@ const code=built.outputFiles[0].text;
 function fixture(path='/game/current-game'){
   const data={'fieldwork:pack':structuredClone(pack)},events=new EventTarget(),documentEvents=new Map(),windowEvents=new EventTarget();
   let visible=false,shownRound=2,observer=()=>{},nextResponse=raw(),networkFailure=false;
-  const reviews=[],requests=[];let panel=null;
+  const reviews=[],requests=[],binds=[];let panel=null;
   const location={pathname:path,assign:()=>assert.fail('No navigation is allowed')};
   const marker={get textContent(){return `ROUND ${shownRound} / 5`}};
   const nativeFetch=async url=>{requests.push(url);if(networkFailure)throw Error('offline');return {ok:true,text:async()=>JSON.stringify(nextResponse),clone:()=>({json:async()=>nextResponse})}};
@@ -33,11 +33,11 @@ function fixture(path='/game/current-game'){
       querySelector:()=>visible?marker:null,querySelectorAll:()=>[],getElementById:()=>panel},
     window:{addEventListener:(...args)=>windowEvents.addEventListener(...args)},MutationObserver:class{constructor(callback){observer=callback}observe(){}},
     fetch:nativeFetch,
-    testUI:{review:(pack,round,options)=>{panel={remove:()=>{panel=null}};reviews.push({pack,round,options})},start:()=>{panel={remove:()=>{panel=null}}}},console,
+    testUI:{review:(pack,round,options)=>{panel={remove:()=>{panel=null}};reviews.push({pack,round,options})},start:()=>{panel={remove:()=>{panel=null}}},bind:(packs,options)=>{panel={remove:()=>{panel=null}};binds.push({packs,options})}},console,
   });
   vm.runInContext(code,context);
   const settle=async()=>{for(let i=0;i<20;i++)await new Promise(resolve=>setImmediate(resolve))};
-  return {data,reviews,requests,settle,events,location,
+  return {data,reviews,requests,binds,settle,events,location,
     response:value=>events.dispatchEvent(new CustomEvent('received_data',{detail:value})),
     reveal:round=>{shownRound=round;visible=true;observer()},
     // GeoGuessr can reveal the result view with a class change, which the DOM observer does not report.
@@ -108,4 +108,15 @@ test('a result view revealed without a reported DOM mutation still shows its car
   const f=fixture();f.response(raw(2));await f.settle();assert.equal(f.reviews.length,0);
   f.revealSilently(2);await new Promise(resolve=>setTimeout(resolve,400));await f.settle();
   assert.equal(f.reviews.at(-1)?.round.round,2);
+});
+test('a public install binds an unbound pack only on the learner\'s own Fieldwork map in Map Maker',async()=>{
+  const own='aaaaaaaaaaaaaaaaaaaaaaaa';
+  const other=fixture('/map-maker/'+own);other.setResponse({name:'Holiday photos',version:3});other.navigate('/map-maker/'+own);await other.settle();
+  assert.equal(other.binds.length,0);assert.equal(other.hasPanel(),false);
+  const f=fixture('/map-maker/'+own);f.setResponse({name:'Fieldwork - Practice',version:3});f.navigate('/map-maker/'+own);await f.settle();
+  assert.deepEqual([...f.binds.at(-1).packs].map(item=>item.id),['unbound']);assert.deepEqual(f.requests,['/api/v4/user-maps/drafts/'+own]);
+  f.binds.at(-1).options.onBind('unbound');await f.settle();
+  assert.equal(f.data['fieldwork:catalog'].find(item=>item.id==='unbound').practiceMapId,own);
+  assert.equal(f.data['fieldwork:catalog'].find(item=>item.id===pack.id).practiceMapId,map);
+  const bound=fixture('/map-maker/'+map);await bound.settle();assert.equal(bound.binds.length,0);
 });

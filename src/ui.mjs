@@ -80,6 +80,11 @@ export function loadingPanel(pack,{error,message='Loading practice content…',o
   const status=text(section,'p',error??message,'muted');status.setAttribute('role','status');
   if(error){button(section,'Retry',onRetry,'primary');packImport(section,onImport,status)}
 }
+export function bindPanel(packs,{onBind}){
+  const {section}=panel();header(section,'Fieldwork · setup');text(section,'h2','Use this map for practice?');
+  const status=text(section,'p','Fieldwork replaces this map’s locations with each new five-round set. Pick the pack this map is for:','muted');status.setAttribute('role','status');
+  for(const item of packs)button(section,item.title,()=>{try{onBind(item.id)}catch(error){status.textContent=error.message}},'primary').style.cssText='display:block;width:100%;margin-top:8px';
+}
 export function startPanel(pack,{onNext,onExport,onImport,onCoverage,attempts=[],getAttempts=()=>attempts,packs=[],onChoosePack}) {
   const {section}=panel();header(section,'Fieldwork · practice');text(section,'h2',pack.title);
   if(packs.length>1){const label=text(section,'label','Practice pack');const choose=document.createElement('select');choose.setAttribute('aria-label','Practice pack');for(const item of packs){const option=text(choose,'option',item.title);option.value=item.id;option.selected=item.id===pack.id;}choose.onchange=()=>onChoosePack(choose.value);label.append(choose);}

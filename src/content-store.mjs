@@ -21,8 +21,10 @@ export function createContentStore({get,set,list,remove,cache,catalog,fetchText,
   }
   const entries=[...registered.values()];
   const maps=new Set();
+  // Public installs ship unbound packs; the learner binds each to their own Fieldwork map in Map Maker.
   for(const entry of entries){
-    if(!/^[a-f\d]{24}$/i.test(entry.practiceMapId??'')||/^0+$/.test(entry.practiceMapId)||maps.has(entry.practiceMapId))throw Error('Each pack needs a different dedicated owned practice map.');
+    if(entry.practiceMapId==null)continue;
+    if(!/^[a-f\d]{24}$/i.test(entry.practiceMapId)||/^0+$/.test(entry.practiceMapId)||maps.has(entry.practiceMapId))throw Error('Each pack needs a different dedicated owned practice map.');
     maps.add(entry.practiceMapId);
   }
   if(JSON.stringify(get('fieldwork:catalog',[]))!==JSON.stringify(entries))set('fieldwork:catalog',entries);
@@ -124,5 +126,11 @@ export function createContentStore({get,set,list,remove,cache,catalog,fetchText,
     if(old)entries[entries.indexOf(old)]=entry;else entries.push(entry);
     set(headKey(pack.id),{key,revision:pack.contentRevision??0,auditKey:key+':audit',legacy:true,localOnly:true});set('fieldwork:catalog',entries);
   }
-  return {catalog:entries,load,refresh,pinSet,pinGame,audit,add};
+  function bind(id,mapId){
+    const entry=entryFor(id);
+    if(entry.practiceMapId)throw Error('This pack already has a practice map.');
+    if(!/^[a-f\d]{24}$/i.test(mapId)||/^0+$/.test(mapId)||entries.some(item=>item.practiceMapId===mapId))throw Error('Each pack needs a different dedicated owned practice map.');
+    entry.practiceMapId=mapId;set('fieldwork:catalog',entries);
+  }
+  return {catalog:entries,load,refresh,pinSet,pinGame,audit,add,bind};
 }

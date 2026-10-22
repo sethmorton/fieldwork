@@ -121,3 +121,15 @@ test('splitting all three packs preserves exact adaptive selections, camera sett
     }
   }
 });
+test('public installs start unbound and bind each pack to one distinct learner map that survives updates',async()=>{
+  const unbound=({practiceMapId,...entry})=>entry,saved=storage(),server=await remote(pack());
+  const catalog=[unbound(descriptor),{...unbound(descriptor),id:'ph',title:'ph',subject:'ph'}];
+  const store=createContentStore({...saved,catalog,fetchText:server.fetchText});
+  assert.deepEqual(store.catalog.map(entry=>entry.practiceMapId),[undefined,undefined]);
+  assert.throws(()=>store.bind('au','not-a-map'),/different dedicated/);
+  store.bind('au',map);
+  assert.throws(()=>store.bind('ph',map),/different dedicated/);assert.throws(()=>store.bind('au',otherMap),/already has/);
+  assert.equal((await store.load('au')).practiceMapId,map);
+  const reopened=createContentStore({...saved,catalog,fetchText:server.fetchText});
+  assert.deepEqual(reopened.catalog.map(entry=>entry.practiceMapId),[map,undefined]);
+});

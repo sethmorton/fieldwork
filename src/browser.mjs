@@ -5,7 +5,7 @@ import {sourceNote} from './source-note.mjs';
 import {makeNextSet} from './next-set.mjs';
 import {packForPage} from './packs.mjs';
 import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet} from './session.mjs';
-import {reviewPanel,startPanel,loadingPanel} from './ui.mjs';
+import {reviewPanel,startPanel,loadingPanel,bindPanel} from './ui.mjs';
 import {stateFromGameData} from './game-state.mjs';
 import {observeGameResponses} from './game-responses.mjs';
 const gameResponses=unsafeWindow.GEFFetchEvents;
@@ -83,6 +83,17 @@ async function preparePractice() {
   go(mapPath);
 }
 let mounted='',lastShown='',revealRound='',revealChecks=0,lastState=null;
+const owned=new Map();
+// Public installs: offer unbound packs on the learner's own map-maker page when its saved name starts with "Fieldwork" (the check publishing repeats).
+function offerBinding() {
+  const mapId=/^\/map-maker\/([a-f\d]{24})\/?$/i.exec(location.pathname)?.[1],unbound=packs.filter(item=>!item.practiceMapId);
+  if(!mapId||!unbound.length)return false;
+  if(!owned.has(mapId))owned.set(mapId,request(`/api/v4/user-maps/drafts/${mapId}`).then(draft=>typeof draft?.name==='string'&&draft.name.startsWith('Fieldwork'),()=>false).then(ok=>{owned.set(mapId,ok);render()}));
+  const ok=owned.get(mapId);
+  if(ok===false)return false;
+  if(ok===true&&mounted!=='bind:'+mapId){bindPanel(unbound,{onBind:id=>{store.bind(id,mapId);remove();render()}});mounted='bind:'+mapId}
+  return true;
+}
 const remove=()=>{document.getElementById('fieldwork-practice')?.remove();mounted=''};
 // GeoGuessr mutates the DOM continuously; reconcile at most once per frame instead of once per mutation batch.
 let renderQueued=false;
@@ -103,7 +114,7 @@ function render() {
     if(mounted)remove();return;
   }
   const selected=packForPage(packs,location.pathname,state);
-  if(!selected){if(mounted||loading)remove();loading='';return;}
+  if(!selected){if(offerBinding())return;if(mounted||loading)remove();loading='';return;}
   const wanted=contextFor(selected);
   if(context!==wanted){
     if(loading===wanted)return;
@@ -125,7 +136,7 @@ function render() {
   if(mapPage){
     if(startPreparedGame()){if(mounted!=='launch'){loadingPanel(pack,{message:'Starting your next set…'});mounted='launch'}return}
     if(mounted==='start')return;
-    startPanel(pack,{onNext:prepare,attempts:history(),getAttempts:history,packs,onChoosePack:id=>go(`/maps/${packs.find(item=>item.id===id).practiceMapId}`),
+    startPanel(pack,{onNext:prepare,attempts:history(),getAttempts:history,packs:packs.filter(item=>item.practiceMapId),onChoosePack:id=>go(`/maps/${packs.find(item=>item.id===id).practiceMapId}`),
       onExport:()=>download({packId:pack.id,attempts:history(),exposures:exposures(),previousDraft:GM_getValue(key('previous-draft'),null),pendingBackup:GM_getValue(key('pending-backup'),null)},`fieldwork-progress-${pack.id}.json`),
       onImport:importPack,onCoverage:async()=>download(await store.audit(pack.id),`fieldwork-sources-${pack.id}.json`),
     });mounted='start';return;

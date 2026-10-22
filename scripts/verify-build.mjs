@@ -13,4 +13,8 @@ for(const entry of catalog.packs){
   assert.ok(pack.skills.every(skill=>!skill.sourceNoteHtml));
   for(const local of configured)assert.ok(!body.includes(local.practiceMapId),'A personal practice-map binding leaked into hosted content.');
 }
-console.log(`Verified ${Buffer.byteLength(script).toLocaleString()}-byte engine and ${catalog.packs.length} separate public packs.`);
+const publicScript=await readFile('dist/content-host/fieldwork.user.js','utf8');
+assert.ok(Buffer.byteLength(publicScript)<100000,'The public userscript must not embed content packs.');
+assert.match(publicScript,/@updateURL\s+https:\/\/sethmorton\.github\.io\/fieldwork\/fieldwork\.user\.js/);
+for(const local of configured)assert.ok(!publicScript.includes(local.practiceMapId)&&!publicScript.includes(local.locations[0]?.panoId),'Personal bindings or panoramas leaked into the public userscript.');
+console.log(`Verified ${Buffer.byteLength(script).toLocaleString()}-byte engine, ${Buffer.byteLength(publicScript).toLocaleString()}-byte public engine and ${catalog.packs.length} separate public packs.`);
