@@ -59,9 +59,29 @@ installation or successful live publication based on a build passing.
   and enforce the configured country cap during selection and publication.
 - Five distinct pedagogic families per set; rest previous-set targets when
   alternatives exist. A miss must not cause every-set repetition.
+- Curriculum introductions use `skill.curriculum.scope` then `rank`; absent metadata
+  is an unranked country foundation, never hidden. Preserve source provenance separately.
+- Readiness is not mastery: 17/20 recent successes across eight skills (or all if fewer),
+  plus 4/5 latest, opens the next supplied scope. Country foundations also require
+  40 distinct practised skills (or all if fewer). Assignment without feedback does not count.
+  Practice/assumptions can guide readiness. Teaching examples stay `assessmentEligible:false`.
+  Explicit misses override assumptions.
+- Worldwide regional/specialist introductions need country-specific foundation practice:
+  at least three outcomes, 80% of the latest five successful, and the latest successful.
+  Countries with no foundation lessons wait for 80% total foundation coverage.
+  Already introduced clues remain available for review. Country-only packs start at their
+  lowest supplied scope, without an absent country-identification gate.
+- New-clue budgets are 1/2/3 below 70% / below 85% / at least 85% recent success
+  (two with no feedback). Normally at most one target per advanced scope per set.
+  Prioritize weak/due review, including practice older than a day. Cold start/rest/diversity
+  can require extra introductions; sparse pools may relax scope, never family/country caps.
+- Prerequisites can use three latest successful practice attempts, not only mastery.
+  Reject cycles, missing IDs and active prerequisites without playable/orientation evidence.
 - No pre-guess hints or upcoming target names. Correct geography alone is
   not recognition evidence. Assumed-on-advance feedback is practice, never
   verified mastery; explicit misses win and old rounds are not backfilled.
+- Keep the post-round selection label to one plain line. Show curriculum counts and
+  readiness only on the start panel, not alongside every revealed clue.
 - In country-only regionguessing, exclude country-identification clues.
 - Import actual panoramas from permitted sources, retaining attribution.
   Check native Map Maker Export JSON first; never invent coordinates.

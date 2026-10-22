@@ -74,13 +74,58 @@ The static installer binds only to loopback. Public content requests are
 anonymous; practice still uses the signed-in GeoGuessr page for map publication.
 No local progress or GeoGuessr credentials are sent to the content host.
 
-## Practice behavior (unchanged)
+## Practice behavior
 
-The selector ranks available, location-backed skills by errors, due review,
-source-informed importance, coverage and recent exposure. Previous-set targets
-rank behind alternatives; each chosen family contributes one actual panorama.
-Unseen panoramas and regional variety are preferred. Small pools can relax the
-cross-set rest, but never the five-distinct-family publication guard.
+Skills may supply `curriculum.scope` (country-identification, within-country-regional,
+specialist) and integer `rank`. Introductions follow rank within scope, subject to
+five distinct families, country caps and previous-set rest; unannotated skills are
+unranked country foundations. Provenance is audit metadata, not a selection signal.
+A regional-only pack starts at its lowest supplied scope rather than waiting for
+absent country foundations.
+
+Introduction readiness is separate from mastery. The latest 20 outcomes in a scope
+must include 17 successes, 4/5 latest successes and eight distinct skills (or all
+playable skills when fewer) before the next scope opens. Both correct geography and
+recognition are required unless the skill explicitly measures recognition only.
+Assumed-on-advance practice can contribute, but explicit corrections replace it;
+unknown answers are not successes. Readiness is recomputed, so struggling again
+pauses advanced introductions without hiding already introduced review material.
+Country foundations additionally require **40 distinct practised skills**, or all
+playable foundations if fewer. Only skills with recorded outcomes count toward
+coverage, not merely assigned panoramas. Forty is a product heuristic, not a
+research-derived optimum. It allows several mixed sessions of country practice
+before a strong learner sees regional details, without requiring all 275 foundations.
+
+Worldwide advanced introductions also require practice of the specific country:
+at least three foundation outcomes, 80% success over the latest five available
+outcomes, and a successful latest outcome. Country identity comes from existing
+location tags, not guessed title parsing. Countries with no foundation lessons wait
+for 80% total foundation coverage. This is a late-content fallback for missing
+lessons, not evidence that the country was learned. Existing advanced review remains
+available. Sparse-pool fallback can relax these gates only after open material is
+exhausted. Regional-only packs do not acquire an unreachable country gate.
+
+New-target budgets are three at ≥85% recent success, two at 70–84% or without
+feedback, and one below 70%, over the latest 20 outcomes. At most one target from
+each advanced scope normally appears per set; an advanced weak/due review takes
+its introduction slot. Errors, verified due review and practice older than a day
+lead review selection. Unseen panoramas and regional variety remain preferred.
+Cold starts and diversity/rest constraints can require more new clues. Small pools
+relax curriculum limits only after exhausting open material; they never relax
+family/country/publication guards. Prerequisites accept three latest successful
+practice attempts as well as the existing strict statuses; validation rejects
+cycles, missing IDs and active dependencies without playable or orientation evidence.
+
+Post-guess cards show one short selection label: "New clue", "Review: you missed
+this last time", or "Review". Practice counts and readiness appear only on the
+start panel. No target names or clues appear before the guess.
+These parameters are heuristics: [spacing experiments](https://pubmed.ncbi.nlm.nih.gov/19076480/)
+support revisiting, [category experiments](https://pubmed.ncbi.nlm.nih.gov/18578849/)
+support interleaving, and [retrieval experiments](https://pubmed.ncbi.nlm.nih.gov/20804289/)
+support guessing before feedback. The [85% model](https://www.nature.com/articles/s41467-019-12552-4)
+is not a validated GeoGuessr threshold. [Worked-example findings](https://www.jstor.org/stable/3233555)
+motivate concise source explanations; [ADHD classroom guidance](https://www.cdc.gov/adhd/treatment/classroom.html)
+motivates clear short tasks and breaks, not a clinical prescription for adults.
 
 Publication backs up the dedicated map's draft before replacing and publishing
 five coordinates. It rejects source-map IDs, fabricated positions, duplicate

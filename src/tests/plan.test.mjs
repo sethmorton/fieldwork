@@ -27,3 +27,23 @@ test('another country uses the same pack validator and selector without Australi
 });
 
 test('too few clue families fail before a repeated-clue map can be produced',()=>{const p=makePack();p.skills.forEach(s=>s.practiceFamily='same');assert.throws(()=>makeNextSet(p,[]),/only 1/)});
+
+test('malformed curricula and unreachable active prerequisites reject, but teaching evidence is sufficient',()=>{
+ for(const curriculum of [null,{scope:'unknown',rank:1},{scope:'specialist',rank:1.5}]){
+  const p=makePack();p.skills[0].curriculum=curriculum;assert.throws(()=>validatePack(p),/curriculum/);
+ }
+ for(const alter of [p=>p.skills[1].availability='needs-verification',
+   p=>p.locations=p.locations.filter(l=>l.skillIds[0]!=='B'),
+   p=>p.pools[0].skillIds=p.pools[0].skillIds.filter(id=>id!=='B'),
+   p=>p.skills[0].prerequisites=['missing']]){
+  const p=makePack();p.skills[0].prerequisites=['B'];alter(p);assert.throws(()=>validatePack(p),/prerequisite/i);
+ }
+ const p=makePack();p.skills[0].prerequisites=['B'];p.locations.forEach(l=>l.assessmentEligible=false);
+ assert.doesNotThrow(()=>validatePack(p));
+});
+test('curriculum selection preserves native panorama pitch and zoom',()=>{
+ const p=makePack();p.skills.forEach((s,rank)=>s.curriculum={scope:'country-identification',rank});
+ p.locations.forEach(l=>Object.assign(l,{pitch:-12,zoom:2,heading:123}));
+ const set=makeNextSet(p,[]);
+ assert.ok(set.mapMaking.customCoordinates.every(l=>l.pitch===-12&&l.zoom===2&&l.heading===123));
+});

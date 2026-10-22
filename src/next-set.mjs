@@ -19,6 +19,9 @@ export function validatePack(pack) {
     if (skill.availability !== undefined && !['available','needs-locations','needs-verification','needs-contrasts'].includes(skill.availability)) throw new Error('Unknown skill availability; unresolved content cannot become active by default.');
     if ((skill.practiceFamily !== undefined && (typeof skill.practiceFamily!=='string'||!skill.practiceFamily.trim()))
       || (skill.importance !== undefined && !Number.isFinite(skill.importance))) throw new Error('Invalid clue family or importance.');
+    if (skill.curriculum !== undefined && (!skill.curriculum
+      || !['country-identification','within-country-regional','specialist'].includes(skill.curriculum.scope)
+      || !Number.isSafeInteger(skill.curriculum.rank))) throw new Error('Invalid curriculum scope or rank.');
   }
   const visit = (id, seen = new Set()) => {
     if(seen.has(id)) throw new Error('Prerequisites contain a cycle.');
@@ -37,6 +40,16 @@ export function validatePack(pack) {
     if(typeof pool.id !== 'string' || !Array.isArray(pool.skillIds) || pool.skillIds.some(id=>!skills.has(id))
       || !/^https:\/\/www\.geoguessr\.com\/maps\/[a-f\d]{24}$/i.test(pool.mapUrl)
       || (pool.locationIds && (!Array.isArray(pool.locationIds) || pool.locationIds.some(id=>!locations.has(id))))) throw new Error('Invalid practice pool.');
+  }
+  for (const skill of pack.skills.filter(skill=>!skill.availability||skill.availability==='available')) {
+    for (const id of skill.prerequisites) {
+      const prerequisite=pack.skills.find(item=>item.id===id);
+      if ((prerequisite.availability&&prerequisite.availability!=='available')
+        || (prerequisite.kind!=='orientation'&&!pack.locations.some(location=>location.skillIds[0]===id
+          && pack.pools.some(pool=>pool.skillIds.includes(id)&&(pool.locationIds?pool.locationIds.includes(location.id)
+            :!location.sourceMapId||location.sourceMapId===pool.id||pool.mapUrl.endsWith('/'+location.sourceMapId))))))
+        throw new Error('An active prerequisite needs playable practice evidence or source-recall orientation.');
+    }
   }
   return pack;
 }

@@ -1,5 +1,15 @@
 import {regionAt} from './geo.mjs';
 
+/** Only render this after a completed guess; never disclose an upcoming target. */
+export function practiceFeedback(history,round,now=Date.now()) {
+  const nowMs=new Date(now).getTime();
+  const prior=history.filter(attempt=>attempt.skillId===round.location.skillIds[0]&&attempt.id!==round.id
+    && Date.parse(attempt.occurredAt)<=nowMs).sort((a,b)=>Date.parse(a.occurredAt)-Date.parse(b.occurredAt));
+  const latest=prior.at(-1);
+  return !latest?'New clue'
+    :latest.correct===false||latest.evidenceValid===false?'Review: you missed this last time':'Review';
+}
+
 export function completedRound(pack,state) {
   if(!state || state.map?.id!==pack.practiceMapId || state.round_in_progress!==false
     || !Number.isInteger(state.current_round) || state.current_round<1 || !state.current_game_id) return null;

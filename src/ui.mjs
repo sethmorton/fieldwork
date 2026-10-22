@@ -1,5 +1,6 @@
-import {skillStatus} from './lib/mastery.ts';
 import {renderProgressTree} from './progress.mjs';
+import {practiceFeedback} from './session.mjs';
+import {curriculumProgress} from './lib/adaptive.ts';
 // Compact post-guess UI. Source HTML is converted to text, never executed.
 export function panel() {
   document.getElementById('fieldwork-practice')?.remove();
@@ -22,7 +23,6 @@ export function panel() {
 }
 const text=(parent,tag,content,cls)=>{const node=document.createElement(tag);node.textContent=content;if(cls)node.className=cls;parent.append(node);return node};
 const button=(parent,label,handler,cls)=>{const node=text(parent,'button',label,cls);node.type='button';node.onclick=handler;return node};
-const progressText=(progress,records=[])=>`${progress.state==='mastered'?'Mastered on explicit checks':progress.state==='new'?'New clue':'Learning'} · ${records.length} ${records.length===1?'review':'reviews'} · ${records.filter(item=>item.feedbackSource==='assumed-on-advance').length} assumed`;
 function header(section,label) {const head=document.createElement('header');section.append(head);text(head,'small',label);const close=button(head,'×',()=>section.getRootNode().host.remove(),'close');close.setAttribute('aria-label','Close practice panel');}
 function treeDetails(section,pack,getAttempts,title){
   const details=document.createElement('details');text(details,'summary',title);const tree=document.createElement('div');details.append(tree);section.append(details);
@@ -55,9 +55,8 @@ export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],g
     loadNote(currentSkill).then(skill=>{if(!source.isConnected)return;source.replaceChildren();clue(source,skill,pack.notesSourceUrl)}).catch(()=>{status.textContent='Explanation unavailable. Use the original source link; your feedback still saves.'});
   }
   if(round.location.assessmentEligible===false)text(section,'p','Teaching example · practice credit only.','muted');
-  const progress=skillStatus(round.location.skillIds[0],attempts);
   const skill=pack.skills.find(skill=>skill.id===round.location.skillIds[0]);
-  const progressLine=text(section,'p',progressText(progress,attempts.filter(item=>item.skillId===skill.id)),'muted');
+  text(section,'p',practiceFeedback(attempts,round),'muted');
   text(section,'p','Moving on saves “spotted it.” Tap “Missed it” if you didn’t.','muted');
   if(skill.recognitionOnly)text(section,'p','Feature recognition practice. Your region guess is tracked separately.','muted');
   const label=document.createElement('label');const seen=document.createElement('input');seen.type='checkbox';seen.checked=familiar;label.append(seen,document.createTextNode('I had seen this panorama before'));section.append(label);
@@ -66,10 +65,10 @@ export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],g
   if(result===null&&!skill.recognitionOnly){text(section,'p','Was your guess in the right region?','muted');const choices=document.createElement('div');choices.className='actions';section.append(choices);for(const [title,value] of [['Yes',true],['No',false]])button(choices,title,()=>{result=value;onChange({familiar:seen.checked,correct:result});for(const child of choices.children)child.classList.remove('primary');choices.children[value?0:1].classList.add('primary');});}
   const status=text(section,'p',saved?'Saved on this device.':'','muted');status.setAttribute('role','status');
   const actions=document.createElement('div');actions.className='actions';section.append(actions);
-  const save=recognized=>{try{const updated=onSave({recognized,familiar:seen.checked,correct:result});if(Array.isArray(updated))progressLine.textContent=progressText(skillStatus(skill.id,updated),updated.filter(item=>item.skillId===skill.id));tree.refresh();for(const child of actions.children)child.disabled=true;status.textContent='Saved on this device.';}catch(error){status.textContent=error.message}};
+  const save=recognized=>{try{onSave({recognized,familiar:seen.checked,correct:result});tree.refresh();for(const child of actions.children)child.disabled=true;status.textContent='Saved on this device.';}catch(error){status.textContent=error.message}};
   button(actions,'Missed it',()=>save(false),'primary');button(actions,'Confirm spotted it',()=>save(true));
   for(const child of actions.children)child.disabled=saved;
-  if(round.round===5){const next=button(section,'Continue practice',async()=>{next.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){const updated=getAttempts();progressLine.textContent=progressText(skillStatus(skill.id,updated),updated.filter(item=>item.skillId===skill.id));status.textContent=error.message;next.disabled=false}},'primary');next.style.marginTop='12px';}
+  if(round.round===5){const next=button(section,'Continue practice',async()=>{next.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=error.message;next.disabled=false}},'primary');next.style.marginTop='12px';}
   const tree=treeDetails(section,pack,getAttempts,'Your progress tree');
 }
 function packImport(parent,onImport,status){
@@ -88,7 +87,8 @@ export function bindPanel(packs,{onBind}){
 export function startPanel(pack,{onNext,onExport,onImport,onCoverage,attempts=[],getAttempts=()=>attempts,packs=[],onChoosePack}) {
   const {section}=panel();header(section,'Fieldwork · practice');text(section,'h2',pack.title);
   if(packs.length>1){const label=text(section,'label','Practice pack');const choose=document.createElement('select');choose.setAttribute('aria-label','Practice pack');for(const item of packs){const option=text(choose,'option',item.title);option.value=item.id;option.selected=item.id===pack.id;}choose.onchange=()=>onChoosePack(choose.value);label.append(choose);}
-  const status=text(section,'p',`${pack.answerAreaLabel??pack.title}. Up to three new targets plus review. Five different clue families.`,'muted');status.setAttribute('role','status');
+  text(section,'p',curriculumProgress(pack,attempts).message,'muted');
+  const status=text(section,'p',`${pack.answerAreaLabel??pack.title}. Five different clue families; new clues adapt to recent practice.`,'muted');status.setAttribute('role','status');
   button(section,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=error.message;this.disabled=false}},'primary');
   const {details}=treeDetails(section,pack,getAttempts,'Content & progress');
   if(pack.coverageSummary){const coverage=document.createElement('details');text(coverage,'summary','Source coverage');text(coverage,'p',pack.coverageSummary,'muted');details.append(coverage);}

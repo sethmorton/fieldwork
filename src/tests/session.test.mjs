@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet} from '../session.mjs';
+import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,practiceFeedback} from '../session.mjs';
 import {skillStatus} from '../lib/mastery.ts';
+import {curriculumProgress} from '../lib/adaptive.ts';
 const mapId='0123456789abcdef01234567';
 const pack={id:'any-country',practiceMapId:mapId,skills:[{id:'clue'},...[1,2,3,4].map(i=>({id:'clue'+i}))],pools:[],locations:Array.from({length:5},(_,i)=>({id:`pano:${i}`,panoId:String(i),lat:i,lng:i,skillIds:[i?'clue'+i:'clue'],region:'Test region'})),regionFeatures:[{properties:{name:'Test region'},geometry:{type:'Polygon',coordinates:[[[-10,-10],[10,-10],[10,10],[-10,10],[-10,-10]]]}}]};
 const state={map:{id:mapId},current_game_id:'game-id',round_in_progress:false,current_round:1,rounds:[{location:{panoId:'0'},player_guess:{lat:1,lng:1}}]};
@@ -99,4 +100,31 @@ test('worldwide publication enforces country diversity before making account req
  const set={mapMaking:{customCoordinates:worldwide.locations}};let requests=0;
  await assert.rejects(()=>publishPracticeSet(worldwide,set,async()=>{requests++;},()=>{}),/varied set of known countries/);
  assert.equal(requests,0);
+});
+
+test('post-round feedback distinguishes new, weak and review without claiming practice mastery',()=>{
+ const round=completedRound(pack,state),now=new Date('2026-10-21T12:00:00Z');
+ assert.equal(practiceFeedback([],round,now),'New clue');
+ const previous={...round,id:'previous-round'};
+ const missed=recordRecognition(pack,[],previous,{recognized:false},now);
+ assert.equal(practiceFeedback(missed,round,now),'Review: you missed this last time');
+ const spotted=recordRecognition(pack,[],previous,{recognized:true,assumed:true},now);
+ assert.equal(practiceFeedback(spotted,round,now),'Review');
+});
+test('assumed teaching practice unlocks introductions, but explicit corrections remove false readiness',()=>{
+ const now=new Date('2026-10-21T12:00:00Z');
+ const p={...pack,skills:[...pack.skills.map(s=>({...s,curriculum:{scope:'country-identification',rank:0}})),
+  {id:'regional',curriculum:{scope:'within-country-regional',rank:0}}],
+  locations:[...pack.locations,{...pack.locations[0],id:'regional-location',skillIds:['regional']}]};
+ let records=[];
+ for(let i=0;i<20;i++){
+  const round={id:'practice-'+i,correct:true,location:{...pack.locations[i%5],assessmentEligible:false}};
+  records=recordRecognition(p,records,round,{recognized:true,assumed:true},now);
+ }
+ assert.match(curriculumProgress(p,records,now).message,/Regional clues are open/);
+ for(let i=16;i<20;i++)records=recordRecognition(p,records,
+  {id:'practice-'+i,correct:true,location:{...pack.locations[i%5],assessmentEligible:false}},{recognized:false},now);
+ assert.doesNotMatch(curriculumProgress(p,records,now).message,/are open/);
+ assert.equal(records.length,20);assert.ok(records.every(a=>a.mode==='practice'));
+ assert.equal(skillStatus('clue',records,now).eligibleCount,0);
 });
