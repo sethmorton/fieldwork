@@ -76,6 +76,18 @@ test('not-yet-due reviews are skipped while due ones fill the set, and used only
  assert.equal(rested.locationIds.length,5);assert.ok(['F','G','H'].every(id=>rested.focusSkills.some(s=>s.id===id)));
 });
 
+test('due reviews come first; new clues only take the slots they leave, and the 1-3 budget applies when none are due',()=>{
+ const old=['A','B','C','D','E','F'],p=makePack([...old,'N1','N2','N3','N4','N5'].map(id=>skill(id)));
+ const now=start+40*DAY,graduate=(id,at)=>[outcome(id,at),outcome(id,at+15*60000,true,1)];
+ const newCount=records=>planPractice(p,records,{now}).newSkillIds.length;
+ // Six due reviews fill the set (budget would be three new at 100% recent success).
+ assert.equal(newCount(old.flatMap((id,i)=>graduate(id,start+i*DAY))),0);
+ // Three due reviews leave two slots.
+ assert.equal(newCount(old.flatMap((id,i)=>graduate(id,i<3?start+i*DAY:now-DAY))),2);
+ // Nothing due: the usual budget (three) applies and not-yet-due reviews fill the rest.
+ assert.equal(newCount(old.flatMap(id=>graduate(id,now-DAY))),3);
+});
+
 test('a due success is not starved by clues missed every session',()=>{
  // Ten clues missed every time they appear and one clue G answered correctly once; one five-round set a day, previous set resting.
  const ids=[...Array.from({length:10},(_,i)=>'M'+i),'G'],p=makePack(ids.map(id=>skill(id)));
@@ -92,6 +104,28 @@ test('a due success is not starved by clues missed every session',()=>{
   previous=plan.locationIds;seen.push(...previous);
  }
  assert.ok(picked>=4);assert.ok(lowest>0.85,`G retrievability fell to ${lowest}`);
+});
+
+test('a due specialist success is not starved by specialist misses holding the advanced-scope slot',()=>{
+ // Regional-first pack: 10 regional + 11 specialist clues, each its own family/country/panorama. Twenty regional successes
+ // open specialists; 10 specialist misses keep failing, G succeeded once. One five-round set a day, previous set resting.
+ const regional=Array.from({length:10},(_,i)=>'R'+i),misses=Array.from({length:10},(_,i)=>'M'+i);
+ const p=makePack([...regional,...misses,'G'].map(id=>({...skill(id),curriculum:{scope:id[0]==='R'?'within-country-regional':'specialist',rank:0}})));
+ const records=[...regional,...regional].map((id,i)=>outcome(id,start-DAY+i*60000,true,i));
+ records.push(...misses.map(id=>outcome(id,start,false)),outcome('G',start));
+ let previous=[],seen=[],waited=0,picked=0;
+ for(let day=1;day<=60;day++){
+  const now=start+day*DAY,g=skillStatus('G',records,now),plan=planPractice(p,records,{now,seenLocationRefs:seen,previousSetLocationRefs:previous});
+  assert.equal(plan.locationIds.length,5);
+  assert.ok(plan.focusSkills.filter(s=>s.curriculum.scope==='specialist').length<=1);
+  const hasG=plan.focusSkills.some(s=>s.id==='G');
+  // The ten day-0 misses fell due before G; after they each take a turn G must be next.
+  if(g.due){waited=hasG?0:waited+1;assert.ok(waited<=11,`G waited ${waited} sets while due`);}
+  picked+=hasG;
+  plan.focusSkills.forEach((s,i)=>records.push(outcome(s.id,now+i*60000,!s.id.startsWith('M'),day)));
+  previous=plan.locationIds;seen.push(...previous);
+ }
+ assert.ok(picked>=2,`G selected ${picked} times`); // Days 11 and 47 here; never while the scope reservation ran first.
 });
 
 test('the country limit repairs earlier picks instead of returning a short set',()=>{

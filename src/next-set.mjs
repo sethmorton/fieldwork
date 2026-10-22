@@ -11,6 +11,7 @@ export function validatePack(pack) {
     || !Array.isArray(pack.skills) || !pack.skills.length || !Array.isArray(pack.pools) || !Array.isArray(pack.locations))
     throw new Error('A pack needs id, title, subject, skills, pools and real tagged locations.');
   if(pack.maxLocationsPerCountry!==undefined&&(!Number.isInteger(pack.maxLocationsPerCountry)||pack.maxLocationsPerCountry<1))throw Error('Country limit must be a positive integer.');
+  if(pack.gradingPolicy!==undefined&&pack.gradingPolicy!=='recognition')throw Error('Unknown grading policy.');
   const skills = new Set(pack.skills.map(skill => skill.id));
   if (skills.size !== pack.skills.length) throw new Error('Skill IDs must be unique.');
   for (const skill of pack.skills) {

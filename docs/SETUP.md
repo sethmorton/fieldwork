@@ -102,7 +102,9 @@ Vali-generated regional candidates, every view checked by a small vision
 model). It embeds full Plonk It text (CC BY-NC-SA 4.0, attributed on every
 card), so it is a local custom pack and never goes into public `content/`.
 Regional and specialist clues practise first; country-identification clues
-are left out except European utility-pole clues.
+are left out except European utility-pole clues. The pack sets
+`"gradingPolicy": "recognition"`: reviews follow spotted/missed, and a wrong
+country guess is recorded but does not turn a spotted clue into a miss.
 
 ```sh
 npm run setup -- --map YOUR_WORLD_MAP_ID --pack local/world-pack.json --add

@@ -107,9 +107,11 @@ available. Sparse-pool fallback can relax these gates only after open material i
 exhausted. Regional-only packs do not acquire an unreachable country gate.
 
 New-target budgets are three at ≥85% recent success, two at 70–84% or without
-feedback, and one below 70%, over the latest 20 outcomes. At most one target from
-each advanced scope normally appears per set; an advanced weak/due review takes
-its introduction slot. Unseen panoramas and regional variety remain preferred.
+feedback, and one below 70%, over the latest 20 outcomes. Reviews come first, as in
+standard spaced repetition: new clues only take slots that placeable due reviews
+leave, so a set with five due reviews introduces nothing and a set with nothing due
+gets the full budget. At most one target from each advanced scope normally appears
+per set, review or introduction. Unseen panoramas and regional variety remain preferred.
 Cold starts and diversity/rest constraints can require more new clues. Small pools
 relax curriculum limits only after exhausting open material; they never relax
 family/country/publication guards. Prerequisites accept three latest successful
@@ -124,18 +126,22 @@ recomputed by replaying its attempts in time order; nothing is stored or migrate
 Each graded attempt is one review, whether explicit or assumed on advance: a
 recognition miss or a wrong answer is Again, a correct answer with recognition is
 Good. An unknown answer (no region result, nothing failed) is no review at all.
-On maps scored only by country (region equals country), a regional or
-specialist clue with no country result is judged by "spotted it"/"missed it"
-alone, as recognition-only clues always are; a known wrong country is still Again.
+A pack with `"gradingPolicy": "recognition"` (the only accepted value; validated)
+grades every clue as recognition-only clues always are: "spotted it" is Good and
+"missed it" is Again whatever the country result, which is still recorded as
+`regionCorrect`. Packs without the field are unchanged: on maps scored only by
+country (region equals country), a regional or specialist clue with no country
+result is judged by spotted/missed alone, and a known wrong country is still Again.
 A new clue becomes due about ten minutes after its first success, then 2, 11,
 46, 163 days later when reviewed on time; a miss becomes due within ten minutes.
-Due is a priority, not a promise of the next set. Within each set: the previous
-set rests, family/country/panorama caps and the one-target-per-advanced-scope
-rule hold, and the scope reservation runs first. Then one slot goes to the
-longest-overdue due clue (bounded waiting: misses cannot starve a due success),
-other due clues follow (misses first, then lowest retrievability), and new clues
-keep their budget. Not-yet-due clues only fill a set that would otherwise be
-short. When the country limit blocks a pick, earlier picks move to their other
+Due is a priority, not a promise of the next set. Within each set the previous set
+rests and family/country/panorama caps and the one-target-per-advanced-scope rule
+hold. The longest-overdue due clue is placed first and counts toward its scope's
+quota (bounded waiting: misses cannot starve a due success, in any scope). Then one
+due clue per open advanced scope, then the other due clues (misses first, then
+lowest retrievability), then new clues in the slots left (one reserved per open
+advanced scope within the budget). Not-yet-due clues only fill a set that would
+otherwise be short. When the country limit blocks a pick, earlier picks move to their other
 panoramas before the set is declared short; a short set says whether content is
 missing or no valid combination was found. The progress tree's amber "review
 due" ring uses the same due date. Mastery evidence rules are unchanged.

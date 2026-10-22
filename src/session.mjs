@@ -26,9 +26,11 @@ export function completedRound(pack,state) {
 export function recordRecognition(pack,history,round,{recognized,familiar=false,correct=round.correct,assumed=false},now=new Date()) {
   const skill=pack.skills.find(skill=>skill.id===round.location.skillIds[0]);
   if(!skill) throw Error('Unknown clue.');
-  // A map scored only by country cannot judge a regional/specialist clue; with no country result, spotted/missed decides it.
+  // gradingPolicy 'recognition' (and recognition-only clues): spotted = Good, missed = Again; the geographic result is kept as regionCorrect.
+  const byRecognition=skill.recognitionOnly||pack.gradingPolicy==='recognition';
+  // Legacy packs: a map scored only by country cannot judge a regional/specialist clue; with no country result, spotted/missed decides it.
   // Elsewhere an unknown region result stays unknown: practice, but no scheduler review.
-  const recognitionDecides=skill.recognitionOnly||(typeof correct!=='boolean'&&!!round.location.country&&round.location.region===round.location.country
+  const recognitionDecides=byRecognition||(typeof correct!=='boolean'&&!!round.location.country&&round.location.region===round.location.country
     &&(skill.curriculum?.scope??'country-identification')!=='country-identification');
   if(typeof recognized!=='boolean' || (!assumed&&!recognitionDecides&&recognized&&typeof correct!=='boolean')) throw Error('Confirm clue recognition and the region result.');
   const prior=history.find(attempt=>attempt.id===round.id);

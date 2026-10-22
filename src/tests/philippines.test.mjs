@@ -34,7 +34,8 @@ test('Philippines starts with regional fundamentals and keeps successive sets va
   if(step===0)assert.ok(skills.every(s=>s.importance>=75),'Start with regional fundamentals, not rare microvariants.');
   previous=set.selectedLocations.map(l=>l.id);seen.push(...previous);
   for(const [i,l]of set.selectedLocations.entries()){
-   covered.add(l.skillIds[0]);records.push({id:`synthetic-${step}-${i}`,skillId:l.skillIds[0],occurredAt:`2026-10-20T11:${String(step).padStart(2,'0')}:00Z`,correct:i!==0,evidenceValid:i!==0,confidence:2,unfamiliar:true,locationRef:l.id,mode:'practice',feedbackSource:'assumed-on-advance'});
+   // Sets played a minute apart just before now: only the misses are already due, so new targets keep rotating in.
+   covered.add(l.skillIds[0]);records.push({id:`synthetic-${step}-${i}`,skillId:l.skillIds[0],occurredAt:`2026-10-20T11:5${step}:30Z`,correct:i!==0,evidenceValid:i!==0,confidence:2,unfamiliar:true,locationRef:l.id,mode:'practice',feedbackSource:'assumed-on-advance'});
   }
  }
  assert.ok(covered.size>=18,`Only ${covered.size} targets across eight sets.`);

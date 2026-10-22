@@ -288,22 +288,24 @@ export function planPractice(
     selected.push(location); focusSkills.push(skill); options.push(eligible);
     usedFamilies.add(family(skill)); usedPanoramas.add(location.panoId ?? location.id);
   }};
-  // Reserve one target per advanced scope; a weak/due review takes its introduction slot.
-  for (let level = progression.base + 1; level <= progression.open; level++) {
-    const needsReview = ranked.filter(skill => scopeIndex(skill) === level && !isNew(skill)
-      && !restingTargets.has(skill.id) && urgency(skill) > 0);
-    addTargets([...needsReview, ...introductions.filter(skill => scopeIndex(skill) === level)],
-      Math.min(selected.length + 1, progression.newLimit, limit));
-  }
-  // Bounded waiting: one slot always goes to the longest-overdue due review, so misses lead but cannot starve the rest.
   const dueReviews = ranked.filter(skill => !isNew(skill) && !restingTargets.has(skill.id) && urgency(skill) > 0);
+  // Bounded waiting: the longest-overdue due review is placed first and counts toward its scope's one-per-set quota,
+  // so misses lead the rest but cannot starve it.
   addTargets([...dueReviews].sort((a, b) => Date.parse(statuses.get(a.id)!.reviewDueAt!) - Date.parse(statuses.get(b.id)!.reviewDueAt!)),
     Math.min(selected.length + 1, limit));
-  // Reserve review slots before a new clue can consume a weak/due clue's family.
-  addTargets(dueReviews, Math.max(selected.length, limit - progression.newLimit));
-  addTargets(introductions.filter(skill => !restingTargets.has(skill.id)),
-    Math.min(selected.length + progression.newLimit - focusSkills.filter(isNew).length, limit));
-  // Remaining due reviews, then not-yet-due reviews (most forgotten first) only when the set is still short.
+  // One due review per open advanced scope, then every other due review (misses first, then lowest retrievability).
+  for (let level = progression.base + 1; level <= progression.open; level++) {
+    addTargets(dueReviews.filter(skill => scopeIndex(skill) === level), Math.min(selected.length + 1, limit));
+  }
+  addTargets(dueReviews, limit);
+  // Reviews first: new clues only take slots due reviews did not need; with nothing due the 1-3 budget applies.
+  const newEnd = Math.min(selected.length + progression.newLimit, limit);
+  // Reserve one introduction per open advanced scope within that budget.
+  for (let level = progression.base + 1; level <= progression.open; level++) {
+    addTargets(introductions.filter(skill => scopeIndex(skill) === level), Math.min(selected.length + 1, newEnd));
+  }
+  addTargets(introductions.filter(skill => !restingTargets.has(skill.id)), newEnd);
+  // Not-yet-due reviews (most forgotten first) only when the set is still short.
   addTargets(ranked.filter(skill => !isNew(skill) && !restingTargets.has(skill.id)), limit);
   // Five families and previous-set rest outrank the new-item budget during cold start/replenishment.
   addTargets(introductions.filter(skill => !restingTargets.has(skill.id)), limit);
@@ -314,7 +316,7 @@ export function planPractice(
   // GeoGuessr chooses its own round order; do not publish a syllabus-ordered coordinate list.
   selected.sort((a, b) => hash(':order:' + a.id) - hash(':order:' + b.id));
   const reasons = [progression.message,
-    `Aim for ${progression.newLimit} new clues and the rest review; cold starts and family/country constraints can require more.`,
+    `Due reviews first; up to ${progression.newLimit} new clues fill the rest. Cold starts and family/country constraints can require more.`,
     'Targets from the previous set rest for one set when enough other location-backed families are available, including after a miss.',
     `${selected.length} distinct clue families selected; ${selected.filter(location => !aliases(location).some(key => observed.has(key))).length} unseen panoramas.`,
     'Assumed recognition can guide practice, but does not establish verified mastery.'];

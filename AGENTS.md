@@ -72,11 +72,15 @@ installation or successful live publication based on a build passing.
   Already introduced clues remain available for review. Country-only packs start at their
   lowest supplied scope, without an absent country-identification gate.
 - New-clue budgets are 1/2/3 below 70% / below 85% / at least 85% recent success
-  (two with no feedback). Normally at most one target per advanced scope per set.
+  (two with no feedback), and only fill slots placeable due reviews leave (reviews first).
+  Normally at most one target per advanced scope per set, review or introduction.
   Review is scheduled by FSRS-6 (`src/lib/fsrs.ts`, ts-fsrs defaults) replayed from attempts: passed = Good,
   recognition miss or wrong answer = Again, unknown answer = no review; never store scheduler state.
-  One slot goes to the longest-overdue due review (no starvation), then due reviews, misses first, then lowest
-  retrievability; not-yet-due reviews only fill an otherwise short set. Cold start/rest/diversity
+  Packs with `gradingPolicy: 'recognition'` grade spotted = Good / missed = Again regardless of the
+  country result (kept as `regionCorrect`); packs without it keep the country-scored rule.
+  The longest-overdue due review is placed first and counts toward its scope quota (no starvation), then one due
+  review per advanced scope, other due reviews (misses first, then lowest retrievability), then introductions;
+  not-yet-due reviews only fill an otherwise short set. Cold start/rest/diversity
   can require extra introductions; sparse pools may relax scope, never family/country caps.
 - Prerequisites can use three latest successful practice attempts, not only mastery.
   Reject cycles, missing IDs and active prerequisites without playable/orientation evidence.

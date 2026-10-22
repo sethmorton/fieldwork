@@ -5,7 +5,8 @@ const now='2026-10-19T08:00:00Z';
 // Synthetic fixtures only; no learner observations or fabricated production locations.
 const skill=(id,extra={})=>({id,title:id,phase:'Mixed',prerequisites:[],practiceFamily:id,importance:25,...extra});
 const makePack=()=>{const skills=['A','B','C','D','E','F','G','H'].map(id=>skill(id));return {id:'fixture',title:'Fixture',subject:'Any topic',skills,pools:[{id:'pool',title:'Mixed',skillIds:skills.map(s=>s.id),mapUrl:'https://example.test/maps/pool'}],locations:skills.flatMap((s,j)=>Array.from({length:4},(_,i)=>({id:`${s.id}-${i}`,panoId:`${s.id}-${i}`,lat:j,lng:i,skillIds:[s.id],region:'R'+j})))};};
-const attempt=(id,extra={})=>({id:'check-'+id,skillId:id,occurredAt:'2026-10-19T07:00:00Z',correct:true,evidenceValid:true,confidence:2,unfamiliar:true,locationRef:id+'-0',mode:'assessment',...extra});
+// Default outcomes are five minutes old: a first success is not yet due (FSRS ten-minute step), a miss is (one minute).
+const attempt=(id,extra={})=>({id:'check-'+id,skillId:id,occurredAt:'2026-10-19T07:55:00Z',correct:true,evidenceValid:true,confidence:2,unfamiliar:true,locationRef:id+'-0',mode:'assessment',...extra});
 const familyIds=(pack,plan)=>plan.focusSkills.map(s=>s.practiceFamily??s.id);
 test('five different clue families from the outset, without a sequential clean-run gate',()=>{
  const p=makePack(),r=planPractice(p,[attempt('A',{correct:false})],{now,size:5});
@@ -21,9 +22,12 @@ test('insufficient families yield a short explicit plan rather than duplicate cl
 test('misses are reviewed once while retaining four other families',()=>{
  const p=makePack();const r=planPractice(p,[attempt('A',{evidenceValid:false})],{now,size:5});assert.ok(r.focusSkills.some(s=>s.id==='A'));assert.equal(r.locationIds.filter(id=>id.startsWith('A-')).length,1);assert.equal(r.focusSkills.length,5);
 });
-test('struggling learners get one new clue and four reviews when families allow',()=>{
+test('struggling learners review due misses before new clues, then get one new clue and four reviews',()=>{
  const p=makePack();
- const records=['A','B','C','D','E'].map(id=>attempt(id,{correct:false,evidenceValid:false}));
+ const due=['A','B','C','D','E'].map(id=>attempt(id,{correct:false,evidenceValid:false}));
+ assert.deepEqual(planPractice(p,due,{now,size:5}).newSkillIds,[]);
+ // Misses from 30 seconds ago are not due yet, so the struggling budget (one new clue) applies.
+ const records=due.map(a=>({...a,occurredAt:'2026-10-19T07:59:30Z'}));
  const r=planPractice(p,records,{now,size:5});
  assert.equal(r.newSkillIds.length,1);
  assert.equal(r.focusSkills.filter(s=>records.some(a=>a.skillId===s.id)).length,4);
@@ -120,7 +124,7 @@ function simulate(pack,sets,correct) {
   assert.deepEqual(plan,planPractice(pack,records,{now,seenLocationRefs:seen,previousSetLocationRefs:previous}));
   plans.push(plan);previous=plan.locationIds;seen.push(...previous);
   locations.forEach((location,i)=>records.push(attempt(location.skillIds[0],{
-   id:`synthetic-${step}-${i}`,occurredAt:new Date(Date.parse(now)-(sets-step)*60000+i*1000).toISOString(),
+   id:`synthetic-${step}-${i}`,occurredAt:new Date(Date.parse(now)-(sets-step)*15000+i*1000).toISOString(),
    locationRef:location.id,mode:'practice',correct,evidenceValid:correct,feedbackSource:'assumed-on-advance',
   })));
  }
@@ -172,10 +176,10 @@ test('older practice and weak advanced clues get review rather than being displa
  assert.ok(planPractice(p,records,{now}).focusSkills.some(s=>s.id==='A'));
  const curriculum=curriculumPack(),successful=simulate(curriculum,11,true);
  const weak=successful.plans[9].focusSkills.find(s=>s.curriculum.scope==='within-country-regional');
- // A miss is due again after FSRS's one-minute learning step.
+ // A miss is due again after FSRS's one-minute learning step; plan a minute after it, before the successes' ten-minute step.
  successful.records.push(attempt(weak.id,{id:'explicit-miss',mode:'practice',correct:false,evidenceValid:false,
-  occurredAt:'2026-10-19T07:58:30Z'}));
- const plan=planPractice(curriculum,successful.records,{now,previousSetLocationRefs:successful.plans[10].locationIds});
+  occurredAt:'2026-10-19T07:59:55Z'}));
+ const plan=planPractice(curriculum,successful.records,{now:'2026-10-19T08:01:00Z',previousSetLocationRefs:successful.plans[10].locationIds});
  assert.ok(plan.focusSkills.some(s=>s.id===weak.id));
  assert.equal(plan.focusSkills.filter(s=>s.curriculum.scope==='within-country-regional').length,1);
 });

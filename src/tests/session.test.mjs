@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,practiceFeedback} from '../session.mjs';
 import {skillStatus} from '../lib/mastery.ts';
 import {curriculumProgress} from '../lib/adaptive.ts';
+import {validatePack} from '../next-set.mjs';
 const mapId='0123456789abcdef01234567';
 const pack={id:'any-country',practiceMapId:mapId,skills:[{id:'clue'},...[1,2,3,4].map(i=>({id:'clue'+i}))],pools:[],locations:Array.from({length:5},(_,i)=>({id:`pano:${i}`,panoId:String(i),lat:i,lng:i,skillIds:[i?'clue'+i:'clue'],region:'Test region'})),regionFeatures:[{properties:{name:'Test region'},geometry:{type:'Polygon',coordinates:[[[-10,-10],[10,-10],[10,10],[-10,10],[-10,-10]]]}}]};
 const state={map:{id:mapId},current_game_id:'game-id',round_in_progress:false,current_round:1,rounds:[{location:{panoId:'0'},player_guess:{lat:1,lng:1}}]};
@@ -42,6 +43,25 @@ test('unknown geography is never graded as a failure; spotted/missed decides cou
   for(const [round,choice,minutes] of [[noCountry,{recognized:true},10],[noCountry,{recognized:true,assumed:true},10],[scored,{recognized:true},10],
     [noCountry,{recognized:false},1],[scored,{recognized:false},1],[scored,{recognized:true,correct:false},1]])
     assert.equal(dueIn(recordRecognition(world,[],round,choice,at)),minutes,JSON.stringify(choice)); // 10 min = Good, 1 min = Again
+});
+test('a recognition-graded pack schedules spotted/missed regardless of the country result',()=>{
+  const at=new Date('2026-10-22T10:00:00Z'),dueIn=records=>(Date.parse(skillStatus('clue',records,at).reviewDueAt)-at)/60000;
+  // A country-scored world pack; the guess lands in another country's polygon.
+  const legacy={...pack,skills:pack.skills.map(skill=>({...skill,curriculum:{scope:'specialist',rank:1}})),
+    locations:pack.locations.map(location=>({...location,country:location.region})),
+    regionFeatures:[...pack.regionFeatures,{properties:{name:'Elsewhere'},geometry:{type:'Polygon',coordinates:[[[40,40],[60,40],[60,60],[40,60],[40,40]]]}}]};
+  const world={...legacy,gradingPolicy:'recognition'};
+  const wrong=completedRound(world,{...state,rounds:[{location:{panoId:'0'},player_guess:{lat:50,lng:50}}]});
+  assert.equal(wrong.correct,false);
+  const spotted=recordRecognition(world,[],wrong,{recognized:true},at),missed=recordRecognition(world,[],wrong,{recognized:false},at);
+  assert.equal(spotted[0].correct,true);assert.equal(spotted[0].regionCorrect,false);assert.equal(dueIn(spotted),10); // Good
+  assert.equal(missed[0].correct,false);assert.equal(dueIn(missed),1); // Again
+  // Without the field a wrong country stays Again, as before.
+  const old=recordRecognition(legacy,[],wrong,{recognized:true},at);
+  assert.equal(old[0].correct,false);assert.equal(dueIn(old),1);
+  const minimal={id:'p',title:'t',subject:'s',skills:[{id:'clue',title:'c',phase:'p',prerequisites:[]}],pools:[],locations:[]};
+  assert.equal(validatePack({...minimal,gradingPolicy:'recognition'}).gradingPolicy,'recognition');
+  assert.throws(()=>validatePack({...minimal,gradingPolicy:'country'}),/grading policy/);
 });
 test('publishing is limited to a distinct verified owned map, after a backup, with actual source coordinates',async()=>{
   const set={mapMaking:{customCoordinates:pack.locations}};const calls=[];
