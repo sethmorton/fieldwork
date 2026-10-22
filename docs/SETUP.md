@@ -93,6 +93,25 @@ pole variant or telephone code is tracked separately through clue feedback;
 a correct country guess is not proof of that finer distinction. Teaching
 pools are practice-only until a separate unseen assessment pool is verified.
 
+## Add the world PlonkIt clue bank (local pack)
+
+`local/world-pack.json` is built outside this repository by
+`work/world-map/run.sh` (Plonk It guide clues, each with two or three Street
+View panoramas found from guide example links, shared Learnable Meta maps and
+Vali-generated regional candidates, every view checked by a small vision
+model). It embeds full Plonk It text (CC BY-NC-SA 4.0, attributed on every
+card), so it is a local custom pack and never goes into public `content/`.
+Regional and specialist clues practise first; country-identification clues
+are left out except European utility-pole clues.
+
+```sh
+npm run setup -- --map YOUR_WORLD_MAP_ID --pack local/world-pack.json --add
+npm run serve
+```
+
+Keep `npm run serve` running until the world panel has loaded once; the pack's
+first download comes from the local installer.
+
 ## During practice
 
 Guess normally. After revealing the answer, review the clue. **Next** records
