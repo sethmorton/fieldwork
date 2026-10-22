@@ -14,7 +14,7 @@ Use Node 24.12+; package-lock.json pins dependencies.
 - Append a country: `npm run setup -- --map <different-owned-map> --pack local/philippines-pack.json --add`
 - Configure/build: `npm run setup -- --map <owned-map-ID-or-URL> --pack local/pack.json`
 - Rebuild: `npm run build`
-- Build public content only: `npm run content:build`
+- Build public content only: `npm run content:build` (every `content/*.json` is published; adding a pack is adding a file)
 - Verify engine size/assets after build: `node scripts/verify-build.mjs`
 - Installer: `npm run serve` → http://127.0.0.1:8787
 
@@ -48,6 +48,10 @@ installation or successful live publication based on a build passing.
   not account access or writable practice-map bindings.
 - Never embed content packs in the userscript. Keep runtime content, audit inventories
   and local learner state separate. Public publishing reads only unbound `content/*.json`.
+- Pack bodies belong in IndexedDB, never GM storage: Tampermonkey loads every GM
+  value into every GeoGuessr page. GM storage is for learner state and small pointers.
+- Continue runs on GeoGuessr's main thread: keep selection linear (worldwide guard
+  in `worldwide.test.mjs`) and navigate with GeoGuessr's router, not a page reload.
 - Verify old/new next-set equivalence and pinned-game behavior when changing content storage.
 - Preserve the user's practiceMapId during content migration. Preserve pack
   IDs/skill IDs so existing feedback remains attached to the right targets.
@@ -76,6 +80,10 @@ game started. No account or real learner state is used. Other modes include
 while emitting completed `GEFFetchEvents` responses. Verify the round-2 clue
 recovers, Next hides it and saves only round 2, and round 3 shows its own card.
 Do not reload a learner's results to test: GeoGuessr can resume the next round.
+
+`browser-recovery.test.mjs` fuzzes 150 seeded orderings of framework/native
+responses, reveals, stale responses and Next clicks; every round must show its own
+card exactly once. Reproduce a reported "card missing" ordering there first.
 
 `fixtures/recovery-fixture.html` emits a game response before navigation, then
 reveals results through native relative fetch responses without framework events.

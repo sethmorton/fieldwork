@@ -6,6 +6,7 @@ const auKey='fieldwork:australia-infrastructure:attempts',phKey='fieldwork:phili
 const data={'fieldwork:packs':packs,'fieldwork:pack':packs[0],[auKey]:[{id:'synthetic-au'}],[phKey]:[{id:'synthetic-ph'}]};
 const report=()=>document.querySelector('#history').textContent=`AU ${data[auKey].length} · PH ${data[phKey].length} · World ${data[worldKey]?.length??0} observations`;
 window.GM_getValue=(key,fallback)=>data[key]??fallback;window.GM_setValue=(key,value)=>{data[key]=value;report()};window.unsafeWindow=window;window.GEFFetchEvents=new EventTarget();
+window.GM_listValues=()=>Object.keys(data);window.GM_deleteValue=key=>{delete data[key];report()};
 history.replaceState(null,'','/maps/'+pack.practiceMapId);let published=[],requests=0;
 window.fetch=async(url,options={})=>{
  if(!url.startsWith('/api/v4/user-maps/drafts/'+pack.practiceMapId))throw Error('Unexpected request');requests++;

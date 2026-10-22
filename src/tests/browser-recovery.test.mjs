@@ -13,6 +13,7 @@ const built=await build({entryPoints:[new URL('../browser.mjs',import.meta.url).
     plugin.onResolve({filter:/practice-catalog\.json$/},()=>({path:'catalog',namespace:'synthetic-catalog'}));
     plugin.onLoad({filter:/.*/,namespace:'synthetic-catalog'},()=>({loader:'json',contents:JSON.stringify([{id:pack.id,title:pack.title,subject:pack.subject,practiceMapId:map}])}));
     plugin.onLoad({filter:/\/ui\.mjs$/},()=>({loader:'js',contents:`export function reviewPanel(pack,round,options){testUI.review(pack,round,options)} export function startPanel(){testUI.start()} export function loadingPanel(){}` }));
+    plugin.onLoad({filter:/\/content-cache\.mjs$/},()=>({loader:'js',contents:`export function indexedDbCache(){const saved=new Map();return {get:async key=>structuredClone(saved.get(key)),set:async(key,value)=>{saved.set(key,structuredClone(value))}}}`}));
   }
 }]});
 const code=built.outputFiles[0].text;
@@ -26,7 +27,8 @@ function fixture(path='/game/current-game'){
   const page={fetch:nativeFetch,GEFFetchEvents:events,GeoGuessrEventFramework:{state:{current_game_id:'previous-game',current_round:5}}};
   const context=vm.createContext({URL,URLSearchParams,TextEncoder,crypto,AbortSignal,Promise,Date,EventTarget,CustomEvent,structuredClone,setTimeout,clearTimeout,
     unsafeWindow:page,location,
-    GM_getValue:(key,fallback)=>data[key]??fallback,GM_setValue:(key,value)=>data[key]=value,
+    GM_getValue:(key,fallback)=>data[key]??fallback,GM_setValue:(key,value)=>data[key]=value,GM_listValues:()=>Object.keys(data),GM_deleteValue:key=>{delete data[key]},
+    requestAnimationFrame:callback=>setImmediate(callback),
     document:{readyState:'complete',body:{},addEventListener:(...args)=>documentEvents.set(...args),
       querySelector:()=>visible?marker:null,querySelectorAll:()=>[],getElementById:()=>panel},
     window:{addEventListener:(...args)=>windowEvents.addEventListener(...args)},MutationObserver:class{constructor(callback){observer=callback}observe(){}},
@@ -38,6 +40,8 @@ function fixture(path='/game/current-game'){
   return {data,reviews,requests,settle,events,location,
     response:value=>events.dispatchEvent(new CustomEvent('received_data',{detail:value})),
     reveal:round=>{shownRound=round;visible=true;observer()},
+    // GeoGuessr can reveal the result view with a class change, which the DOM observer does not report.
+    revealSilently:round=>{shownRound=round;visible=true},
     navigate:pathname=>{location.pathname=pathname;observer()},
     next:()=>{documentEvents.get('click')({target:{closest:()=>({textContent:'NEXT',disabled:false})}});visible=false;observer()},
     nativeResponse:()=>page.fetch('/api/v3/games/current-game'),setResponse:value=>nextResponse=value,setOffline:()=>{networkFailure=true},hasPanel:()=>!!panel,
@@ -81,3 +85,27 @@ test('late older responses cannot replace the current card or overwrite an expli
 });
 
 test('startup and result rendering never issue game requests themselves',async()=>{const f=fixture();f.reveal(2);await f.settle();assert.equal(f.requests.length,0);assert.equal(f.reviews.length,0)});
+const inProgress=round=>({...raw(round),player:{guesses:Array.from({length:round-1},()=>({lat:1,lng:2}))}});
+test('every guessed round shows its own card once, whatever order responses, reveals and stale events arrive in',async()=>{
+  for(let seed=1;seed<=150;seed++){
+    let s=seed;const random=()=>(s=Math.imul(s^(s>>>15),2246822507)+0x6d2b79f5>>>0)/2**32;
+    const f=fixture(random()<0.5?'/maps/'+map:'/game/current-game');await f.settle();
+    if(f.location.pathname!=='/game/current-game'){if(random()<0.5)f.response(inProgress(1));f.navigate('/game/current-game');await f.settle();}
+    for(let round=1;round<=5;round++){
+      const steps=[()=>f.response(raw(round)),()=>f.reveal(round)];
+      if(random()<0.5)steps.push(async()=>{f.setResponse(raw(round));await f.nativeResponse()});
+      if(round>1&&random()<0.3)steps.push(()=>f.response(raw(round-1)));
+      for(let i=steps.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[steps[i],steps[j]]=[steps[j],steps[i]]}
+      for(const step of steps){await step();if(random()<0.5)await f.settle()}
+      await f.settle();
+      assert.equal(f.reviews.at(-1)?.round.round,round,`seed ${seed}: round ${round} card`);
+      if(round<5){f.next();if(random()<0.6)f.response(inProgress(round+1));await f.settle();}
+    }
+    assert.deepEqual(f.reviews.map(review=>review.round.round),[1,2,3,4,5],`seed ${seed}: each card exactly once`);
+  }
+});
+test('a result view revealed without a reported DOM mutation still shows its card',async()=>{
+  const f=fixture();f.response(raw(2));await f.settle();assert.equal(f.reviews.length,0);
+  f.revealSilently(2);await new Promise(resolve=>setTimeout(resolve,400));await f.settle();
+  assert.equal(f.reviews.at(-1)?.round.round,2);
+});

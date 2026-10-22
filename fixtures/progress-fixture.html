@@ -10,5 +10,5 @@ for(let index=0;index<4;index++)for(let i=0;i<(index<2?20:index===2?10:1);i++)at
  correct:index!==3,evidenceValid:index!==3,confidence:2,unfamiliar:true,locationRef:index+':pano:'+i,
  mode:index===1?'practice':'assessment',feedbackSource:index===1?'assumed-on-advance':'explicit',
 });
-startPanel(pack,null,{attempts,onNext:()=>{},onExport:()=>{},onImport:()=>{}});
+startPanel(pack,{attempts,onNext:()=>{},onExport:()=>{},onImport:()=>{}});
 </script>

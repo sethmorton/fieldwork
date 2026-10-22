@@ -27,18 +27,34 @@ Routine play has no Fieldwork account or application backend.
   They are cached privately. An unavailable explanation does not block feedback;
   the original source link and authored short note remain available.
 
-The userscript manager stores content under `fieldwork:content:<pack>:<version>`
-and a small `fieldwork:catalog`. The first 0.10 startup migrates the old bulk
-pack registry once, preserving existing owned-map bindings and full notes.
-The old registry is retained for rollback but never read on later startups.
-Attempts, exposures, pending reviews, launch requests and draft backups retain
-all existing per-pack keys. Unchanged startup content is never re-saved.
+Tampermonkey and Violentmonkey copy **every** stored GM value into every page
+load, so GM storage holds only small state: `fieldwork:catalog`, per-pack content
+pointers (`content-head`, `active-set`, per-game pins) and learner data (attempts,
+exposures, pending reviews, launch requests, draft backups). Pack bodies and audit
+inventories live in the `fieldwork-content` IndexedDB database on the GeoGuessr
+origin, keyed `fieldwork:content:<pack>:<version>`, and are read only when a page
+needs that pack. Content schema 2 migrates once: 0.9's bulk registry and 0.10's
+GM-stored packs are copied into IndexedDB, then deleted from GM storage. If the
+browser clears site data, hosted packs re-download; imported custom packs need
+re-importing. Learner keys are never migrated or rewritten.
 
-Each prepared set records its five locations/skills and cached content key.
-Each observed game pins that key, including legacy in-flight sets. Older cached
-versions are retained for those games; their notes and scoring boundaries cannot
-change because a newer pack arrives. Early framework events are serialized while
-first-use content loads. No learner event is created merely by downloading data.
+Each prepared set records its location IDs and content key. Each observed game
+pins that key, including legacy in-flight sets. Older cached versions are kept
+for those games; their notes and scoring boundaries cannot change because a newer
+pack arrives. Early framework events are serialized while first-use content
+loads. No learner event is created merely by downloading data.
+
+Continue practice publishes the set, then navigates to the practice map with
+GeoGuessr's own Next.js router (a full page load only if the router is missing or
+cancels). The script, its loaded content and GeoGuessr's app stay alive, so the
+native Play control is clicked as soon as it renders; an ignored click is retried
+until a game page opens. Concurrent Continue clicks join one publication. DOM
+changes are reconciled at most once per animation frame; a completed round whose
+result view is revealed by a class change is re-checked for up to five seconds.
+
+The selector runs on GeoGuessr's main thread on every Continue. It is linear in
+history and pack size (about 10 ms for the 8,725-location worldwide pack); a
+regression test fails if a 2,000-attempt worldwide selection exceeds 250 ms.
 
 Game responses are retained by token across native URL transitions. If the
 framework misses an event, a separate observer captures normal game responses

@@ -42,6 +42,14 @@ test('worldwide practice keeps five countries and five families while rotating g
  }
  assert.ok(covered.size>=25,`Only ${covered.size} targets across ten sets.`);
 });
+test('a long worldwide history still selects the next set without freezing the page',()=>{
+ // Continue runs on GeoGuessr's main thread; quadratic selection froze it for seconds at this history size.
+ const attempts=pack.locations.slice(0,2000).map((l,i)=>({id:`long-${i}`,skillId:l.skillIds[0],occurredAt:new Date(Date.parse(now)-(2000-i)*60000).toISOString(),correct:i%3!==0,evidenceValid:true,confidence:2,unfamiliar:true,locationRef:l.id,mode:'assessment',feedbackSource:'explicit'}));
+ const options={now,seenLocationRefs:attempts.map(a=>a.locationRef),previousSetLocationRefs:attempts.slice(-5).map(a=>a.locationRef)};
+ makeNextSet(pack,attempts,options);
+ const started=performance.now();makeNextSet(pack,attempts,options);
+ assert.ok(performance.now()-started<250,`Selection took ${Math.round(performance.now()-started)} ms.`);
+});
 test('worldwide country feedback uses the actual country polygons',()=>{
  assert.equal(regionAt(35.68,139.76,pack.regionFeatures),'Japan');
  assert.equal(regionAt(48.86,2.35,pack.regionFeatures),'France');

@@ -75,16 +75,16 @@ export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],g
 function packImport(parent,onImport,status){
   const label=text(parent,'label','Import a practice pack');const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async()=>{try{if(!input.files[0])return;await onImport(JSON.parse(await input.files[0].text()));status.textContent='Pack imported.';}catch(error){status.textContent=error.message}};label.append(input);
 }
-export function loadingPanel(pack,{error,onRetry,onImport}){
+export function loadingPanel(pack,{error,message='Loading practice content…',onRetry,onImport}){
   const {section}=panel();header(section,'Fieldwork · practice');text(section,'h2',pack.title);
-  const status=text(section,'p',error??'Loading practice content…','muted');status.setAttribute('role','status');
+  const status=text(section,'p',error??message,'muted');status.setAttribute('role','status');
   if(error){button(section,'Retry',onRetry,'primary');packImport(section,onImport,status)}
 }
-export function startPanel(pack,_set,{onNext,onExport,onImport,onCoverage,error,attempts=[],getAttempts=()=>attempts,packs=[],onChoosePack}) {
+export function startPanel(pack,{onNext,onExport,onImport,onCoverage,attempts=[],getAttempts=()=>attempts,packs=[],onChoosePack}) {
   const {section}=panel();header(section,'Fieldwork · practice');text(section,'h2',pack.title);
   if(packs.length>1){const label=text(section,'label','Practice pack');const choose=document.createElement('select');choose.setAttribute('aria-label','Practice pack');for(const item of packs){const option=text(choose,'option',item.title);option.value=item.id;option.selected=item.id===pack.id;}choose.onchange=()=>onChoosePack(choose.value);label.append(choose);}
-  const status=text(section,'p',error??`${pack.answerAreaLabel??pack.title}. Up to three new targets plus review. Five different clue families.`,'muted');status.setAttribute('role','status');
-  const next=button(section,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=error.message;this.disabled=false}},'primary');next.disabled=!!error;
+  const status=text(section,'p',`${pack.answerAreaLabel??pack.title}. Up to three new targets plus review. Five different clue families.`,'muted');status.setAttribute('role','status');
+  button(section,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=error.message;this.disabled=false}},'primary');
   const {details}=treeDetails(section,pack,getAttempts,'Content & progress');
   if(pack.coverageSummary){const coverage=document.createElement('details');text(coverage,'summary','Source coverage');text(coverage,'p',pack.coverageSummary,'muted');details.append(coverage);}
   if(onCoverage)button(details,'Export source inventory',async()=>{try{await onCoverage()}catch(error){status.textContent=error.message}});

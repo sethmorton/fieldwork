@@ -12,9 +12,13 @@ const pack=(id='au',revision=1)=>({id,title:id,subject:id,contentRevision:revisi
   pools:[],locations:[],sourceCoverage:{units:['original']},curriculum:{units:['original']}});
 const descriptor={id:'au',title:'au',subject:'au',practiceMapId:map,manifestUrl:'https://example.com/catalog.json'};
 function storage(initial={}){
-  const data=structuredClone(initial),reads=[],writes=[];
-  return {data,reads,writes,get:(key,fallback)=>{reads.push(key);return data[key]??fallback},set:(key,value)=>{writes.push(key);data[key]=structuredClone(value)}};
+  const data=structuredClone(initial),reads=[],writes=[],cached=new Map();
+  return {data,reads,writes,cached,get:(key,fallback)=>{reads.push(key);return data[key]??fallback},set:(key,value)=>{writes.push(key);data[key]=structuredClone(value)},
+    list:()=>Object.keys(data),remove:key=>{writes.push(key);delete data[key]},
+    cache:{get:async key=>structuredClone(cached.get(key)),set:async(key,value)=>{cached.set(key,structuredClone(value))}}};
 }
+// Tampermonkey copies every GM value into every page load; pack bodies must not live there.
+const gmContent=saved=>Object.keys(saved.data).filter(key=>key.startsWith('fieldwork:content:')||key==='fieldwork:packs'||key==='fieldwork:pack');
 async function remote(value){
   const {runtime,audit}=splitPack(value,{publicContent:true}),body=JSON.stringify(runtime),auditBody=JSON.stringify(audit);
   const entry={id:value.id,title:value.title,contentRevision:value.contentRevision,url:'pack.json',sha256:await contentHash(body),auditUrl:'audit.json',auditSha256:await contentHash(auditBody)};
@@ -29,11 +33,22 @@ test('migration separates content once and preserves every learner key and owned
   assert.deepEqual(await store.audit('au'),{sourceCoverage:old.sourceCoverage,curriculum:old.curriculum});
   assert.deepEqual(saved.data['fieldwork:au:attempts'],attempts);assert.deepEqual(saved.data['fieldwork:au:pending-review'],{untouched:true});
   assert.equal(saved.data['fieldwork:au:active-set'].locationIds[0],'old');assert.ok(saved.data['fieldwork:au:active-set'].contentKey);
+  assert.deepEqual(gmContent(saved),[]);
   saved.reads.length=0;saved.writes.length=0;
   const second=createContentStore({...saved,catalog:[descriptor],fetchText:async()=>{throw Error('offline')}});
   await second.load('au');
   assert.ok(!saved.reads.includes('fieldwork:packs'));assert.ok(!saved.reads.includes('fieldwork:pack'));
   assert.ok(!saved.reads.some(key=>key.startsWith('fieldwork:content:ph:')));assert.deepEqual(saved.writes,[]);
+});
+test('0.10 content kept in GM storage moves to the cache once without touching progress or the in-flight set',async()=>{
+  const {runtime,audit}=splitPack(pack()),key='fieldwork:content:au:legacy-1',attempts=[{id:'real-history'}];
+  const saved=storage({'fieldwork:content-schema':1,'fieldwork:packs':[pack()],[key]:runtime,[key+':audit']:audit,'fieldwork:au:content-head':{key,revision:1,auditKey:key+':audit',legacy:true},
+    'fieldwork:catalog':[descriptor],'fieldwork:au:attempts':attempts,'fieldwork:au:active-set':{locationIds:['in-flight'],contentKey:key}});
+  const store=createContentStore({...saved,catalog:[descriptor],fetchText:async()=>{throw Error('offline')}});
+  assert.equal((await store.load('au',{gameId:'in-flight-game'})).skills[0].sourceNoteHtml,'Local explanation');
+  assert.deepEqual(gmContent(saved),[]);assert.deepEqual(saved.cached.get(key),runtime);
+  assert.deepEqual(saved.data['fieldwork:au:attempts'],attempts);assert.deepEqual(saved.data['fieldwork:au:active-set'],{locationIds:['in-flight'],contentKey:key});
+  assert.deepEqual(await store.audit('au'),audit);
 });
 test('first download verifies content and defers source inventory until requested',async()=>{
   const saved=storage(),server=await remote(pack()),requests=[];
@@ -88,7 +103,7 @@ test('interrupted migration retries without dropping a custom pack or altering p
 test('manual imports stay local and a cold loader cannot silently install an older configured revision',async()=>{
   const saved=storage(),server=await remote(pack()),store=createContentStore({...saved,catalog:[{...descriptor,minimumRevision:2}],fetchText:server.fetchText});
   await assert.rejects(store.load('au'),/older/);
-  store.add(pack('au',3));assert.equal((await store.refresh('au')).contentRevision,3);
+  await store.add(pack('au',3));assert.equal((await store.refresh('au')).contentRevision,3);
   const reopened=createContentStore({...saved,catalog:[descriptor],fetchText:async()=>{throw Error('Manual content must not contact the public host')}});
   assert.equal((await reopened.refresh('au')).contentRevision,3);
 });

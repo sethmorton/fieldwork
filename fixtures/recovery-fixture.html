@@ -8,6 +8,7 @@ const sources=[...new Set(pack.locations.map(item=>item.skillIds[0]))].slice(0,5
 const data={'fieldwork:packs':packs};let round=1,complete=false,requests=0;
 const report=()=>document.querySelector('#status').textContent=`${requests} native requests (no extra reads) · ${data['fieldwork:'+pack.id+':attempts']?.length??0} observations · round ${round}`;
 window.GM_getValue=(key,fallback)=>data[key]??fallback;window.GM_setValue=(key,value)=>{data[key]=value;report()};window.unsafeWindow=window;window.GEFFetchEvents=new EventTarget();
+window.GM_listValues=()=>Object.keys(data);window.GM_deleteValue=key=>{delete data[key]};
 const response=(r=round,finished=complete)=>({token:'recovery-fixture',map:pack.practiceMapId,round:r,rounds:sources,player:{guesses:Array.from({length:r-(finished?0:1)},(_,index)=>({lat:sources[index].lat,lng:sources[index].lng}))}});
 window.fetch=async url=>{if(url!=='/api/v3/games/recovery-fixture')throw Error('Unexpected fixture request');requests++;report();return {ok:true,text:async()=>JSON.stringify(response()),clone:()=>({json:async()=>response()})}};
 history.replaceState(null,'','/maps/'+pack.practiceMapId);

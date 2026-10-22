@@ -15,6 +15,12 @@ test('source explanations are fetched on demand, country-checked and cached loca
     await assert.rejects(sourceNote(skill,location,{...options,get:()=>null,fetchText:async()=>JSON.stringify(wrong)}),/changed/);
   }
 });
+test('a new country pack matches source labels carrying that country prefix without per-country code',async()=>{
+  const japan={id:'jp:poles',title:'Japan - Utility poles',notesSourceMapId:'source-map'},options={get:()=>null,set:()=>{}};
+  const note=country=>({fetchText:async()=>JSON.stringify({country,metaName:'Utility poles',note:'Source explanation'})});
+  assert.equal((await sourceNote(japan,location,{...options,...note('Japan')})).sourceNoteHtml,'Source explanation');
+  await assert.rejects(sourceNote(japan,location,{...options,...note('South Korea')}),/changed/);
+});
 test('existing and authored explanations require no request or storage write',async()=>{
   const options={get:()=>{throw Error('Unexpected read')},set:()=>{throw Error('Unexpected write')},fetchText:()=>{throw Error('Unexpected request')}};
   for(const existing of [{...skill,sourceNoteHtml:'Migrated note'},{...skill,noteOrigin:'fieldwork-authored',trainingNote:'Checked teaching note'}])assert.equal(await sourceNote(existing,location,options),existing);

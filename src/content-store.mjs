@@ -5,21 +5,16 @@ import {splitPack,contentHash} from './content-format.mjs';
 const headKey=id=>`fieldwork:${id}:content-head`;
 const activeKey=id=>`fieldwork:${id}:active-set`;
 const gameKey=(id,game)=>`fieldwork:${id}:game:${game}`;
+const SCHEMA=2;
 
-// Content has its own keys. Existing attempts, exposures, reviews and backups are never migrated.
-export function createContentStore({get,set,catalog,fetchText,now=()=>Date.now()}) {
+// GM storage (get/set/list/remove) holds learner state and small content pointers; it is loaded into every page.
+// Pack bodies live in `cache` (IndexedDB in the browser). Attempts, exposures, reviews and backups are never migrated.
+export function createContentStore({get,set,list,remove,cache,catalog,fetchText,now=()=>Date.now()}) {
   const registered=new Map((get('fieldwork:catalog',[])??[]).map(entry=>[entry.id,entry]));
-  const migrating=get('fieldwork:content-schema',0)!==1;
-  if(migrating){
-    for(const pack of mergePacks(get('fieldwork:packs',[]),get('fieldwork:pack',null),[])){
-      const {runtime,audit}=splitPack(pack),key=`fieldwork:content:${pack.id}:legacy-${pack.contentRevision??0}`;
-      set(key,runtime);set(key+':audit',audit);
-      set(headKey(pack.id),{key,revision:pack.contentRevision??0,auditKey:key+':audit',legacy:true});
-      registered.set(pack.id,{id:pack.id,title:pack.title,subject:pack.subject,practiceMapId:pack.practiceMapId,...registered.get(pack.id)});
-      const active=get(activeKey(pack.id),null);
-      if(active&&!active.contentKey)set(activeKey(pack.id),{...active,contentKey:key});
-    }
-  }
+  const schema=get('fieldwork:content-schema',0);
+  // 0.9 kept every pack in one registry; register its packs now and move their bodies during migration.
+  const legacyPacks=schema<1?mergePacks(get('fieldwork:packs',[]),get('fieldwork:pack',null),[]):[];
+  for(const pack of legacyPacks)registered.set(pack.id,{id:pack.id,title:pack.title,subject:pack.subject,practiceMapId:pack.practiceMapId,...registered.get(pack.id)});
   for(const entry of catalog){
     const old=registered.get(entry.id);
     registered.set(entry.id,old?.localOnly?old:{...old,...entry,practiceMapId:old?.practiceMapId??entry.practiceMapId});
@@ -31,17 +26,30 @@ export function createContentStore({get,set,catalog,fetchText,now=()=>Date.now()
     maps.add(entry.practiceMapId);
   }
   if(JSON.stringify(get('fieldwork:catalog',[]))!==JSON.stringify(entries))set('fieldwork:catalog',entries);
-  if(migrating)set('fieldwork:content-schema',1);
+  // Copy into the cache before deleting from GM storage: an interrupted migration simply runs again.
+  async function migrate(){
+    for(const pack of legacyPacks){
+      const {runtime,audit}=splitPack(pack),key=`fieldwork:content:${pack.id}:legacy-${pack.contentRevision??0}`;
+      await cache.set(key,runtime);await cache.set(key+':audit',audit);
+      set(headKey(pack.id),{key,revision:pack.contentRevision??0,auditKey:key+':audit',legacy:true});
+      const active=get(activeKey(pack.id),null);
+      if(active&&!active.contentKey)set(activeKey(pack.id),{...active,contentKey:key});
+    }
+    for(const key of list().filter(key=>key.startsWith('fieldwork:content:'))){await cache.set(key,get(key,null));remove(key);}
+    remove('fieldwork:packs');remove('fieldwork:pack');set('fieldwork:content-schema',SCHEMA);
+  }
+  const ready=schema>=SCHEMA?Promise.resolve():migrate();
   const memory=new Map(),versions=new WeakMap();
   const entryFor=id=>{const entry=entries.find(item=>item.id===id);if(!entry)throw Error('Unknown practice pack.');return entry};
+  // One cache read and validation per content version per page; concurrent callers share it.
   function read(id,key){
-    if(!key)return null;
-    if(!memory.has(key)){
-      const value=get(key,null);if(!value)return null;
+    if(!key)return Promise.resolve(null);
+    if(!memory.has(key))memory.set(key,cache.get(key).then(value=>{
+      if(!value){memory.delete(key);return null}
       if(value.id!==id)throw Error('Cached content belongs to a different pack.');
       const bound=validatePack({...value,practiceMapId:entryFor(id).practiceMapId});
-      memory.set(key,bound);versions.set(bound,key);
-    }
+      versions.set(bound,key);return bound;
+    }).catch(error=>{memory.delete(key);throw error}));
     return memory.get(key);
   }
   async function verified(url,hash){
@@ -56,7 +64,8 @@ export function createContentStore({get,set,catalog,fetchText,now=()=>Date.now()
     return refreshing.get(id);
   }
   async function refreshContent(id,{force=false}={}){
-    const entry=entryFor(id),head=get(headKey(id),null),cached=read(id,head?.key);
+    await ready;
+    const entry=entryFor(id),head=get(headKey(id),null),cached=await read(id,head?.key);
     if(!entry.manifestUrl)return cached??Promise.reject(Error('Import this custom pack through Content & progress.'));
     if(cached&&!force&&head.checkedAt&&now()-head.checkedAt<86400000)return cached;
     try{
@@ -76,41 +85,44 @@ export function createContentStore({get,set,catalog,fetchText,now=()=>Date.now()
       const latest=get(headKey(id),null);
       if(latest?.key!==head?.key&&(latest?.localOnly||latest?.revision>=value.contentRevision))return read(id,latest.key);
       // Publish the pointer last: failed or interrupted downloads leave the previous pack usable.
+      // ponytail: superseded versions stay in IndexedDB (off the per-page path); prune by head/active-set if disk use matters.
       const key=`fieldwork:content:${id}:${asset.sha256}`;
-      set(key,value);memory.set(key,bound);versions.set(bound,key);
+      await cache.set(key,value);memory.set(key,Promise.resolve(bound));versions.set(bound,key);
       set(headKey(id),{key,revision:value.contentRevision,sha256:asset.sha256,checkedAt:now(),
         auditUrl:asset.auditUrl?new URL(asset.auditUrl,entry.manifestUrl).href:null,auditSha256:asset.auditSha256});
       return bound;
     }catch(error){if(cached)return cached;throw error}
   }
   async function load(id,{gameId}={}){
+    await ready;
     const pinned=gameId?(get(gameKey(id,gameId),null)??get(activeKey(id),null)):null;
-    return read(id,pinned?.contentKey)??read(id,get(headKey(id),null)?.key)??refresh(id);
+    return await read(id,pinned?.contentKey)??await read(id,get(headKey(id),null)?.key)??refresh(id);
   }
   function pinSet(id,setValue,pack){
     const key=pack?versions.get(pack):get(headKey(id),null)?.key;if(!key)throw Error('Practice content is not cached.');
-    set(activeKey(id),{locationIds:setValue.selectedLocations.map(location=>location.id),preparedAt:new Date(now()).toISOString(),
-      contentKey:key,locations:setValue.selectedLocations,skills:setValue.sourceNotes});
+    set(activeKey(id),{locationIds:setValue.selectedLocations.map(location=>location.id),preparedAt:new Date(now()).toISOString(),contentKey:key});
   }
   function pinGame(id,gameId){
     const key=gameKey(id,gameId);if(get(key,null))return;
-    const active=get(activeKey(id),null),head=get(headKey(id),null);
-    if(active?.contentKey||head)set(key,active?.contentKey?active:{contentKey:head.key});
+    const contentKey=get(activeKey(id),null)?.contentKey??get(headKey(id),null)?.key;
+    if(contentKey)set(key,{contentKey});
   }
   async function audit(id){
     await load(id);const head=get(headKey(id),null),key=head.auditKey??head.key+':audit';
-    const cached=get(key,null);if(cached)return cached;
+    const cached=await cache.get(key);if(cached)return cached;
     if(!head.auditUrl)return {};
-    const value=await verified(head.auditUrl,head.auditSha256);set(key,value);return value;
+    const value=await verified(head.auditUrl,head.auditSha256);await cache.set(key,value);return value;
   }
-  function add(pack){
+  async function add(pack){
     validatePack(pack);
     mergePacks([],null,[pack]);
     if(entries.some(item=>item.id!==pack.id&&item.practiceMapId===pack.practiceMapId))throw Error('Different packs cannot share a writable practice map.');
+    await ready;
     const old=entries.find(item=>item.id===pack.id),entry={id:pack.id,title:pack.title,subject:pack.subject,practiceMapId:pack.practiceMapId,localOnly:true,manifestUrl:null};
-    if(old)entries[entries.indexOf(old)]=entry;else entries.push(entry);
     const {runtime,audit}=splitPack(pack),key=`fieldwork:content:${pack.id}:import-${now()}`;
-    set(key,runtime);set(key+':audit',audit);set(headKey(pack.id),{key,revision:pack.contentRevision??0,auditKey:key+':audit',legacy:true,localOnly:true});set('fieldwork:catalog',entries);
+    await cache.set(key,runtime);await cache.set(key+':audit',audit);
+    if(old)entries[entries.indexOf(old)]=entry;else entries.push(entry);
+    set(headKey(pack.id),{key,revision:pack.contentRevision??0,auditKey:key+':audit',legacy:true,localOnly:true});set('fieldwork:catalog',entries);
   }
   return {catalog:entries,load,refresh,pinSet,pinGame,audit,add};
 }

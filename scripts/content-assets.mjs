@@ -1,9 +1,14 @@
-import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {readFile,writeFile,mkdir,readdir} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 import {splitPack,contentHash} from '../src/content-format.mjs';
 import {validatePack} from '../src/next-set.mjs';
 
 export const contentHost='https://sethmorton.github.io/fieldwork/';
+// Every content/*.json is a public pack: adding a country or topic is adding one file.
+export async function readPublicPacks(){
+  const names=(await readdir('content')).filter(name=>name.endsWith('.json')).sort();
+  return Promise.all(names.map(async name=>JSON.parse(await readFile('content/'+name,'utf8'))));
+}
 export async function writeContentAssets(packs,directory){
   await mkdir(directory,{recursive:true});const entries=[];
   for(const pack of packs){
@@ -19,7 +24,7 @@ export async function writeContentAssets(packs,directory){
 }
 export async function buildPublicContent(){
   // Never read personal configuration, hydrated notes or learner storage in the publishing path.
-  const packs=await Promise.all(['australia','philippines','worldwide'].map(async name=>JSON.parse(await readFile('content/'+name+'.json','utf8'))));
+  const packs=await readPublicPacks();
   await writeContentAssets(packs,'dist/content-host');
   await writeFile('dist/content-host/index.html','<!doctype html><meta charset="utf-8"><title>Fieldwork content</title><p>Versioned content for <a href="https://github.com/sethmorton/fieldwork">Fieldwork adaptive practice</a>.</p>');
 }

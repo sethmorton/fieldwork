@@ -138,11 +138,12 @@ the content host can be unavailable and cached practice still works (GeoGuessr
 itself still needs internet). A failed first download shows **Retry** and a pack
 import option. Background update checks never block cached Continue practice.
 
-Version 0.10 migrates your installed packs once. Keep the same script identity
-and Chrome profile: **update** the existing script rather than deleting it.
-Existing history, map bindings, exposures and pending feedback remain local.
-Updates pin the content of each active game, and only affect newly prepared
-sets. Older cached versions and the legacy registry remain for rollback.
+Version 0.10 migrates your installed packs once, and 0.11 moves pack bodies out
+of userscript storage into the browser's IndexedDB (Tampermonkey loads all
+userscript storage into every page). Keep the same script identity and Chrome
+profile: **update** the existing script rather than deleting it. Existing history,
+map bindings, exposures and pending feedback remain local and untouched. Updates
+pin the content of each active game and only affect newly prepared sets.
 
 For engine changes: pull the repository, run `npm ci`, `npm run check`,
 `npm run build`, and install the regenerated script. Public content publishing

@@ -67,7 +67,9 @@ relabel a learned skill as something different while reusing its history ID.
 
 The userscript contains a small map-binding catalog, not the content library.
 `npm run content:build` writes separate runtime and audit assets under
-`dist/content-host/`. CI publishes those public templates to GitHub Pages after
+`dist/content-host/` for every `content/*.json`: a new country or topic pack is
+a new file there, with no engine or build-script change. Source labels may carry
+the source's own `Country - ` prefix. CI publishes those public templates to GitHub Pages after
 checks pass. Increment `contentRevision` for content changes; retain pack and
 skill IDs so existing feedback stays attached. Do not change an existing skill
 ID's meaning. The delivery schema is version 1; incompatible future schemas

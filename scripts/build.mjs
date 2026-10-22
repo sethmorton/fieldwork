@@ -3,7 +3,7 @@ import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 import {configurePack} from './setup.mjs';
 import {mergePacks} from '../src/packs.mjs';
-import {writeContentAssets,contentHost,buildPublicContent} from './content-assets.mjs';
+import {writeContentAssets,contentHost,buildPublicContent,readPublicPacks} from './content-assets.mjs';
 
 export async function buildFieldwork(){
   let config;try{config=JSON.parse(await readFile('.fieldwork.local.json','utf8'))}catch{throw Error('Run npm run setup -- --map <your-owned-map-ID> first.');}
@@ -12,7 +12,7 @@ export async function buildFieldwork(){
   await mkdir('dist',{recursive:true});
   await writeFile('dist/practice-pack.json',JSON.stringify(pack,null,2)+'\n');
   await writeFile('dist/practice-packs.json',JSON.stringify(packs,null,2)+'\n');
-  const publicPacks=await Promise.all(['australia','philippines','worldwide'].map(async name=>JSON.parse(await readFile('content/'+name+'.json','utf8'))));
+  const publicPacks=await readPublicPacks();
   await writeContentAssets(packs,'dist');
   await buildPublicContent();
   const catalog=packs.map(item=>({id:item.id,title:item.title,subject:item.subject,practiceMapId:item.practiceMapId,minimumRevision:item.contentRevision??0,
@@ -28,6 +28,8 @@ export async function buildFieldwork(){
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
+// @grant        GM_listValues
+// @grant        GM_deleteValue
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
 // @connect      sethmorton.github.io

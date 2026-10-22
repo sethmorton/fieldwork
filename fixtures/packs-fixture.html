@@ -5,6 +5,7 @@ const existing=[{id:'synthetic-australia-history',skillId:au.skills.find(s=>s.av
 const data={'fieldwork:packs':packs,'fieldwork:pack':au,[auKey]:existing};
 const status=()=>document.querySelector('#status').textContent=`AU ${data[auKey]?.length??0} saved · PH ${data[phKey]?.length??0} saved · legacy AU ${JSON.stringify(data[auKey])===JSON.stringify(existing)?'unchanged':'changed'} · ${data['fieldwork:packs']?.length??0} packs`;
 window.GM_getValue=(key,fallback)=>data[key]??fallback;window.GM_setValue=(key,value)=>{data[key]=value;status()};window.unsafeWindow=window;window.GEFFetchEvents=new EventTarget();
+window.GM_listValues=()=>Object.keys(data);window.GM_deleteValue=key=>{delete data[key];status()};
 const navigate=pack=>{document.querySelector('[data-qa="result-view-top"]')?.remove();history.pushState(null,'','/maps/'+pack.practiceMapId);window.dispatchEvent(new PopStateEvent('popstate'));};
 const skillId=new URL(location.href).searchParams.get('skill')??'ph:lm:15346';
 const source=ph.locations.find(l=>l.skillIds[0]===skillId);

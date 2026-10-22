@@ -17,6 +17,7 @@ if(mode==='spacing'){
 }
 if(mode==='pending'||mode==='expired'||mode==='wrong-map')data[prefix+'launch-request']={mapId:mode==='wrong-map'?'wrong':pack.practiceMapId,requestedAt:Date.now()-(mode==='expired'?180000:0)};
 window.GM_getValue=(key,fallback)=>data[key]??fallback;window.GM_setValue=(key,value)=>data[key]=value;
+window.GM_listValues=()=>Object.keys(data);window.GM_deleteValue=key=>{delete data[key]};
 window.unsafeWindow=window;window.GeoGuessrEventFramework={events:new EventTarget(),state:{round_in_progress:true,map:{id:pack.practiceMapId}}};
 let requests=0,started=0;
 window.fetch=async(url,options={})=>{

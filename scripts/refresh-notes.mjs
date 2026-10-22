@@ -1,4 +1,5 @@
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {sameClue} from '../src/source-note.mjs';
 const input=process.argv[2]??'content/australia.json';
 const output=process.argv[3]??'local/pack.json';
 const pack=JSON.parse(await readFile(input,'utf8'));
@@ -20,8 +21,7 @@ for(const skill of pack.skills){
     const note=await response.json();
     if(typeof note.metaName!=='string'||typeof note.note!=='string'||!note.note.trim())throw Error('No source explanation returned');
     if(skill.notesCountry&&note.country?.trim()!==skill.notesCountry)throw Error('Source country changed; review before importing');
-    const normalize=s=>s.replace(/^(?:Australia|Philippines)\s*-\s*/i,'').trim().toLowerCase();
-    if(![skill.title,skill.sourceMetaName].filter(Boolean).some(name=>normalize(name)===normalize(note.metaName)))throw Error('Source clue label changed; review before importing');
+    if(!sameClue(skill,note))throw Error('Source clue label changed; review before importing');
     skill.sourceNoteHtml=note.note;skill.attributionHtml=note.footer??skill.attributionHtml;
     console.log('Fetched:',skill.id);
   }catch(e){failures++;console.error(skill.id+': '+e.message);}

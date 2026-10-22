@@ -12,6 +12,7 @@ const report=()=>{document.querySelector('#network').textContent=`${requests} co
   document.querySelector('#storage').textContent=`${bulkReads} legacy bulk reads · ${Object.keys(data).filter(key=>key.startsWith('fieldwork:content:')).length} cached content packs`;};
 window.GM_getValue=(name,fallback)=>{if(name==='fieldwork:packs'||name==='fieldwork:pack')bulkReads++;return data[name]??fallback};
 window.GM_setValue=(name,value)=>{data[name]=value;sessionStorage.setItem(key,JSON.stringify(data));report()};window.unsafeWindow=window;window.GEFFetchEvents=new EventTarget();
+window.GM_listValues=()=>Object.keys(data);window.GM_deleteValue=name=>{delete data[name];sessionStorage.setItem(key,JSON.stringify(data));report()};
 const nativeFetch=window.fetch.bind(window);
 window.GM_xmlhttpRequest=options=>{
   const isNote=options.url.startsWith('https://learnablemeta.com/');if(isNote)notes++;else requests++;report();
