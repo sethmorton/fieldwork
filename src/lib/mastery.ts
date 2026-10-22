@@ -1,4 +1,4 @@
-export type Skill = { id: string; title: string; prerequisites: string[]; order: number; kind?: 'orientation' };
+import { review, retrievability, AGAIN, GOOD, type Memory } from './fsrs.ts';
 export type Attempt = {
   id: string;
   skillId: string;
@@ -22,12 +22,13 @@ export type SkillStatus = {
   firstEvidenceAt: string | null;
   lastEvidenceAt: string | null;
   masteredAt: string | null;
+  /** FSRS-6 schedule from all outcomes; the planner and tree share this one notion of due. */
   reviewDueAt: string | null;
   due: boolean;
+  retrievability: number | null;
   overconfidentErrors: number;
   reason: string;
 };
-const DAY = 24 * 60 * 60 * 1000;
 const DELAY = 20 * 60 * 60 * 1000;
 const passed = (attempt: Attempt) => attempt.correct === true && attempt.evidenceValid;
 const time = (value: Clock) => new Date(value).getTime();
@@ -74,19 +75,20 @@ export function skillStatus(skillId: string, attempts: Attempt[], now: Clock = D
   const nowMs = time(now);
   if (!Number.isFinite(nowMs)) throw new Error('Invalid current date.');
   const records = attempts.filter(attempt => attempt.skillId === skillId
-    && Number.isFinite(time(attempt.occurredAt)) && time(attempt.occurredAt) <= nowMs);
+    && Number.isFinite(time(attempt.occurredAt)) && time(attempt.occurredAt) <= nowMs)
+    .sort((a, b) => time(a.occurredAt) - time(b.occurredAt));
   if (kind === 'orientation') {
     const oriented = records.some(attempt => attempt.mode === 'practice' && passed(attempt));
     return {
       skillId, state: oriented ? 'oriented' : records.length ? 'learning' : 'new',
       eligibleCount: 0, accuracy: null, recentAccuracy: null, firstEvidenceAt: null,
-      lastEvidenceAt: null, masteredAt: null, reviewDueAt: null, due: false, overconfidentErrors: 0,
+      lastEvidenceAt: null, masteredAt: null, reviewDueAt: null, due: false, retrievability: null, overconfidentErrors: 0,
       reason: oriented ? 'Orientation completed through source recall. This does not establish panorama mastery.'
         : 'Complete the guided source-recall exercise to finish this orientation.',
     };
   }
   const unique = new Map<string, Attempt>();
-  for (const attempt of [...records].sort((a, b) => time(a.occurredAt) - time(b.occurredAt))) {
+  for (const attempt of records) {
     if (attempt.mode === 'assessment' && attempt.unfamiliar === true && typeof attempt.locationRef === 'string'
       && attempt.locationRef.trim() && typeof attempt.correct === 'boolean' && typeof attempt.evidenceValid === 'boolean') {
       unique.set(attempt.locationRef.trim(), attempt);
@@ -102,25 +104,14 @@ export function skillStatus(skillId: string, attempts: Attempt[], now: Clock = D
   const mastered = qualifies(eligible) && !!latest && passed(latest);
   const state = mastered ? 'mastered' : provisional ? 'provisional' : records.length ? 'learning' : 'new';
   let masteredAt: string | null = null;
-  let reviewDueAt: string | null = null;
   if (mastered) {
     let achievedIndex = eligible.length - 1;
     while (achievedIndex > 0 && qualifies(eligible.slice(0, achievedIndex)) && passed(eligible[achievedIndex - 1])) achievedIndex--;
     masteredAt = eligible[achievedIndex].occurredAt;
-    let reviewedAt = time(masteredAt);
-    let reviewCount = 0;
-    for (const attempt of eligible.slice(achievedIndex + 1)) {
-      if (passed(attempt) && time(attempt.occurredAt) - reviewedAt >= DELAY) {
-        reviewedAt = time(attempt.occurredAt);
-        reviewCount++;
-      }
-    }
-    reviewDueAt = iso(reviewedAt + [1, 3, 7, 14][Math.min(reviewCount, 3)] * DAY);
-  } else if (latest && !passed(latest)) {
-    reviewDueAt = latest.occurredAt;
-  } else if (provisional && latest) {
-    reviewDueAt = iso(time(latest.occurredAt) + DAY);
   }
+  // Every outcome (practice or assessment, explicit or assumed) is one FSRS review: passed = Good, otherwise Again.
+  let memory: Memory | null = null;
+  for (const attempt of records) memory = review(memory, time(attempt.occurredAt), passed(attempt) ? GOOD : AGAIN);
   let reason = 'Start with a guided lesson, then try an unfamiliar location.';
   if (state === 'learning') reason = `${window.length}/10 unique unfamiliar assessments; practice alone does not establish mastery.`;
   if (state === 'provisional') reason = `Provisional: ${window.length} unique assessments, ${Math.round(accuracy! * 100)}% correct with valid evidence. Need 20, a delayed check, and 80% on the latest five.`;
@@ -129,41 +120,9 @@ export function skillStatus(skillId: string, attempts: Attempt[], now: Clock = D
   return {
     skillId, state, eligibleCount: window.length, accuracy, recentAccuracy,
     firstEvidenceAt: window[0]?.occurredAt ?? null, lastEvidenceAt: latest?.occurredAt ?? null,
-    masteredAt, reviewDueAt, due: reviewDueAt !== null && time(reviewDueAt) <= nowMs,
+    masteredAt, reviewDueAt: memory && iso(memory.due), due: !!memory && memory.due <= nowMs,
+    retrievability: memory && retrievability(memory, nowMs),
     overconfidentErrors: window.filter(attempt => !passed(attempt) && attempt.confidence === 3).length,
     reason,
   };
-}
-
-export function recommendNext(skills: Skill[], attempts: Attempt[], now: Clock = Date.now()) {
-  const statuses = new Map(skills.map(skill => [skill.id, skillStatus(skill.id, attempts, now, skill.kind)]));
-  const ready = (state: SkillStatus['state'] | undefined) => state === 'mastered' || state === 'oriented';
-  const unlocked = skills.filter(skill => skill.prerequisites.every(id => ready(statuses.get(id)?.state)));
-  const overdue = unlocked.filter(skill => statuses.get(skill.id)!.due).sort((a, b) => {
-    const left = statuses.get(a.id)!;
-    const right = statuses.get(b.id)!;
-    const learned = (status: SkillStatus) => Number(status.state === 'mastered' || status.state === 'provisional');
-    return learned(right) - learned(left) || right.overconfidentErrors - left.overconfidentErrors
-      || time(left.reviewDueAt!) - time(right.reviewDueAt!) || a.order - b.order;
-  })[0];
-  if (overdue) return { skill: overdue, kind: 'review' as const, reason: statuses.get(overdue.id)!.reason, dueAt: statuses.get(overdue.id)!.reviewDueAt };
-  const ordered = [...unlocked].sort((a, b) => a.order - b.order);
-  const next = ordered.find(skill => !ready(statuses.get(skill.id)!.state) && statuses.get(skill.id)!.state !== 'provisional');
-  if (next) return { skill: next, kind: 'learn' as const, reason: statuses.get(next.id)!.reason, dueAt: statuses.get(next.id)!.reviewDueAt };
-  const waiting = ordered.find(skill => statuses.get(skill.id)!.state === 'provisional');
-  if (waiting) return { skill: waiting, kind: 'learn' as const,
-    reason: 'This skill is provisional. Return for its delayed check when due; repeated practice today cannot replace that check.',
-    dueAt: statuses.get(waiting.id)!.reviewDueAt };
-  const complete = skills.every(skill => ready(statuses.get(skill.id)!.state));
-  return { skill: null, kind: complete ? 'complete' as const : 'blocked' as const,
-    reason: complete ? 'All skills meet the current evidence rule. Return when a review is due.' : 'Remaining skills require prerequisites that have not been mastered.', dueAt: null };
-}
-
-export function progressSummary(skills: Skill[], attempts: Attempt[], now: Clock = Date.now()) {
-  const statuses = skills.map(skill => skillStatus(skill.id, attempts, now, skill.kind));
-  const count = (state: SkillStatus['state']) => statuses.filter(status => status.state === state).length;
-  const totalMasterySkills = skills.filter(skill => skill.kind !== 'orientation').length;
-  return { total: skills.length, totalMasterySkills, oriented: count('oriented'), mastered: count('mastered'), provisional: count('provisional'), learning: count('learning'),
-    new: count('new'), due: statuses.filter(status => status.due).length,
-    percentMastered: totalMasterySkills ? Math.round(count('mastered') / totalMasterySkills * 100) : 0 };
 }

@@ -77,6 +77,7 @@ npm run build  # after local setup
 | --- | --- |
 | `src/lib/adaptive.ts` | Location selection and spacing |
 | `src/lib/mastery.ts` | Conservative evidence and review status |
+| `src/lib/fsrs.ts` | FSRS-6 review scheduling, replayed from attempts |
 | `src/browser.mjs`, `session.mjs`, `ui.mjs` | Browser integration, publication and post-guess feedback |
 | `src/tests/`, `scripts/*.test.mjs` | Automated checks with synthetic learner observations |
 | `content/australia.json`, `content/philippines.json`, `content/worldwide.json` | Unbound country packs; no personal practice-map binding |

@@ -22,7 +22,9 @@ test('tree reflects new observations, assumed practice, mastery and due review u
  history.push(record('c',0,{correct:false,evidenceValid:false}));
  const before=JSON.stringify(history),tree=progressTree(pack,history,now),nodes=tree.families.flatMap(f=>f.nodes);
  assert.equal(tree.practised,3);assert.equal(tree.mastered,1);
- assert.equal(nodes[0].label,'Mastered');assert.equal(nodes[0].status.due,true);
+ // Twenty daily successes give a long FSRS interval; an old miss is due. The tree shows the planner's due date.
+ assert.equal(nodes[0].label,'Mastered');assert.equal(nodes[0].status.due,false);assert.equal(nodes[2].status.due,true);
+ assert.equal(progressTree(pack,history,nodes[0].status.reviewDueAt).families[0].nodes[0].status.due,true);
  assert.equal(nodes[1].label,'Practising');assert.equal(nodes[1].assumed,20);assert.equal(nodes[1].status.eligibleCount,0);
  assert.equal(nodes[2].needsPractice,true);assert.equal(JSON.stringify(history),before);
  const updated=progressTree(pack,[...history,record('c',25)],now);

@@ -2,10 +2,15 @@ import {skillStatus} from './lib/mastery.ts';
 
 const labels={new:'Untouched',learning:'Practising',provisional:'Provisional',mastered:'Mastered',oriented:'Oriented'};
 export function progressTree(pack,attempts,now=Date.now()) {
-  const families=new Map();let deferred=0;
+  const families=new Map(),bySkill=new Map(),nowMs=new Date(now).getTime();let deferred=0;
+  for(const item of attempts){
+    const at=Date.parse(item.occurredAt);
+    if(!Number.isFinite(at)||at>nowMs)continue;
+    if(bySkill.has(item.skillId))bySkill.get(item.skillId).push(item);else bySkill.set(item.skillId,[item]);
+  }
   for(const skill of pack.skills){
     if(skill.availability&&skill.availability!=='available'){deferred++;continue;}
-    const records=attempts.filter(item=>item.skillId===skill.id&&Number.isFinite(Date.parse(item.occurredAt))&&Date.parse(item.occurredAt)<=new Date(now).getTime()).sort((a,b)=>Date.parse(a.occurredAt)-Date.parse(b.occurredAt));
+    const records=(bySkill.get(skill.id)??[]).sort((a,b)=>Date.parse(a.occurredAt)-Date.parse(b.occurredAt));
     const status=skillStatus(skill.id,records,now,skill.kind),last=records.at(-1);
     const family=skill.practiceFamily??'other';
     if(!families.has(family))families.set(family,{id:family,title:family.replaceAll('-',' ').replace(/^./,letter=>letter.toUpperCase()),nodes:[]});

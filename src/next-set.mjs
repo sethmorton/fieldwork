@@ -23,10 +23,13 @@ export function validatePack(pack) {
       || !['country-identification','within-country-regional','specialist'].includes(skill.curriculum.scope)
       || !Number.isSafeInteger(skill.curriculum.rank))) throw new Error('Invalid curriculum scope or rank.');
   }
-  const visit = (id, seen = new Set()) => {
-    if(seen.has(id)) throw new Error('Prerequisites contain a cycle.');
-    const branch = new Set([...seen,id]);
-    for(const child of pack.skills.find(skill=>skill.id===id).prerequisites) visit(child,branch);
+  const byId = new Map(pack.skills.map(skill => [skill.id, skill])), visited = new Map();
+  const visit = id => {
+    if(visited.get(id)===2) return;
+    if(visited.get(id)===1) throw new Error('Prerequisites contain a cycle.');
+    visited.set(id,1);
+    for(const child of byId.get(id).prerequisites) visit(child);
+    visited.set(id,2);
   };
   pack.skills.forEach(skill=>visit(skill.id));
   const locations = new Set();
@@ -41,12 +44,18 @@ export function validatePack(pack) {
       || !/^https:\/\/www\.geoguessr\.com\/maps\/[a-f\d]{24}$/i.test(pool.mapUrl)
       || (pool.locationIds && (!Array.isArray(pool.locationIds) || pool.locationIds.some(id=>!locations.has(id))))) throw new Error('Invalid practice pool.');
   }
+  const locationsBySkill = new Map();
+  for (const location of pack.locations) {
+    if(locationsBySkill.has(location.skillIds[0])) locationsBySkill.get(location.skillIds[0]).push(location);
+    else locationsBySkill.set(location.skillIds[0],[location]);
+  }
+  const pools = pack.pools.map(pool=>({pool,skillIds:new Set(pool.skillIds),locationIds:pool.locationIds&&new Set(pool.locationIds)}));
   for (const skill of pack.skills.filter(skill=>!skill.availability||skill.availability==='available')) {
     for (const id of skill.prerequisites) {
-      const prerequisite=pack.skills.find(item=>item.id===id);
+      const prerequisite=byId.get(id);
       if ((prerequisite.availability&&prerequisite.availability!=='available')
-        || (prerequisite.kind!=='orientation'&&!pack.locations.some(location=>location.skillIds[0]===id
-          && pack.pools.some(pool=>pool.skillIds.includes(id)&&(pool.locationIds?pool.locationIds.includes(location.id)
+        || (prerequisite.kind!=='orientation'&&!(locationsBySkill.get(id)??[]).some(location=>pools.some(({pool,skillIds,locationIds})=>
+          skillIds.has(id)&&(locationIds?locationIds.has(location.id)
             :!location.sourceMapId||location.sourceMapId===pool.id||pool.mapUrl.endsWith('/'+location.sourceMapId))))))
         throw new Error('An active prerequisite needs playable practice evidence or source-recall orientation.');
     }

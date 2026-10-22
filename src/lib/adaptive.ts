@@ -212,16 +212,13 @@ export function planPractice(
   const seedState = fnv(2166136261, seed);
   const hash = (suffix: string) => fnv(seedState, suffix) >>> 0;
   const scores = new Map<string, number>();
-  const due = (skill: PracticeSkill) => statuses.get(skill.id)!.due
-    || (!!latest.get(skill.id) && nowMs - Date.parse(latest.get(skill.id)!.occurredAt) >= 86400000);
   const score = (skill: PracticeSkill) => {
     let value = scores.get(skill.id);
     if (value === undefined) {
       const last = latest.get(skill.id);
       const error = !!last && (last.correct === false || last.evidenceValid === false);
-      const age = last ? Math.min(15, Math.max(0, (nowMs - Date.parse(last.occurredAt)) / 86400000) * 3) : 0;
       value = (skill.importance ?? 25) + Number(!last) * 15 + Number(error) * 35
-        + Number(due(skill)) * 20 + age - Number(recentTargets.has(skill.id)) * 35
+        + Number(statuses.get(skill.id)!.due) * 20 - Number(recentTargets.has(skill.id)) * 35
         + hash(skill.id) % 21;
       scores.set(skill.id, value);
     }
@@ -242,10 +239,13 @@ export function planPractice(
     || Math.min(limit, b.families) - Math.min(limit, a.families) || b.best - a.best);
   const chosen = pools[0];
   if (!chosen || !chosen.skills.length) return { pool: null, focusSkills: [], reasons: ['No available clue families have real tagged locations in a compatible pool.'], locationIds: [], phase: 'Not ready', newSkillIds: [] };
-  const urgency = (skill: PracticeSkill) => Number(latest.get(skill.id)?.correct === false || latest.get(skill.id)?.evidenceValid === false) * 2
-    + Number(due(skill));
+  // Only FSRS-due reviews are urgent; a due miss leads other due reviews.
+  const urgency = (skill: PracticeSkill) => statuses.get(skill.id)!.due ? 1 + 2 * Number(latest.get(skill.id)?.correct === false
+    || latest.get(skill.id)?.evidenceValid === false) : 0;
+  // Most-forgotten first (lowest current retrievability); clues without outcomes count as fully retained.
   const ranked = [...chosen.skills].sort((a, b) => Number(restingTargets.has(a.id)) - Number(restingTargets.has(b.id))
-    || urgency(b) - urgency(a) || score(b) - score(a) || a.id.localeCompare(b.id));
+    || urgency(b) - urgency(a) || (statuses.get(a.id)!.retrievability ?? 1) - (statuses.get(b.id)!.retrievability ?? 1)
+    || score(b) - score(a) || a.id.localeCompare(b.id));
   const introductions = ranked.filter(isNew).sort((a, b) => scopeIndex(a) - scopeIndex(b)
     || (a.curriculum?.rank ?? Number.MAX_SAFE_INTEGER) - (b.curriculum?.rank ?? Number.MAX_SAFE_INTEGER)
     || score(b) - score(a) || a.id.localeCompare(b.id));
@@ -281,6 +281,7 @@ export function planPractice(
     Math.max(selected.length, limit - progression.newLimit));
   addTargets(introductions.filter(skill => !restingTargets.has(skill.id)),
     Math.min(selected.length + progression.newLimit - focusSkills.filter(isNew).length, limit));
+  // Remaining due reviews, then not-yet-due reviews (most forgotten first) only when the set is still short.
   addTargets(ranked.filter(skill => !isNew(skill) && !restingTargets.has(skill.id)), limit);
   // Five families and previous-set rest outrank the new-item budget during cold start/replenishment.
   addTargets(introductions.filter(skill => !restingTargets.has(skill.id)), limit);

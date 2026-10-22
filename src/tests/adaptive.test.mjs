@@ -172,8 +172,9 @@ test('older practice and weak advanced clues get review rather than being displa
  assert.ok(planPractice(p,records,{now}).focusSkills.some(s=>s.id==='A'));
  const curriculum=curriculumPack(),successful=simulate(curriculum,11,true);
  const weak=successful.plans[9].focusSkills.find(s=>s.curriculum.scope==='within-country-regional');
+ // A miss is due again after FSRS's one-minute learning step.
  successful.records.push(attempt(weak.id,{id:'explicit-miss',mode:'practice',correct:false,evidenceValid:false,
-  occurredAt:'2026-10-19T07:59:59Z'}));
+  occurredAt:'2026-10-19T07:58:30Z'}));
  const plan=planPractice(curriculum,successful.records,{now,previousSetLocationRefs:successful.plans[10].locationIds});
  assert.ok(plan.focusSkills.some(s=>s.id===weak.id));
  assert.equal(plan.focusSkills.filter(s=>s.curriculum.scope==='within-country-regional').length,1);

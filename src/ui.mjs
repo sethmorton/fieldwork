@@ -33,7 +33,7 @@ function treeDetails(section,pack,getAttempts,title){
 function clue(section,skill,sourceUrl) {
   sourceUrl=skill.notesSourceUrl??sourceUrl;
   text(section,'h2',skill.title);
-  const imageUrl=skill.imageUrls?.find(url=>url.startsWith('https://learnablemeta.com/images/')||url.startsWith('https://ocsc00skc0wokcs8kw8g8k84.geohints.com/storage/'));
+  const imageUrl=skill.imageUrls?.find(url=>url.startsWith('https://learnablemeta.com/images/')||url.startsWith('https://www.plonkit.net/images/')||url.startsWith('https://ocsc00skc0wokcs8kw8g8k84.geohints.com/storage/'));
   if(imageUrl){const img=document.createElement('img');img.src=imageUrl;img.alt=skill.title+' — source example';section.append(img);}
   const details=document.createElement('details');text(details,'summary','Clue & source');
   const parsed=new DOMParser().parseFromString(skill.sourceNoteHtml??skill.trainingNote??'','text/html');const note=(parsed.body.textContent??'').trim();

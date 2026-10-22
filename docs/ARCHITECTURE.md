@@ -53,8 +53,9 @@ changes are reconciled at most once per animation frame; a completed round whose
 result view is revealed by a class change is re-checked for up to five seconds.
 
 The selector runs on GeoGuessr's main thread on every Continue. It is linear in
-history and pack size (about 10 ms for the 8,725-location worldwide pack); a
-regression test fails if a 2,000-attempt worldwide selection exceeds 250 ms.
+history and pack size (about 10 ms for the 8,725-location worldwide pack); regression
+tests fail if a 2,000-attempt worldwide selection, or a synthetic 6,000-clue /
+15,000-panorama / 5,000-outcome selection or progress tree, exceeds 250 ms.
 
 Game responses are retained by token across native URL transitions. If the
 framework misses an event, a separate observer captures normal game responses
@@ -108,13 +109,26 @@ exhausted. Regional-only packs do not acquire an unreachable country gate.
 New-target budgets are three at ≥85% recent success, two at 70–84% or without
 feedback, and one below 70%, over the latest 20 outcomes. At most one target from
 each advanced scope normally appears per set; an advanced weak/due review takes
-its introduction slot. Errors, verified due review and practice older than a day
-lead review selection. Unseen panoramas and regional variety remain preferred.
+its introduction slot. Unseen panoramas and regional variety remain preferred.
 Cold starts and diversity/rest constraints can require more new clues. Small pools
 relax curriculum limits only after exhausting open material; they never relax
 family/country/publication guards. Prerequisites accept three latest successful
 practice attempts as well as the existing strict statuses; validation rejects
 cycles, missing IDs and active dependencies without playable or orientation evidence.
+
+Review timing is [FSRS-6](https://github.com/open-spaced-repetition/fsrs4anki/wiki/The-Algorithm)
+(`src/lib/fsrs.ts`): the 21 default weights, desired retention 0.9, and ts-fsrs 5.x
+defaults (learning steps 1 and 10 minutes, relearning step 10 minutes, same-UTC-day
+short-term stability, no fuzz). Each clue's stability, difficulty and due date are
+recomputed by replaying its attempts in time order; nothing is stored or migrated.
+Every attempt is one review: passed (correct with valid recognition) is Good,
+anything else is Again, whether explicit or assumed on advance. A new clue is
+checked again about ten minutes after its first success, then after 2, 11, 46,
+163 days when reviewed on time; a miss is due again within ten minutes, but the
+previous-set rest still applies. Due clues are selected before others, misses
+first, then lowest current retrievability. Not-yet-due clues only fill a set that
+would otherwise be short within the new-clue budget. The progress tree's amber
+"review due" ring uses the same due date. Mastery evidence rules are unchanged.
 
 Post-guess cards show one short selection label: "New clue", "Review: you missed
 this last time", or "Review". Practice counts and readiness appear only on the
