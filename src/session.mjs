@@ -26,12 +26,16 @@ export function completedRound(pack,state) {
 export function recordRecognition(pack,history,round,{recognized,familiar=false,correct=round.correct,assumed=false},now=new Date()) {
   const skill=pack.skills.find(skill=>skill.id===round.location.skillIds[0]);
   if(!skill) throw Error('Unknown clue.');
-  if(typeof recognized!=='boolean' || (!assumed&&!skill.recognitionOnly&&recognized&&typeof correct!=='boolean')) throw Error('Confirm clue recognition and the region result.');
+  // A map scored only by country cannot judge a regional/specialist clue; with no country result, spotted/missed decides it.
+  // Elsewhere an unknown region result stays unknown: practice, but no scheduler review.
+  const recognitionDecides=skill.recognitionOnly||(typeof correct!=='boolean'&&!!round.location.country&&round.location.region===round.location.country
+    &&(skill.curriculum?.scope??'country-identification')!=='country-identification');
+  if(typeof recognized!=='boolean' || (!assumed&&!recognitionDecides&&recognized&&typeof correct!=='boolean')) throw Error('Confirm clue recognition and the region result.');
   const prior=history.find(attempt=>attempt.id===round.id);
   if(prior && (assumed || prior.feedbackSource!=='assumed-on-advance'))return history;
   const wasSeen=history.some(attempt=>attempt.id!==round.id&&attempt.locationRef===round.location.id);
   const attempt={id:round.id,skillId:round.location.skillIds[0],occurredAt:now.toISOString(),
-    correct:skill.recognitionOnly?recognized:correct,regionCorrect:correct,evidenceValid:recognized,confidence:2,unfamiliar:!familiar&&!wasSeen,
+    correct:recognitionDecides?recognized:correct,regionCorrect:correct,evidenceValid:recognized,confidence:2,unfamiliar:!familiar&&!wasSeen,
     locationRef:round.location.id,mode:assumed||round.location.assessmentEligible===false||(!skill.recognitionOnly&&correct===null)?'practice':'assessment',feedbackSource:assumed?'assumed-on-advance':'explicit',
     reason:assumed?'Recognition assumed on advance by learner preference; not verified mastery evidence.'
       :round.location.assessmentEligible===false?'Source teaching example; practice only, not unseen assessment evidence.'

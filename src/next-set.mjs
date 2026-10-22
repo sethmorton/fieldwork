@@ -67,7 +67,7 @@ export function makeNextSet(pack, attempts, options = {}) {
   if(!Array.isArray(attempts)) throw new Error('Results must be an attempt array.');
   const plan = planPractice(pack,attempts,{size:options.size??5,now:options.now??Date.now(),seenLocationRefs:options.seenLocationRefs??[],previousSetLocationRefs:options.previousSetLocationRefs??[]});
   const selected = plan.locationIds.map(id=>pack.locations.find(location=>location.id===id));
-  if (selected.length < (options.size??5)) throw new Error(`Need ${options.size??5} different location-backed clue families; only ${selected.length} are available. Import more content rather than repeating a clue.`);
+  if (selected.length < (options.size??5)) throw new Error(`Need ${options.size??5} different location-backed clue families. ${plan.reasons.at(-1)}`);
   return {
     packId:pack.id, phase:plan.phase, focus:plan.focusSkills.map(({id,title})=>({id,title})), reasons:plan.reasons,
     // Assignment is a training selection; it is not evidence that a clue was recognized.

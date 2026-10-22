@@ -26,7 +26,7 @@ test('another country uses the same pack validator and selector without Australi
  const set=makeNextSet(pack,[]);assert.equal(set.packId,pack.id);assert.equal(new Set(set.focus.map(s=>s.id)).size,5);assert.equal(set.selectedLocations.length,5);
 });
 
-test('too few clue families fail before a repeated-clue map can be produced',()=>{const p=makePack();p.skills.forEach(s=>s.practiceFamily='same');assert.throws(()=>makeNextSet(p,[]),/only 1/)});
+test('too few clue families fail before a repeated-clue map can be produced',()=>{const p=makePack();p.skills.forEach(s=>s.practiceFamily='same');assert.throws(()=>makeNextSet(p,[]),/Only 1 distinct/)});
 
 test('malformed curricula and unreachable active prerequisites reject, but teaching evidence is sufficient',()=>{
  for(const curriculum of [null,{scope:'unknown',rank:1},{scope:'specialist',rank:1.5}]){

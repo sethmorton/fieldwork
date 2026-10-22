@@ -121,14 +121,24 @@ Review timing is [FSRS-6](https://github.com/open-spaced-repetition/fsrs4anki/wi
 defaults (learning steps 1 and 10 minutes, relearning step 10 minutes, same-UTC-day
 short-term stability, no fuzz). Each clue's stability, difficulty and due date are
 recomputed by replaying its attempts in time order; nothing is stored or migrated.
-Every attempt is one review: passed (correct with valid recognition) is Good,
-anything else is Again, whether explicit or assumed on advance. A new clue is
-checked again about ten minutes after its first success, then after 2, 11, 46,
-163 days when reviewed on time; a miss is due again within ten minutes, but the
-previous-set rest still applies. Due clues are selected before others, misses
-first, then lowest current retrievability. Not-yet-due clues only fill a set that
-would otherwise be short within the new-clue budget. The progress tree's amber
-"review due" ring uses the same due date. Mastery evidence rules are unchanged.
+Each graded attempt is one review, whether explicit or assumed on advance: a
+recognition miss or a wrong answer is Again, a correct answer with recognition is
+Good. An unknown answer (no region result, nothing failed) is no review at all.
+On maps scored only by country (region equals country), a regional or
+specialist clue with no country result is judged by "spotted it"/"missed it"
+alone, as recognition-only clues always are; a known wrong country is still Again.
+A new clue becomes due about ten minutes after its first success, then 2, 11,
+46, 163 days later when reviewed on time; a miss becomes due within ten minutes.
+Due is a priority, not a promise of the next set. Within each set: the previous
+set rests, family/country/panorama caps and the one-target-per-advanced-scope
+rule hold, and the scope reservation runs first. Then one slot goes to the
+longest-overdue due clue (bounded waiting: misses cannot starve a due success),
+other due clues follow (misses first, then lowest retrievability), and new clues
+keep their budget. Not-yet-due clues only fill a set that would otherwise be
+short. When the country limit blocks a pick, earlier picks move to their other
+panoramas before the set is declared short; a short set says whether content is
+missing or no valid combination was found. The progress tree's amber "review
+due" ring uses the same due date. Mastery evidence rules are unchanged.
 
 Post-guess cards show one short selection label: "New clue", "Review: you missed
 this last time", or "Review". Practice counts and readiness appear only on the

@@ -65,10 +65,17 @@ export function validateAttempt(input: unknown, allowedSkillIds: readonly string
   } };
 }
 
-function qualifies(attempts: Attempt[]) {
-  const window = attempts.slice(-20);
-  return window.length >= 20 && rate(window) >= 0.8 && rate(window.slice(-5)) >= 0.8
-    && attempts.filter(attempt => time(attempt.occurredAt) - time(attempts[0].occurredAt) >= DELAY).length >= 3;
+/** One pass over time-sorted evidence: does each prefix of length k qualify (20 unique, 80% overall and latest five, 3 delayed)? */
+function qualifyingPrefixes(attempts: Attempt[]) {
+  const passes = [0], qualifies = [false];
+  let delayedFrom = -1;
+  for (let k = 1; k <= attempts.length; k++) {
+    passes.push(passes[k - 1] + Number(passed(attempts[k - 1])));
+    if (delayedFrom < 0 && time(attempts[k - 1].occurredAt) - time(attempts[0].occurredAt) >= DELAY) delayedFrom = k - 1;
+    qualifies.push(k >= 20 && (passes[k] - passes[k - 20]) / 20 >= 0.8 && (passes[k] - passes[k - 5]) / 5 >= 0.8
+      && delayedFrom >= 0 && k - delayedFrom >= 3);
+  }
+  return qualifies;
 }
 
 export function skillStatus(skillId: string, attempts: Attempt[], now: Clock = Date.now(), kind?: 'orientation'): SkillStatus {
@@ -100,18 +107,23 @@ export function skillStatus(skillId: string, attempts: Attempt[], now: Clock = D
   const accuracy = window.length ? rate(window) : null;
   const recentAccuracy = window.length ? rate(window.slice(-5)) : null;
   const provisional = window.length >= 10 && accuracy! >= 0.8;
+  const qualifies = qualifyingPrefixes(eligible);
   // A failed latest assessment always prompts repair, even if the aggregate still passes.
-  const mastered = qualifies(eligible) && !!latest && passed(latest);
+  const mastered = qualifies[eligible.length] && !!latest && passed(latest);
   const state = mastered ? 'mastered' : provisional ? 'provisional' : records.length ? 'learning' : 'new';
   let masteredAt: string | null = null;
   if (mastered) {
     let achievedIndex = eligible.length - 1;
-    while (achievedIndex > 0 && qualifies(eligible.slice(0, achievedIndex)) && passed(eligible[achievedIndex - 1])) achievedIndex--;
+    while (achievedIndex > 0 && qualifies[achievedIndex] && passed(eligible[achievedIndex - 1])) achievedIndex--;
     masteredAt = eligible[achievedIndex].occurredAt;
   }
-  // Every outcome (practice or assessment, explicit or assumed) is one FSRS review: passed = Good, otherwise Again.
+  // Every outcome (practice or assessment, explicit or assumed) is one FSRS review: a recognition miss or wrong answer
+  // is Again, a right answer Good. An unknown answer (correct null, nothing failed) is not a review at all.
   let memory: Memory | null = null;
-  for (const attempt of records) memory = review(memory, time(attempt.occurredAt), passed(attempt) ? GOOD : AGAIN);
+  for (const attempt of records) {
+    if (!attempt.evidenceValid || attempt.correct === false) memory = review(memory, time(attempt.occurredAt), AGAIN);
+    else if (attempt.correct === true) memory = review(memory, time(attempt.occurredAt), GOOD);
+  }
   let reason = 'Start with a guided lesson, then try an unfamiliar location.';
   if (state === 'learning') reason = `${window.length}/10 unique unfamiliar assessments; practice alone does not establish mastery.`;
   if (state === 'provisional') reason = `Provisional: ${window.length} unique assessments, ${Math.round(accuracy! * 100)}% correct with valid evidence. Need 20, a delayed check, and 80% on the latest five.`;

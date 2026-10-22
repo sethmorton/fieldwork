@@ -74,8 +74,9 @@ installation or successful live publication based on a build passing.
 - New-clue budgets are 1/2/3 below 70% / below 85% / at least 85% recent success
   (two with no feedback). Normally at most one target per advanced scope per set.
   Review is scheduled by FSRS-6 (`src/lib/fsrs.ts`, ts-fsrs defaults) replayed from attempts: passed = Good,
-  otherwise Again; never store scheduler state. Due reviews lead, misses first, then lowest retrievability;
-  not-yet-due reviews only fill an otherwise short set. Cold start/rest/diversity
+  recognition miss or wrong answer = Again, unknown answer = no review; never store scheduler state.
+  One slot goes to the longest-overdue due review (no starvation), then due reviews, misses first, then lowest
+  retrievability; not-yet-due reviews only fill an otherwise short set. Cold start/rest/diversity
   can require extra introductions; sparse pools may relax scope, never family/country caps.
 - Prerequisites can use three latest successful practice attempts, not only mastery.
   Reject cycles, missing IDs and active prerequisites without playable/orientation evidence.

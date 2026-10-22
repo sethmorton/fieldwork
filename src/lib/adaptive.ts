@@ -252,22 +252,41 @@ export function planPractice(
   const membersBySkill = new Map<string, PracticeLocation[]>();
   for (const location of chosen.members) { const list = membersBySkill.get(location.skillIds[0]); if (list) list.push(location); else membersBySkill.set(location.skillIds[0], [location]); }
   const usedFamilies = new Set<string>(), usedPanoramas = new Set<string>();
-  const selected: PracticeLocation[] = [], focusSkills: PracticeSkill[] = [];
+  const selected: PracticeLocation[] = [], focusSkills: PracticeSkill[] = [], options: PracticeLocation[][] = [];
+  const cap = pack.maxLocationsPerCountry;
+  // Augmenting path over the ≤limit picks: free a full country by moving earlier picks to their other eligible panoramas.
+  const freeCountry = (country: string, visited: Set<string>): boolean => {
+    visited.add(country);
+    for (let i = 0; i < selected.length; i++) {
+      if (selected[i].country !== country) continue;
+      for (const other of options[i]) {
+        if (!other.country || visited.has(other.country) || usedPanoramas.has(other.panoId ?? other.id)) continue;
+        if (selected.filter(item => item.country === other.country).length < cap! || freeCountry(other.country, visited)) {
+          usedPanoramas.delete(selected[i].panoId ?? selected[i].id); usedPanoramas.add(other.panoId ?? other.id);
+          selected[i] = other;
+          return true;
+        }
+      }
+    }
+    return false;
+  };
   const addTargets = (skills: PracticeSkill[], targetSize: number, relaxScope = false) => { for (const skill of skills) {
     if (selected.length >= targetSize) break;
     if (usedFamilies.has(family(skill))) continue;
     if (!relaxScope && (!scopeOpen(skill) || (scopeIndex(skill) > progression.base
       && focusSkills.some(other => scopeIndex(other) === scopeIndex(skill))))) continue;
-    const candidates = (membersBySkill.get(skill.id) ?? []).filter(location => !usedPanoramas.has(location.panoId ?? location.id)
-      && (relaxScope || progression.base > 0 || scopeIndex(skill) === 0 || !isNew(skill) || countryOpen(location.country))
-      && (!pack.maxLocationsPerCountry || (location.country && selected.filter(other=>other.country===location.country).length<pack.maxLocationsPerCountry)));
+    const eligible = (membersBySkill.get(skill.id) ?? []).filter(location => !usedPanoramas.has(location.panoId ?? location.id)
+      && (relaxScope || progression.base > 0 || scopeIndex(skill) === 0 || !isNew(skill) || countryOpen(location.country)));
     const seen = (location: PracticeLocation) => aliases(location).some(key => observed.has(key));
     const regionCount = (location: PracticeLocation) => location.region ? selected.filter(other => other.region === location.region).length : 0;
-    candidates.sort((a, b) => Number(seen(a)) - Number(seen(b)) || regionCount(a) - regionCount(b)
+    eligible.sort((a, b) => Number(seen(a)) - Number(seen(b)) || regionCount(a) - regionCount(b)
       || hash(a.id) - hash(b.id));
-    const location = candidates[0];
+    const location = !cap ? eligible[0]
+      : eligible.find(location => location.country && selected.filter(other => other.country === location.country).length < cap)
+      ?? eligible.find(location => location.country && freeCountry(location.country, new Set()));
     if (!location) continue;
-    selected.push(location); focusSkills.push(skill); usedFamilies.add(family(skill)); usedPanoramas.add(location.panoId ?? location.id);
+    selected.push(location); focusSkills.push(skill); options.push(eligible);
+    usedFamilies.add(family(skill)); usedPanoramas.add(location.panoId ?? location.id);
   }};
   // Reserve one target per advanced scope; a weak/due review takes its introduction slot.
   for (let level = progression.base + 1; level <= progression.open; level++) {
@@ -276,9 +295,12 @@ export function planPractice(
     addTargets([...needsReview, ...introductions.filter(skill => scopeIndex(skill) === level)],
       Math.min(selected.length + 1, progression.newLimit, limit));
   }
+  // Bounded waiting: one slot always goes to the longest-overdue due review, so misses lead but cannot starve the rest.
+  const dueReviews = ranked.filter(skill => !isNew(skill) && !restingTargets.has(skill.id) && urgency(skill) > 0);
+  addTargets([...dueReviews].sort((a, b) => Date.parse(statuses.get(a.id)!.reviewDueAt!) - Date.parse(statuses.get(b.id)!.reviewDueAt!)),
+    Math.min(selected.length + 1, limit));
   // Reserve review slots before a new clue can consume a weak/due clue's family.
-  addTargets(ranked.filter(skill => !isNew(skill) && !restingTargets.has(skill.id) && urgency(skill) > 0),
-    Math.max(selected.length, limit - progression.newLimit));
+  addTargets(dueReviews, Math.max(selected.length, limit - progression.newLimit));
   addTargets(introductions.filter(skill => !restingTargets.has(skill.id)),
     Math.min(selected.length + progression.newLimit - focusSkills.filter(isNew).length, limit));
   // Remaining due reviews, then not-yet-due reviews (most forgotten first) only when the set is still short.
@@ -297,7 +319,10 @@ export function planPractice(
     `${selected.length} distinct clue families selected; ${selected.filter(location => !aliases(location).some(key => observed.has(key))).length} unseen panoramas.`,
     'Assumed recognition can guide practice, but does not establish verified mastery.'];
   if (selected.length > beforeFallback) reasons.push('Curriculum limits relaxed to fill distinct families in this small pool.');
-  if (selected.length < limit) reasons.push(`Only ${selected.length} distinct location-backed families are available; repeated clues will not fill the missing slots.`);
+  const countries = new Set(chosen.members.map(location => location.country).filter(Boolean)).size;
+  if (selected.length < limit) reasons.push(chosen.families >= limit && (!cap || countries * cap >= limit)
+    ? `Enough clue families and countries exist, but no combination of ${limit} distinct families within the country limit was found (${selected.length} placed).`
+    : `Only ${selected.length} distinct location-backed families are available; repeated clues will not fill the missing slots.`);
   return { pool: chosen.pool, focusSkills, reasons, locationIds: selected.map(location => location.id), phase: 'Mixed practice',
     newSkillIds: focusSkills.filter(isNew).map(skill => skill.id) };
 }

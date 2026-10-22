@@ -27,6 +27,22 @@ test('unknown geography needs an explicit region result',()=>{
   assert.throws(()=>recordRecognition(pack,[],round,{recognized:true}),/Confirm/);
   assert.equal(recordRecognition(pack,[],round,{recognized:true,correct:false})[0].correct,false);
 });
+test('unknown geography is never graded as a failure; spotted/missed decides country-scored regional clues',()=>{
+  const at=new Date('2026-10-22T10:00:00Z'),dueIn=records=>(Date.parse(skillStatus('clue',records,at).reviewDueAt)-at)/60000;
+  // Region-scored pack: an assumed spot with no region result is practice, not a scheduler review.
+  const unknown=completedRound({...pack,regionFeatures:[]},state);
+  const assumed=recordRecognition(pack,[],unknown,{recognized:true,assumed:true},at);
+  assert.equal(assumed[0].correct,null);assert.equal(skillStatus('clue',assumed,at).reviewDueAt,null);
+  assert.equal(dueIn(recordRecognition(pack,[],unknown,{recognized:false},at)),1); // An explicit miss is still Again.
+  // World-style pack: the map scores the country, the clue is regional.
+  const world={...pack,skills:pack.skills.map(skill=>({...skill,curriculum:{scope:'within-country-regional',rank:1}})),
+    locations:pack.locations.map(location=>({...location,country:location.region}))};
+  const noCountry=completedRound({...world,regionFeatures:[]},state),scored=completedRound(world,state);
+  assert.equal(noCountry.correct,null);assert.equal(scored.correct,true);
+  for(const [round,choice,minutes] of [[noCountry,{recognized:true},10],[noCountry,{recognized:true,assumed:true},10],[scored,{recognized:true},10],
+    [noCountry,{recognized:false},1],[scored,{recognized:false},1],[scored,{recognized:true,correct:false},1]])
+    assert.equal(dueIn(recordRecognition(world,[],round,choice,at)),minutes,JSON.stringify(choice)); // 10 min = Good, 1 min = Again
+});
 test('publishing is limited to a distinct verified owned map, after a backup, with actual source coordinates',async()=>{
   const set={mapMaking:{customCoordinates:pack.locations}};const calls=[];
   const request=async(url,options)=>{calls.push([url,options]);return {name:'Fieldwork - Practice',version:4}};
