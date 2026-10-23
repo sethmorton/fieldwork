@@ -1476,7 +1476,7 @@
     }
   ],
   "sequenceRules": [
-    "Five different pedagogic clue families per set.",
+    "At most two clues of one pedagogic family per set.",
     "Source-informed importance, errors, coverage and recency guide a mixed selection; there is no sequential completion gate.",
     "National features are recognition tasks while country-contrast locations are absent.",
     "Keep existing history; assumed-on-advance observations are labelled practice, never backfilled."

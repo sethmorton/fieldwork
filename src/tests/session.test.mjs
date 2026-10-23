@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet} from '../session.mjs';
+import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,practiceFeedback,quickCheckQueue,recordKnown} from '../session.mjs';
 import {skillStatus} from '../lib/mastery.ts';
+import {curriculumProgress} from '../lib/adaptive.ts';
+import {validatePack} from '../next-set.mjs';
 const mapId='0123456789abcdef01234567';
 const pack={id:'any-country',practiceMapId:mapId,skills:[{id:'clue'},...[1,2,3,4].map(i=>({id:'clue'+i}))],pools:[],locations:Array.from({length:5},(_,i)=>({id:`pano:${i}`,panoId:String(i),lat:i,lng:i,skillIds:[i?'clue'+i:'clue'],region:'Test region'})),regionFeatures:[{properties:{name:'Test region'},geometry:{type:'Polygon',coordinates:[[[-10,-10],[10,-10],[10,10],[-10,10],[-10,-10]]]}}]};
 const state={map:{id:mapId},current_game_id:'game-id',round_in_progress:false,current_round:1,rounds:[{location:{panoId:'0'},player_guess:{lat:1,lng:1}}]};
@@ -26,6 +28,64 @@ test('unknown geography needs an explicit region result',()=>{
   assert.throws(()=>recordRecognition(pack,[],round,{recognized:true}),/Confirm/);
   assert.equal(recordRecognition(pack,[],round,{recognized:true,correct:false})[0].correct,false);
 });
+test('unknown geography is never graded as a failure; spotted/missed decides country-scored regional clues',()=>{
+  const at=new Date('2026-10-22T10:00:00Z'),dueIn=records=>(Date.parse(skillStatus('clue',records,at).reviewDueAt)-at)/60000;
+  // Region-scored pack: an assumed spot with no region result is practice, not a scheduler review.
+  const unknown=completedRound({...pack,regionFeatures:[]},state);
+  const assumed=recordRecognition(pack,[],unknown,{recognized:true,assumed:true},at);
+  assert.equal(assumed[0].correct,null);assert.equal(skillStatus('clue',assumed,at).reviewDueAt,null);
+  assert.equal(dueIn(recordRecognition(pack,[],unknown,{recognized:false},at)),1); // An explicit miss is still Again.
+  // World-style pack: the map scores the country, the clue is regional.
+  const world={...pack,skills:pack.skills.map(skill=>({...skill,curriculum:{scope:'within-country-regional',rank:1}})),
+    locations:pack.locations.map(location=>({...location,country:location.region}))};
+  const noCountry=completedRound({...world,regionFeatures:[]},state),scored=completedRound(world,state);
+  assert.equal(noCountry.correct,null);assert.equal(scored.correct,true);
+  for(const [round,choice,minutes] of [[noCountry,{recognized:true},10],[noCountry,{recognized:true,assumed:true},10],[scored,{recognized:true},10],
+    [noCountry,{recognized:false},1],[scored,{recognized:false},1],[scored,{recognized:true,correct:false},1]])
+    assert.equal(dueIn(recordRecognition(world,[],round,choice,at)),minutes,JSON.stringify(choice)); // 10 min = Good, 1 min = Again
+});
+test('a recognition-graded pack schedules spotted/missed regardless of the country result',()=>{
+  const at=new Date('2026-10-22T10:00:00Z'),dueIn=records=>(Date.parse(skillStatus('clue',records,at).reviewDueAt)-at)/60000;
+  // A country-scored world pack; the guess lands in another country's polygon.
+  const legacy={...pack,skills:pack.skills.map(skill=>({...skill,curriculum:{scope:'specialist',rank:1}})),
+    locations:pack.locations.map(location=>({...location,country:location.region})),
+    regionFeatures:[...pack.regionFeatures,{properties:{name:'Elsewhere'},geometry:{type:'Polygon',coordinates:[[[40,40],[60,40],[60,60],[40,60],[40,40]]]}}]};
+  const world={...legacy,gradingPolicy:'recognition'};
+  const wrong=completedRound(world,{...state,rounds:[{location:{panoId:'0'},player_guess:{lat:50,lng:50}}]});
+  assert.equal(wrong.correct,false);
+  const spotted=recordRecognition(world,[],wrong,{recognized:true},at),missed=recordRecognition(world,[],wrong,{recognized:false},at);
+  assert.equal(spotted[0].correct,true);assert.equal(spotted[0].regionCorrect,false);assert.equal(dueIn(spotted),10); // Good
+  assert.equal(missed[0].correct,false);assert.equal(dueIn(missed),1); // Again
+  // Without the field a wrong country stays Again, as before.
+  const old=recordRecognition(legacy,[],wrong,{recognized:true},at);
+  assert.equal(old[0].correct,false);assert.equal(dueIn(old),1);
+  const minimal={id:'p',title:'t',subject:'s',skills:[{id:'clue',title:'c',phase:'p',prerequisites:[]}],pools:[],locations:[]};
+  assert.equal(validatePack({...minimal,gradingPolicy:'recognition'}).gradingPolicy,'recognition');
+  assert.throws(()=>validatePack({...minimal,gradingPolicy:'country'}),/grading policy/);
+});
+test('a clue known cold skips the learning repeats, comes back to be confirmed, and restarts on a miss',()=>{
+  const at=new Date('2026-10-22T10:00:00Z'),DAY=86400000,dueIn=records=>(Date.parse(skillStatus('clue',records,at).reviewDueAt)-at)/DAY;
+  const world={...pack,gradingPolicy:'recognition'},round=completedRound(world,state);
+  const knew=recordRecognition(world,[],round,{recognized:true,knew:true},at);
+  assert.equal(knew[0].grade,'easy');assert.equal(dueIn(knew),8); // Easy: ts-fsrs 5.4.2 gives 8 days, not a 10-minute step
+  // Knowing it is only claimed for a spotted clue: a miss stays a miss.
+  const missed=recordRecognition(world,[],round,{recognized:false,knew:true},at);
+  assert.equal(missed[0].grade,undefined);assert.equal(missed[0].correct,false);
+  const relapse=[...knew,{...knew[0],id:'later',occurredAt:new Date(at.getTime()+8*DAY).toISOString(),correct:false,evidenceValid:false,confidence:2}];
+  assert.ok(Date.parse(skillStatus('clue',relapse,at.getTime()+8*DAY).reviewDueAt)-(at.getTime()+8*DAY)<DAY);
+});
+test('quick check lists unscheduled clues in curriculum order; a known clue stays with FSRS even once due',()=>{
+  const at=new Date('2026-10-22T10:00:00Z');
+  const ranked={...pack,skills:pack.skills.map((skill,i)=>({...skill,curriculum:{scope:'within-country-regional',rank:5-i}}))};
+  assert.deepEqual(quickCheckQueue(ranked,[],at).map(skill=>skill.id),['clue4','clue3','clue2','clue1','clue']);
+  const known=recordKnown(ranked,[],'clue3',at);
+  assert.deepEqual(quickCheckQueue(ranked,known,at).map(skill=>skill.id),['clue4','clue2','clue1','clue']);
+  assert.equal(skillStatus('clue3',known,at).due,false);
+  assert.equal(skillStatus('clue3',known,new Date(at.getTime()+8*86400000)).due,true);
+  // Its confirmation is a panorama round, never another card.
+  assert.ok(!quickCheckQueue(ranked,known,new Date(at.getTime()+9*86400000)).some(skill=>skill.id==='clue3'));
+  assert.throws(()=>recordKnown(ranked,[],'nope',at),/Unknown clue/);
+});
 test('publishing is limited to a distinct verified owned map, after a backup, with actual source coordinates',async()=>{
   const set={mapMaking:{customCoordinates:pack.locations}};const calls=[];
   const request=async(url,options)=>{calls.push([url,options]);return {name:'Fieldwork - Practice',version:4}};
@@ -34,9 +94,12 @@ test('publishing is limited to a distinct verified owned map, after a backup, wi
   await assert.rejects(()=>publishPracticeSet({...pack,pools:[{id:mapId,mapUrl:'https://example.test'}]},set,request,async()=>{}),/never the source/);
   await assert.rejects(()=>publishPracticeSet(pack,{mapMaking:{customCoordinates:[...pack.locations.slice(1),{...pack.locations[0],lat:99}]}},request,async()=>{}),/source panoramas/);
 });
-test('publishing rejects repeated clue families before making any request',async()=>{
- const p={...pack,skills:pack.skills.map(skill=>({...skill,practiceFamily:'same'}))};let calls=0;
- await assert.rejects(()=>publishPracticeSet(p,{mapMaking:{customCoordinates:p.locations}},()=>calls++,()=>{}),/five different clue families/);assert.equal(calls,0);
+test('publishing allows two clues per family and rejects a third before making any request',async()=>{
+ const withFamilies=families=>({...pack,skills:pack.skills.map((skill,i)=>({...skill,practiceFamily:families[i]}))});
+ const set={mapMaking:{customCoordinates:pack.locations}};let calls=0;
+ await publishPracticeSet(withFamilies(['x','x','y','y','z']),set,async()=>{calls++;return {name:'Fieldwork - Practice',version:1}},async()=>{});
+ assert.equal(calls,3);calls=0;
+ await assert.rejects(()=>publishPracticeSet(withFamilies(['x','x','x','y','z']),set,()=>calls++,()=>{}),/at most 2 clues per family/);assert.equal(calls,0);
 });
 test('failed draft update never attempts publication',async()=>{
   const methods=[];
@@ -99,4 +162,31 @@ test('worldwide publication enforces country diversity before making account req
  const set={mapMaking:{customCoordinates:worldwide.locations}};let requests=0;
  await assert.rejects(()=>publishPracticeSet(worldwide,set,async()=>{requests++;},()=>{}),/varied set of known countries/);
  assert.equal(requests,0);
+});
+
+test('post-round feedback distinguishes new, weak and review without claiming practice mastery',()=>{
+ const round=completedRound(pack,state),now=new Date('2026-10-21T12:00:00Z');
+ assert.equal(practiceFeedback([],round,now),'New clue');
+ const previous={...round,id:'previous-round'};
+ const missed=recordRecognition(pack,[],previous,{recognized:false},now);
+ assert.equal(practiceFeedback(missed,round,now),'Review: you missed this last time');
+ const spotted=recordRecognition(pack,[],previous,{recognized:true,assumed:true},now);
+ assert.equal(practiceFeedback(spotted,round,now),'Review');
+});
+test('assumed teaching practice unlocks introductions, but explicit corrections remove false readiness',()=>{
+ const now=new Date('2026-10-21T12:00:00Z');
+ const p={...pack,skills:[...pack.skills.map(s=>({...s,curriculum:{scope:'country-identification',rank:0}})),
+  {id:'regional',curriculum:{scope:'within-country-regional',rank:0}}],
+  locations:[...pack.locations,{...pack.locations[0],id:'regional-location',skillIds:['regional']}]};
+ let records=[];
+ for(let i=0;i<20;i++){
+  const round={id:'practice-'+i,correct:true,location:{...pack.locations[i%5],assessmentEligible:false}};
+  records=recordRecognition(p,records,round,{recognized:true,assumed:true},now);
+ }
+ assert.match(curriculumProgress(p,records,now).message,/Regional clues are open/);
+ for(let i=16;i<20;i++)records=recordRecognition(p,records,
+  {id:'practice-'+i,correct:true,location:{...pack.locations[i%5],assessmentEligible:false}},{recognized:false},now);
+ assert.doesNotMatch(curriculumProgress(p,records,now).message,/are open/);
+ assert.equal(records.length,20);assert.ok(records.every(a=>a.mode==='practice'));
+ assert.equal(skillStatus('clue',records,now).eligibleCount,0);
 });

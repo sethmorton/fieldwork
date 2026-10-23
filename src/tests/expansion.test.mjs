@@ -23,7 +23,9 @@ test('expansion retains old progress identities and adds only actual tagged pano
  assert.ok(pack.skills.filter(skill=>skill.recognitionOnly).every(skill=>skill.availability==='needs-contrasts'));
 });
 test('mixed foundations replace the starter gate without changing original skill identities',()=>{
- const set=makeNextSet(pack,[],{now:'2026-10-19T08:00:00Z'});assert.equal(set.selectedLocations.length,5);assert.equal(new Set(set.focus.map(f=>pack.skills.find(s=>s.id===f.id).practiceFamily)).size,5);assert.ok(set.focus.every(f=>!pack.skills.find(s=>s.id===f.id).recognitionOnly));
+ const set=makeNextSet(pack,[],{now:'2026-10-19T08:00:00Z'});assert.equal(set.selectedLocations.length,5);
+ const families=set.focus.map(f=>pack.skills.find(s=>s.id===f.id).practiceFamily);assert.ok(families.every(f=>families.filter(other=>other===f).length<=2));
+ assert.ok(set.focus.every(f=>!pack.skills.find(s=>s.id===f.id).recognitionOnly));
 });
 test('a union pool cannot make either owned source map writable',async()=>{
  for(const sourceId of new Set(pack.locations.map(location=>location.sourceMapId))){

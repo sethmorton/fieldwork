@@ -6,6 +6,7 @@ const headKey=id=>`fieldwork:${id}:content-head`;
 const activeKey=id=>`fieldwork:${id}:active-set`;
 const gameKey=(id,game)=>`fieldwork:${id}:game:${game}`;
 const SCHEMA=2;
+const REFRESH_MS=15*60000;
 
 // GM storage (get/set/list/remove) holds learner state and small content pointers; it is loaded into every page.
 // Pack bodies live in `cache` (IndexedDB in the browser). Attempts, exposures, reviews and backups are never migrated.
@@ -69,7 +70,9 @@ export function createContentStore({get,set,list,remove,cache,catalog,fetchText,
     await ready;
     const entry=entryFor(id),head=get(headKey(id),null),cached=await read(id,head?.key);
     if(!entry.manifestUrl)return cached??Promise.reject(Error('Import this custom pack through Content & progress.'));
-    if(cached&&!force&&head.checkedAt&&now()-head.checkedAt<86400000)return cached;
+    // The manifest is a few hundred bytes and the check runs in the background on the map page, so a new pack
+    // revision reaches the learner's next set within REFRESH_MS.
+    if(cached&&!force&&head.checkedAt&&now()-head.checkedAt<REFRESH_MS)return cached;
     try{
       const manifest=JSON.parse(await fetchText(entry.manifestUrl));
       if(manifest.schemaVersion!==1||!Array.isArray(manifest.packs))throw Error('This content needs a newer Fieldwork engine.');

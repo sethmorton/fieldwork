@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makeNextSet,validatePack} from '../plan.mjs';
+import {makeNextSet,validatePack} from '../next-set.mjs';
 // Synthetic coordinates are test fixtures, never an exported teaching pack.
 const mid='0123456789abcdef01234567';
 const makePack=()=>{const skills=['A','B','C','D','E','F'].map(id=>({id,title:'Clue '+id,phase:'Mixed',prerequisites:[]}));return {id:'test',title:'Test topic',subject:'Any topic',skills,pools:[{id:mid,title:'Test',skillIds:skills.map(s=>s.id),mapUrl:`https://www.geoguessr.com/maps/${mid}`}],locations:skills.flatMap((s,j)=>[0,1,2].map(i=>({id:`pano:${s.id}${i}`,panoId:s.id+i,lat:j,lng:i,skillIds:[s.id],sourceMapId:mid})))}};
 test('a next set contains actual supplied panoramas and valid map coordinates',()=>{
  const pack=makePack(); const set=makeNextSet(pack,[]);assert.equal(set.mapMaking.customCoordinates.length,5);assert.ok(set.selectedLocations.every(l=>pack.locations.includes(l)));assert.equal(new Set(set.focus.map(s=>s.id)).size,5);
 });
-test('no invented coordinates when data is unavailable',()=>{const pack=makePack();pack.locations=[];assert.throws(()=>makeNextSet(pack,[]),/different location-backed clue families/)});
+test('no invented coordinates when data is unavailable',()=>{const pack=makePack();pack.locations=[];assert.throws(()=>makeNextSet(pack,[]),/Need 5 location-backed clues/)});
 test('cycle, unknown skill and invalid coordinates reject',()=>{
  for(const alter of [p=>p.skills[0].prerequisites=['A'],p=>p.locations[0].skillIds=['X'],p=>p.locations[0].lat=91]){const pack=makePack();alter(pack);assert.throws(()=>validatePack(pack))}
 });
@@ -26,4 +26,24 @@ test('another country uses the same pack validator and selector without Australi
  const set=makeNextSet(pack,[]);assert.equal(set.packId,pack.id);assert.equal(new Set(set.focus.map(s=>s.id)).size,5);assert.equal(set.selectedLocations.length,5);
 });
 
-test('too few clue families fail before a repeated-clue map can be produced',()=>{const p=makePack();p.skills.forEach(s=>s.practiceFamily='same');assert.throws(()=>makeNextSet(p,[]),/only 1/)});
+test('too few clue families fail before a repeated-clue map can be produced',()=>{const p=makePack();p.skills.forEach(s=>s.practiceFamily='same');assert.throws(()=>makeNextSet(p,[]),/Only 2 location-backed clues can be placed with at most 2 per family/)});
+
+test('malformed curricula and unreachable active prerequisites reject, but teaching evidence is sufficient',()=>{
+ for(const curriculum of [null,{scope:'unknown',rank:1},{scope:'specialist',rank:1.5}]){
+  const p=makePack();p.skills[0].curriculum=curriculum;assert.throws(()=>validatePack(p),/curriculum/);
+ }
+ for(const alter of [p=>p.skills[1].availability='needs-verification',
+   p=>p.locations=p.locations.filter(l=>l.skillIds[0]!=='B'),
+   p=>p.pools[0].skillIds=p.pools[0].skillIds.filter(id=>id!=='B'),
+   p=>p.skills[0].prerequisites=['missing']]){
+  const p=makePack();p.skills[0].prerequisites=['B'];alter(p);assert.throws(()=>validatePack(p),/prerequisite/i);
+ }
+ const p=makePack();p.skills[0].prerequisites=['B'];p.locations.forEach(l=>l.assessmentEligible=false);
+ assert.doesNotThrow(()=>validatePack(p));
+});
+test('curriculum selection preserves native panorama pitch and zoom',()=>{
+ const p=makePack();p.skills.forEach((s,rank)=>s.curriculum={scope:'country-identification',rank});
+ p.locations.forEach(l=>Object.assign(l,{pitch:-12,zoom:2,heading:123}));
+ const set=makeNextSet(p,[]);
+ assert.ok(set.mapMaking.customCoordinates.every(l=>l.pitch===-12&&l.zoom===2&&l.heading===123));
+});

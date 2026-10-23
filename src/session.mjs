@@ -1,4 +1,16 @@
 import {regionAt} from './geo.mjs';
+import {MAX_PER_FAMILY} from './lib/adaptive.ts';
+import {skillStatus} from './lib/mastery.ts';
+
+/** Only render this after a completed guess; never disclose an upcoming target. */
+export function practiceFeedback(history,round,now=Date.now()) {
+  const nowMs=new Date(now).getTime();
+  const prior=history.filter(attempt=>attempt.skillId===round.location.skillIds[0]&&attempt.id!==round.id
+    && Date.parse(attempt.occurredAt)<=nowMs).sort((a,b)=>Date.parse(a.occurredAt)-Date.parse(b.occurredAt));
+  const latest=prior.at(-1);
+  return !latest?'New clue'
+    :latest.correct===false||latest.evidenceValid===false?'Review: you missed this last time':'Review';
+}
 
 export function completedRound(pack,state) {
   if(!state || state.map?.id!==pack.practiceMapId || state.round_in_progress!==false
@@ -13,22 +25,53 @@ export function completedRound(pack,state) {
     correct:guessedRegion&&location.region?guessedRegion===location.region:null};
 }
 
-export function recordRecognition(pack,history,round,{recognized,familiar=false,correct=round.correct,assumed=false},now=new Date()) {
+export function recordRecognition(pack,history,round,{recognized,knew=false,familiar=false,correct=round.correct,assumed=false},now=new Date()) {
   const skill=pack.skills.find(skill=>skill.id===round.location.skillIds[0]);
   if(!skill) throw Error('Unknown clue.');
-  if(typeof recognized!=='boolean' || (!assumed&&!skill.recognitionOnly&&recognized&&typeof correct!=='boolean')) throw Error('Confirm clue recognition and the region result.');
+  // gradingPolicy 'recognition' (and recognition-only clues): spotted = Good, missed = Again; the geographic result is kept as regionCorrect.
+  const byRecognition=skill.recognitionOnly||pack.gradingPolicy==='recognition';
+  // Without either, a map scored only by country cannot judge a regional/specialist clue; with no country result, spotted/missed decides it.
+  // Elsewhere an unknown region result stays unknown: practice, but no scheduler review.
+  const recognitionDecides=byRecognition||(typeof correct!=='boolean'&&!!round.location.country&&round.location.region===round.location.country
+    &&(skill.curriculum?.scope??'country-identification')!=='country-identification');
+  if(typeof recognized!=='boolean' || (!assumed&&!recognitionDecides&&recognized&&typeof correct!=='boolean')) throw Error('Confirm clue recognition and the region result.');
   const prior=history.find(attempt=>attempt.id===round.id);
   if(prior && (assumed || prior.feedbackSource!=='assumed-on-advance'))return history;
   const wasSeen=history.some(attempt=>attempt.id!==round.id&&attempt.locationRef===round.location.id);
   const attempt={id:round.id,skillId:round.location.skillIds[0],occurredAt:now.toISOString(),
-    correct:skill.recognitionOnly?recognized:correct,regionCorrect:correct,evidenceValid:recognized,confidence:2,unfamiliar:!familiar&&!wasSeen,
+    correct:recognitionDecides?recognized:correct,regionCorrect:correct,evidenceValid:recognized,confidence:recognized&&knew?3:2,unfamiliar:!familiar&&!wasSeen,
+    ...(recognized&&knew?{grade:'easy'}:{}),
     locationRef:round.location.id,mode:assumed||round.location.assessmentEligible===false||(!skill.recognitionOnly&&correct===null)?'practice':'assessment',feedbackSource:assumed?'assumed-on-advance':'explicit',
-    reason:assumed?'Recognition assumed on advance by learner preference; not verified mastery evidence.'
+    reason:(assumed?'Recognition assumed on advance by learner preference; not verified mastery evidence.'
       :round.location.assessmentEligible===false?'Source teaching example; practice only, not unseen assessment evidence.'
       :skill.recognitionOnly?'Explicit visual-feature recognition; geographic result recorded separately. Country discrimination was not tested.'
-        :'Region result plus self-reported clue recognition after reveal. Confidence was not measured (neutral default).'};
+        :'Region result plus self-reported clue recognition after reveal. Confidence was not measured (neutral default).')
+      +(recognized&&knew?' Learner marked it known cold (confidence 3, Easy).':'')};
   // Duplicate framework events and reloads cannot create extra evidence.
   return prior?history.map(item=>item.id===attempt.id?attempt:item):[...history,attempt];
+}
+
+/** Clues a quick check can clear: playable ones that are new or on a minutes-long learning/relearning step, in the order
+ *  practice introduces them (scope, then curriculum rank). A clue on a scheduled interval of a day or more stays with FSRS
+ *  until a miss puts it back on a step, so a card can never replace a due panorama review. */
+export function quickCheckQueue(pack,history,now=Date.now()) {
+  const nowMs=new Date(now).getTime(),playable=new Set(pack.locations.map(location=>location.skillIds[0]));
+  const bySkill=Map.groupBy(history.filter(attempt=>Date.parse(attempt.occurredAt)<=nowMs),attempt=>attempt.skillId);
+  const graded=attempt=>attempt.correct!==null||attempt.evidenceValid===false;
+  const onStep=skill=>{const records=bySkill.get(skill.id)?.filter(graded);if(!records?.length)return true;const due=skillStatus(skill.id,records,nowMs).reviewDueAt;
+    return Date.parse(due)-Math.max(...records.map(attempt=>Date.parse(attempt.occurredAt)))<86400000};
+  const scope=skill=>['country-identification','within-country-regional','specialist'].indexOf(skill.curriculum?.scope??'country-identification');
+  return pack.skills.filter(skill=>playable.has(skill.id)&&skill.kind!=='orientation'&&(!skill.availability||skill.availability==='available')&&onStep(skill))
+    .sort((a,b)=>scope(a)-scope(b)||(a.curriculum?.rank??Number.MAX_SAFE_INTEGER)-(b.curriculum?.rank??Number.MAX_SAFE_INTEGER)||a.id.localeCompare(b.id));
+}
+
+/** "Knew it" in a quick check: one Easy review from the card alone (grade 'easy', no panorama). FSRS brings the clue
+ *  back in about a week to confirm; a miss then restarts it normally. */
+export function recordKnown(pack,history,skillId,now=new Date()) {
+  if(!pack.skills.some(skill=>skill.id===skillId)) throw Error('Unknown clue.');
+  return [...history,{id:`${pack.id}:quick-check:${skillId}:${now.getTime()}`,skillId,occurredAt:now.toISOString(),correct:true,regionCorrect:null,
+    evidenceValid:true,confidence:3,grade:'easy',unfamiliar:false,locationRef:'',mode:'practice',feedbackSource:'quick-check',
+    reason:'Quick check: the learner already knew this clue from its card; not panorama evidence.'}];
 }
 
 export function advanceRecognition(pack,history,pending,nextState,now=new Date()) {
@@ -49,7 +92,7 @@ export async function publishPracticeSet(pack,set,request,backup) {
     const skill=pack.skills.find(skill=>skill.id===source.skillIds[0]);
     return skill.practiceFamily??skill.id;
   });
-  if(new Set(families).size!==5)throw Error('A practice map requires five different clue families.');
+  if(families.some(family=>families.filter(value=>value===family).length>MAX_PER_FAMILY))throw Error(`A practice map allows at most ${MAX_PER_FAMILY} clues per family.`);
   if(pack.maxLocationsPerCountry){
     const countries=coordinates.map(location=>pack.locations.find(source=>source.panoId===location.panoId).country);
     if(countries.some(country=>!country||countries.filter(value=>value===country).length>pack.maxLocationsPerCountry))throw Error('This practice pack requires a varied set of known countries.');

@@ -1,6 +1,6 @@
 import {readFile,writeFile} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
-import {validatePack} from './plan.mjs';
+import {validatePack} from './next-set.mjs';
 
 export function curatePool(imported,content) {
   validatePack(imported);

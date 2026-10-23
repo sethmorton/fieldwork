@@ -12,7 +12,7 @@ const built=await build({entryPoints:[new URL('../browser.mjs',import.meta.url).
   name:'isolated-browser-fixture',setup(plugin){
     plugin.onResolve({filter:/practice-catalog\.json$/},()=>({path:'catalog',namespace:'synthetic-catalog'}));
     plugin.onLoad({filter:/.*/,namespace:'synthetic-catalog'},()=>({loader:'json',contents:JSON.stringify([{id:pack.id,title:pack.title,subject:pack.subject,practiceMapId:map},{id:'unbound',title:'Unbound',subject:'test'}])}));
-    plugin.onLoad({filter:/\/ui\.mjs$/},()=>({loader:'js',contents:`export function reviewPanel(pack,round,options){testUI.review(pack,round,options)} export function startPanel(){testUI.start()} export function loadingPanel(){} export function bindPanel(packs,options){testUI.bind(packs,options)}` }));
+    plugin.onLoad({filter:/\/ui\.mjs$/},()=>({loader:'js',contents:`export function reviewPanel(pack,round,options){testUI.review(pack,round,options)} export function startPanel(){testUI.start()} export function loadingPanel(){} export function bindPanel(packs,options){testUI.bind(packs,options)} export function quickCheckPanel(){}` }));
     plugin.onLoad({filter:/\/content-cache\.mjs$/},()=>({loader:'js',contents:`export function indexedDbCache(){const saved=new Map();return {get:async key=>structuredClone(saved.get(key)),set:async(key,value)=>{saved.set(key,structuredClone(value))}}}`}));
   }
 }]});

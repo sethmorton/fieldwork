@@ -1,7 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { makeNextSet } from './next-set.mjs';
-export { makeNextSet, validatePack } from './next-set.mjs';
 
 async function main() {
   const [packPath,resultsPath,outputPath,size] = process.argv.slice(2);

@@ -24,8 +24,8 @@ window.fetch=async(url,options={})=>{
  if(!url.startsWith('/api/v4/user-maps/drafts/'+pack.practiceMapId))throw Error('Unexpected fixture request');
  document.querySelector('#requests').textContent=(++requests)+' requests';
  if(mode==='spacing'&&options.method==='PUT'&&!url.endsWith('/publish')){
-  const coords=JSON.parse(options.body).customCoordinates;
-  document.querySelector('#repeated').textContent=coords.filter(l=>previousIds.includes(l.extra.tags[0])).length+' previous-set targets repeated · '+new Set(coords.map(l=>pack.skills.find(s=>s.id===l.extra.tags[0]).practiceFamily)).size+' distinct families';
+  const coords=JSON.parse(options.body).customCoordinates,families=coords.map(l=>pack.skills.find(s=>s.id===l.extra.tags[0]).practiceFamily);
+  document.querySelector('#repeated').textContent=coords.filter(l=>previousIds.includes(l.extra.tags[0])).length+' previous-set targets repeated · at most '+Math.max(...families.map(f=>families.filter(other=>other===f).length))+' clues per family';
  }
  if(mode==='failure'&&url.endsWith('/publish'))return new Response('Unavailable',{status:503});
  return new Response(JSON.stringify(options.method?{}:{name:'Fieldwork fixture',version:1,customCoordinates:[]}));
