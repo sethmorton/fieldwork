@@ -35,7 +35,19 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
       "trainingNote": "Look for pine-covered mountain slopes and relatively dry highland scenery. This favors northern Luzon; rare high-altitude Mindanao scenes can resemble it.",
-      "actualImportedLocationCount": 10
+      "actualImportedLocationCount": 10,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 3,
+        "source": {
+          "guide": "philippines",
+          "tipId": "40U4",
+          "section": 2,
+          "sourceOrder": 20,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "ph:lm:84196",
@@ -63,7 +75,19 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
       "trainingNote": "Notice tall trees with broad, airy, spreading crowns. Moluccan albizia is a useful Mindanao tendency, but a tree alone is supporting evidence rather than a geographic boundary.",
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 4,
+        "source": {
+          "guide": "philippines",
+          "tipId": "YkcX",
+          "section": 2,
+          "sourceOrder": 26,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "ph:lm:84199",
@@ -91,7 +115,19 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
       "trainingNote": "Yellow-and-black painted concrete barriers are useful in the northern Luzon highlands. Combine the construction and paint pattern with mountain scenery; yellow and black elsewhere is not enough.",
-      "actualImportedLocationCount": 5
+      "actualImportedLocationCount": 5,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 8,
+        "source": {
+          "guide": "philippines",
+          "tipId": "qoLR",
+          "section": 2,
+          "sourceOrder": 29,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "ph:lm:84200",
@@ -119,7 +155,19 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
       "trainingNote": "Look for groups of three black bands on white concrete guardrails. This is a Bicol tendency; count the bands and check the barrier rather than treating any striped roadside as Bicol.",
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 10,
+        "source": {
+          "guide": "philippines",
+          "tipId": "yYbQ",
+          "section": 2,
+          "sourceOrder": 30,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "ph:field:crop-pineapple",
@@ -151,6 +199,19 @@
         "author": "Oliver",
         "metaId": 6239,
         "usage": "Publicly displayed image reference only. Locations were acquired independently from guide-linked examples, not exported from this unshared map."
+      },
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 5,
+        "source": {
+          "guide": "philippines",
+          "tipId": "lS7l",
+          "section": 2,
+          "sourceOrder": 24,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
       }
     },
     {
@@ -183,6 +244,19 @@
         "author": "Oliver",
         "metaId": 6242,
         "usage": "Publicly displayed image reference only. Locations were acquired independently from guide-linked examples, not exported from this unshared map."
+      },
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 9,
+        "source": {
+          "guide": "philippines",
+          "tipId": "2cMP",
+          "section": 2,
+          "sourceOrder": 25,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Paraphrased source note; matched by keyword overlap (0.54), not by quoted text."
+        }
       }
     },
     {
@@ -248,6 +322,19 @@
         "author": "Oliver",
         "metaId": 6246,
         "usage": "Publicly displayed image reference only. Locations were acquired independently from guide-linked examples, not exported from this unshared map."
+      },
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 11,
+        "source": {
+          "guide": "philippines",
+          "tipId": "GaHP",
+          "section": 2,
+          "sourceOrder": 23,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Paraphrased source note; matched by keyword overlap (0.68), not by quoted text."
+        }
       }
     },
     {
@@ -276,7 +363,19 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
       "trainingNote": "A square metal lattice pole is a useful Zamboanga Peninsula tendency. Check the mesh structure and combine it with other regional evidence.",
-      "actualImportedLocationCount": 8
+      "actualImportedLocationCount": 8,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 1,
+        "source": {
+          "guide": "philippines",
+          "tipId": "xdvo",
+          "section": 2,
+          "sourceOrder": 33,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "ph:lm:84201",
@@ -304,7 +403,19 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
       "trainingNote": "Square concrete poles with recessed sides favor areas north of Manila or around Bacolod on Negros. The two separated distributions make other clues essential.",
-      "actualImportedLocationCount": 8
+      "actualImportedLocationCount": 8,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 2,
+        "source": {
+          "guide": "philippines",
+          "tipId": "OkTN",
+          "section": 2,
+          "sourceOrder": 31,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "ph:field:woven-housing",
@@ -336,6 +447,19 @@
         "author": "Oliver",
         "metaId": 6237,
         "usage": "Publicly displayed image reference only. Locations were acquired independently from guide-linked examples, not exported from this unshared map."
+      },
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 6,
+        "source": {
+          "guide": "philippines",
+          "tipId": "XOvY",
+          "section": 2,
+          "sourceOrder": 28,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
       }
     },
     {
@@ -364,7 +488,19 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
       "trainingNote": "Repeated rounded limestone hills rising from flatter cultivated ground suggest Bohol. The landform pattern matters more than whether the grass looks green or brown.",
-      "actualImportedLocationCount": 8
+      "actualImportedLocationCount": 8,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 156,
+        "source": {
+          "guide": "philippines",
+          "tipId": "S1IY",
+          "section": 3,
+          "sourceOrder": 37,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "ph:field:meter-construction",
@@ -389,7 +525,17 @@
         "Small, known teaching-anchor pool; practice only. Obtain more independent examples before using this for mastery."
       ],
       "attributionHtml": "Regional claims and source examples: Plonk It Philippines and the specialist guides linked there. Fieldwork summaries are original.",
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 12,
+        "source": {
+          "guide": "philippines",
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "ph:field:crop-corn",
@@ -450,7 +596,19 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
       "trainingNote": "A particularly smooth, near-symmetric volcanic cone suggests Mayon in Albay, Bicol. Compare its shape with rougher or isolated hills; a distant mountain alone is insufficient.",
-      "actualImportedLocationCount": 8
+      "actualImportedLocationCount": 8,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 157,
+        "source": {
+          "guide": "philippines",
+          "tipId": "oQjn",
+          "section": 3,
+          "sourceOrder": 39,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "ph:lm:84202",
@@ -478,7 +636,19 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
       "trainingNote": "Look for two tall L-section vertical bars connected by several thin wires. Similar square-bar forms elsewhere usually have fewer cross wires; inspect the construction.",
-      "actualImportedLocationCount": 8
+      "actualImportedLocationCount": 8,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 7,
+        "source": {
+          "guide": "philippines",
+          "tipId": "vjQB",
+          "section": 2,
+          "sourceOrder": 32,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "ph:lm:15344",
@@ -506,7 +676,19 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
       "trainingNote": "An isolated broad volcanic mass rising from a flat agricultural plain can be Arayat in Pampanga. Confirm the silhouette and surrounding lowland setting.",
-      "actualImportedLocationCount": 8
+      "actualImportedLocationCount": 8,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 158,
+        "source": {
+          "guide": "philippines",
+          "tipId": "AvQg",
+          "section": 3,
+          "sourceOrder": 38,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "ph:lm:84228",
@@ -533,7 +715,17 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 60,
+        "source": {
+          "guide": "philippines",
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "ph:lm:84212",
@@ -560,7 +752,19 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 161,
+        "source": {
+          "guide": "philippines",
+          "tipId": "2IcS",
+          "section": 3,
+          "sourceOrder": 42,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "ph:lm:84213",
@@ -587,7 +791,19 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 162,
+        "source": {
+          "guide": "philippines",
+          "tipId": "lYvE",
+          "section": 3,
+          "sourceOrder": 43,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "ph:lm:626096",
@@ -615,7 +831,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 11
+      "actualImportedLocationCount": 11,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 14,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626095",
@@ -643,7 +872,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 13,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626097",
@@ -671,7 +913,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 7
+      "actualImportedLocationCount": 7,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 15,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626098",
@@ -699,7 +954,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 16,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626099",
@@ -727,7 +995,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 5
+      "actualImportedLocationCount": 5,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 17,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626100",
@@ -755,7 +1036,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 5
+      "actualImportedLocationCount": 5,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 18,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626101",
@@ -783,7 +1077,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 6
+      "actualImportedLocationCount": 6,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 19,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626102",
@@ -811,7 +1118,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 20,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626103",
@@ -839,7 +1159,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 5
+      "actualImportedLocationCount": 5,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 21,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626104",
@@ -867,7 +1200,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 8
+      "actualImportedLocationCount": 8,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 22,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626106",
@@ -895,7 +1241,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 23,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626107",
@@ -923,7 +1282,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 5
+      "actualImportedLocationCount": 5,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 24,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626108",
@@ -951,7 +1323,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 25,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626109",
@@ -979,7 +1364,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 26,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "The guide tip is a tricycle-design infographic covering many regional designs; this target is one of them."
+        }
+      }
     },
     {
       "id": "ph:lm:626110",
@@ -1007,7 +1405,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 27,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626111",
@@ -1035,7 +1446,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 5
+      "actualImportedLocationCount": 5,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 28,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626112",
@@ -1063,7 +1487,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 29,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626113",
@@ -1091,7 +1528,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 30,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626114",
@@ -1119,7 +1569,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 31,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626115",
@@ -1147,7 +1610,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 32,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626116",
@@ -1175,7 +1651,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 33,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626117",
@@ -1203,7 +1692,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 34,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626118",
@@ -1231,7 +1733,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 35,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626119",
@@ -1259,7 +1774,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 36,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626120",
@@ -1287,7 +1815,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 37,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626121",
@@ -1315,7 +1856,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 38,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626122",
@@ -1343,7 +1897,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 7
+      "actualImportedLocationCount": 7,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 39,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626123",
@@ -1371,7 +1938,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 40,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626124",
@@ -1399,7 +1979,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 41,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626125",
@@ -1427,7 +2020,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 5
+      "actualImportedLocationCount": 5,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 42,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626126",
@@ -1455,7 +2061,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 43,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626127",
@@ -1483,7 +2102,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 5
+      "actualImportedLocationCount": 5,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 44,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626128",
@@ -1511,7 +2143,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 6
+      "actualImportedLocationCount": 6,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 45,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626129",
@@ -1539,7 +2184,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 46,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626130",
@@ -1567,7 +2225,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 47,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626131",
@@ -1595,7 +2266,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 48,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626132",
@@ -1623,7 +2307,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 49,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626133",
@@ -1651,7 +2348,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 7
+      "actualImportedLocationCount": 7,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 50,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626134",
@@ -1679,7 +2389,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 51,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626135",
@@ -1707,7 +2430,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 52,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626136",
@@ -1735,7 +2471,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 53,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626137",
@@ -1763,7 +2512,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 6
+      "actualImportedLocationCount": 6,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 54,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626138",
@@ -1791,7 +2553,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 55,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626139",
@@ -1819,7 +2594,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 56,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:626140",
@@ -1847,7 +2635,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 57,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:681940",
@@ -1877,7 +2678,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 58,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:681979",
@@ -1905,7 +2719,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Learn roof height, profile and rear construction together; styles overlap and vehicle colors can change."
       ],
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 59,
+        "source": {
+          "guide": "philippines",
+          "tipId": "fCvm",
+          "section": 2,
+          "sourceOrder": 16,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:681983",
@@ -2135,7 +2962,19 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 163,
+        "source": {
+          "guide": "philippines",
+          "tipId": "LrWc",
+          "section": 3,
+          "sourceOrder": 41,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "topic-match"
+        }
+      }
     },
     {
       "id": "ph:lm:84226",
@@ -2162,7 +3001,17 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 159,
+        "source": {
+          "guide": "philippines",
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "ph:lm:84229",
@@ -2189,7 +3038,17 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 7
+      "actualImportedLocationCount": 7,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 160,
+        "source": {
+          "guide": "philippines",
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "ph:lm:717657",
@@ -2217,7 +3076,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Colored-band motorcycle plates are a historical style. Not every motorcycle has one, and old source region names are not current administrative boundaries."
       ],
-      "actualImportedLocationCount": 20
+      "actualImportedLocationCount": 20,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 61,
+        "source": {
+          "guide": "philippines",
+          "tipId": "3TK5",
+          "section": 2,
+          "sourceOrder": 19,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:717658",
@@ -2245,7 +3117,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Colored-band motorcycle plates are a historical style. Not every motorcycle has one, and old source region names are not current administrative boundaries."
       ],
-      "actualImportedLocationCount": 20
+      "actualImportedLocationCount": 20,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 62,
+        "source": {
+          "guide": "philippines",
+          "tipId": "3TK5",
+          "section": 2,
+          "sourceOrder": 19,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:717659",
@@ -2273,7 +3158,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Colored-band motorcycle plates are a historical style. Not every motorcycle has one, and old source region names are not current administrative boundaries."
       ],
-      "actualImportedLocationCount": 20
+      "actualImportedLocationCount": 20,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 63,
+        "source": {
+          "guide": "philippines",
+          "tipId": "3TK5",
+          "section": 2,
+          "sourceOrder": 19,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:717660",
@@ -2301,7 +3199,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Colored-band motorcycle plates are a historical style. Not every motorcycle has one, and old source region names are not current administrative boundaries."
       ],
-      "actualImportedLocationCount": 20
+      "actualImportedLocationCount": 20,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 64,
+        "source": {
+          "guide": "philippines",
+          "tipId": "3TK5",
+          "section": 2,
+          "sourceOrder": 19,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:717661",
@@ -2329,7 +3240,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Colored-band motorcycle plates are a historical style. Not every motorcycle has one, and old source region names are not current administrative boundaries."
       ],
-      "actualImportedLocationCount": 20
+      "actualImportedLocationCount": 20,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 65,
+        "source": {
+          "guide": "philippines",
+          "tipId": "3TK5",
+          "section": 2,
+          "sourceOrder": 19,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:717662",
@@ -2357,7 +3281,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Colored-band motorcycle plates are a historical style. Not every motorcycle has one, and old source region names are not current administrative boundaries."
       ],
-      "actualImportedLocationCount": 20
+      "actualImportedLocationCount": 20,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 66,
+        "source": {
+          "guide": "philippines",
+          "tipId": "3TK5",
+          "section": 2,
+          "sourceOrder": 19,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:717663",
@@ -2385,7 +3322,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Colored-band motorcycle plates are a historical style. Not every motorcycle has one, and old source region names are not current administrative boundaries."
       ],
-      "actualImportedLocationCount": 20
+      "actualImportedLocationCount": 20,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 67,
+        "source": {
+          "guide": "philippines",
+          "tipId": "3TK5",
+          "section": 2,
+          "sourceOrder": 19,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:717664",
@@ -2413,7 +3363,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Colored-band motorcycle plates are a historical style. Not every motorcycle has one, and old source region names are not current administrative boundaries."
       ],
-      "actualImportedLocationCount": 20
+      "actualImportedLocationCount": 20,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 68,
+        "source": {
+          "guide": "philippines",
+          "tipId": "3TK5",
+          "section": 2,
+          "sourceOrder": 19,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:717665",
@@ -2441,7 +3404,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Colored-band motorcycle plates are a historical style. Not every motorcycle has one, and old source region names are not current administrative boundaries."
       ],
-      "actualImportedLocationCount": 20
+      "actualImportedLocationCount": 20,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 69,
+        "source": {
+          "guide": "philippines",
+          "tipId": "3TK5",
+          "section": 2,
+          "sourceOrder": 19,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:717666",
@@ -2469,7 +3445,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Colored-band motorcycle plates are a historical style. Not every motorcycle has one, and old source region names are not current administrative boundaries."
       ],
-      "actualImportedLocationCount": 20
+      "actualImportedLocationCount": 20,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 70,
+        "source": {
+          "guide": "philippines",
+          "tipId": "3TK5",
+          "section": 2,
+          "sourceOrder": 19,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:717667",
@@ -2497,7 +3486,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Colored-band motorcycle plates are a historical style. Not every motorcycle has one, and old source region names are not current administrative boundaries."
       ],
-      "actualImportedLocationCount": 20
+      "actualImportedLocationCount": 20,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 71,
+        "source": {
+          "guide": "philippines",
+          "tipId": "3TK5",
+          "section": 2,
+          "sourceOrder": 19,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:717668",
@@ -2525,7 +3527,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Colored-band motorcycle plates are a historical style. Not every motorcycle has one, and old source region names are not current administrative boundaries."
       ],
-      "actualImportedLocationCount": 20
+      "actualImportedLocationCount": 20,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 72,
+        "source": {
+          "guide": "philippines",
+          "tipId": "3TK5",
+          "section": 2,
+          "sourceOrder": 19,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:717669",
@@ -2553,7 +3568,20 @@
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked.",
         "Colored-band motorcycle plates are a historical style. Not every motorcycle has one, and old source region names are not current administrative boundaries."
       ],
-      "actualImportedLocationCount": 20
+      "actualImportedLocationCount": 20,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 73,
+        "source": {
+          "guide": "philippines",
+          "tipId": "3TK5",
+          "section": 2,
+          "sourceOrder": 19,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:733",
@@ -2580,7 +3608,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 74,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:734",
@@ -2607,7 +3648,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 75,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:735",
@@ -2634,7 +3688,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 76,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:736",
@@ -2661,7 +3728,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 77,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:737",
@@ -2688,7 +3768,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 78,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:738",
@@ -2715,7 +3808,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 2
+      "actualImportedLocationCount": 2,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 79,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:739",
@@ -2742,7 +3848,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 7
+      "actualImportedLocationCount": 7,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 80,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:740",
@@ -2769,7 +3888,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 81,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:741",
@@ -2796,7 +3928,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 17
+      "actualImportedLocationCount": 17,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 82,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:742",
@@ -2823,7 +3968,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 83,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:743",
@@ -2850,7 +4008,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 84,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:744",
@@ -2877,7 +4048,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 85,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:745",
@@ -2904,7 +4088,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 86,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:746",
@@ -2931,7 +4128,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 13
+      "actualImportedLocationCount": 13,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 87,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:747",
@@ -2958,7 +4168,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 88,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:748",
@@ -2985,7 +4208,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 89,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:749",
@@ -3012,7 +4248,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 90,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:750",
@@ -3039,7 +4288,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 91,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:751",
@@ -3066,7 +4328,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 92,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:752",
@@ -3093,7 +4368,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 93,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:753",
@@ -3120,7 +4408,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 8
+      "actualImportedLocationCount": 8,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 94,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:754",
@@ -3147,7 +4448,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 95,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:755",
@@ -3174,7 +4488,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 96,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:756",
@@ -3201,7 +4528,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 97,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:757",
@@ -3228,7 +4568,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 6
+      "actualImportedLocationCount": 6,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 98,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:758",
@@ -3255,7 +4608,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 99,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:759",
@@ -3282,7 +4648,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 100,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:760",
@@ -3309,7 +4688,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 101,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:761",
@@ -3336,7 +4728,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 102,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:763",
@@ -3363,7 +4768,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 12
+      "actualImportedLocationCount": 12,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 103,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:764",
@@ -3390,7 +4808,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 9
+      "actualImportedLocationCount": 9,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 104,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:765",
@@ -3417,7 +4848,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 5
+      "actualImportedLocationCount": 5,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 105,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:766",
@@ -3444,7 +4888,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 106,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:767",
@@ -3471,7 +4928,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 8
+      "actualImportedLocationCount": 8,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 107,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:768",
@@ -3498,7 +4968,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 108,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:769",
@@ -3525,7 +5008,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 109,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:770",
@@ -3552,7 +5048,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 110,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:771",
@@ -3579,7 +5088,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 111,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:772",
@@ -3606,7 +5128,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 16
+      "actualImportedLocationCount": 16,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 112,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:773",
@@ -3633,7 +5168,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 113,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:774",
@@ -3660,7 +5208,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 114,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:775",
@@ -3687,7 +5248,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 5
+      "actualImportedLocationCount": 5,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 115,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:776",
@@ -3714,7 +5288,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 116,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:777",
@@ -3741,7 +5328,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 117,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:778",
@@ -3768,7 +5368,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 118,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:779",
@@ -3795,7 +5408,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 119,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:780",
@@ -3822,7 +5448,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 120,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:781",
@@ -3849,7 +5488,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 121,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:782",
@@ -3876,7 +5528,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 122,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:783",
@@ -3903,7 +5568,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 123,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:784",
@@ -3930,7 +5608,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 124,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:785",
@@ -3957,7 +5648,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 125,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:786",
@@ -3984,7 +5688,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 126,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:787",
@@ -4011,7 +5728,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 127,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:788",
@@ -4038,7 +5768,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 128,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:789",
@@ -4065,7 +5808,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 129,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "The guide tip teaches reading province names on signs; this target is one province."
+        }
+      }
     },
     {
       "id": "ph:lm:790",
@@ -4092,7 +5848,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 130,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:791",
@@ -4119,7 +5888,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 131,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:792",
@@ -4146,7 +5928,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 132,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:793",
@@ -4173,7 +5968,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 133,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:794",
@@ -4200,7 +6008,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 134,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:795",
@@ -4227,7 +6048,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 135,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:796",
@@ -4254,7 +6088,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 136,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:797",
@@ -4281,7 +6128,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 137,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:798",
@@ -4308,7 +6168,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 138,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:801",
@@ -4335,7 +6208,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 139,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:802",
@@ -4362,7 +6248,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 140,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:803",
@@ -4389,7 +6288,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 141,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:804",
@@ -4416,7 +6328,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 142,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:805",
@@ -4443,7 +6368,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 11
+      "actualImportedLocationCount": 11,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 143,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:806",
@@ -4470,7 +6408,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 144,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:807",
@@ -4497,7 +6448,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 145,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:808",
@@ -4524,7 +6488,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 146,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:809",
@@ -4551,7 +6528,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 147,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:810",
@@ -4578,7 +6568,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 10
+      "actualImportedLocationCount": 10,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 148,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:811",
@@ -4605,7 +6608,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 149,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:812",
@@ -4632,7 +6648,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 150,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:813",
@@ -4659,7 +6688,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 151,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:814",
@@ -4686,7 +6728,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 152,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:815",
@@ -4713,7 +6768,20 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 153,
+        "source": {
+          "guide": "philippines",
+          "tipId": "KVEg",
+          "section": 2,
+          "sourceOrder": 17,
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "partial-topic-match",
+          "caveat": "Linked by the pack's source record; source note text best matches no tip."
+        }
+      }
     },
     {
       "id": "ph:lm:84222",
@@ -4740,7 +6808,17 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 5
+      "actualImportedLocationCount": 5,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 164,
+        "source": {
+          "guide": "philippines",
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "ph:lm:84224",
@@ -4767,7 +6845,17 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 7
+      "actualImportedLocationCount": 7,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 154,
+        "source": {
+          "guide": "philippines",
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "ph:lm:84225",
@@ -4794,7 +6882,17 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "within-country-regional",
+        "rank": 155,
+        "source": {
+          "guide": "philippines",
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "ph:lm:84227",
@@ -4821,7 +6919,17 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 4
+      "actualImportedLocationCount": 4,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 165,
+        "source": {
+          "guide": "philippines",
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "ph:lm:84230",
@@ -4848,7 +6956,17 @@
       "scoringCaveats": [
         "Source-tagged regional tendency, not an exclusive boundary. Bulk source locations have not all been individually rechecked."
       ],
-      "actualImportedLocationCount": 3
+      "actualImportedLocationCount": 3,
+      "curriculum": {
+        "scope": "specialist",
+        "rank": 166,
+        "source": {
+          "guide": "philippines",
+          "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
+          "mapping": "unresolved",
+          "caveat": "No guide tip covers this target; scope authored from title, family and source note."
+        }
+      }
     },
     {
       "id": "ph:lm:84233",
