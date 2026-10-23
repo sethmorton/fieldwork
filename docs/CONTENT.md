@@ -7,7 +7,7 @@ Only locations attached to active targets can be selected. The other 41
 targets remain deferred, including national-only recognition, singleton
 examples and uncertain historical coverage claims. Your old skill IDs remain
 unchanged. The scheduler aims for three new targets plus two reviews while
-preserving five different families and a one-set rest for previous targets.
+keeping at most two clues per family and a one-set rest for recent previous targets.
 
 ## Native export → tagged pool → curated pack
 
@@ -29,7 +29,7 @@ preserving five different families and a one-set rest for previous targets.
 4. Author stable skill IDs, meaningful `practiceFamily`, `importance`, real
    prerequisites if needed, and availability. Keep original attribution.
    Each location's first `skillIds` entry is its primary training target.
-5. A usable set requires five different families. Do not pad it with duplicate
+5. A usable set allows at most two clues per family. Do not pad it with duplicate
    clues. Inspect cue visibility, heading and exceptions before activation.
 
 See `content/australia.json` for the full schema. Required top-level fields:
@@ -249,3 +249,49 @@ metadata and generalized geometry are not evidence of political boundaries
 or clue exclusivity. Regional distinctions remain recognition practice;
 country scoring alone cannot establish them. Every current Worldwide
 location is a source teaching example, excluded from unseen mastery credit.
+
+## Curriculum scope (`curriculum` field)
+
+Every active skill in the three supplied packs carries this field:
+
+```json
+"curriculum": {"scope": "country-identification" | "within-country-regional" | "specialist",
+  "rank": 1, "source": {"guide": "indonesia", "tipId": "hYSj", "section": 2, "sourceOrder": 20,
+  "guideUpdatedAt": "…", "mapping": "topic-match" | "partial-topic-match" | "unresolved", "caveat": "…"}}
+```
+
+The selector reads only `scope` and `rank`. `rank` is a total order per pack,
+sorted by scope first. A skill without the field counts as
+country-identification and ranks after every ranked skill. `source` is
+provenance from the [Plonk It](https://www.plonkit.net/guide) guides
+(CC-BY-NC-SA-4.0, attributed separately from the MIT engine). It records the
+guide tip whose topic matches the target. It is not a prerequisite graph, and
+scope says nothing about mastery. Scope follows the guide's section:
+"Identifying X" is country identification, "Spotlight" is specialist, and
+every other section is within-country regional. One authored exception: the
+individual Brazilian phone codes are specialist and follow the regional
+area-code foundation. Australia and the Philippines are country-only packs,
+so they have no country-identification skills.
+
+`node scripts/classify-curriculum.mjs` regenerates the fields
+deterministically, and `--check` reports stale packs without writing. It
+reads three inputs:
+
+- Untracked guide caches in `local/plonkit-guides/`: `<slug>.json` holds the page's
+  `__PRELOADED_DATA__.data`, and `index.json` is the guide directory.
+- The source notes from `refresh-notes.mjs` in `local/worldwide-pack.json`,
+  `local/pack.json` and `local/philippines-pack.json`.
+- The authored `scripts/curriculum-overrides.json`: country→guide aliases,
+  hand-reviewed tip matches, and scopes for unresolved targets.
+
+Matching works in this order:
+
+1. Quoted note text.
+2. Tip anchors already present in a pack's source records.
+3. A reviewed TF-IDF keyword fallback.
+
+Paraphrased, broad or multi-tip targets stay `partial-topic-match` with a
+caveat. Targets with no matching tip stay `unresolved`. A new active skill
+without a match fails the script until it gets an authored scope. Fetch
+missing guides one page at a time: at most one request every 10 s, and stop
+on any 403/429.
