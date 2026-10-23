@@ -67,14 +67,14 @@ test('a clue known cold skips the learning repeats, comes back to be confirmed, 
   const at=new Date('2026-10-22T10:00:00Z'),DAY=86400000,dueIn=records=>(Date.parse(skillStatus('clue',records,at).reviewDueAt)-at)/DAY;
   const world={...pack,gradingPolicy:'recognition'},round=completedRound(world,state);
   const knew=recordRecognition(world,[],round,{recognized:true,knew:true},at);
-  assert.equal(knew[0].confidence,3);assert.equal(dueIn(knew),8); // Easy: ts-fsrs 5.4.2 gives 8 days, not a 10-minute step
+  assert.equal(knew[0].grade,'easy');assert.equal(dueIn(knew),8); // Easy: ts-fsrs 5.4.2 gives 8 days, not a 10-minute step
   // Knowing it is only claimed for a spotted clue: a miss stays a miss.
   const missed=recordRecognition(world,[],round,{recognized:false,knew:true},at);
-  assert.equal(missed[0].confidence,2);assert.equal(missed[0].correct,false);
+  assert.equal(missed[0].grade,undefined);assert.equal(missed[0].correct,false);
   const relapse=[...knew,{...knew[0],id:'later',occurredAt:new Date(at.getTime()+8*DAY).toISOString(),correct:false,evidenceValid:false,confidence:2}];
   assert.ok(Date.parse(skillStatus('clue',relapse,at.getTime()+8*DAY).reviewDueAt)-(at.getTime()+8*DAY)<DAY);
 });
-test('quick check lists unscheduled clues in curriculum order and a known clue leaves the list for about a week',()=>{
+test('quick check lists unscheduled clues in curriculum order; a known clue stays with FSRS even once due',()=>{
   const at=new Date('2026-10-22T10:00:00Z');
   const ranked={...pack,skills:pack.skills.map((skill,i)=>({...skill,curriculum:{scope:'within-country-regional',rank:5-i}}))};
   assert.deepEqual(quickCheckQueue(ranked,[],at).map(skill=>skill.id),['clue4','clue3','clue2','clue1','clue']);
@@ -82,6 +82,8 @@ test('quick check lists unscheduled clues in curriculum order and a known clue l
   assert.deepEqual(quickCheckQueue(ranked,known,at).map(skill=>skill.id),['clue4','clue2','clue1','clue']);
   assert.equal(skillStatus('clue3',known,at).due,false);
   assert.equal(skillStatus('clue3',known,new Date(at.getTime()+8*86400000)).due,true);
+  // Its confirmation is a panorama round, never another card.
+  assert.ok(!quickCheckQueue(ranked,known,new Date(at.getTime()+9*86400000)).some(skill=>skill.id==='clue3'));
   assert.throws(()=>recordKnown(ranked,[],'nope',at),/Unknown clue/);
 });
 test('publishing is limited to a distinct verified owned map, after a backup, with actual source coordinates',async()=>{

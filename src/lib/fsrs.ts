@@ -52,9 +52,10 @@ export function review(memory: Memory | null, at: number, grade: typeof AGAIN | 
   const next = { stability, difficulty, lastReview: at };
   if (memory.phase === 'review') {
     if (grade === AGAIN) return { ...next, phase: 'relearning', step: 0, due: at + RELEARNING_STEPS[0] * MINUTE };
-    const good = interval(grade === EASY ? nextStability(memory.difficulty, memory.stability, days, GOOD) : stability);
-    const hard = Math.min(interval(nextStability(memory.difficulty, memory.stability, days, 2)), good);
-    return { ...next, phase: 'review', step: 0, due: at + (grade === EASY ? Math.max(interval(stability), good + 1) : Math.max(good, hard + 1)) * DAY };
+    // ts-fsrs: hard <= good, good >= hard + 1, easy >= good + 1 (intervals from each grade's own stability).
+    const goodRaw = interval(grade === EASY ? nextStability(memory.difficulty, memory.stability, days, GOOD) : stability);
+    const hard = Math.min(interval(nextStability(memory.difficulty, memory.stability, days, 2)), goodRaw), good = Math.max(goodRaw, hard + 1);
+    return { ...next, phase: 'review', step: 0, due: at + (grade === EASY ? Math.max(interval(stability), good + 1) : good) * DAY };
   }
   const steps = memory.phase === 'learning' ? LEARNING_STEPS : RELEARNING_STEPS;
   if (grade === AGAIN) return { ...next, phase: memory.phase, step: 0, due: at + steps[0] * MINUTE };

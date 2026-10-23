@@ -27,6 +27,20 @@ test('repeated successes grow the interval as FSRS-6 schedules it',()=>{
  assert.ok(Math.abs(gaps[0]*1440-10)<1e-6);
  assert.deepEqual(gaps.slice(1),[2,11,46,163]);
 });
+test('Easy keeps ts-fsrs spacing: above the adjusted Good interval, and only from an explicit "Knew it"',()=>{
+ // On-time sequences Again,Again,Easy,Easy and Again,Easy,Easy: ts-fsrs 5.4.2 gives 1 m, 1 m, 1 d, 3 d and 1 m, 1 d, 5 d.
+ for(const [grades,expected] of [[[1,1,4,4],[1/1440,1/1440,1,3]],[[1,4,4],[1/1440,1,5]]]){
+  const records=[];let at=start;const gaps=[];
+  for(const [i,g] of grades.entries()){
+   records.push({...outcome('a',at,g!==1,i),...(g===4?{grade:'easy'}:{})});
+   const due=Date.parse(skillStatus('a',records,at).reviewDueAt);gaps.push((due-at)/DAY);at=due;
+  }
+  assert.deepEqual(gaps.map(g=>Math.round(g*1440)),expected.map(g=>Math.round(g*1440)),grades.join(''));
+ }
+ // Confidence alone (older assessment histories) never turns a success into Easy.
+ const confident={...outcome('a',start),confidence:3};
+ assert.equal((Date.parse(skillStatus('a',[confident],start).reviewDueAt)-start)/60000,10);
+});
 
 test('a miss makes even a well-known clue due again within the same day',()=>{
  const {records}=onTime('a',4),last=Date.parse(records.at(-1).occurredAt);

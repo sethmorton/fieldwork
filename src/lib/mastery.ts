@@ -10,6 +10,8 @@ export type Attempt = {
   locationRef: string;
   mode: 'practice' | 'assessment';
   reason: string;
+  /** Set only by "Knew it" (result card or quick check); every other success replays as Good. */
+  grade?: 'easy';
 };
 type AttemptInput = Omit<Attempt, 'id' | 'occurredAt'>;
 type Clock = Date | string | number;
@@ -118,12 +120,12 @@ export function skillStatus(skillId: string, attempts: Attempt[], now: Clock = D
     masteredAt = eligible[achievedIndex].occurredAt;
   }
   // Every outcome (practice or assessment, explicit or assumed) is one FSRS review: a recognition miss or wrong answer
-  // is Again, a right answer Good, and a right answer at confidence 3 ("knew it cold", quick check) Easy.
+  // is Again, a right answer Good, and a right answer the learner marked "Knew it" (grade 'easy') Easy.
   // An unknown answer (correct null, nothing failed) is not a review at all.
   let memory: Memory | null = null;
   for (const attempt of records) {
     if (!attempt.evidenceValid || attempt.correct === false) memory = review(memory, time(attempt.occurredAt), AGAIN);
-    else if (attempt.correct === true) memory = review(memory, time(attempt.occurredAt), attempt.confidence === 3 ? EASY : GOOD);
+    else if (attempt.correct === true) memory = review(memory, time(attempt.occurredAt), attempt.grade === 'easy' ? EASY : GOOD);
   }
   let reason = 'Start with a guided lesson, then try an unfamiliar location.';
   if (state === 'learning') reason = `${window.length}/10 unique unfamiliar assessments; practice alone does not establish mastery.`;
