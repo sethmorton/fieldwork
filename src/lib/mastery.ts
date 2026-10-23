@@ -1,4 +1,4 @@
-import { review, retrievability, AGAIN, GOOD, type Memory } from './fsrs.ts';
+import { review, retrievability, AGAIN, GOOD, EASY, type Memory } from './fsrs.ts';
 export type Attempt = {
   id: string;
   skillId: string;
@@ -118,11 +118,12 @@ export function skillStatus(skillId: string, attempts: Attempt[], now: Clock = D
     masteredAt = eligible[achievedIndex].occurredAt;
   }
   // Every outcome (practice or assessment, explicit or assumed) is one FSRS review: a recognition miss or wrong answer
-  // is Again, a right answer Good. An unknown answer (correct null, nothing failed) is not a review at all.
+  // is Again, a right answer Good, and a right answer at confidence 3 ("knew it cold", quick check) Easy.
+  // An unknown answer (correct null, nothing failed) is not a review at all.
   let memory: Memory | null = null;
   for (const attempt of records) {
     if (!attempt.evidenceValid || attempt.correct === false) memory = review(memory, time(attempt.occurredAt), AGAIN);
-    else if (attempt.correct === true) memory = review(memory, time(attempt.occurredAt), GOOD);
+    else if (attempt.correct === true) memory = review(memory, time(attempt.occurredAt), attempt.confidence === 3 ? EASY : GOOD);
   }
   let reason = 'Start with a guided lesson, then try an unfamiliar location.';
   if (state === 'learning') reason = `${window.length}/10 unique unfamiliar assessments; practice alone does not establish mastery.`;

@@ -1,5 +1,6 @@
 import {regionAt} from './geo.mjs';
 import {MAX_PER_FAMILY} from './lib/adaptive.ts';
+import {skillStatus} from './lib/mastery.ts';
 
 /** Only render this after a completed guess; never disclose an upcoming target. */
 export function practiceFeedback(history,round,now=Date.now()) {
@@ -24,7 +25,7 @@ export function completedRound(pack,state) {
     correct:guessedRegion&&location.region?guessedRegion===location.region:null};
 }
 
-export function recordRecognition(pack,history,round,{recognized,familiar=false,correct=round.correct,assumed=false},now=new Date()) {
+export function recordRecognition(pack,history,round,{recognized,knew=false,familiar=false,correct=round.correct,assumed=false},now=new Date()) {
   const skill=pack.skills.find(skill=>skill.id===round.location.skillIds[0]);
   if(!skill) throw Error('Unknown clue.');
   // gradingPolicy 'recognition' (and recognition-only clues): spotted = Good, missed = Again; the geographic result is kept as regionCorrect.
@@ -38,14 +39,35 @@ export function recordRecognition(pack,history,round,{recognized,familiar=false,
   if(prior && (assumed || prior.feedbackSource!=='assumed-on-advance'))return history;
   const wasSeen=history.some(attempt=>attempt.id!==round.id&&attempt.locationRef===round.location.id);
   const attempt={id:round.id,skillId:round.location.skillIds[0],occurredAt:now.toISOString(),
-    correct:recognitionDecides?recognized:correct,regionCorrect:correct,evidenceValid:recognized,confidence:2,unfamiliar:!familiar&&!wasSeen,
+    correct:recognitionDecides?recognized:correct,regionCorrect:correct,evidenceValid:recognized,confidence:recognized&&knew?3:2,unfamiliar:!familiar&&!wasSeen,
     locationRef:round.location.id,mode:assumed||round.location.assessmentEligible===false||(!skill.recognitionOnly&&correct===null)?'practice':'assessment',feedbackSource:assumed?'assumed-on-advance':'explicit',
-    reason:assumed?'Recognition assumed on advance by learner preference; not verified mastery evidence.'
+    reason:(assumed?'Recognition assumed on advance by learner preference; not verified mastery evidence.'
       :round.location.assessmentEligible===false?'Source teaching example; practice only, not unseen assessment evidence.'
       :skill.recognitionOnly?'Explicit visual-feature recognition; geographic result recorded separately. Country discrimination was not tested.'
-        :'Region result plus self-reported clue recognition after reveal. Confidence was not measured (neutral default).'};
+        :'Region result plus self-reported clue recognition after reveal. Confidence was not measured (neutral default).')
+      +(recognized&&knew?' Learner marked it known cold (confidence 3, Easy).':'')};
   // Duplicate framework events and reloads cannot create extra evidence.
   return prior?history.map(item=>item.id===attempt.id?attempt:item):[...history,attempt];
+}
+
+/** Clues a quick check can clear: playable ones not yet on a multi-day interval, in the order practice introduces them
+ *  (scope, then curriculum rank). Clues already reviewed on a schedule of 2+ days are left to FSRS. */
+export function quickCheckQueue(pack,history,now=Date.now()) {
+  const nowMs=new Date(now).getTime(),playable=new Set(pack.locations.map(location=>location.skillIds[0]));
+  const bySkill=Map.groupBy(history,attempt=>attempt.skillId);
+  const scope=skill=>['country-identification','within-country-regional','specialist'].indexOf(skill.curriculum?.scope??'country-identification');
+  return pack.skills.filter(skill=>playable.has(skill.id)&&skill.kind!=='orientation'&&(!skill.availability||skill.availability==='available'))
+    .filter(skill=>{const due=skillStatus(skill.id,bySkill.get(skill.id)??[],nowMs).reviewDueAt;return !due||Date.parse(due)-nowMs<2*86400000})
+    .sort((a,b)=>scope(a)-scope(b)||(a.curriculum?.rank??Number.MAX_SAFE_INTEGER)-(b.curriculum?.rank??Number.MAX_SAFE_INTEGER)||a.id.localeCompare(b.id));
+}
+
+/** "Knew it" in a quick check: one Easy review from the card alone (confidence 3, no panorama). FSRS brings the clue
+ *  back in about a week to confirm; a miss then restarts it normally. */
+export function recordKnown(pack,history,skillId,now=new Date()) {
+  if(!pack.skills.some(skill=>skill.id===skillId)) throw Error('Unknown clue.');
+  return [...history,{id:`${pack.id}:quick-check:${skillId}:${now.getTime()}`,skillId,occurredAt:now.toISOString(),correct:true,regionCorrect:null,
+    evidenceValid:true,confidence:3,unfamiliar:false,locationRef:'',mode:'practice',feedbackSource:'quick-check',
+    reason:'Quick check: the learner already knew this clue from its card; not panorama evidence.'}];
 }
 
 export function advanceRecognition(pack,history,pending,nextState,now=new Date()) {

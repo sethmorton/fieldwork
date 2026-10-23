@@ -57,7 +57,7 @@ export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],g
   if(round.location.assessmentEligible===false)text(section,'p','Teaching example · practice credit only.','muted');
   const skill=pack.skills.find(skill=>skill.id===round.location.skillIds[0]);
   text(section,'p',practiceFeedback(attempts,round),'muted');
-  text(section,'p','Moving on saves “spotted it.” Tap “Missed it” if you didn’t.','muted');
+  text(section,'p','Moving on saves “spotted it.” “Knew it” skips the repeats and checks back in about a week.','muted');
   if(skill.recognitionOnly)text(section,'p','Feature recognition practice. Your region guess is tracked separately.','muted');
   const label=document.createElement('label');const seen=document.createElement('input');seen.type='checkbox';seen.checked=familiar;label.append(seen,document.createTextNode('I had seen this panorama before'));section.append(label);
   let result=round.correct;
@@ -65,8 +65,8 @@ export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],g
   if(result===null&&!skill.recognitionOnly){text(section,'p','Was your guess in the right region?','muted');const choices=document.createElement('div');choices.className='actions';section.append(choices);for(const [title,value] of [['Yes',true],['No',false]])button(choices,title,()=>{result=value;onChange({familiar:seen.checked,correct:result});for(const child of choices.children)child.classList.remove('primary');choices.children[value?0:1].classList.add('primary');});}
   const status=text(section,'p',saved?'Saved on this device.':'','muted');status.setAttribute('role','status');
   const actions=document.createElement('div');actions.className='actions';section.append(actions);
-  const save=recognized=>{try{onSave({recognized,familiar:seen.checked,correct:result});tree.refresh();for(const child of actions.children)child.disabled=true;status.textContent='Saved on this device.';}catch(error){status.textContent=error.message}};
-  button(actions,'Missed it',()=>save(false),'primary');button(actions,'Confirm spotted it',()=>save(true));
+  const save=(recognized,knew=false)=>{try{onSave({recognized,knew,familiar:seen.checked,correct:result});tree.refresh();for(const child of actions.children)child.disabled=true;status.textContent='Saved on this device.';}catch(error){status.textContent=error.message}};
+  button(actions,'Missed it',()=>save(false),'primary');button(actions,'Spotted it',()=>save(true));button(actions,'Knew it',()=>save(true,true));
   for(const child of actions.children)child.disabled=saved;
   if(round.round===5){const next=button(section,'Continue practice',async()=>{next.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=error.message;next.disabled=false}},'primary');next.style.marginTop='12px';}
   const tree=treeDetails(section,pack,getAttempts,'Your progress tree');
@@ -84,14 +84,32 @@ export function bindPanel(packs,{onBind}){
   const status=text(section,'p','Fieldwork replaces this map’s locations with each new five-round set. Pick the pack this map is for:','muted');status.setAttribute('role','status');
   for(const item of packs)button(section,item.title,()=>{try{onBind(item.id)}catch(error){status.textContent=error.message}},'primary').style.cssText='display:block;width:100%;margin-top:8px';
 }
-export function startPanel(pack,{onNext,onExport,onImport,onCoverage,attempts=[],getAttempts=()=>attempts,packs=[],onChoosePack}) {
+export function startPanel(pack,{onNext,onQuickCheck,onExport,onImport,onCoverage,attempts=[],getAttempts=()=>attempts,packs=[],onChoosePack}) {
   const {section}=panel();header(section,'Fieldwork · practice');text(section,'h2',pack.title);
   if(packs.length>1){const label=text(section,'label','Practice pack');const choose=document.createElement('select');choose.setAttribute('aria-label','Practice pack');for(const item of packs){const option=text(choose,'option',item.title);option.value=item.id;option.selected=item.id===pack.id;}choose.onchange=()=>onChoosePack(choose.value);label.append(choose);}
   text(section,'p',curriculumProgress(pack,attempts).message,'muted');
   const status=text(section,'p',`${pack.answerAreaLabel??pack.title}. At most two clues per family. New clues adapt to recent practice.`,'muted');status.setAttribute('role','status');
-  button(section,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=error.message;this.disabled=false}},'primary');
+  const actions=document.createElement('div');actions.className='actions';section.append(actions);
+  button(actions,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=error.message;this.disabled=false}},'primary');
+  if(onQuickCheck)button(actions,'Quick check',onQuickCheck);
   const {details}=treeDetails(section,pack,getAttempts,'Content & progress');
   if(pack.coverageSummary){const coverage=document.createElement('details');text(coverage,'summary','Source coverage');text(coverage,'p',pack.coverageSummary,'muted');details.append(coverage);}
   if(onCoverage)button(details,'Export source inventory',async()=>{try{await onCoverage()}catch(error){status.textContent=error.message}});
   button(details,'Export progress',onExport);packImport(details,onImport,status);
+}
+/** Clear clues you already know without spending rounds: one card at a time, K = knew it, N = not yet. */
+export function quickCheckPanel(pack,queue,{onKnown,onDone}) {
+  const {host,section}=panel();let index=0,known=0;
+  const show=()=>{
+    section.replaceChildren();header(section,`Fieldwork · quick check ${Math.min(index+1,queue.length)}/${queue.length}`);
+    if(index>=queue.length){text(section,'h2','Done');text(section,'p',`${known} marked known. They come back in about a week to confirm.`,'muted');button(section,'Back to practice',onDone,'primary');return}
+    const skill=queue[index];clue(section,skill,pack.notesSourceUrl);
+    const status=text(section,'p','Know it well enough to spot it in a round? Known clues skip the repeats and return in about a week.','muted');status.setAttribute('role','status');
+    const actions=document.createElement('div');actions.className='actions';section.append(actions);
+    button(actions,'Knew it (K)',()=>{try{onKnown(skill.id);known++;index++;show()}catch(error){status.textContent=error.message}},'primary');
+    button(actions,'Not yet (N)',()=>{index++;show()});
+    button(section,'Stop',onDone).style.marginTop='8px';
+  };
+  host.tabIndex=-1;host.addEventListener('keydown',event=>{const key=event.key.toLowerCase();const target=[...section.querySelectorAll('.actions button')][key==='k'?0:key==='n'?1:-1];if(target){event.preventDefault();target.click()}});
+  show();host.focus();
 }

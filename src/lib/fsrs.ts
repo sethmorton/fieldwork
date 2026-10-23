@@ -10,8 +10,8 @@ const FACTOR = 0.9 ** (1 / DECAY) - 1;
 const RETENTION = 0.9;
 const MINUTE = 60000, DAY = 86400000;
 const LEARNING_STEPS = [1, 10], RELEARNING_STEPS = [10];
-export const AGAIN = 1, GOOD = 3;
-type Grade = 1 | 2 | 3;
+export const AGAIN = 1, GOOD = 3, EASY = 4;
+type Grade = 1 | 2 | 3 | 4;
 export type Memory = {
   stability: number; difficulty: number; phase: 'learning' | 'review' | 'relearning';
   step: number; lastReview: number; due: number;
@@ -33,13 +33,16 @@ function nextStability(d: number, s: number, days: number, grade: Grade) {
   const r = forgetting(days, s);
   if (grade === 1) return Math.min(Math.max(s / Math.exp(W[17] * W[18]), 0.001),
     clamp(W[11] * d ** -W[12] * ((s + 1) ** W[13] - 1) * Math.exp((1 - r) * W[14]), 0.001, 36500));
-  return clamp(s * (1 + Math.exp(W[8]) * (11 - d) * s ** -W[9] * (Math.exp((1 - r) * W[10]) - 1) * (grade === 2 ? W[15] : 1)), 0.001, 36500);
+  return clamp(s * (1 + Math.exp(W[8]) * (11 - d) * s ** -W[9] * (Math.exp((1 - r) * W[10]) - 1)
+    * (grade === 2 ? W[15] : grade === 4 ? W[16] : 1)), 0.001, 36500);
 }
 
-/** One Again/Good review at `at` (ms). Elapsed time counts UTC calendar days, as ts-fsrs does. */
-export function review(memory: Memory | null, at: number, grade: typeof AGAIN | typeof GOOD): Memory {
+/** One Again/Good/Easy review at `at` (ms). Elapsed time counts UTC calendar days, as ts-fsrs does.
+ *  Easy skips the remaining learning steps: a clue the learner already knows goes straight to a multi-day interval. */
+export function review(memory: Memory | null, at: number, grade: typeof AGAIN | typeof GOOD | typeof EASY): Memory {
   if (!memory) {
     const stability = Math.max(W[grade - 1], 0.1), difficulty = clamp(initDifficulty(grade), 1, 10);
+    if (grade === EASY) return { stability, difficulty, phase: 'review', step: 0, lastReview: at, due: at + interval(stability) * DAY };
     return grade === AGAIN ? { stability, difficulty, phase: 'learning', step: 0, lastReview: at, due: at + LEARNING_STEPS[0] * MINUTE }
       : { stability, difficulty, phase: 'learning', step: 1, lastReview: at, due: at + LEARNING_STEPS[1] * MINUTE };
   }
@@ -49,12 +52,13 @@ export function review(memory: Memory | null, at: number, grade: typeof AGAIN | 
   const next = { stability, difficulty, lastReview: at };
   if (memory.phase === 'review') {
     if (grade === AGAIN) return { ...next, phase: 'relearning', step: 0, due: at + RELEARNING_STEPS[0] * MINUTE };
-    const good = interval(stability), hard = Math.min(interval(nextStability(memory.difficulty, memory.stability, days, 2)), good);
-    return { ...next, phase: 'review', step: 0, due: at + Math.max(good, hard + 1) * DAY };
+    const good = interval(grade === EASY ? nextStability(memory.difficulty, memory.stability, days, GOOD) : stability);
+    const hard = Math.min(interval(nextStability(memory.difficulty, memory.stability, days, 2)), good);
+    return { ...next, phase: 'review', step: 0, due: at + (grade === EASY ? Math.max(interval(stability), good + 1) : Math.max(good, hard + 1)) * DAY };
   }
   const steps = memory.phase === 'learning' ? LEARNING_STEPS : RELEARNING_STEPS;
   if (grade === AGAIN) return { ...next, phase: memory.phase, step: 0, due: at + steps[0] * MINUTE };
-  const step = steps[memory.step + 1];
+  const step = grade === EASY ? undefined : steps[memory.step + 1];
   return step ? { ...next, phase: memory.phase, step: memory.step + 1, due: at + step * MINUTE }
     : { ...next, phase: 'review', step: 0, due: at + interval(stability) * DAY };
 }

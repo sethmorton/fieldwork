@@ -142,6 +142,12 @@ country (region equals country), a regional or specialist clue with no country
 result is judged by spotted/missed alone, and a known wrong country is still Again.
 A new clue becomes due about ten minutes after its first success, then 2, 11,
 46, 163 days later when reviewed on time; a miss becomes due within ten minutes.
+A correct answer at confidence 3 is Easy: "Knew it" on the result card, or
+"Knew it" in the start panel's Quick check, which lists clues not yet on a
+multi-day interval in introduction order and records one Easy review from the
+card alone (`feedbackSource: 'quick-check'`, no panorama). Easy skips the learning
+steps: a new clue becomes due 8 days later, then 39 and 153 days on time (ts-fsrs
+5.4.2 values); a miss then restarts it like any other.
 Due is a priority, not a promise of the next set. Within each set the previous set
 rests and family/country/panorama caps and the one-target-per-advanced-scope rule
 hold. Rest covers only previous-set targets whose latest attempt is under 20 hours

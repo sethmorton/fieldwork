@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,practiceFeedback} from '../session.mjs';
+import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,practiceFeedback,quickCheckQueue,recordKnown} from '../session.mjs';
 import {skillStatus} from '../lib/mastery.ts';
 import {curriculumProgress} from '../lib/adaptive.ts';
 import {validatePack} from '../next-set.mjs';
@@ -62,6 +62,27 @@ test('a recognition-graded pack schedules spotted/missed regardless of the count
   const minimal={id:'p',title:'t',subject:'s',skills:[{id:'clue',title:'c',phase:'p',prerequisites:[]}],pools:[],locations:[]};
   assert.equal(validatePack({...minimal,gradingPolicy:'recognition'}).gradingPolicy,'recognition');
   assert.throws(()=>validatePack({...minimal,gradingPolicy:'country'}),/grading policy/);
+});
+test('a clue known cold skips the learning repeats, comes back to be confirmed, and restarts on a miss',()=>{
+  const at=new Date('2026-10-22T10:00:00Z'),DAY=86400000,dueIn=records=>(Date.parse(skillStatus('clue',records,at).reviewDueAt)-at)/DAY;
+  const world={...pack,gradingPolicy:'recognition'},round=completedRound(world,state);
+  const knew=recordRecognition(world,[],round,{recognized:true,knew:true},at);
+  assert.equal(knew[0].confidence,3);assert.equal(dueIn(knew),8); // Easy: ts-fsrs 5.4.2 gives 8 days, not a 10-minute step
+  // Knowing it is only claimed for a spotted clue: a miss stays a miss.
+  const missed=recordRecognition(world,[],round,{recognized:false,knew:true},at);
+  assert.equal(missed[0].confidence,2);assert.equal(missed[0].correct,false);
+  const relapse=[...knew,{...knew[0],id:'later',occurredAt:new Date(at.getTime()+8*DAY).toISOString(),correct:false,evidenceValid:false,confidence:2}];
+  assert.ok(Date.parse(skillStatus('clue',relapse,at.getTime()+8*DAY).reviewDueAt)-(at.getTime()+8*DAY)<DAY);
+});
+test('quick check lists unscheduled clues in curriculum order and a known clue leaves the list for about a week',()=>{
+  const at=new Date('2026-10-22T10:00:00Z');
+  const ranked={...pack,skills:pack.skills.map((skill,i)=>({...skill,curriculum:{scope:'within-country-regional',rank:5-i}}))};
+  assert.deepEqual(quickCheckQueue(ranked,[],at).map(skill=>skill.id),['clue4','clue3','clue2','clue1','clue']);
+  const known=recordKnown(ranked,[],'clue3',at);
+  assert.deepEqual(quickCheckQueue(ranked,known,at).map(skill=>skill.id),['clue4','clue2','clue1','clue']);
+  assert.equal(skillStatus('clue3',known,at).due,false);
+  assert.equal(skillStatus('clue3',known,new Date(at.getTime()+8*86400000)).due,true);
+  assert.throws(()=>recordKnown(ranked,[],'nope',at),/Unknown clue/);
 });
 test('publishing is limited to a distinct verified owned map, after a backup, with actual source coordinates',async()=>{
   const set={mapMaking:{customCoordinates:pack.locations}};const calls=[];
