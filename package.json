@@ -1,6 +1,6 @@
 {
   "name": "fieldwork-geoguessr",
-  "version": "0.11.0",
+  "version": "0.13.5",
   "private": true,
   "type": "module",
   "description": "Adaptive GeoGuessr practice with curated locations and local learning feedback",
@@ -11,8 +11,8 @@
     "setup": "node scripts/setup.mjs",
     "build": "node scripts/build.mjs",
     "serve": "node scripts/serve.mjs",
-    "test": "node --test src/tests/*.test.mjs src/source-bridge.test.mjs scripts/*.test.mjs",
-    "typecheck": "tsc --noEmit --allowImportingTsExtensions --target es2022 --module esnext --moduleResolution bundler --skipLibCheck src/lib/adaptive.ts src/lib/mastery.ts",
+    "test": "node --test src/tests/*.test.mjs scripts/*.test.mjs",
+    "typecheck": "tsc --noEmit --allowImportingTsExtensions --target es2022 --module esnext --moduleResolution bundler --skipLibCheck src/lib/adaptive.ts src/lib/mastery.ts src/lib/fsrs.ts",
     "check": "npm test && npm run typecheck",
     "content:refresh": "node scripts/refresh-notes.mjs",
     "content:build": "node scripts/content-assets.mjs"

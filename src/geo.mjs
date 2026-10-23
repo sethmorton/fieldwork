@@ -1,4 +1,4 @@
-export function inRing([x,y],ring) {
+function inRing([x,y],ring) {
  let inside=false;
  for(let i=0,j=ring.length-1;i<ring.length;j=i++) {
   const [xi,yi]=ring[i], [xj,yj]=ring[j];
@@ -6,7 +6,7 @@ export function inRing([x,y],ring) {
  }
  return inside;
 }
-export function inGeometry(point,geometry) {
+function inGeometry(point,geometry) {
  const polys=geometry.type==='Polygon'?[geometry.coordinates]:geometry.type==='MultiPolygon'?geometry.coordinates:[];
  return polys.some(rings=>rings.length&&inRing(point,rings[0])&&!rings.slice(1).some(hole=>inRing(point,hole)));
 }

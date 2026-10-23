@@ -4,8 +4,8 @@ import {indexedDbCache} from './content-cache.mjs';
 import {sourceNote} from './source-note.mjs';
 import {makeNextSet} from './next-set.mjs';
 import {packForPage} from './packs.mjs';
-import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet} from './session.mjs';
-import {reviewPanel,startPanel,loadingPanel,bindPanel} from './ui.mjs';
+import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,quickCheckQueue,recordKnown} from './session.mjs';
+import {reviewPanel,startPanel,loadingPanel,bindPanel,quickCheckPanel} from './ui.mjs';
 import {stateFromGameData} from './game-state.mjs';
 import {observeGameResponses} from './game-responses.mjs';
 const gameResponses=unsafeWindow.GEFFetchEvents;
@@ -135,8 +135,10 @@ function render() {
   const mapPage=location.pathname===`/maps/${pack.practiceMapId}`||location.pathname===`/map-maker/${pack.practiceMapId}`;
   if(mapPage){
     if(startPreparedGame()){if(mounted!=='launch'){loadingPanel(pack,{message:'Starting your next set…'});mounted='launch'}return}
-    if(mounted==='start')return;
+    if(mounted==='start'||mounted==='quick')return;
     startPanel(pack,{onNext:prepare,attempts:history(),getAttempts:history,packs:packs.filter(item=>item.practiceMapId),onChoosePack:id=>go(`/maps/${packs.find(item=>item.id===id).practiceMapId}`),
+      onQuickCheck:()=>{mounted='quick';quickCheckPanel(pack,quickCheckQueue(pack,history()),{
+        onKnown:skillId=>GM_setValue(key('attempts'),recordKnown(pack,history(),skillId)),onDone:()=>{remove();render()}})},
       onExport:()=>download({packId:pack.id,attempts:history(),exposures:exposures(),previousDraft:GM_getValue(key('previous-draft'),null),pendingBackup:GM_getValue(key('pending-backup'),null)},`fieldwork-progress-${pack.id}.json`),
       onImport:importPack,onCoverage:async()=>download(await store.audit(pack.id),`fieldwork-sources-${pack.id}.json`),
     });mounted='start';return;
