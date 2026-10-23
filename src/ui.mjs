@@ -2,6 +2,15 @@ import {renderProgressTree} from './progress.mjs';
 import {practiceFeedback} from './session.mjs';
 import {curriculumProgress} from './lib/adaptive.ts';
 // Compact post-guess UI. Source HTML is converted to text, never executed.
+// Panel size: compact by default, expanded (wide, full images and text) when the learner asks; remembered per browser.
+const isWide=()=>localStorage.getItem('fieldwork:wide')==='1';
+function applySize(section,treeOpen=false){
+  const host=section.getRootNode().host,wide=isWide();
+  host.style.width=`min(${treeOpen?850:wide?760:340}px, calc(100vw - 36px))`;section.style.maxHeight=treeOpen||wide?'85vh':'65vh';
+  section.classList.toggle('wide',wide);
+  const toggle=section.querySelector('.size');if(toggle){toggle.textContent=wide?'⤡':'⤢';toggle.setAttribute('aria-label',wide?'Shrink panel':'Expand panel')}
+}
+const toggleWide=section=>{localStorage.setItem('fieldwork:wide',isWide()?'0':'1');applySize(section,!!section.querySelector('details.tree[open]'))};
 export function panel() {
   document.getElementById('fieldwork-practice')?.remove();
   const host=document.createElement('aside');host.id='fieldwork-practice';
@@ -18,27 +27,36 @@ export function panel() {
     .tree-legend{display:flex;flex-wrap:wrap;gap:12px;margin:14px 0;font-size:12px}.tree-key{display:flex;align-items:center;gap:5px}.tree-dot{display:inline-grid;place-items:center;width:14px;height:14px;border:1px dashed #9bb7c2;border-radius:50%;font-style:normal;font-size:10px}
     .tree-branches{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0 20px;border-top:1px solid #a9c2cb;margin-top:18px}.tree-branch{position:relative;margin:0;padding:20px 0 14px 16px;border-left:1px solid #a9c2cb}.tree-branch:before{content:'';position:absolute;left:0;top:30px;width:10px;border-top:1px solid #a9c2cb}.tree-family{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px}.tree-family:before{content:'+'}.tree-branch[open]>.tree-family:before{content:'−'}.tree-family strong{flex:1}.tree-preview{display:flex;flex-wrap:wrap;gap:6px;width:100%;padding-left:16px}.tree-preview .needs-review{box-shadow:0 0 0 2px #d1961f}.tree-branch[open] .tree-preview{display:none}.tree-leaves{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}
     .tree-node{display:flex;align-items:center;gap:10px;width:100%;padding:4px 0;text-align:left;border:0;background:none;border-radius:4px;font-size:12px}.tree-count{display:inline-grid;place-items:center;width:28px;height:28px;flex-shrink:0;border:1px dashed #9bb7c2;border-radius:50%;font:12px ui-monospace,monospace}.learning{background:#d2e8f0;border:1px solid #176b86;color:#153946}.provisional{background:#176b86;border:3px double #eff6f8;color:white;outline:1px solid #176b86}.mastered{background:#276b50;border:1px solid #276b50;color:white}.needs-review .tree-count{box-shadow:0 0 0 3px #d1961f}.tree-node[aria-pressed=true] .tree-name{font-weight:bold;text-decoration:underline}.tree-node:focus-visible{outline:3px solid #d1961f;outline-offset:3px}.tree-inspect{min-height:24px;font-size:12px}.tree-inspect p{margin:4px 0}
+    .preview{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}.wide .preview{display:block}
+    .wide img{max-height:none;cursor:zoom-out}img{cursor:zoom-in}header .size{margin-left:auto}
   `;root.append(style);const section=document.createElement('section');root.append(section);document.body.append(host);
+  applySize(section);
   return {host,section};
 }
 const text=(parent,tag,content,cls)=>{const node=document.createElement(tag);node.textContent=content;if(cls)node.className=cls;parent.append(node);return node};
 const button=(parent,label,handler,cls)=>{const node=text(parent,'button',label,cls);node.type='button';node.onclick=handler;return node};
-function header(section,label) {const head=document.createElement('header');section.append(head);text(head,'small',label);const close=button(head,'×',()=>section.getRootNode().host.remove(),'close');close.setAttribute('aria-label','Close practice panel');}
+function header(section,label) {
+  const head=document.createElement('header');section.append(head);text(head,'small',label);
+  button(head,'⤢',()=>toggleWide(section),'close size');
+  const close=button(head,'×',()=>section.getRootNode().host.remove(),'close');close.setAttribute('aria-label','Close practice panel');
+  applySize(section,!!section.querySelector('details.tree[open]'));
+}
 function treeDetails(section,pack,getAttempts,title){
-  const details=document.createElement('details');text(details,'summary',title);const tree=document.createElement('div');details.append(tree);section.append(details);
+  const details=document.createElement('details');details.className='tree';text(details,'summary',title);const tree=document.createElement('div');details.append(tree);section.append(details);
   const refresh=()=>{if(details.open)renderProgressTree(tree,pack,getAttempts());};
-  details.ontoggle=()=>{const host=section.getRootNode().host;host.style.width=details.open?'min(850px, calc(100vw - 36px))':'min(340px, calc(100vw - 36px))';section.style.maxHeight=details.open?'80vh':'65vh';refresh();};
+  details.ontoggle=()=>{applySize(section,details.open);refresh();};
   return {details,refresh};
 }
 function clue(section,skill,sourceUrl) {
   sourceUrl=skill.notesSourceUrl??sourceUrl;
   text(section,'h2',skill.title);
   const imageUrl=skill.imageUrls?.find(url=>url.startsWith('https://learnablemeta.com/images/')||url.startsWith('https://www.plonkit.net/images/')||url.startsWith('https://ocsc00skc0wokcs8kw8g8k84.geohints.com/storage/'));
-  if(imageUrl){const img=document.createElement('img');img.src=imageUrl;img.alt=skill.title+' — source example';section.append(img);}
+  if(imageUrl){const img=document.createElement('img');img.src=imageUrl;img.alt=skill.title+' — source example';img.title='Click to enlarge';
+    img.onclick=()=>toggleWide(img.getRootNode().querySelector('section'));section.append(img);}
   const details=document.createElement('details');text(details,'summary','Clue & source');
   const parsed=new DOMParser().parseFromString(skill.sourceNoteHtml??skill.trainingNote??'','text/html');const note=(parsed.body.textContent??'').trim();
   const preview=skill.trainingNote??note;
-  if(preview)text(section,'p',preview.length>280?preview.slice(0,280)+'…':preview,'muted');
+  if(preview)text(section,'p',preview,'muted preview');
   text(details,'p',note);
   if(skill.scoringCaveats?.length)text(details,'p',skill.scoringCaveats.join(' '),'muted');
   if(sourceUrl?.startsWith('https://')){const source=text(details,'a','Original clues');source.href=sourceUrl;source.target='_blank';source.rel='noopener noreferrer';}

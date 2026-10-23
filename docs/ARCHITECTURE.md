@@ -16,7 +16,7 @@ Routine play has no Fieldwork account or application backend.
   pointer. It rejects unsupported schemas, mismatched identities and corrupt
   downloads. A failed update leaves the previous cached pack available.
 - Cached practice starts without waiting for the host. On a practice-map page,
-  the script checks for content changes in the background, at most daily after
+  the script checks for content changes in the background, at most every 15 minutes after
   a successful check. Changes apply when preparing the next set, not midway
   through a game. An unavailable first download needs a retry or manual import.
 - Full inventories (`sourceCoverage` and `curriculum`) are separate assets.
@@ -25,7 +25,9 @@ Routine play has no Fieldwork account or application backend.
 - Full source explanations are retained from existing local packs or fetched
   after a guess from Learnable Meta, with clue/country matching and attribution.
   They are cached privately. An unavailable explanation does not block feedback;
-  the original source link and authored short note remain available.
+  the original source link and authored short note remain available. A note whose
+  source licence allows redistribution (`noteLicense`, e.g. Plonk It's CC BY-NC-SA
+  text with attribution) ships inside the hosted pack.
 
 Tampermonkey and Violentmonkey copy **every** stored GM value into every page
 load, so GM storage holds only small state: `fieldwork:catalog`, per-pack content
