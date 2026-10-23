@@ -93,14 +93,15 @@ pole variant or telephone code is tracked separately through clue feedback;
 a correct country guess is not proof of that finer distinction. Teaching
 pools are practice-only until a separate unseen assessment pool is verified.
 
-## Add the world PlonkIt clue bank (local pack)
+## Add the world PlonkIt clue bank
 
-`local/world-pack.json` is built outside this repository by
-`work/world-map/run.sh` (Plonk It guide clues, each with two or three Street
-View panoramas found from guide example links, shared Learnable Meta maps and
-Vali-generated regional candidates, every view checked by a small vision
-model). It embeds full Plonk It text (CC BY-NC-SA 4.0, attributed on every
-card), so it is a local custom pack and never goes into public `content/`.
+`content/world.json` is built by `tools/world-pack/` (see its README): Plonk It
+guide clues, each with two or three Street View panoramas found from guide
+example links, shared Learnable Meta maps and Vali-generated regional
+candidates, every view checked by a small vision model. It embeds the Plonk It
+text (CC BY-NC-SA 4.0, attributed on every card), so that pack is CC BY-NC-SA
+4.0. The pipeline also writes the same pack to `local/world-pack.json` for a
+local install.
 Regional and specialist clues practise first; country-identification clues
 are left out except European utility-pole clues. The pack sets
 `"gradingPolicy": "recognition"`: reviews follow spotted/missed, and a wrong
@@ -111,8 +112,8 @@ npm run setup -- --map YOUR_WORLD_MAP_ID --pack local/world-pack.json --add
 npm run serve
 ```
 
-Keep `npm run serve` running until the world panel has loaded once; the pack's
-first download comes from the local installer.
+Because the pack is also in public `content/`, the rebuilt script downloads
+it from GitHub Pages like the other supplied packs.
 
 ## During practice
 

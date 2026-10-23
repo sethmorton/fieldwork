@@ -1,95 +1,103 @@
 # Fieldwork
 
-[![Checks](https://github.com/sethmorton/fieldwork/actions/workflows/ci.yml/badge.svg)](https://github.com/sethmorton/fieldwork/actions/workflows/ci.yml)
+**Spaced-repetition practice for GeoGuessr, built on your own map and the Plonk It guide.**
 
-**GeoGuessr practice that remembers what you miss—and gives you room to learn something else.**
+Fieldwork is a Tampermonkey userscript. It turns a GeoGuessr map you own into a practice map: every set of five rounds is picked for you, and after each guess a clue card shows the Plonk It note and image for what you were meant to spot. You say whether you missed it, spotted it or already knew it, and Fieldwork decides when that clue comes back.
 
-Fieldwork turns a curated pool of real locations into adaptive five-round maps. Guess normally, review the visual clue after the reveal, and keep going. Your next set aims for three new targets and two reviews, with at most two clues per family.
+![Fieldwork clue card after a guess: the Brazil area-code map, the Plonk It note and the feedback controls](docs/images/clue-card.png)
 
-Australia, the Philippines and Worldwide are supplied packs. One small userscript keeps separate maps and progress for each; content packs download separately and stay cached.
+## What you get
 
-![Practice loop: curated locations become five varied targets; guess, review after reveal, and use local progress to shape the next set.](docs/practice-loop.svg)
+- **The World pack.** About 2,150 Plonk It clues across 118 countries, each with two or three real Street View locations. Foundational clues (poles, signs, phone codes, plates, car meta) come before landscape and finer regional detail.
+- **A clue card after every guess.** The Plonk It text and image, a link to the guide page, and three buttons: **Missed it**, **Spotted it**, **Knew it**.
+- **Quick check.** Flip through clue cards without playing rounds and clear the ones you already know.
+- **An expandable card.** Press ⤢ (or click the image) to see the image full size over the map. Fieldwork remembers your choice.
+- **FSRS spacing.** Reviews are scheduled with FSRS-6, the algorithm Anki uses. Clues you miss come back soon. Clues you know come back later and later.
+- **Local only.** Your progress lives in your browser. There is no Fieldwork account or server.
 
-> **Working prototype.** The Australian pack has 74 active regional targets across 19 families. The Philippines pack adds 166 active regional targets across 15 families and 922 practice panoramas. The Worldwide pack adds 535 targets across 13 families and 8,120 practice panoramas, including 185 of the official Intermediate collection’s 190 clues. These are partial teaching pools, not complete curricula or validated measures of mastery.
+![Expanded clue card over the result map](docs/images/expanded-card.png)
 
-## Set it up with an agent
+## Install
 
-Give a coding agent this repository and paste:
+You need a GeoGuessr account that can create maps (Map Maker) and a desktop browser.
 
-> Read AGENTS.md and docs/SETUP.md. Help me set up Fieldwork in my own Chrome profile and on a separate GeoGuessr map I own. Install dependencies, run the checks, fetch the public source notes, and build my configured userscript. Guide me through any browser installation steps you cannot perform. Keep my credentials and progress local. Verify the practice panel and leave the first round ready without guessing for me.
+1. **Install [Tampermonkey](https://www.tampermonkey.net/).** In Chrome and other Chromium browsers, also turn on **Allow User Scripts** for Tampermonkey ([Learnable Meta's guide](https://learnablemeta.com/docs/getting-started/chrome) walks through it). If you already run the Learnable Meta script, you are set.
+2. **Install Fieldwork:** open <https://sethmorton.github.io/fieldwork/fieldwork.user.js> and confirm in Tampermonkey.
+3. **Make a practice map and bind it.** In [Map Maker](https://www.geoguessr.com/map-maker), create a new map whose name starts with `Fieldwork` (for example `Fieldwork - World practice`), add any location and save. Open a fresh tab on that map's Map Maker page. The panel asks **Use this map for practice?** Pick the pack this map is for, then press **Continue practice**.
 
-The agent can handle the terminal work. You still need a GeoGuessr account with map-making access and a browser userscript manager.
+Fieldwork replaces the map's locations with each new set, so never use a map you want to keep. Bookmark `https://www.geoguessr.com/maps/<your map ID>` and press **Continue practice** there next time. Want a second pack? Make a second `Fieldwork` map and bind it to that pack.
 
-## Quickstart
+If the panel does not appear: check that the script is enabled, that the map name starts with `Fieldwork`, that you are signed in as its owner, and open a new tab. More in [setup and troubleshooting](docs/SETUP.md#troubleshooting).
 
-Requires **Node.js 24.12+**, npm, Chrome/Chromium and [Tampermonkey](https://www.tampermonkey.net/). Follow the [userscript setup guide](https://learnablemeta.com/docs/getting-started/chrome) for Chrome's userscript permission.
+## How a session works
 
-1. In [GeoGuessr Map Maker](https://www.geoguessr.com/map-maker), create and save a **separate map you own**, named `Fieldwork - Practice`. Keep the map-maker URL. This map's five locations will be replaced during practice.
-2. Clone and prepare:
+1. **Continue practice** writes five locations to your map, publishes it and starts the game.
+2. Play each round normally. Nothing about the target clue is shown before you guess.
+3. After the guess, the clue card appears. Answer honestly:
+   - **Missed it**: you did not notice or did not know the clue. It comes back within minutes.
+   - **Spotted it**: you saw it and used it. Moving on without pressing anything also counts as spotted.
+   - **Knew it**: this was already easy for you. It skips the short repeats and returns in about a week.
+4. After round five, **Continue practice** builds the next set.
 
-   ```sh
-   git clone https://github.com/sethmorton/fieldwork.git
-   cd fieldwork
-   npm ci
-   npm run check
-   npm run content:refresh
-   npm run setup -- --map YOUR_24_CHARACTER_MAP_ID --pack local/pack.json
-   npm run serve
-   ```
+Each set mixes due reviews with new clues, and holds at most two clues from the same family, so you never get five phone-code rounds in a row. How many new clues you get depends on how well your recent rounds went.
 
-3. Open **http://127.0.0.1:8787**, install the generated userscript, and follow its link to your map in a **fresh Chrome tab**.
-4. Click **Continue practice** in the Fieldwork panel. It publishes five locations and starts the game. Bookmark your own map URL for future sessions.
+**Quick check** sits next to Continue practice on the start panel. It shows one card at a time from clues that are new or still in their short repeats. Press **K** for knew it or **N** for not yet. Known clues come back about a week later in a real round to confirm.
 
-You can stop the local server after installation and the first pack has loaded. Everyday practice runs in GeoGuessr; it does not need this repository or a server running. See [setup and troubleshooting](docs/SETUP.md) if the panel does not appear.
+![Quick check panel with Knew it (K) and Not yet (N)](docs/images/quick-check.png)
 
-The supplied packs receive background content updates without reinstalling the
-script. Cached content survives a content-host outage; your progress stays local.
-Engine updates preserve existing history and in-flight games.
+**What FSRS does, in plain words.** Every answer updates an estimate of how well you remember each clue. Fieldwork brings a clue back around the time you would start to forget it. A clue you keep spotting returns after a couple of days, then about a week and a half, then over a month. A clue marked **Knew it** returns in about a week, then about a month later. A miss starts it over.
 
-## What practice does
+Open **Content & progress** on the start panel (or **Your progress tree** on a card) to see every clue family and where you stand.
 
-- **At most two clues per family per set.** Related subtypes cannot fill the set.
-- **Space retries.** Targets practised in the previous set within 20 hours rest for one set when enough alternatives exist, including after a miss. Prefer unfamiliar panoramas, then any panorama other than the one last reviewed.
-- **Review after guessing.** Upcoming targets stay hidden. The result shows the source image, explanation and attribution.
-- **Low-friction feedback.** Moving on means “assumed spotted.” Press **Missed it** when needed; explicit feedback wins.
-- **Keep progress local.** Reviews and exposure history live in Tampermonkey's storage. Export them under **Content & progress**.
-- **See your progress tree.** Expand **Content & progress** on the practice map, or **Your progress tree** after a guess. Each pack branches into clue families and individual targets; practice, mastery and review needs stay distinct.
+## Packs
 
-Country-only practice excludes clues that merely identify the country. It focuses on differences *within* the country. A correct state guess alone does not prove clue recognition, and assumed feedback never counts as verified mastery.
+| Pack | What it covers |
+| --- | --- |
+| World PlonkIt clue bank | About 2,150 Plonk It region-guessing clues, foundational first, 2-3 locations each |
+| World foundations & intermediate | Bollards, pedestrian signs, languages, poles, chevrons, plates, Brazilian phone codes and more |
+| Australia region practice | State-level clues within Australia |
+| Philippines region practice | Regional clues within the Philippines |
 
-## Bring your own content
+Packs update in the background without reinstalling the script. Each pack needs its own bound map.
 
-Use a distinct pack ID and dedicated practice map for each country/topic. Packs define clue families, priorities, real panorama locations, source attribution and optional regional boundaries. A slide deck or guide helps define targets; it does not magically provide playable, correctly tagged locations.
+## Privacy
 
-To add the Philippines or Worldwide alongside Australia, see [multiple-pack setup](docs/SETUP.md#add-the-philippines-or-another-pack).
+- Progress, history and map bindings are stored in Tampermonkey's script storage. Downloaded packs are cached in your browser's IndexedDB. Nothing is uploaded. Export a backup under **Content & progress**.
+- The script works through your signed-in GeoGuessr page. There is no Fieldwork account, and it never exports cookies or tokens.
+- Besides GeoGuessr, the script contacts `sethmorton.github.io` (pack downloads) and `learnablemeta.com` (clue explanations for the older packs). Card images load from `www.plonkit.net`, `learnablemeta.com` and, for two Australia clues, `geohints.com`. Tampermonkey fetches the GeoGuessr Event Framework from `raw.githubusercontent.com`.
+- Fieldwork only edits the map you bound, and backs up its draft before each set. GeoGuessr's map-editing API is unofficial and may change.
 
-The [content guide](docs/CONTENT.md) covers native Map Maker exports, Learnable Meta imports, curation and activation checks. The Australian source inventory is included to show coverage and gaps; its 178 source units are **not** 178 available learning tasks.
+## Credits and licence
 
-## Develop
+- **[Plonk It](https://www.plonkit.net/)** wrote the guide. Clue text and images are used under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) and every card credits the guide page it came from.
+- **[Learnable Meta](https://learnablemeta.com/)** and its community map makers. Many practice locations come from their public maps.
+- **[GeoGuessr Event Framework](https://github.com/miraclewhips/geoguessr-event-framework)** by miraclewhips tells Fieldwork when a round ends.
+- **[FSRS](https://github.com/open-spaced-repetition)** by open-spaced-repetition. Fieldwork implements FSRS-6 with its default parameters.
+
+Fieldwork is not affiliated with GeoGuessr, Plonk It or Learnable Meta.
+
+The Fieldwork code is [MIT](LICENSE). The World pack (`content/world.json`) carries Plonk It clue text and links to Plonk It images, so that pack is CC BY-NC-SA 4.0: share it with attribution, under the same licence, and not commercially. Other sources and their terms are listed in [THIRD_PARTY.md](THIRD_PARTY.md).
+
+## For developers
+
+Requires Node.js 24.12+.
 
 ```sh
+git clone https://github.com/sethmorton/fieldwork.git
+cd fieldwork
 npm ci
-npm run check
-npm run build  # after local setup
+npm run check   # tests and type checks
 ```
 
-| Path | Purpose |
-| --- | --- |
-| `src/lib/adaptive.ts` | Location selection and spacing |
-| `src/lib/mastery.ts` | Conservative evidence and review status |
-| `src/lib/fsrs.ts` | FSRS-6 review scheduling, replayed from attempts |
-| `src/browser.mjs`, `session.mjs`, `ui.mjs` | Browser integration, publication and post-guess feedback |
-| `src/tests/`, `scripts/*.test.mjs` | Automated checks with synthetic learner observations |
-| `content/australia.json`, `content/philippines.json`, `content/worldwide.json` | Unbound country packs; no personal practice-map binding |
-| `scripts/` | Local setup, build, source-note refresh and installer server |
-| `fixtures/` | Isolated browser checks; never connected to a real account |
+The full verification builds your local userscript, so run `npm run setup` first ([docs/SETUP.md](docs/SETUP.md)), then:
 
-The script reads completed rounds and replaces/publishes only the configured dedicated map, after saving a draft backup. GeoGuessr's map-writing endpoints are unofficial and may change. See [architecture and limitations](docs/ARCHITECTURE.md).
+```sh
+npm run build && node --check dist/fieldwork.user.js && node scripts/verify-build.mjs && npm run check
+```
 
-## Credits, status and help
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): content delivery, storage, set selection and FSRS details.
+- [docs/SETUP.md](docs/SETUP.md): local builds, custom packs and troubleshooting.
+- [docs/CONTENT.md](docs/CONTENT.md): authoring and importing packs.
+- [tools/world-pack/README.md](tools/world-pack/README.md): the pipeline that builds the World pack.
 
-Built by [Seth Morton](https://github.com/sethmorton). Report reproducible bugs or propose a content pack in [Issues](https://github.com/sethmorton/fieldwork/issues). Do not include credentials, progress exports or private account data.
-
-Content is informed by [Learnable Meta](https://learnablemeta.com/), [Plonk It Australia](https://www.plonkit.net/australia) and the [Australia reference deck](https://docs.google.com/presentation/d/1ZXxLem3YRLWw_tmP6v31VrkiqMvcoE1GXWbTN7Pi0Ds/edit). Browser events use [GeoGuessr Event Framework](https://github.com/miraclewhips/geoguessr-event-framework), pinned to a commit. Fieldwork is unaffiliated with these projects or GeoGuessr.
-
-Original Fieldwork code is MIT licensed. Third-party notes, images, reference material and geographic data retain their original rights and attribution; see [THIRD_PARTY.md](THIRD_PARTY.md). Full Learnable Meta explanation text is fetched locally during setup or after a guess, rather than republished with public content assets.
+Every `content/*.json` file is a public pack served from GitHub Pages. Found a bug or a wrong clue? Open an [issue](https://github.com/sethmorton/fieldwork/issues). Please leave out credentials and progress exports.

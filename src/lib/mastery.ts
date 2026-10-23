@@ -13,7 +13,6 @@ export type Attempt = {
   /** Set only by "Knew it" (result card or quick check); every other success replays as Good. */
   grade?: 'easy';
 };
-type AttemptInput = Omit<Attempt, 'id' | 'occurredAt'>;
 type Clock = Date | string | number;
 export type SkillStatus = {
   skillId: string;
@@ -36,36 +35,6 @@ const passed = (attempt: Attempt) => attempt.correct === true && attempt.evidenc
 const time = (value: Clock) => new Date(value).getTime();
 const iso = (value: number) => new Date(value).toISOString();
 const rate = (attempts: Attempt[]) => attempts.filter(passed).length / attempts.length;
-
-export function validateAttempt(input: unknown, allowedSkillIds: readonly string[]) :
-  { ok: true; value: AttemptInput } | { ok: false; error: string } {
-  const fail = (error: string) => ({ ok: false as const, error });
-  if (!input || typeof input !== 'object' || Array.isArray(input)) return fail('Attempt must be an object.');
-  const value = input as Record<string, unknown>;
-  if (typeof value.skillId !== 'string' || !allowedSkillIds.includes(value.skillId)) return fail('Unknown skill.');
-  if (value.mode !== 'practice' && value.mode !== 'assessment') return fail('Choose practice or assessment.');
-  for (const field of ['correct', 'evidenceValid', 'unfamiliar']) {
-    if (typeof value[field] !== 'boolean') return fail(`${field} must be true or false.`);
-  }
-  if (!Number.isInteger(value.confidence) || (value.confidence as number) < 1 || (value.confidence as number) > 3) {
-    return fail('Confidence must be 1, 2, or 3.');
-  }
-  if (typeof value.reason !== 'string' || !value.reason.trim() || value.reason.length > 2000) {
-    return fail('Explain your evidence in 1–2000 characters.');
-  }
-  if (value.locationRef !== undefined && typeof value.locationRef !== 'string') return fail('Location reference must be text.');
-  const locationRef = ((value.locationRef as string | undefined) ?? '').trim();
-  if (locationRef.length > 500) return fail('Location reference must be at most 500 characters.');
-  if (value.mode === 'assessment' && !locationRef) return fail('Assessment requires a location reference.');
-  if (value.occurredAt !== undefined && (typeof value.occurredAt !== 'string' || !Number.isFinite(time(value.occurredAt)))) {
-    return fail('Invalid assessment date.');
-  }
-  return { ok: true, value: {
-    skillId: value.skillId, mode: value.mode, correct: value.correct as boolean,
-    evidenceValid: value.evidenceValid as boolean, unfamiliar: value.unfamiliar as boolean,
-    confidence: value.confidence as number, locationRef, reason: value.reason.trim(),
-  } };
-}
 
 /** One pass over time-sorted evidence: does each prefix of length k qualify (20 unique, 80% overall and latest five, 3 delayed)? */
 function qualifyingPrefixes(attempts: Attempt[]) {

@@ -10,7 +10,7 @@ for(const entry of catalog.packs){
   const body=await readFile('dist/content-host/'+entry.url,'utf8'),pack=JSON.parse(body);
   assert.equal(await contentHash(body),entry.sha256);assert.equal(pack.id,entry.id);
   assert.equal(pack.practiceMapId,undefined);assert.equal(pack.sourceCoverage,undefined);
-  assert.ok(pack.skills.every(skill=>!skill.sourceNoteHtml));
+  assert.ok(pack.skills.every(skill=>!skill.sourceNoteHtml||skill.noteLicense),'Only openly licensed notes may ship in hosted content.');
   for(const local of configured)assert.ok(!body.includes(local.practiceMapId),'A personal practice-map binding leaked into hosted content.');
 }
 const publicScript=await readFile('dist/content-host/fieldwork.user.js','utf8');

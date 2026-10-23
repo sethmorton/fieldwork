@@ -20,6 +20,13 @@ continue to apply; source/author attribution is retained in the content data.
   and priorities. The source inventory is not an endorsement by Plonk It.
 - Plonk It Philippines: https://www.plonkit.net/philippines — regional
   priorities, audited guide references and individual teaching examples.
+- Plonk It guide (World pack): https://www.plonkit.net/ provides the clue text
+  shipped in `content/world.json` under CC BY-NC-SA 4.0
+  (https://creativecommons.org/licenses/by-nc-sa/4.0/). Every card credits its
+  guide page, and images are referenced by their plonkit.net URLs, not copied.
+  That pack is therefore CC BY-NC-SA 4.0 and may not be used commercially.
+  Its Street View locations come from guide example links and public Learnable
+  Meta community maps.
 - GeoPinning Philippines: https://geopinning.space/en/rule/asia/philippines/
   — three individually checked banana, pineapple and sugarcane teaching examples.
 - Philippines electricity-counter guide: https://docs.google.com/document/d/1rO9360kGXASORPft6Y2HwjOewlt_R98vJ6E_jsmGyRI/edit
@@ -32,6 +39,9 @@ continue to apply; source/author attribution is retained in the content data.
 - GeoGuessr Event Framework by miraclewhips:
   https://github.com/miraclewhips/geoguessr-event-framework — loaded from the
   pinned commit in the userscript header, not vendored as original code.
+- FSRS by open-spaced-repetition: https://github.com/open-spaced-repetition
+  provides the FSRS-6 algorithm and default parameters that `src/lib/fsrs.ts`
+  reimplements. No FSRS package is bundled.
 - Google Street View / GeoGuessr: panorama IDs and coordinates are location
   references; neither imagery nor these services are provided by Fieldwork.
 

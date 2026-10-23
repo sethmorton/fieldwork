@@ -73,14 +73,13 @@ export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],g
     loadNote(currentSkill).then(skill=>{if(!source.isConnected)return;source.replaceChildren();clue(source,skill,pack.notesSourceUrl)}).catch(()=>{status.textContent='Explanation unavailable. Use the original source link; your feedback still saves.'});
   }
   if(round.location.assessmentEligible===false)text(section,'p','Teaching example · practice credit only.','muted');
-  const skill=pack.skills.find(skill=>skill.id===round.location.skillIds[0]);
   text(section,'p',practiceFeedback(attempts,round),'muted');
   text(section,'p','Moving on saves “spotted it.” “Knew it” skips the repeats and checks back in about a week.','muted');
-  if(skill.recognitionOnly)text(section,'p','Feature recognition practice. Your region guess is tracked separately.','muted');
+  if(currentSkill.recognitionOnly)text(section,'p','Feature recognition practice. Your region guess is tracked separately.','muted');
   const label=document.createElement('label');const seen=document.createElement('input');seen.type='checkbox';seen.checked=familiar;label.append(seen,document.createTextNode('I had seen this panorama before'));section.append(label);
   let result=round.correct;
   seen.onchange=()=>onChange({familiar:seen.checked,correct:result});
-  if(result===null&&!skill.recognitionOnly){text(section,'p','Was your guess in the right region?','muted');const choices=document.createElement('div');choices.className='actions';section.append(choices);for(const [title,value] of [['Yes',true],['No',false]])button(choices,title,()=>{result=value;onChange({familiar:seen.checked,correct:result});for(const child of choices.children)child.classList.remove('primary');choices.children[value?0:1].classList.add('primary');});}
+  if(result===null&&!currentSkill.recognitionOnly){text(section,'p','Was your guess in the right region?','muted');const choices=document.createElement('div');choices.className='actions';section.append(choices);for(const [title,value] of [['Yes',true],['No',false]])button(choices,title,()=>{result=value;onChange({familiar:seen.checked,correct:result});for(const child of choices.children)child.classList.remove('primary');choices.children[value?0:1].classList.add('primary');});}
   const status=text(section,'p',saved?'Saved on this device.':'','muted');status.setAttribute('role','status');
   const actions=document.createElement('div');actions.className='actions';section.append(actions);
   const save=(recognized,knew=false)=>{try{onSave({recognized,knew,familiar:seen.checked,correct:result});tree.refresh();for(const child of actions.children)child.disabled=true;status.textContent='Saved on this device.';}catch(error){status.textContent=error.message}};

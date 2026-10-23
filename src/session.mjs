@@ -30,7 +30,7 @@ export function recordRecognition(pack,history,round,{recognized,knew=false,fami
   if(!skill) throw Error('Unknown clue.');
   // gradingPolicy 'recognition' (and recognition-only clues): spotted = Good, missed = Again; the geographic result is kept as regionCorrect.
   const byRecognition=skill.recognitionOnly||pack.gradingPolicy==='recognition';
-  // Legacy packs: a map scored only by country cannot judge a regional/specialist clue; with no country result, spotted/missed decides it.
+  // Without either, a map scored only by country cannot judge a regional/specialist clue; with no country result, spotted/missed decides it.
   // Elsewhere an unknown region result stays unknown: practice, but no scheduler review.
   const recognitionDecides=byRecognition||(typeof correct!=='boolean'&&!!round.location.country&&round.location.region===round.location.country
     &&(skill.curriculum?.scope??'country-identification')!=='country-identification');

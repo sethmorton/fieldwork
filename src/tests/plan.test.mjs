@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makeNextSet,validatePack} from '../plan.mjs';
+import {makeNextSet,validatePack} from '../next-set.mjs';
 // Synthetic coordinates are test fixtures, never an exported teaching pack.
 const mid='0123456789abcdef01234567';
 const makePack=()=>{const skills=['A','B','C','D','E','F'].map(id=>({id,title:'Clue '+id,phase:'Mixed',prerequisites:[]}));return {id:'test',title:'Test topic',subject:'Any topic',skills,pools:[{id:mid,title:'Test',skillIds:skills.map(s=>s.id),mapUrl:`https://www.geoguessr.com/maps/${mid}`}],locations:skills.flatMap((s,j)=>[0,1,2].map(i=>({id:`pano:${s.id}${i}`,panoId:s.id+i,lat:j,lng:i,skillIds:[s.id],sourceMapId:mid})))}};

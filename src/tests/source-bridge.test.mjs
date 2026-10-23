@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import './source-bridge.js';
+import '../source-bridge.js';
 const { normalizeCoordinate, uniqueCoordinates, exportTaggedPool } = globalThis.FieldworkSourceBridge;
 const mapId = '0123456789abcdef01234567';
 // Synthetic data is strictly a unit-test fixture, never a teaching dataset.

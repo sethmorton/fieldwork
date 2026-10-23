@@ -71,7 +71,7 @@ export function createContentStore({get,set,list,remove,cache,catalog,fetchText,
     const entry=entryFor(id),head=get(headKey(id),null),cached=await read(id,head?.key);
     if(!entry.manifestUrl)return cached??Promise.reject(Error('Import this custom pack through Content & progress.'));
     // The manifest is a few hundred bytes and the check runs in the background on the map page, so a new pack
-    // revision reaches the learner's next set within minutes instead of a day later.
+    // revision reaches the learner's next set within REFRESH_MS.
     if(cached&&!force&&head.checkedAt&&now()-head.checkedAt<REFRESH_MS)return cached;
     try{
       const manifest=JSON.parse(await fetchText(entry.manifestUrl));
