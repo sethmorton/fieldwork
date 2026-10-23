@@ -8,3 +8,9 @@ fieldwork-progress-*.json
 .env
 .env.*
 .DS_Store
+__pycache__/
+# World pack caches when tools/world-pack runs without WORLD_PACK_DATA (see its README)
+tools/world-pack/*/
+!tools/world-pack/seed/
+tools/world-pack/*.json
+tools/world-pack/*.jsonl

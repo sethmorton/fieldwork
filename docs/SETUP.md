@@ -80,7 +80,7 @@ npm run serve
 
 For a Worldwide-only first setup, omit `--add`. Keep the other packs' local
 files and configuration. Install the rebuilt script and open your Worldwide
-map in a fresh tab. It uses five different clue families **and five different
+map in a fresh tab. It uses at most two clues per family **and five different
 countries** per set. Unknown-country locations cannot silently fill a slot.
 
 The mix includes bollards, pedestrian signs, language, utility poles and
@@ -92,6 +92,28 @@ Country feedback uses the actual country polygons. Recognizing a regional
 pole variant or telephone code is tracked separately through clue feedback;
 a correct country guess is not proof of that finer distinction. Teaching
 pools are practice-only until a separate unseen assessment pool is verified.
+
+## Add the world PlonkIt clue bank
+
+`content/world.json` is built by `tools/world-pack/` (see its README): Plonk It
+guide clues, each with two or three Street View panoramas found from guide
+example links, shared Learnable Meta maps and Vali-generated regional
+candidates, every view checked by a small vision model. It embeds the Plonk It
+text (CC BY-NC-SA 4.0, attributed on every card), so that pack is CC BY-NC-SA
+4.0. The pipeline also writes the same pack to `local/world-pack.json` for a
+local install.
+Regional and specialist clues practise first; country-identification clues
+are left out except European utility-pole clues. The pack sets
+`"gradingPolicy": "recognition"`: reviews follow spotted/missed, and a wrong
+country guess is recorded but does not turn a spotted clue into a miss.
+
+```sh
+npm run setup -- --map YOUR_WORLD_MAP_ID --pack content/world.json --add
+npm run serve
+```
+
+Because the pack is also in public `content/`, the rebuilt script downloads
+it from GitHub Pages like the other supplied packs.
 
 ## During practice
 
@@ -149,8 +171,8 @@ For engine changes: pull the repository, run `npm ci`, `npm run check`,
 `npm run build`, and install the regenerated script. Public content publishing
 runs only from public templates after CI passes; it never publishes your
 `.fieldwork.local.json`, hydrated local files, or progress. Public packs retain
-source links/attribution; their full explanations are fetched locally after a
-reveal rather than republished in the content host.
+source links/attribution. Openly licensed explanations (the World pack's Plonk It
+text) ship in the pack; others are fetched locally after a reveal.
 
 A custom pack with a new ID is served by the local installer for its initial
 cache fill. Keep that server running until the practice panel appears. You can

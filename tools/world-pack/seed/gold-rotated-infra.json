@@ -1,0 +1,110 @@
+[
+ {
+  "id": "c-fe950acd53e676c2",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "learnable-meta-catalogue"
+ },
+ {
+  "id": "c-fbf6d382a68e2bb3",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-5dc721d9dccc950f",
+  "truth": 0,
+  "verdict": "yes",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-6a5ff91e7da3a7c5",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-ea02e0d969511819",
+  "truth": 0,
+  "verdict": "yes",
+  "source": "learnable-meta-catalogue"
+ },
+ {
+  "id": "c-d3376d540b1c4c0c",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-9e64948473ebb0ba",
+  "truth": 0,
+  "verdict": "yes",
+  "source": "vali-region"
+ },
+ {
+  "id": "c-b5da7d8cef2d83dc",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "learnable-meta-catalogue"
+ },
+ {
+  "id": "c-ee8542e19f9d2238",
+  "truth": 0,
+  "verdict": "yes",
+  "source": "geohints"
+ },
+ {
+  "id": "c-ab7ac461a16aa450",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-f810b3d9cf5521bc",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "vali-region"
+ },
+ {
+  "id": "c-7534a21b316aca15",
+  "truth": 0,
+  "verdict": "yes",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-a947dc38a70d37b7",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "learnable-meta-catalogue"
+ },
+ {
+  "id": "c-1f52eed6c9ca98aa",
+  "truth": 0,
+  "verdict": "yes",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-9cdc42660790e51f",
+  "truth": 0,
+  "verdict": "yes",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-f99734f6f3d10b2a",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "learnable-meta-catalogue"
+ },
+ {
+  "id": "c-fdf5e435c8952f32",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "geohints"
+ },
+ {
+  "id": "c-b731d2a9251a7d94",
+  "truth": 0,
+  "verdict": "yes",
+  "source": "learnable-meta-catalogue"
+ }
+]

@@ -9,8 +9,10 @@ test('published content has hashed assets, separate inventories and no personal 
   try{
     const source=JSON.parse(await readFile(new URL('../content/australia.json',import.meta.url)));
     source.practiceMapId='111111111111111111111111';source.skills[0].sourceNoteHtml='Private hydrated source explanation';
+    source.skills[1].sourceNoteHtml='Openly licensed guide text';source.skills[1].noteLicense='CC BY-NC-SA 4.0';
     const [entry]=await writeContentAssets([source],directory),body=await readFile(directory+'/'+entry.url,'utf8'),runtime=JSON.parse(body);
     assert.equal(runtime.practiceMapId,undefined);assert.ok(!body.includes('Private hydrated source explanation'));
+    assert.equal(runtime.skills[1].sourceNoteHtml,'Openly licensed guide text');
     assert.equal(runtime.sourceCoverage,undefined);assert.equal(runtime.curriculum,undefined);
     assert.equal(await contentHash(body),entry.sha256);assert.ok(entry.url.includes(entry.sha256));
     assert.deepEqual(JSON.parse(await readFile(directory+'/'+entry.auditUrl,'utf8')).sourceCoverage,source.sourceCoverage);
