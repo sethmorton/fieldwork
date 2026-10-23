@@ -1,0 +1,466 @@
+{
+  "countryGuides": {
+    "Türkiye": "turkey",
+    "Czech": "czechia",
+    "Israel": "israel-west-bank",
+    "United States": "united-states",
+    "Isle Of Man": "isle-of-man",
+    "Georgia": null,
+    "Bosnia": null,
+    "Bosnia and Herzegovina": null,
+    "Kosovo": null
+  },
+  "patterns": [
+    {
+      "title": "^Brazil · Phone Code \\d+\\s*$",
+      "tipId": "otjB",
+      "mapping": "partial-topic-match",
+      "scope": "specialist",
+      "caveat": "The guide tip teaches the two-digit area-code system; individual code areas come from the Learnable Meta phone-code map."
+    },
+    {
+      "title": "^0\\d landline region group$",
+      "tipId": "8smD",
+      "mapping": "partial-topic-match",
+      "caveat": "The guide tip teaches state area codes; this target is one code group."
+    }
+  ],
+  "skills": {
+    "world:lm:7852": {
+      "tipId": "M7aC",
+      "mapping": "topic-match",
+      "caveat": "Pilot mapping from the 2026-10-21 PlonkIt curriculum handoff."
+    },
+    "world:lm:328": {
+      "tipId": "cPPJ",
+      "mapping": "partial-topic-match",
+      "caveat": "This guide tip covers general Indonesian poles as well as paint. Do not equate the whole tip with this narrower skill."
+    },
+    "world:lm:8337": {
+      "tipId": "NAMC",
+      "mapping": "topic-match",
+      "caveat": "Pilot mapping from the 2026-10-21 PlonkIt curriculum handoff."
+    },
+    "world:lm:310": {
+      "tipId": "hYSj",
+      "mapping": "topic-match",
+      "caveat": "Pilot mapping from the 2026-10-21 PlonkIt curriculum handoff."
+    },
+    "world:lm:327": {
+      "tipId": "YrUA",
+      "mapping": "topic-match",
+      "caveat": "Pilot mapping from the 2026-10-21 PlonkIt curriculum handoff."
+    },
+    "world:lm:83": {
+      "tipId": "r8SA",
+      "mapping": "partial-topic-match",
+      "caveat": "Broad 'vibes' label. The source note quotes this Bali architecture tip, but the target may also lean on landscape; do not equate the label with the whole tip."
+    },
+    "au:lm:22770": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "au:housing:qld-high-set": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "au:lm:369": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:369": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "au:lm:286": {
+      "tipId": "RFNj",
+      "mapping": "partial-topic-match",
+      "caveat": "Multi-cue WA pole target; the tip covers painted bases and stickers, not every listed cue."
+    },
+    "world:lm:286": {
+      "tipId": "RFNj",
+      "mapping": "partial-topic-match",
+      "caveat": "Multi-cue WA pole target; the tip covers painted bases and stickers, not every listed cue."
+    },
+    "au:lm:374": {
+      "tipId": "b54E",
+      "mapping": "partial-topic-match",
+      "caveat": "The guide tip says state plate designs differ; this target is one NSW design."
+    },
+    "world:lm:374": {
+      "tipId": "b54E",
+      "mapping": "partial-topic-match",
+      "caveat": "The guide tip says state plate designs differ; this target is one NSW design."
+    },
+    "au:lm:722398": {
+      "tipId": "b54E",
+      "mapping": "partial-topic-match",
+      "caveat": "The guide tip says state plate designs differ; this target is one NSW design."
+    },
+    "au:lm:372": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:372": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "au:routes:act-numbered": {
+      "mapping": "unresolved",
+      "scope": "specialist"
+    },
+    "au:lm:7483": {
+      "mapping": "unresolved",
+      "scope": "specialist"
+    },
+    "au:streetlights:darwin-outreach": {
+      "mapping": "unresolved",
+      "scope": "specialist"
+    },
+    "au:lm:368": {
+      "mapping": "unresolved",
+      "scope": "specialist"
+    },
+    "au:lm:659": {
+      "mapping": "unresolved",
+      "scope": "specialist"
+    },
+    "ph:field:meter-construction": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "ph:lm:84228": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "ph:lm:84226": {
+      "mapping": "unresolved",
+      "scope": "specialist"
+    },
+    "ph:lm:84229": {
+      "mapping": "unresolved",
+      "scope": "specialist"
+    },
+    "ph:lm:84222": {
+      "mapping": "unresolved",
+      "scope": "specialist"
+    },
+    "ph:lm:84224": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "ph:lm:84225": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "ph:lm:84227": {
+      "mapping": "unresolved",
+      "scope": "specialist"
+    },
+    "ph:lm:84230": {
+      "mapping": "unresolved",
+      "scope": "specialist"
+    },
+    "ph:lm:626109": {
+      "tipId": "fCvm",
+      "mapping": "partial-topic-match",
+      "caveat": "The guide tip is a tricycle-design infographic covering many regional designs; this target is one of them."
+    },
+    "ph:lm:789": {
+      "tipId": "KVEg",
+      "mapping": "partial-topic-match",
+      "caveat": "The guide tip teaches reading province names on signs; this target is one province."
+    },
+    "world:lm:152": {
+      "tipId": "H0At"
+    },
+    "world:lm:783066": {
+      "tipId": "XUts"
+    },
+    "world:lm:783086": {
+      "tipId": "zivD"
+    },
+    "world:lm:783088": {
+      "tipId": "U0Ti"
+    },
+    "world:lm:783090": {
+      "tipId": "U0Ti"
+    },
+    "world:lm:783120": {
+      "tipId": "92gY"
+    },
+    "world:lm:783122": {
+      "tipId": "sSrn"
+    },
+    "world:lm:143": {
+      "tipId": "rqqJ"
+    },
+    "world:lm:278": {
+      "tipId": "97t1"
+    },
+    "world:lm:2977": {
+      "tipId": "47QH"
+    },
+    "world:lm:2979": {
+      "tipId": "x15t"
+    },
+    "world:lm:2980": {
+      "tipId": "L3Hc"
+    },
+    "world:lm:2981": {
+      "tipId": "t32B"
+    },
+    "world:lm:2993": {
+      "tipId": "9dRJ"
+    },
+    "world:lm:2995": {
+      "tipId": "TXiT"
+    },
+    "world:lm:3002": {
+      "tipId": "jZWe"
+    },
+    "world:lm:7967": {
+      "tipId": "DCU8"
+    },
+    "world:lm:441794": {
+      "tipId": "CNdg"
+    },
+    "world:lm:136": {
+      "tipId": "5CWT"
+    },
+    "world:lm:340": {
+      "tipId": "4DR5"
+    },
+    "world:lm:56": {
+      "tipId": "8cvB"
+    },
+    "world:lm:157": {
+      "tipId": "IHvK"
+    },
+    "world:lm:534969": {
+      "tipId": "aj5h"
+    },
+    "world:lm:354": {
+      "tipId": "g6M6"
+    },
+    "world:lm:362": {
+      "tipId": "c1R6"
+    },
+    "world:lm:535803": {
+      "tipId": "4prs"
+    },
+    "world:lm:535808": {
+      "tipId": "fbiz"
+    },
+    "world:lm:535814": {
+      "tipId": "vhPv"
+    },
+    "world:lm:535813": {
+      "tipId": "quea"
+    },
+    "world:lm:535802": {
+      "tipId": "fQVL"
+    },
+    "world:lm:535810": {
+      "tipId": "VM9t"
+    },
+    "world:lm:127": {
+      "tipId": "gwui"
+    },
+    "world:lm:7905": {
+      "tipId": "Avi5"
+    },
+    "world:lm:535800": {
+      "tipId": "k87j"
+    },
+    "world:lm:408": {
+      "tipId": "rZEx"
+    },
+    "world:lm:70": {
+      "tipId": "kxM2"
+    },
+    "world:lm:535811": {
+      "tipId": "nrTS"
+    },
+    "world:lm:347": {
+      "tipId": "LYWn",
+      "caveat": "The guide tip says each Japanese region has a distinct pole plate; this target is one region's plate."
+    },
+    "world:lm:349": {
+      "tipId": "LYWn",
+      "caveat": "The guide tip says each Japanese region has a distinct pole plate; this target is one region's plate."
+    },
+    "world:lm:350": {
+      "tipId": "LYWn",
+      "caveat": "The guide tip says each Japanese region has a distinct pole plate; this target is one region's plate."
+    },
+    "world:lm:351": {
+      "tipId": "LYWn",
+      "caveat": "The guide tip says each Japanese region has a distinct pole plate; this target is one region's plate."
+    },
+    "world:lm:355": {
+      "tipId": "LYWn",
+      "caveat": "The guide tip says each Japanese region has a distinct pole plate; this target is one region's plate."
+    },
+    "world:lm:356": {
+      "tipId": "LYWn",
+      "caveat": "The guide tip says each Japanese region has a distinct pole plate; this target is one region's plate."
+    },
+    "world:lm:361": {
+      "tipId": "LYWn",
+      "caveat": "The guide tip says each Japanese region has a distinct pole plate; this target is one region's plate."
+    },
+    "world:lm:364": {
+      "tipId": "LYWn",
+      "caveat": "The guide tip says each Japanese region has a distinct pole plate; this target is one region's plate."
+    },
+    "world:lm:3283": {
+      "tipId": "LYWn",
+      "caveat": "The guide tip says each Japanese region has a distinct pole plate; this target is one region's plate."
+    },
+    "world:lm:352": {
+      "tipId": "cX54",
+      "caveat": "The guide tip says pole reflector pads vary by region; this target is one regional design."
+    },
+    "world:lm:358": {
+      "tipId": "cX54",
+      "caveat": "The guide tip says pole reflector pads vary by region; this target is one regional design."
+    },
+    "world:lm:363": {
+      "tipId": "cX54",
+      "caveat": "The guide tip says pole reflector pads vary by region; this target is one regional design."
+    },
+    "world:lm:3285": {
+      "tipId": "cX54",
+      "caveat": "The guide tip says pole reflector pads vary by region; this target is one regional design."
+    },
+    "world:lm:783074": {
+      "mapping": "unresolved",
+      "scope": "country-identification"
+    },
+    "world:lm:787125": {
+      "mapping": "unresolved",
+      "scope": "country-identification"
+    },
+    "world:lm:787131": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:787132": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:787128": {
+      "mapping": "unresolved",
+      "scope": "country-identification"
+    },
+    "world:lm:787158": {
+      "mapping": "unresolved",
+      "scope": "country-identification"
+    },
+    "world:lm:578020": {
+      "mapping": "unresolved",
+      "scope": "country-identification"
+    },
+    "world:lm:2984": {
+      "mapping": "unresolved",
+      "scope": "country-identification"
+    },
+    "world:lm:2998": {
+      "mapping": "unresolved",
+      "scope": "country-identification"
+    },
+    "world:lm:3001": {
+      "mapping": "unresolved",
+      "scope": "country-identification"
+    },
+    "world:lm:3003": {
+      "mapping": "unresolved",
+      "scope": "country-identification"
+    },
+    "world:lm:556783": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:179": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:360": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:613259": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:535812": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:535801": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:535809": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:535805": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:556769": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:556774": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:556775": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:556779": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:527": {
+      "mapping": "unresolved",
+      "scope": "country-identification"
+    },
+    "world:lm:556772": {
+      "mapping": "unresolved",
+      "scope": "country-identification"
+    },
+    "world:lm:266": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "au:lm:266": {
+      "mapping": "unresolved",
+      "scope": "within-country-regional"
+    },
+    "world:lm:53": {
+      "mapping": "unresolved",
+      "scope": "country-identification",
+      "caveat": "Broad 'vibes' label spanning several guide tips; not equated with any single tip."
+    },
+    "world:lm:118": {
+      "mapping": "unresolved",
+      "scope": "country-identification",
+      "caveat": "Broad 'vibes' label spanning several guide tips; not equated with any single tip."
+    },
+    "world:lm:126": {
+      "mapping": "unresolved",
+      "scope": "country-identification",
+      "caveat": "Broad 'vibes' label spanning several guide tips; not equated with any single tip."
+    },
+    "world:lm:163": {
+      "mapping": "unresolved",
+      "scope": "country-identification",
+      "caveat": "Broad 'vibes' label spanning several guide tips; not equated with any single tip."
+    }
+  }
+}
