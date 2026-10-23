@@ -1,0 +1,242 @@
+[
+ {
+  "id": "c-a6c80156a72b286a",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "plonkit-example-link"
+ },
+ {
+  "id": "c-1f71524e9bf9cdd3",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "learnable-meta-catalogue"
+ },
+ {
+  "id": "c-fcbbf204095923b0",
+  "truth": 0,
+  "verdict": "no",
+  "source": "geohints"
+ },
+ {
+  "id": "c-b7e3dc71d1f48aae",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "plonkit-example-link"
+ },
+ {
+  "id": "c-16a4687c6fae27e8",
+  "truth": 0,
+  "verdict": "no",
+  "source": "learnable-meta-catalogue"
+ },
+ {
+  "id": "c-b5ffad9c8ea5ffce",
+  "truth": 0,
+  "verdict": "no",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-6c7bc09fc9dc7cb8",
+  "truth": 0,
+  "verdict": "no",
+  "source": "learnable-meta-catalogue"
+ },
+ {
+  "id": "c-ba786af47f334d60",
+  "truth": 0,
+  "verdict": "partial",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-0aa0facd2295eede",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "plonkit-example-link"
+ },
+ {
+  "id": "c-7c0720a8e53b67c5",
+  "truth": 1,
+  "verdict": "partial",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-55fdcfdc0320a442",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "plonkit-example-link"
+ },
+ {
+  "id": "c-2adc14741c967d14",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "learnable-meta-catalogue"
+ },
+ {
+  "id": "c-cb8ca3e04dce9c2e",
+  "truth": 1,
+  "verdict": "no",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-5754f2054a488dcd",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "plonkit-example-link"
+ },
+ {
+  "id": "c-7afe38f2b195893b",
+  "truth": 0,
+  "verdict": "no",
+  "source": "learnable-meta-catalogue"
+ },
+ {
+  "id": "c-72276b6ef70cba8e",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "plonkit-example-link"
+ },
+ {
+  "id": "c-531ca8b2686fa88e",
+  "truth": 0,
+  "verdict": "no",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-2841a2c0d0ea76dd",
+  "truth": 0,
+  "verdict": "partial",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-d83223c798f57638",
+  "truth": 0,
+  "verdict": "partial",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-8a2eb76f344d8120",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "plonkit-example-link"
+ },
+ {
+  "id": "c-dd4d0a6af954b109",
+  "truth": 0,
+  "verdict": "partial",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-8b89494d243be36d",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "plonkit-example-link"
+ },
+ {
+  "id": "c-88db33870fd4c50b",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "plonkit-example-link"
+ },
+ {
+  "id": "c-0c5df1edc778d0dc",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-dd668f8df2b6aaaf",
+  "truth": 1,
+  "verdict": "partial",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-a1692e2707f35628",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "plonkit-example-link"
+ },
+ {
+  "id": "c-93f6cc4ef8c83981",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "learnable-meta-catalogue"
+ },
+ {
+  "id": "c-56563ecf644595b4",
+  "truth": 0,
+  "verdict": "partial",
+  "source": "learnable-meta-catalogue"
+ },
+ {
+  "id": "c-244f9113801aa657",
+  "truth": 1,
+  "verdict": "no",
+  "source": "learnable-meta-catalogue"
+ },
+ {
+  "id": "c-3bf5a50d80d7a21f",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "plonkit-example-link"
+ },
+ {
+  "id": "c-936e93a50a450040",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-8d4e1f9a53646a61",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "plonkit-example-link"
+ },
+ {
+  "id": "c-92dd18835f268398",
+  "truth": 1,
+  "verdict": "partial",
+  "source": "learnable-meta-catalogue"
+ },
+ {
+  "id": "c-040c3679be220c10",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-dcf057f70f6cfe01",
+  "truth": 0,
+  "verdict": "no",
+  "source": "learnable-meta-catalogue"
+ },
+ {
+  "id": "c-5358d7727b2a7df7",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "plonkit-example-link"
+ },
+ {
+  "id": "c-4525d9559ec31577",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "learnable-meta-export"
+ },
+ {
+  "id": "c-a62ad18104d3f1dd",
+  "truth": 0,
+  "verdict": "partial",
+  "source": "plonkit-example-link"
+ },
+ {
+  "id": "c-0481e61cda724bca",
+  "truth": 1,
+  "verdict": "yes",
+  "source": "plonkit-example-link"
+ },
+ {
+  "id": "c-89fdab9793b48b9b",
+  "truth": 0,
+  "verdict": "no",
+  "source": "learnable-meta-export"
+ }
+]
