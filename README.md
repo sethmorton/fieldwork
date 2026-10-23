@@ -36,12 +36,12 @@ If the panel does not appear: check that the script is enabled, that the map nam
 3. After the guess, the clue card appears. Answer honestly:
    - **Missed it**: you did not notice or did not know the clue. It comes back within minutes.
    - **Spotted it**: you saw it and used it. Moving on without pressing anything also counts as spotted.
-   - **Knew it**: this was already easy for you. It skips the short repeats and returns in about a week.
+   - **Knew it**: this was already easy for you. It skips the short repeats. A new clue returns in about a week. One you have practised keeps a longer interval.
 4. After round five, **Continue practice** builds the next set.
 
 Each set mixes due reviews with new clues, and holds at most two clues from the same family, so you never get five phone-code rounds in a row. How many new clues you get depends on how well your recent rounds went.
 
-**Quick check** sits next to Continue practice on the start panel. It shows one card at a time from clues that are new or still in their short repeats. Press **K** for knew it or **N** for not yet. Known clues come back about a week later in a real round to confirm.
+**Quick check** sits next to Continue practice on the start panel. It shows one card at a time from clues that are new or still in their short repeats. Press **K** for knew it or **N** for not yet. New clues you mark known come back about a week later in a real round to confirm.
 
 ![Quick check panel with Knew it (K) and Not yet (N)](docs/images/quick-check.png)
 

@@ -108,7 +108,7 @@ are left out except European utility-pole clues. The pack sets
 country guess is recorded but does not turn a spotted clue into a miss.
 
 ```sh
-npm run setup -- --map YOUR_WORLD_MAP_ID --pack local/world-pack.json --add
+npm run setup -- --map YOUR_WORLD_MAP_ID --pack content/world.json --add
 npm run serve
 ```
 
@@ -171,8 +171,8 @@ For engine changes: pull the repository, run `npm ci`, `npm run check`,
 `npm run build`, and install the regenerated script. Public content publishing
 runs only from public templates after CI passes; it never publishes your
 `.fieldwork.local.json`, hydrated local files, or progress. Public packs retain
-source links/attribution; their full explanations are fetched locally after a
-reveal rather than republished in the content host.
+source links/attribution. Openly licensed explanations (the World pack's Plonk It
+text) ship in the pack; others are fetched locally after a reveal.
 
 A custom pack with a new ID is served by the local installer for its initial
 cache fill. Keep that server running until the practice panel appears. You can

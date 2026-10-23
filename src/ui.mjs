@@ -74,7 +74,7 @@ export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],g
   }
   if(round.location.assessmentEligible===false)text(section,'p','Teaching example · practice credit only.','muted');
   text(section,'p',practiceFeedback(attempts,round),'muted');
-  text(section,'p','Moving on saves “spotted it.” “Knew it” skips the repeats and checks back in about a week.','muted');
+  text(section,'p','Moving on saves “spotted it.” “Knew it” skips the short repeats and checks back later in a real round.','muted');
   if(currentSkill.recognitionOnly)text(section,'p','Feature recognition practice. Your region guess is tracked separately.','muted');
   const label=document.createElement('label');const seen=document.createElement('input');seen.type='checkbox';seen.checked=familiar;label.append(seen,document.createTextNode('I had seen this panorama before'));section.append(label);
   let result=round.correct;
@@ -119,9 +119,9 @@ export function quickCheckPanel(pack,queue,{onKnown,onDone}) {
   const {host,section}=panel();let index=0,known=0;
   const show=()=>{
     section.replaceChildren();header(section,`Fieldwork · quick check ${Math.min(index+1,queue.length)}/${queue.length}`);
-    if(index>=queue.length){text(section,'h2','Done');text(section,'p',`${known} marked known. They come back in about a week to confirm.`,'muted');button(section,'Back to practice',onDone,'primary');return}
+    if(index>=queue.length){text(section,'h2','Done');text(section,'p',`${known} marked known. New ones come back in about a week to confirm.`,'muted');button(section,'Back to practice',onDone,'primary');return}
     const skill=queue[index];clue(section,skill,pack.notesSourceUrl);
-    const status=text(section,'p','Know it well enough to spot it in a round? Known clues skip the repeats and return in about a week.','muted');status.setAttribute('role','status');
+    const status=text(section,'p','Know it well enough to spot it in a round? Known clues skip the short repeats. New ones return in about a week.','muted');status.setAttribute('role','status');
     const actions=document.createElement('div');actions.className='actions';section.append(actions);
     button(actions,'Knew it (K)',()=>{try{onKnown(skill.id);known++;index++;show()}catch(error){status.textContent=error.message}},'primary');
     button(actions,'Not yet (N)',()=>{index++;show()});
