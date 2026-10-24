@@ -12,6 +12,7 @@ Personal data: everything is read from and written to WORLD_PACK_DATA/duels/ (ne
 Run after duels.py classify. Add the pack to .fieldwork.local.json additionalPacks with its own Fieldwork map.
 Usage: WORLD_PACK_DATA=<caches> python3 tools/world-pack/misses.py lm [LIMIT]|pack|guide DIR
 """
+import collections
 import concurrent.futures as cf
 import html
 import json
@@ -54,14 +55,28 @@ def gaps():
     bank = {b['topicId']: b for b in json.loads((HERE / 'clue-bank.json').read_text())}
     judged = duels.current_judgements()
     return [r for r in json.loads((OUT / 'rounds.json').read_text())
-            if duels.is_missed(r) and r['id'] in judged and not judged[r['id']].get('skipped')
+            if duels.is_missed(r) and r['id'] in judged and judged[r['id']].get('skipped') != 'panorama gone'
             and not duels.round_misses(r, judged[r['id']], bank)]
+
+
+def lm_stamps(by_country, line):
+    """Per country key: fingerprint of the model, the regional instruction and every candidate meta line."""
+    return {key: curate.fingerprint(curate.MODEL, REGIONAL, *(line[c] for c in ids)) for key, ids in by_country.items()}
+
+
+def lm_judgements(by_country, line):
+    """Latest Learnable Meta judgement per current gap round, made with the current candidates (empty ones too)."""
+    path = OUT / 'lm.jsonl'
+    stamp = lm_stamps(by_country, line)
+    key = {r['id']: curate.country_key(r['country'] or '') for r in gaps()}
+    return {rec['id']: rec for rec in map(json.loads, path.read_text().splitlines() if path.exists() else [])
+            if rec['id'] in key and rec['inputs'] == stamp.get(key[rec['id']])}
 
 
 def lm(limit=None):
     by_country, line, _ = lm_candidates()
     out = OUT / 'lm.jsonl'
-    stamp = {key: curate.fingerprint(curate.MODEL, REGIONAL, *(line[c] for c in ids)) for key, ids in by_country.items()}
+    stamp = lm_stamps(by_country, line)
     done = {(r['id'], r['inputs']) for r in map(json.loads, out.read_text().splitlines())} if out.exists() else set()
     key = {r['id']: curate.country_key(r['country'] or '') for r in gaps()}
     todo = [r for r in gaps() if key[r['id']] in by_country and (r['id'], stamp[key[r['id']]]) not in done][:limit]
@@ -103,7 +118,8 @@ def scopes(metas):
     """{metaId: 'region' | 'country'} for these metas (small model, cached in labels/lm-scope.json)."""
     path = HERE / 'labels/lm-scope.json'
     known = json.loads(path.read_text()) if path.exists() else {}
-    todo = [m for m in metas if str(m['metaId']) not in known]
+    fp = {m['metaId']: curate.fingerprint(curate.MODEL, SCOPE_PROMPT, m['metaName'], m['note']) for m in metas}
+    todo = list({m['metaId']: m for m in metas if known.get(str(m['metaId']), {}).get('fingerprint') != fp[m['metaId']]}.values())
     for i in range(0, len(todo), 15):
         batch = todo[i:i + 15]
         items = '\n'.join(f"Item {n}: {m['metaName']}: {text.plain(m['note'] or '')[:300]}" for n, m in enumerate(batch, 1))
@@ -111,9 +127,10 @@ def scopes(metas):
                          curate.schema({'n': {'type': 'integer'}, 'scope': {'type': 'string', 'enum': ['region', 'country']}}))
         for r in got['results']:
             if 1 <= r['n'] <= len(batch):
-                known[str(batch[r['n'] - 1]['metaId'])] = r['scope']
+                m = batch[r['n'] - 1]
+                known[str(m['metaId'])] = {'scope': r['scope'], 'fingerprint': fp[m['metaId']]}
         path.write_text(json.dumps(known))
-    return {int(k): v for k, v in known.items()}
+    return {int(k): v['scope'] for k, v in known.items()}
 
 
 def facing(r, frame):
@@ -129,7 +146,7 @@ def pack():
         world_locations.setdefault(loc['skillIds'][0], []).append(loc)
     rounds = {r['id']: r for r in json.loads((OUT / 'rounds.json').read_text())}
     bank = {b['topicId']: b for b in json.loads((HERE / 'clue-bank.json').read_text())}
-    _, _, meta = lm_candidates()
+    by_country, line, meta = lm_candidates()
     lm_examples = {}
     for e in map(json.loads, (HERE / 'lm/exports.jsonl').read_text().splitlines()):
         lm_examples[e['metaId']] = e['locations']
@@ -141,9 +158,7 @@ def pack():
         for c in duels.round_misses(r, rec, bank):
             _, slug, tip = c['topicId'].split(':')
             picks.setdefault(r['id'], []).append((f'world:pk:{slug}:{tip}', c))
-    lm_path = OUT / 'lm.jsonl'
-    lm_recs = [rec for rec in map(json.loads, lm_path.read_text().splitlines() if lm_path.exists() else [])
-               if rec['clues'] and duels.is_missed(rounds[rec['id']]) and rec['id'] not in picks]
+    lm_recs = [rec for rec in lm_judgements(by_country, line).values() if rec['clues'] and rec['id'] not in picks]
     scope = scopes([meta[int(c['topicId'].split(':')[2])] for rec in lm_recs for c in rec['clues']])
     for rec in lm_recs:
         r = rounds[rec['id']]
@@ -153,7 +168,7 @@ def pack():
         if kept:
             picks[rec['id']] = kept
 
-    out_skills, locations, misses = {}, [], {}
+    out_skills, locations, misses, used = {}, [], {}, set()
     for rid, clues in picks.items():
         r = rounds[rid]
         for sid, _ in clues:
@@ -164,20 +179,25 @@ def pack():
                 m = meta[int(sid.rsplit(':', 1)[1])]
                 url = f"https://learnablemeta.com/maps/{m['mapId']}"
                 out_skills[sid] = {
-                    'id': sid, 'title': f"{r['country']} · {m['metaName']}", 'phase': 'Regional clues', 'prerequisites': [],
+                    # Scheduled with the regional clues (as the World pack does with country clues), so no country
+                    # gate holds them back; the phase and lmScope say what the meta actually narrows down.
+                    'id': sid, 'title': f"{r['country']} · {m['metaName']}", 'prerequisites': [],
+                    'phase': 'Regional clues' if scope[m['metaId']] == 'region' else 'Country clues',
                     # One family per Learnable Meta map: at most two metas of the same map in a set.
                     'practiceFamily': f"lm:{m['mapName']}", 'importance': 100, 'availability': 'available',
                     'sourceNoteHtml': (m['note'] or '') + (m['footer'] or ''), 'notesCountry': r['country'],
                     'imageUrls': m['images'][:2], 'source': {'title': f"Learnable Meta · {m['mapName']}", 'url': url},
                     'attributionHtml': f'From the Learnable Meta map <a href="{url}">{m["mapName"]}</a>.',
-                    'curriculum': {'scope': 'within-country-regional', 'rank': 0, 'source': {'learnableMeta': m['metaId']}}}
+                    'curriculum': {'scope': 'within-country-regional', 'rank': 0, 'source': {'learnableMeta': m['metaId'], 'lmScope': scope[m['metaId']]}}}
         sid, c = clues[0]
-        # The panorama you missed, facing where the clue was seen; one panorama serves one clue.
+        # The panorama you missed, facing where the clue was seen; one panorama serves one clue (the first round).
+        if r['view']['panoId'] in used:
+            continue
+        used.add(r['view']['panoId'])
         locations.append({'id': rid, 'panoId': r['view']['panoId'], 'lat': r['view']['lat'], 'lng': r['view']['lng'],
                           'heading': facing(r, c['frame']), 'pitch': 0, 'zoom': 0, 'skillIds': [sid], 'country': r['country'],
                           'region': r['country'], 'assessmentEligible': False, 'note': f"In your duel: {c['evidence']}",
                           'provenance': {'kind': 'duel-round', 'lost': r['lost']}})
-    used = {loc['panoId'] for loc in locations}
     for sid, s in out_skills.items():
         examples = world_locations.get(sid, []) if sid in skills else [
             {'id': f"lm:{loc['panoId']}", 'panoId': loc['panoId'], 'lat': loc['lat'], 'lng': loc['lng'],
@@ -190,10 +210,13 @@ def pack():
                 used.add(loc['panoId'])
                 locations.append(loc)
 
-    # Most-missed first; equal counts by the points you lost in that country.
-    behind = {}
-    for r in rounds.values():
-        behind[r['country']] = behind.get(r['country'], 0) + max(0, r['theirScore'] - r['myScore'])
+    # A clue with no panorama stays listed (the guide shows it) but cannot be practised.
+    located = {loc['skillIds'][0] for loc in locations}
+    for sid in out_skills:
+        if sid not in located:
+            out_skills[sid] = {**out_skills[sid], 'availability': 'needs-locations'}
+    # Most-missed first; equal counts by the points you lost in that country (competitive rounds).
+    behind = duels.points_behind(rounds.values(), 'country')
     order = sorted(out_skills, key=lambda sid: (-misses[sid], -behind.get(out_skills[sid].get('notesCountry'), 0), sid))
     for rank, sid in enumerate(order, 1):
         out_skills[sid] = {**out_skills[sid], 'curriculum': {**out_skills[sid]['curriculum'], 'rank': rank}}
@@ -226,7 +249,6 @@ def guide(target):
     (target / 'img').mkdir(parents=True, exist_ok=True)
     world = json.loads((REPO / 'content/world.json').read_text())
     mine = json.loads((OUT / 'pack.json').read_text())
-    report = json.loads((OUT / 'report.json').read_text())
     rounds = {r['id']: r for r in json.loads((OUT / 'rounds.json').read_text())}
     examples = {}
     for loc in mine['locations']:
@@ -238,10 +260,12 @@ def guide(target):
     broad = {f"world:pk:{k.split(':')[1]}:{k.split(':')[2]}" for k, v in
              json.loads((HERE / 'labels/landscape.json').read_text()).items() if v['subject'] == 'broad'}
     every = {s['id']: s for s in world['skills'] if s['id'] not in broad} | {s['id']: s for s in mine['skills']}
-    total = sum(v['pointsBehind'] for v in report['byCountry'].values()) or 1
+    # Competitive rounds only, like the misses: unranked games include city maps.
+    played = [r for r in rounds.values() if r['mode'] not in (None, 'None')]
+    behind = duels.points_behind(played, 'country')
+    total = sum(behind.values()) or 1
     named = {s.get('notesCountry') for s in every.values()}
-    countries = sorted(((k, v) for k, v in report['byCountry'].items() if k in named),
-                       key=lambda kv: -kv[1]['pointsBehind'])[:GUIDE_COUNTRIES]
+    countries = sorted((c for c in behind if c in named), key=lambda c: -behind[c])[:GUIDE_COUNTRIES]
     e = html.escape
 
     def card(s):
@@ -256,14 +280,16 @@ def guide(target):
         badge = f'<span class=miss>missed {len(examples.get(s["id"], []))}x</span> ' if s['id'] in missed else ''
         title = s['title'].split(' · ', 1)[-1]
         return (f'<div class=card><label><input type=checkbox> {badge}<b>{e(title)}</b></label>{image}'
-                f'<div class=note>{text.plain(s.get("sourceNoteHtml") or "")}</div>'
+                f'<div class=note>{e(text.plain(s.get("sourceNoteHtml") or ""))}</div>'
                 f'<a href="{e(s["source"]["url"])}">{e(s["source"]["title"])}</a>{shots}</div>')
 
     body, toc = [], []
-    for name, stats in countries:
+    for name in countries:
+        here = [r for r in played if r['country'] == name]
+        wrong = collections.Counter(r['myGuessCountry'] for r in here if r['myGuessCountry'] and r['myGuessCountry'] != name)
         anchor = curate.country_key(name).replace(' ', '-')
         mine_here = [s for s in every.values() if s.get('notesCountry') == name]
-        confused = [k.split(' -> ')[1] for k in report['confusions'] if k.startswith(name + ' -> ')][:3]
+        confused = [c for c, _ in wrong.most_common(3)]
         parts, seen = [], set()
         for title, belongs in SECTIONS:
             last = title == SECTIONS[-1][0]
@@ -272,10 +298,10 @@ def guide(target):
             seen |= {s['id'] for s in picked}
             if picked:
                 parts.append(f'<h3>{title} <small>{len(picked)}</small></h3>' + ''.join(map(card, picked)))
-        toc.append(f'<li><a href="#{anchor}">{e(name)}</a> <small>{100 * stats["pointsBehind"] / total:.0f}%</small></li>')
-        body.append(f'<section id={anchor}><h2>{e(name)}</h2><p class=m>{stats["rounds"]} rounds, lost {stats["lost"]}, '
-                    f'wrong country {stats["wrongCountry"]} times{", mostly guessed " + ", ".join(map(e, confused)) if confused else ""}. '
-                    f'{100 * stats["pointsBehind"] / total:.0f}% of all the points you have been behind.</p>{"".join(parts)}</section>')
+        toc.append(f'<li><a href="#{anchor}">{e(name)}</a> <small>{100 * behind[name] / total:.0f}%</small></li>')
+        body.append(f'<section id={anchor}><h2>{e(name)}</h2><p class=m>{len(here)} competitive rounds, lost {sum(r["lost"] for r in here)}, '
+                    f'wrong country {sum(wrong.values())} times{", mostly guessed " + ", ".join(map(e, confused)) if confused else ""}. '
+                    f'{100 * behind[name] / total:.0f}% of all the points you have been behind.</p>{"".join(parts)}</section>')
     page = f"""<!doctype html><meta charset=utf-8><title>Your duel study guide</title><style>
 body{{background:#0f1419;color:#d7dde3;font:15px/1.55 -apple-system,system-ui,sans-serif;max-width:900px;margin:5vh auto;padding:0 20px}}
 h1{{font-size:28px}}h2{{font-size:24px;margin-top:56px;color:#9fd3e6}}h3{{margin-top:28px}}small,.m{{color:#8a96a3}}a{{color:#9fd3e6}}
