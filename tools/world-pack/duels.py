@@ -14,7 +14,13 @@ import os
 import sys
 import urllib.parse
 import urllib.request
+from pathlib import Path
 
+# Personal game history must never land in the repository checkout (checked before any import touches the data folder).
+REPO = Path(__file__).resolve().parents[2]
+if __name__ == '__main__' and (not os.environ.get('WORLD_PACK_DATA')
+                               or Path(os.environ['WORLD_PACK_DATA']).resolve().is_relative_to(REPO)):
+    sys.exit('Set WORLD_PACK_DATA to a data folder outside the repository: duel history is personal.')
 import collect
 import curate
 from text import HERE, WORK
@@ -77,7 +83,8 @@ def lost():
         for result in mine.get('roundResults', []):
             n = result['roundNumber']
             theirs = max((r['score'] for t in others for r in t.get('roundResults', []) if r['roundNumber'] == n), default=None)
-            if theirs is None or result['score'] >= theirs:
+            # Healing rounds deal no damage, so scoring lower in one is not a lost round.
+            if theirs is None or result['score'] >= theirs or game['rounds'][n - 1].get('isHealingRound'):
                 continue
             p = game['rounds'][n - 1]['panorama']
             mine_guess = result.get('bestGuess') or {}

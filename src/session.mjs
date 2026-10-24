@@ -79,10 +79,13 @@ export function recordKnown(pack,history,skillId,now=new Date()) {
  *  the time it happened, so FSRS makes the clue due now and the planner leads with it like any due miss. Idempotent by
  *  id, and clues the pack does not contain are ignored. */
 export function recordMissed(pack,history,missed){
-  const known=new Set(history.map(attempt=>attempt.id)),skills=new Set(pack.skills.map(skill=>skill.id));
-  const added=missed.filter(item=>!known.has(item.id)&&skills.has(item.skillId)&&Number.isFinite(Date.parse(item.occurredAt)))
-    .map(item=>({id:item.id,skillId:item.skillId,occurredAt:item.occurredAt,correct:false,regionCorrect:null,evidenceValid:false,
-      confidence:2,unfamiliar:true,locationRef:'',mode:'practice',feedbackSource:'missed-elsewhere',reason:String(item.reason).slice(0,2000)}));
+  const known=new Set(history.map(attempt=>attempt.id)),skills=new Set(pack.skills.map(skill=>skill.id)),added=[];
+  for(const item of missed){
+    if(known.has(item.id)||!skills.has(item.skillId)||!Number.isFinite(Date.parse(item.occurredAt)))continue;
+    known.add(item.id);
+    added.push({id:item.id,skillId:item.skillId,occurredAt:item.occurredAt,correct:false,regionCorrect:null,evidenceValid:false,
+      confidence:2,unfamiliar:true,locationRef:'',mode:'practice',feedbackSource:'missed-elsewhere',reason:String(item.reason).slice(0,2000)});
+  }
   return added.length?[...history,...added]:history;
 }
 
