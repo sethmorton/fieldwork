@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {createHash} from 'node:crypto';
 import {build} from 'esbuild';
 import {splitPack,contentHash} from '../content-format.mjs';
 
@@ -39,9 +40,9 @@ function fakeClock(settle){
 }
 // cold: no cached content and a fake clock. GM requests go to `host` (changeable later). gm:false uses native fetch
 // instead, answered by `contentFetch` when given. gmSetFails/gmGetFails make every GM write/read throw.
-// Cold recovery verifies the pack with crypto.subtle, which resolves on a worker thread rather than an event-loop
-// turn. Wait for the start panel in real time (bounded) instead of a fixed number of turns.
-const startedOnce=async f=>{for(const end=Date.now()+5000;!f.starts&&Date.now()<end;)await new Promise(resolve=>setTimeout(resolve,5))};
+// WebCrypto digests resolve on a worker thread, so a fixed number of event-loop turns races them on slow CI runners.
+// The harness hashes synchronously (same SHA-256 bytes) so settle() is deterministic.
+const deterministicCrypto={subtle:{digest:async(_,data)=>{const bytes=createHash('sha256').update(data).digest();return bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.length)}}};
 function fixture(path='/game/current-game',{cold=false,gm=true,host:initialHost=offline,contentFetch,gmSetFails=false,gmGetFails=false}={}){
   const data=cold?{}:{'fieldwork:pack':structuredClone(pack)},events=new EventTarget(),documentEvents=new Map(),windowEvents=new EventTarget();
   let visible=false,shownRound=2,observer=()=>{},nextResponse=raw(),networkFailure=false,host=initialHost,startOptions=null;
@@ -54,10 +55,11 @@ function fixture(path='/game/current-game',{cold=false,gm=true,host:initialHost=
   };
   const navigate=pathname=>{location.pathname=pathname;observer()};
   const page={fetch:nativeFetch,GEFFetchEvents:events,GeoGuessrEventFramework:{state:{current_game_id:'previous-game',current_round:5}},next:{router:{push:async pathname=>{navigate(pathname);return true}}}};
-  const settle=async()=>{for(let i=0;i<20;i++)await new Promise(resolve=>setImmediate(resolve))};
+  // Cold loads hash and cache a pack through several real async hops (crypto.subtle); slower CI runners need more turns.
+  const settle=async()=>{for(let i=0;i<200;i++)await new Promise(resolve=>setImmediate(resolve))};
   const clock=cold?fakeClock(settle):{setTimeout,clearTimeout};
   const gmRequest=details=>{const request={details,aborted:false,abort(){request.aborted=true;details.onabort?.()}};downloads.push(request);host(details);return request};
-  const context=vm.createContext({URL,URLSearchParams,TextEncoder,crypto,Promise,Date,EventTarget,CustomEvent,structuredClone,setTimeout:clock.setTimeout,clearTimeout:clock.clearTimeout,
+  const context=vm.createContext({URL,URLSearchParams,TextEncoder,crypto:deterministicCrypto,Promise,Date,EventTarget,CustomEvent,structuredClone,setTimeout:clock.setTimeout,clearTimeout:clock.clearTimeout,
     AbortSignal:{timeout:ms=>{signals.push(ms);return AbortSignal.timeout(ms)}},
     unsafeWindow:page,location,...gm&&{GM_xmlhttpRequest:gmRequest},
     GM_getValue:(key,fallback)=>{if(gmGetFails)throw Error('GM_getValue: internal read detail');return data[key]??fallback},
@@ -172,7 +174,7 @@ test('transient failures back off from each failure and then recover to practice
     if(index===4)f.host(serve);
     await f.clock.advance(1);
   }
-  await startedOnce(f);assert.equal(f.starts,1);assert.deepEqual(f.clock.delays(),[]);assert.equal(f.downloads.length,7);
+  assert.equal(f.starts,1);assert.deepEqual(f.clock.delays(),[]);assert.equal(f.downloads.length,7);
   for(let i=0;i<5;i++){f.mutate();await f.settle()}
   assert.equal(f.downloads.length,7);
 });
@@ -215,7 +217,7 @@ test('manifests get 20 seconds and pack bodies 120 seconds through GM and native
   await f.clock.advance(120e3-1);assert.ok(!f.loads.at(-1).error);assert.equal(f.downloads[1].aborted,false);
   await f.clock.advance(1);assert.ok(f.downloads[1].aborted);assert.match(f.loads.at(-1).error,/took too long/);
   const native=fixture(practice,{cold:true,gm:false});await native.settle();
-  assert.deepEqual(native.signals,[20e3,120e3]);await startedOnce(native);assert.equal(native.starts,1);
+  assert.deepEqual(native.signals,[20e3,120e3]);assert.equal(native.starts,1);
 });
 test('a missing pack offers another bound pack on its own map, and an import recovers the same page',async()=>{
   const f=fixture(practice,{cold:true,host:status(404)});await f.settle();
@@ -226,7 +228,7 @@ test('a missing pack offers another bound pack on its own map, and an import rec
   assert.equal(f.location.pathname,'/maps/'+otherMap);assert.deepEqual(f.clock.delays(),[]);assert.equal(f.loads.at(-1).pack.id,'other');
   const g=fixture(practice,{cold:true,host:status(404)});await g.settle();
   await g.loads.at(-1).onImport(structuredClone(pack));await g.settle();
-  await startedOnce(g);assert.equal(g.starts,1);assert.equal(g.location.pathname,practice);assert.deepEqual(g.clock.delays(),[]);
+  assert.equal(g.starts,1);assert.equal(g.location.pathname,practice);assert.deepEqual(g.clock.delays(),[]);
 });
 test('a scheduled retry or stale Retry now does nothing after a navigation the page has not reconciled yet',async()=>{
   const f=fixture(practice,{cold:true});await f.settle();const retry=f.loads.at(-1).onRetry,shown=f.loads.length;
