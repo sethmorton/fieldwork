@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {createHash} from 'node:crypto';
 import {build} from 'esbuild';
 import {splitPack,contentHash} from '../content-format.mjs';
 
@@ -39,6 +40,9 @@ function fakeClock(settle){
 }
 // cold: no cached content and a fake clock. GM requests go to `host` (changeable later). gm:false uses native fetch
 // instead, answered by `contentFetch` when given. gmSetFails/gmGetFails make every GM write/read throw.
+// WebCrypto digests resolve on a worker thread, so a fixed number of event-loop turns races them on slow CI runners.
+// The harness hashes synchronously (same SHA-256 bytes) so settle() is deterministic.
+const deterministicCrypto={subtle:{digest:async(_,data)=>{const bytes=createHash('sha256').update(data).digest();return bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.length)}}};
 function fixture(path='/game/current-game',{cold=false,gm=true,host:initialHost=offline,contentFetch,gmSetFails=false,gmGetFails=false}={}){
   const data=cold?{}:{'fieldwork:pack':structuredClone(pack)},events=new EventTarget(),documentEvents=new Map(),windowEvents=new EventTarget();
   let visible=false,shownRound=2,observer=()=>{},nextResponse=raw(),networkFailure=false,host=initialHost,startOptions=null;
@@ -51,10 +55,11 @@ function fixture(path='/game/current-game',{cold=false,gm=true,host:initialHost=
   };
   const navigate=pathname=>{location.pathname=pathname;observer()};
   const page={fetch:nativeFetch,GEFFetchEvents:events,GeoGuessrEventFramework:{state:{current_game_id:'previous-game',current_round:5}},next:{router:{push:async pathname=>{navigate(pathname);return true}}}};
-  const settle=async()=>{for(let i=0;i<20;i++)await new Promise(resolve=>setImmediate(resolve))};
+  // Cold loads hash and cache a pack through several real async hops (crypto.subtle); slower CI runners need more turns.
+  const settle=async()=>{for(let i=0;i<200;i++)await new Promise(resolve=>setImmediate(resolve))};
   const clock=cold?fakeClock(settle):{setTimeout,clearTimeout};
   const gmRequest=details=>{const request={details,aborted:false,abort(){request.aborted=true;details.onabort?.()}};downloads.push(request);host(details);return request};
-  const context=vm.createContext({URL,URLSearchParams,TextEncoder,crypto,Promise,Date,EventTarget,CustomEvent,structuredClone,setTimeout:clock.setTimeout,clearTimeout:clock.clearTimeout,
+  const context=vm.createContext({URL,URLSearchParams,TextEncoder,crypto:deterministicCrypto,Promise,Date,EventTarget,CustomEvent,structuredClone,setTimeout:clock.setTimeout,clearTimeout:clock.clearTimeout,
     AbortSignal:{timeout:ms=>{signals.push(ms);return AbortSignal.timeout(ms)}},
     unsafeWindow:page,location,...gm&&{GM_xmlhttpRequest:gmRequest},
     GM_getValue:(key,fallback)=>{if(gmGetFails)throw Error('GM_getValue: internal read detail');return data[key]??fallback},
