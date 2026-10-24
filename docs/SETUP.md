@@ -115,6 +115,28 @@ npm run serve
 Because the pack is also in public `content/`, the rebuilt script downloads
 it from GitHub Pages like the other supplied packs.
 
+## Practise the clues you missed in competitive duels
+
+`tools/world-pack/duels.py` reads your competitive duels, finds the rounds your
+team lost, and has a small vision model name the World pack clues that were
+visible and would have pointed to the right region. Each becomes an explicit
+miss at the time of the round, so those clues are due right away and lead your
+next sets. It is personal data: it stays in your data folder and in your local
+build, never in the public pack.
+
+```sh
+set -a; . ~/.config/fieldwork/gg.env; set +a   # GG_NCFA=<your _ncfa cookie>
+for step in fetch lost classify export; do WORLD_PACK_DATA=/path/to/world-map python3 tools/world-pack/duels.py $step; done
+```
+
+Add the export to `.fieldwork.local.json`, rebuild, and update the userscript:
+
+```json
+"missedCluesPaths": ["/path/to/world-map/duels/missed-clues.json"]
+```
+
+Rerunning adds only new rounds. A round already replayed is never added twice.
+
 ## During practice
 
 Guess normally. After revealing the answer, review the clue. **Next** records

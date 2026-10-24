@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {planPractice} from '../lib/adaptive.ts';
 import {skillStatus} from '../lib/mastery.ts';
 import {makeNextSet} from '../next-set.mjs';
+import {recordMissed} from '../session.mjs';
 // Synthetic outcomes only. Interval numbers are ts-fsrs 5.4.2 (FSRS-6 defaults, no fuzz) for the same sequence.
 const DAY=86400000,start=Date.parse('2026-10-01T09:00:00Z');
 const outcome=(skillId,at,passed=true,i=0)=>({id:`${skillId}-${at}-${i}`,skillId,occurredAt:new Date(at).toISOString(),correct:passed,
@@ -75,6 +76,21 @@ test('due reviews are chosen most-forgotten first, misses lead, and family/count
  records.push(outcome('G',now-DAY,false,2));
  // The longest-overdue due clue (A) keeps its reserved slot; the fresh miss leads the remaining reviews.
  assert.deepEqual(planPractice(p,records,{now,size:3}).focusSkills.slice(0,2).map(s=>s.id),['A','G']);
+});
+
+test('clues missed in duels become due misses that lead the next set, once, and only for clues in the pack',()=>{
+ const ids=['A','B','C','D','E','F'],p=makePack(ids.map(id=>skill(id)));
+ const now=start+10*DAY;
+ // A and B were practised and are not due; E and F were never seen in Fieldwork.
+ const history=['A','B'].flatMap((id,i)=>[outcome(id,now-DAY+i),outcome(id,now-DAY+15*60000+i,true,1)]);
+ const missed=[{id:'duel:g:1:x',skillId:'E',occurredAt:new Date(now-2*DAY).toISOString(),reason:'Visible pole plate'},
+  {id:'duel:g:2:y',skillId:'F',occurredAt:new Date(now-3*DAY).toISOString(),reason:'Visible bollard'},
+  {id:'duel:g:3:z',skillId:'not-in-pack',occurredAt:new Date(now-DAY).toISOString(),reason:'?'}];
+ const replayed=recordMissed(p,history,missed);
+ assert.equal(replayed.length,history.length+2);
+ assert.equal(recordMissed(p,replayed,missed),replayed,'replaying again adds nothing');
+ assert.ok(skillStatus('E',replayed,now).due&&skillStatus('F',replayed,now).due);
+ assert.deepEqual(planPractice(p,replayed,{now,size:3}).focusSkills.slice(0,2).map(s=>s.id).sort(),['E','F']);
 });
 
 test('not-yet-due reviews are skipped while due ones fill the set, and used only to keep it playable',()=>{

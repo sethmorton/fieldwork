@@ -75,6 +75,17 @@ export function recordKnown(pack,history,skillId,now=new Date()) {
     reason:'Quick check: the learner already knew this clue from its card; not panorama evidence.'}];
 }
 
+/** Clues missed outside Fieldwork (competitive duel rounds, from tools/world-pack/duels.py). Each is one explicit miss at
+ *  the time it happened, so FSRS makes the clue due now and the planner leads with it like any due miss. Idempotent by
+ *  id, and clues the pack does not contain are ignored. */
+export function recordMissed(pack,history,missed){
+  const known=new Set(history.map(attempt=>attempt.id)),skills=new Set(pack.skills.map(skill=>skill.id));
+  const added=missed.filter(item=>!known.has(item.id)&&skills.has(item.skillId)&&Number.isFinite(Date.parse(item.occurredAt)))
+    .map(item=>({id:item.id,skillId:item.skillId,occurredAt:item.occurredAt,correct:false,regionCorrect:null,evidenceValid:false,
+      confidence:2,unfamiliar:true,locationRef:'',mode:'practice',feedbackSource:'missed-elsewhere',reason:String(item.reason).slice(0,2000)}));
+  return added.length?[...history,...added]:history;
+}
+
 export function advanceRecognition(pack,history,pending,nextState,now=new Date()) {
   if(!pending || nextState?.map?.id!==pack.practiceMapId || nextState.current_game_id!==pending.round.gameId
     || !Number.isInteger(nextState.current_round) || nextState.current_round<=pending.round.round)return history;
