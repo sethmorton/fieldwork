@@ -60,17 +60,11 @@ def sample(n=1200):
                       'acowWeightCovered': round(100 * covered / total, 1)}))
 
 
-def inputs(by_code, line):
-    """Per country: fingerprint of the candidate clue text and the model, so a judgement is reused only for the same
-    question. (A change to the prompt wording in duels.visible_clues needs acow/classified.jsonl removed.)"""
-    return {cc: curate.fingerprint(curate.MODEL, *(line[t] for t in ts)) for cc, ts in by_code.items()}
-
-
 def classify(limit=None):
     rounds = json.loads((OUT / 'sample.json').read_text())
     rounds = random.Random(0).sample(rounds, len(rounds))[:limit]
     by_code, line = duels.practice_clues()
-    current = inputs(by_code, line)
+    current = duels.inputs(by_code, line)
     country_at = collect.bc.geolocator(json.loads((WORK / 'worldwide/countries-50m.geojson').read_text()))
     out = OUT / 'classified.jsonl'
     done = {(r['id'], r.get('inputs')) for r in map(json.loads, out.read_text().splitlines())} if out.exists() else set()
@@ -116,7 +110,7 @@ def estimate(w, rounds, recs, current):
 def score():
     rounds = {r['id']: r for r in json.loads((OUT / 'sample.json').read_text())}
     recs = [json.loads(l) for l in (OUT / 'classified.jsonl').read_text().splitlines()]
-    result = estimate(weights(), rounds, recs, inputs(*duels.practice_clues()))
+    result = estimate(weights(), rounds, recs, duels.inputs(*duels.practice_clues()))
     (OUT / 'clue-value.json').write_text(json.dumps(result))
     print(json.dumps({'cluesSeen': len(result['clues']), 'seenTwiceOrMore': sum(c['hits'] >= 2 for c in result['clues'].values()),
                       'countriesWithoutJudgedRounds': result['countriesWithoutJudgedRounds']}))

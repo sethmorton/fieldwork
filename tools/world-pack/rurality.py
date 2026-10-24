@@ -28,7 +28,8 @@ def labelled():
 
 def candidates():
     cands = {}
-    for name in ('candidates.jsonl', 'gap/candidates.jsonl', 'near/candidates.jsonl', 'acow/candidates.jsonl'):
+    for name in ('candidates.jsonl', 'gap/candidates.jsonl', 'near/candidates.jsonl', 'acow/candidates.jsonl',
+                 'gap/rural-candidates.jsonl'):
         path = HERE / name
         if path.exists():
             cands.update((c['id'], c) for c in map(json.loads, path.read_text().splitlines()))

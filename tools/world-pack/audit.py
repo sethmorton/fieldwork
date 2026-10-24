@@ -18,7 +18,8 @@ W, H, CAPTION, COLS = 480, 300, 80, 3
 
 
 def main(out, outcome, n=12, seed=0):
-    cands = {c['id']: c for p in ('candidates.jsonl', 'gap/candidates.jsonl', 'near/candidates.jsonl', 'acow/candidates.jsonl')
+    cands = {c['id']: c for p in ('candidates.jsonl', 'gap/candidates.jsonl', 'near/candidates.jsonl', 'acow/candidates.jsonl',
+                                  'gap/rural-candidates.jsonl')
              for c in map(json.loads, (HERE / p).read_text().splitlines())}
     clues = {c['topicId']: c for c in json.loads((HERE / 'clues.json').read_text())}
     kind = {f'plonkit:{s}:{r["tipId"]}': r['kind']

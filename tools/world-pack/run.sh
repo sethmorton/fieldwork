@@ -43,6 +43,8 @@ python3 review.py near/candidates.jsonl
 python3 acow.py candidates                           # rural practice candidates from the ACoW-shaped rounds
 python3 review.py acow/candidates.jsonl
 python3 rurality.py pack                             # rural, suburban or urban for each chosen location
+python3 gapfill.py rural                             # Vali samples for landscape, crop and building clues not yet rural
+python3 review.py gap/rural-candidates.jsonl
 python3 rurality.py alternatives                     # and for the alternatives of clues not yet all rural
 python3 build.py --fieldwork "$FIELDWORK"
 FIELDWORK="$FIELDWORK" node --test check-pack.test.mjs
