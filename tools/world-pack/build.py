@@ -24,6 +24,7 @@ bc = collect.bc
 
 PER_CLUE = 3
 MIN_PLAYABLE = 2  # Fieldwork convention: a target needs two distinct panoramas (docs/CONTENT.md)
+PRIORITY_GROUPS = ('landscape-and-poles', 'other-regional', 'country-identification')
 SETTING_RANK = {'rural': 0, 'suburban': 1, 'urban': 2}
 SOURCE_RANK = {'plonkit-example-link': 0, 'learnable-meta-export': 1, 'learnable-meta-catalogue': 2, 'geohints': 2,
                'geometas': 2, 'same-spot': 2, 'vali-region': 3, 'neighbour': 3, 'acow-sample': 3}
@@ -63,12 +64,10 @@ def main():
     clues = json.loads((HERE / 'clues.json').read_text())
     inventory = json.loads((WORK / 'location-database/foundations/all-guide-topic-inventory.json').read_text())
     topics = {t['sourceTopicId']: (u, t) for u in inventory['units'] for t in u['topics']}
-    continents = {u['slug']: u.get('categories', []) for u in
-                  json.loads((WORK / 'location-database/foundations/foundation-inventory.json').read_text())['units']}
     clue_text = {c['topicId']: c['text'] for c in clues}
     clue_labels = json.loads((HERE / 'labels/clues.json').read_text())
     # A verdict counts only for the exact candidate it reviewed: the id fingerprints clue text, source, panorama and cameras.
-    candidates = {c['id']: c for p in ('candidates.jsonl', 'gap/candidates.jsonl', 'near/candidates.jsonl', 'acow/candidates.jsonl')
+    candidates = {c['id']: c for p in ('candidates.jsonl', 'gap/candidates.jsonl', 'gap/rural-candidates.jsonl', 'near/candidates.jsonl', 'acow/candidates.jsonl')
                   for c in read_jsonl(HERE / p)
                   if c['topicId'] in clue_text and c['id'] == collect.candidate_id(c, clue_text[c['topicId']])}
     verdicts = {v['id']: v for v in read_jsonl(HERE / 'review.jsonl')}
@@ -121,30 +120,35 @@ def main():
         concepts = topics[clue['topicId']][1]['concepts']
         return kind == 'infrastructure' and 'utility-poles' in concepts and 'bollards' not in concepts
 
+    def priority_group(clue, kind):
+        """0: landscape and utility poles (Seth's ranked No Move priority), 1: other regional clues, 2: country
+        identification."""
+        if kind == 'landscape-and-vegetation' or is_pole(clue, kind):
+            return 0
+        return 2 if clue['stage'] == 'country-identification' else 1
+
     def utility_key(clue, weight):
         """Seth's priority for ranked No Move: landscape and utility poles first. Inside each group, the estimated model
         detection rate on ACoW-shaped Vali rounds, then the curated order (tier, kind group, each country's own order
         interleaved by ACoW country weight) for clues seen once or never."""
         tier, kind, position = curated.get(clue['topicId'], ('niche', 'other', 999))
         utility_tier[clue['topicId']] = tier
-        return (not (kind == 'landscape-and-vegetation' or is_pole(clue, kind)), -acow_value.get(clue['topicId'], 0),
+        return (priority_group(clue, kind), -acow_value.get(clue['topicId'], 0),
                 TIERS.index(tier), clue['stage'] == 'specialist', KIND_GROUP[kind], position / (0.5 + math.log1p(weight) / max_weight))
 
     def is_practice(clue):
-        """Seth already identifies countries; country clues stay in the bank but only European utility-pole clues
-        enter practice, alongside every regional and specialist clue. Headings, map captions and coverage notes give
-        nothing to spot in a panorama (small-model labels)."""
-        _, topic = topics[clue['topicId']]
+        """Every clue with something to spot in one panorama (small-model labels), except tips curated as skip.
+        Country-identification clues are practice too but come last (priority_group), so they reach a learner mainly
+        through clues missed in duels."""
         tier = curated.get(clue['topicId'], ('niche',))[0]
-        return ((clue['stage'] != 'country-identification' or (
-            'utility-poles' in topic['concepts'] and 'Europe' in continents.get(clue['slug'], [])))
-            and tier != 'skip' and clue_labels.get(clue['topicId'], {}).get('observable', False))
+        return tier != 'skip' and clue_labels.get(clue['topicId'], {}).get('observable', False)
 
     # The engine resolves a published round back to its clue by panoId, so a panorama may serve one clue only.
-    # Practice clues claim panoramas before bank-only ones; inside each, foundational first, then useful, then the rest.
+    # Practice clues claim panoramas before bank-only ones, regional before country identification; inside each,
+    # foundational first, then useful, then the rest.
     used_panos = set()
-    for clue in sorted(clues, key=lambda c: (not is_practice(c), TIERS.index(curated.get(c['topicId'], ('niche',))[0]),
-                                             c['stage'] == 'specialist')):
+    for clue in sorted(clues, key=lambda c: (not is_practice(c), c['stage'] == 'country-identification',
+                                             TIERS.index(curated.get(c['topicId'], ('niche',))[0]), c['stage'] == 'specialist')):
         unit, topic = topics[clue['topicId']]
         tier, kind, _ = curated.get(clue['topicId'], ('niche', 'other', 999))
         stage = clue['stage']
@@ -209,7 +213,7 @@ def main():
                                       'guideUpdatedAt': unit.get('guideUpdatedAt'), 'mapping': 'topic-match',
                                       'utilityTier': utility_tier[clue['topicId']],
                                       'acowPer1000': acow_value.get(clue['topicId'], 0),
-                                      'priorityGroup': 'landscape-and-poles' if order_key[sid][0] is False else 'other'}},
+                                      'priorityGroup': PRIORITY_GROUPS[order_key[sid][0]]}},
         })
         for loc in chosen:
             locations.append({'id': f"pk:{clue['slug']}:{topic['tipId']}:{loc['panoId']}", 'panoId': loc['panoId'],

@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-"""Review the competitive duel rounds you lost: which practicable Plonk It clue was visible that you should have used.
+"""Review your duels: for every round, which practice clues were visible, and for the rounds you lost, which you missed.
 
 Personal data: everything is written under WORLD_PACK_DATA/duels/ (never in the repo).
-  fetch     your competitive duels (GeoGuessr feed + game server), needs GG_NCFA (the _ncfa cookie) in the env
-  lost      rounds where your team scored below the opponent
-  classify  small model (CURATE_MODEL, default gpt-6-luna) looks at what you could see and names the clues you missed
-  export    duels/missed-clues.json for the local build (`missedCluesPath` in .fieldwork.local.json)
-Usage: WORLD_PACK_DATA=<caches> python3 tools/world-pack/duels.py fetch|lost|classify|export [LIMIT]
+  fetch     every duel in your GeoGuessr activity feed (ranked and unranked) with its rounds from the game server, needs GG_NCFA (the _ncfa cookie) in the env
+  rounds    every round with its result (lost = your team scored below the opponent outside a healing round)
+  classify  small model (CURATE_MODEL, default gpt-6-luna) looks at what you could see and names the visible clues
+  export    duels/missed-clues.json for the local build (`missedCluesPaths` in .fieldwork.local.json): lost rounds only
+  report    duels/report.json: where you lose, which countries you confuse, which clues you miss and which you use
+Usage: WORLD_PACK_DATA=<caches> python3 tools/world-pack/duels.py fetch|rounds|classify [LIMIT]|export|report
 """
 import concurrent.futures as cf
 import json
 import os
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -38,7 +40,7 @@ def get(url):
 
 
 def fetch():
-    """Every competitive Duels/TeamDuels game in your feed, with its full round data (cached per game)."""
+    """Every Duels/TeamDuels game in your feed (the feed keeps about a year), with its full round data (cached per game)."""
     raw = json.loads((OUT / 'raw.json').read_text()) if (OUT / 'raw.json').exists() else {'details': {}}
     raw['userId'] = get('https://www.geoguessr.com/api/v3/profiles')['user']['id']
     games, token = {}, ''
@@ -48,9 +50,9 @@ def fetch():
             items = json.loads(entry['payload']) if isinstance(entry['payload'], str) else entry['payload']
             for item in items if isinstance(items, list) else [{'time': entry['time'], 'payload': items}]:
                 p = item['payload']
-                if p.get('gameId') and p.get('competitiveGameMode', 'None') != 'None' and p.get('gameMode') in ('Duels', 'TeamDuels'):
+                if p.get('gameId') and p.get('gameMode') in ('Duels', 'TeamDuels'):
                     games[p['gameId']] = {'gameId': p['gameId'], 'time': item['time'], 'gameMode': p['gameMode'],
-                                          'competitive': p['competitiveGameMode']}
+                                          'competitive': p.get('competitiveGameMode', 'None')}
         token = page.get('paginationToken')
         if not token:
             break
@@ -70,11 +72,11 @@ def pano_id(encoded):
         return encoded
 
 
-def lost():
+def rounds():
     raw = json.loads((OUT / 'raw.json').read_text())
     country_at = collect.bc.geolocator(json.loads((WORK / 'worldwide/countries-50m.geojson').read_text()))
     meta = {g['gameId']: g for g in raw['games']}
-    rounds = []
+    out = []
     for game_id, game in raw['details'].items():
         mine = next((t for t in game['teams'] if any(p['playerId'] == raw['userId'] for p in t['players'])), None)
         if mine is None:
@@ -83,26 +85,29 @@ def lost():
         for result in mine.get('roundResults', []):
             n = result['roundNumber']
             theirs = max((r['score'] for t in others for r in t.get('roundResults', []) if r['roundNumber'] == n), default=None)
-            # Healing rounds deal no damage, so scoring lower in one is not a lost round.
-            if theirs is None or result['score'] >= theirs or game['rounds'][n - 1].get('isHealingRound'):
+            if theirs is None:
                 continue
             p = game['rounds'][n - 1]['panorama']
             mine_guess = result.get('bestGuess') or {}
             their_guess = min((r.get('bestGuess') or {} for t in others for r in t.get('roundResults', []) if r['roundNumber'] == n),
                               key=lambda g: g.get('distance', 1e12), default={})
-            rounds.append({
+            out.append({
                 'id': f'duel:{game_id}:{n}', 'gameId': game_id, 'round': n, 'endTime': game['rounds'][n - 1].get('endTime'),
                 'mode': meta.get(game_id, {}).get('competitive'), 'movement': game.get('movementOptions') or {},
                 'view': {'panoId': pano_id(p['panoId']), 'lat': p['lat'], 'lng': p['lng'], 'heading': p.get('heading') or 0,
                          'pitch': p.get('pitch') or 0, 'zoom': p.get('zoom') or 0},
                 'countryCode': (p.get('countryCode') or '').upper(), 'country': country_at(p['lat'], p['lng']),
+                # Healing rounds deal no damage, so scoring lower in one is not a lost round.
+                'lost': result['score'] < theirs and not game['rounds'][n - 1].get('isHealingRound'),
+                'map': (game.get('options') or {}).get('map', {}).get('name'),
                 'myScore': result['score'], 'theirScore': theirs,
                 'myGuess': {k: mine_guess.get(k) for k in ('lat', 'lng', 'distance')},
                 'myGuessCountry': country_at(mine_guess['lat'], mine_guess['lng']) if mine_guess.get('lat') is not None else None,
                 'theirDistance': their_guess.get('distance')})
-    (OUT / 'lost.json').write_text(json.dumps(rounds))
-    print(json.dumps({'games': len(raw['details']), 'lostRounds': len(rounds),
-                      'wrongCountry': sum(r['myGuessCountry'] != r['country'] for r in rounds)}))
+    (OUT / 'rounds.json').write_text(json.dumps(out))
+    lost = [r for r in out if r['lost']]
+    print(json.dumps({'games': len(raw['details']), 'rounds': len(out), 'lostRounds': len(lost),
+                      'lostWrongCountry': sum(r['myGuessCountry'] != r['country'] for r in lost)}))
 
 
 def frames(r):
@@ -112,7 +117,13 @@ def frames(r):
         views = [(v, collect.zoom_to_fov(v['zoom']))]
     else:
         views = [({**v, 'heading': (v['heading'] + 90 * k) % 360}, 90.0) for k in range(4)]
-    return [path for path in (collect.thumb(view, fov) for view, fov in views) if path]
+    paths = []
+    for view, fov in views:
+        try:
+            paths.append(collect.thumb(view, fov))
+        except urllib.error.HTTPError:
+            break  # the thumbnail service rejects some panoramas (unofficial or removed): treated as gone
+    return [p for p in paths if p]
 
 
 SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['clues', 'missedNote'], 'properties': {
@@ -159,46 +170,65 @@ def visible_clues(images, country, context, candidates, line):
     return {'clues': list(picked.values()), 'missedNote': answer['missedNote'], 'model': curate.MODEL}
 
 
+def inputs(by_code, line):
+    """Per country: fingerprint of the candidate clue text and the model, so a judgement is reused only for the same
+    question. (A change to the prompt wording in visible_clues needs the classified files removed.)"""
+    return {cc: curate.fingerprint(curate.MODEL, *(line[t] for t in ts)) for cc, ts in by_code.items()}
+
+
 def classify(limit=None):
-    rounds = json.loads((OUT / 'lost.json').read_text())[:limit]
+    rounds = sorted(json.loads((OUT / 'rounds.json').read_text()), key=lambda r: not r['lost'])[:limit]
     by_code, line = practice_clues()
+    current = inputs(by_code, line)
     out = OUT / 'classified.jsonl'
-    done = {json.loads(l)['id'] for l in out.read_text().splitlines()} if out.exists() else set()
-    todo = [r for r in rounds if r['id'] not in done]
+    done = {(r['id'], r.get('inputs')) for r in map(json.loads, out.read_text().splitlines())} if out.exists() else set()
+    todo = [r for r in rounds if (r['id'], current.get(r['countryCode'])) not in done]
 
     def one(r):
         candidates = by_code.get(r['countryCode'], [])
         images = frames(r)
+        stamp = {'id': r['id'], 'inputs': current.get(r['countryCode'])}
         if not candidates or not images:
-            return {'id': r['id'], 'clues': [], 'missedNote': '', 'skipped': 'no practicable clues' if images else 'panorama gone'}
+            return {**stamp, 'clues': [], 'missedNote': '', 'skipped': 'no practicable clues' if images else 'panorama gone'}
         seen = 'only frame 1 (no moving, no turning)' if r['movement'].get('forbidRotating') else f'frames 1-{len(images)} (it could turn around)'
         guess = (f"The player guessed {r['myGuessCountry'] or 'somewhere'} at {round((r['myGuess']['distance'] or 0) / 1000)} km away"
                  if r['myGuess'].get('lat') is not None else 'The player did not guess')
-        context = (f"A GeoGuessr player lost this competitive duel round. The true location is in {r['country']} "
+        context = (f"A GeoGuessr player {'lost' if r['lost'] else 'played'} this duel round. The true location is in {r['country']} "
                    f"({r['view']['lat']:.3f}, {r['view']['lng']:.3f}). {guess}; the opponent was "
                    f"{round((r['theirDistance'] or 0) / 1000)} km away. The player could see {seen}.")
         result = visible_clues(images, r['country'], context, candidates, line)
-        return result and {'id': r['id'], **result}
+        return result and {**stamp, **result}
 
     with open(out, 'a') as f, cf.ThreadPoolExecutor(curate.WORKERS) as pool:
         for rec in pool.map(one, todo):
             if rec:
                 f.write(json.dumps(rec, ensure_ascii=False) + '\n')
                 f.flush()
-    recs = [json.loads(l) for l in out.read_text().splitlines()]
-    print(json.dumps({'classified': len(recs), 'withClue': sum(bool(r['clues']) for r in recs)}))
+    print(json.dumps({'judged': len(current_judgements())}))
+
+
+def current_judgements():
+    """Latest judgement per round made with the current candidate clues."""
+    rounds = {r['id']: r for r in json.loads((OUT / 'rounds.json').read_text())}
+    current = inputs(*practice_clues())
+    return {r['id']: r for r in map(json.loads, (OUT / 'classified.jsonl').read_text().splitlines())
+            if r['id'] in rounds and r.get('inputs') == current.get(rounds[r['id']]['countryCode'])}
 
 
 def export():
-    """One missed observation per (round, clue) whose clue is playable in the World pack."""
-    rounds = {r['id']: r for r in json.loads((OUT / 'lost.json').read_text())}
+    """One missed observation per (lost round, clue) whose clue is playable in the World pack."""
+    rounds = {r['id']: r for r in json.loads((OUT / 'rounds.json').read_text())}
     bank = {b['topicId']: b for b in json.loads((HERE / 'clue-bank.json').read_text())}
     missed = []
-    for line in (OUT / 'classified.jsonl').read_text().splitlines():
-        rec = json.loads(line)
+    for rec in current_judgements().values():
+        r = rounds[rec['id']]
+        if not r['lost']:
+            continue
         for c in rec['clues']:
             b = bank[c['topicId']]
-            if b['practice'] and b['status'] == 'playable':
+            # A country clue only counts as missed when the guess landed in the wrong country.
+            right_country = r['myGuessCountry'] == r['country']
+            if b['practice'] and b['status'] == 'playable' and not (b['stage'] == 'country-identification' and right_country):
                 _, slug, tip = c['topicId'].split(':')
                 missed.append({'id': f"{rec['id']}:{tip}", 'skillId': f'world:pk:{slug}:{tip}',
                                'occurredAt': rounds[rec['id']]['endTime'], 'reason': c['evidence']})
@@ -206,8 +236,42 @@ def export():
     print(json.dumps({'missed': len(missed), 'clues': len({m['skillId'] for m in missed})}))
 
 
+def report():
+    """Where the points go: per country rounds, losses and wrong-country guesses; the countries you confuse; per clue
+    how often it was visible when you lost versus when you did not."""
+    rounds = json.loads((OUT / 'rounds.json').read_text())
+    judged = current_judgements()
+    by_country = {}
+    for r in rounds:
+        c = by_country.setdefault(r['country'] or r['countryCode'], {'rounds': 0, 'lost': 0, 'wrongCountry': 0, 'pointsBehind': 0})
+        c['rounds'] += 1
+        c['lost'] += r['lost']
+        c['wrongCountry'] += r['myGuessCountry'] != r['country']
+        c['pointsBehind'] += max(0, r['theirScore'] - r['myScore'])
+    confusions = {}
+    for r in rounds:
+        if r['myGuessCountry'] and r['country'] and r['myGuessCountry'] != r['country']:
+            key = f"{r['country']} -> {r['myGuessCountry']}"
+            confusions[key] = confusions.get(key, 0) + 1
+    clues = {}
+    outcome = {r['id']: r['lost'] for r in rounds}
+    for i, rec in judged.items():
+        for c in rec['clues']:
+            k = clues.setdefault(c['topicId'], {'visibleLost': 0, 'visibleNotLost': 0})
+            k['visibleLost' if outcome[i] else 'visibleNotLost'] += 1
+    modes = {}
+    for r in rounds:
+        m = modes.setdefault(f"{r['mode']} | {r['map']}", {'rounds': 0, 'lost': 0})
+        m['rounds'] += 1
+        m['lost'] += r['lost']
+    result = {'rounds': len(rounds), 'judged': len(judged), 'byCountry': by_country, 'modes': modes,
+              'confusions': dict(sorted(confusions.items(), key=lambda kv: -kv[1])), 'clues': clues}
+    (OUT / 'report.json').write_text(json.dumps(result, ensure_ascii=False, indent=1))
+    print(json.dumps({'rounds': len(rounds), 'judged': len(judged), 'countries': len(by_country), 'confusions': len(confusions)}))
+
+
 if __name__ == '__main__':
     OUT.mkdir(exist_ok=True)
     command, *rest = sys.argv[1:]
-    {'fetch': fetch, 'lost': lost, 'export': export,
+    {'fetch': fetch, 'rounds': rounds, 'export': export, 'report': report,
      'classify': lambda: classify(int(rest[0]) if rest else None)}[command]()
