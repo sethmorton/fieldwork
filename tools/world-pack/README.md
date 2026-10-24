@@ -28,6 +28,9 @@ Upstream inputs under `WORLD_PACK_INPUTS`:
 - `location-database/learnable/public-maps-2026-10-22.json` and `catalogue-visible-2026-10-22.json`: shared Learnable
   Meta maps and their levels
 - `worldwide/countries-50m.geojson`: Natural Earth 50m countries, used for country checks and answer areas
+- `natural-earth-admin1.geojson`: Natural Earth admin-1 states and provinces (`ne_10m_admin_1_states_provinces`,
+  converted to GeoJSON with its `name` and `iso_3166_2` properties), used by `duels.py rounds` to name the
+  subdivision of each round and of your guess
 - `plonkit-guides/<slug>.json` or `plonkit-browser-index/<slug>.json`: cached guide pages
 - `geopractice/plonkit-example-resolutions.json`: resolved guide short links
 
