@@ -35,6 +35,11 @@ test('world practice opens on regional clues, not a country-identification gate'
 test('new clues come landscape and poles first, then other regional, then country identification, each by estimated ranked No Move detection, then foundational, useful, niche',()=>{
  const order={foundational:0,useful:1,niche:2},group={'landscape-and-poles':0,'other-regional':1,'country-identification':2};
  const ranked=pack.skills.filter(s=>s.availability==='available').sort((a,b)=>a.curriculum.rank-b.curriculum.rank);
+ for(const s of ranked){
+  const landscapeOrPole=s.practiceFamily==='landscape-and-vegetation'||s.practiceFamily==='utility-poles';
+  const expected=landscapeOrPole?'landscape-and-poles':s.curriculum.source.guideStage==='country-identification'?'country-identification':'other-regional';
+  assert.equal(s.curriculum.source.priorityGroup,expected,s.id);
+ }
  for(let i=1;i<ranked.length;i++){
   const [a,b]=[ranked[i-1].curriculum.source,ranked[i].curriculum.source];
   assert.ok(group[a.priorityGroup]<group[b.priorityGroup]||(a.priorityGroup===b.priorityGroup&&(a.acowPer1000>b.acowPer1000

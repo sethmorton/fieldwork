@@ -121,8 +121,8 @@ def main():
         return kind == 'infrastructure' and 'utility-poles' in concepts and 'bollards' not in concepts
 
     def priority_group(clue, kind):
-        """0: landscape and utility poles (Seth's ranked No Move priority), 1: other regional clues, 2: country
-        identification."""
+        """0: landscape and utility poles at any stage (Seth's ranked No Move priority, so country-identification
+        poles and landscape stay first as before), 1: other regional clues, 2: other country identification."""
         if kind == 'landscape-and-vegetation' or is_pole(clue, kind):
             return 0
         return 2 if clue['stage'] == 'country-identification' else 1
@@ -138,8 +138,8 @@ def main():
 
     def is_practice(clue):
         """Every clue with something to spot in one panorama (small-model labels), except tips curated as skip.
-        Country-identification clues are practice too but come last (priority_group), so they reach a learner mainly
-        through clues missed in duels."""
+        Country-identification clues outside landscape and poles are practice too but come last (priority_group), so
+        they reach a learner mainly through clues missed in duels."""
         tier = curated.get(clue['topicId'], ('niche',))[0]
         return tier != 'skip' and clue_labels.get(clue['topicId'], {}).get('observable', False)
 

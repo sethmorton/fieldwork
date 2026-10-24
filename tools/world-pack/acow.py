@@ -72,6 +72,8 @@ def classify(limit=None):
     def one(r):
         candidates = by_code.get(r['countryCode'], [])
         images = duels.frames({**r, 'movement': {}})
+        if images is None:
+            return None
         stamp = {'id': r['id'], 'inputs': current.get(r['countryCode'])}
         if not candidates or not images:
             return {**stamp, 'clues': [], 'missedNote': '', 'skipped': 'no practicable clues' if images else 'panorama gone'}

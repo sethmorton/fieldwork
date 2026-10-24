@@ -86,8 +86,9 @@ a cached pack only when the hosted revision moves.
 
 A full refresh with network and paid model calls is `WORLD_PACK_DATA=/path/to/world-map tools/world-pack/run.sh`.
 
-`duels.py` is a separate personal step: it turns the competitive duel rounds you lost into missed clues for your own
-local build. See [docs/SETUP.md](../../docs/SETUP.md#practise-the-clues-you-missed-in-competitive-duels).
+`duels.py` is a separate personal step: it turns the duel rounds you lost into missed clues for your own
+local build and writes `duels/report.json` (where you lose points, which countries you confuse). See
+[docs/SETUP.md](../../docs/SETUP.md#practise-the-clues-you-missed-in-duels).
 
 ## Licence
 
