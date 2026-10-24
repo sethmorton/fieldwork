@@ -140,8 +140,29 @@ Rerunning adds only new rounds. A round already replayed is never added twice.
 
 Tick **Learn mode** on the practice panel to work through them before any review:
 clues you missed in duels and never played in Fieldwork come first (most missed
-first), then new clues in curriculum order. Reviews only fill what is left. Rounds
+first), then new clues from the countries where you have lost the most points
+(curriculum order within a country). Reviews only fill what is left. Rounds
 you won but guessed more than 500 km away count as missed too.
+
+## Your own map from the duel rounds you missed
+
+`tools/world-pack/misses.py` turns the rounds you missed into a separate practice
+pack: each clue you missed, played on the panorama you missed it on (facing where
+the clue was visible, with a note saying what was there), plus other examples of
+the same clue. For missed rounds no Plonk It clue explains, a small model checks
+the Learnable Meta metas of that country that Plonk It does not cover (existing
+community metas only). `guide` writes a study guide to read before practising.
+
+```sh
+for step in lm pack; do WORLD_PACK_DATA=/path/to/world-map python3 tools/world-pack/misses.py $step; done
+WORLD_PACK_DATA=/path/to/world-map python3 tools/world-pack/misses.py guide ~/Desktop/geoguessr
+```
+
+Create a second owned map whose name starts with "Fieldwork" and add the pack:
+
+```json
+"additionalPacks": [{"packPath": "/path/to/world-map/duels/pack.json", "practiceMapId": "<its map ID>"}]
+```
 
 ## During practice
 

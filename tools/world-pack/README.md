@@ -88,7 +88,8 @@ A full refresh with network and paid model calls is `WORLD_PACK_DATA=/path/to/wo
 
 `duels.py` is a separate personal step: it turns the duel rounds you lost into missed clues for your own
 local build and writes `duels/report.json` (where you lose points, which countries you confuse). See
-[docs/SETUP.md](../../docs/SETUP.md#practise-the-clues-you-missed-in-duels).
+[docs/SETUP.md](../../docs/SETUP.md#practise-the-clues-you-missed-in-duels). `misses.py` builds your own pack and study guide from those rounds
+(see [docs/SETUP.md](../../docs/SETUP.md#your-own-map-from-the-duel-rounds-you-missed)).
 
 ## Licence
 

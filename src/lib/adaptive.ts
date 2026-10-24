@@ -143,7 +143,7 @@ function referenceKeys(reference: string) {
 export function planPractice(
   pack: PracticePack,
   attempts: Attempt[],
-  { size = 5, now = Date.now(), seenLocationRefs = [], previousSetLocationRefs = [], learn = false }: { size?: number; now?: Clock; seenLocationRefs?: string[]; previousSetLocationRefs?: string[]; learn?: boolean } = {},
+  { size = 5, now = Date.now(), seenLocationRefs = [], previousSetLocationRefs = [], learn = false, focus = {} }: { size?: number; now?: Clock; seenLocationRefs?: string[]; previousSetLocationRefs?: string[]; learn?: boolean; focus?: Record<string, number> } = {},
 ): Plan {
   const nowMs = new Date(now).getTime();
   if (!Number.isFinite(nowMs)) throw new Error('Invalid current date.');
@@ -304,7 +304,9 @@ export function planPractice(
       && bySkill.get(skill.id)!.every(attempt => attempt.feedbackSource === 'missed-elsewhere'))
       .sort((a, b) => bySkill.get(b.id)!.length - bySkill.get(a.id)!.length
         || (a.curriculum?.rank ?? Number.MAX_SAFE_INTEGER) - (b.curriculum?.rank ?? Number.MAX_SAFE_INTEGER)), limit);
-    addTargets(introductions.filter(skill => !restingTargets.has(skill.id)), limit);
+    // Then new clues by focus weight (where the learner loses most), curriculum order within equal weight.
+    addTargets(introductions.filter(skill => !restingTargets.has(skill.id))
+      .sort((a, b) => (focus[b.id] ?? 0) - (focus[a.id] ?? 0)), limit);
   }
   const dueReviews = ranked.filter(skill => !isNew(skill) && !restingTargets.has(skill.id) && urgency(skill) > 0);
   // Bounded waiting: the longest-overdue due review is placed first and counts toward its scope's one-per-set quota,
@@ -336,7 +338,7 @@ export function planPractice(
   // GeoGuessr chooses its own round order; do not publish a syllabus-ordered coordinate list.
   selected.sort((a, b) => hash(':order:' + a.id) - hash(':order:' + b.id));
   const reasons = [progression.message,
-    learn ? 'Learn mode: clues you missed in duels first, then new clues in curriculum order; reviews wait.'
+    learn ? 'Learn mode: clues you missed in duels first, then new clues from the countries you lose most in; reviews wait.'
       : `Due reviews first; up to ${progression.newLimit} new clues fill the rest. Cold starts and family/country constraints can require more.`,
     'Targets practised in the previous set within 20 hours rest for one set when enough other location-backed clues are available, including after a miss.',
     `${new Set(focusSkills.map(family)).size} clue families selected (at most ${MAX_PER_FAMILY} clues each); ${selected.filter(location => !aliases(location).some(key => observed.has(key))).length} unseen panoramas.`,
