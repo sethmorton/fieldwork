@@ -157,8 +157,12 @@ Engine updates still require installing the regenerated userscript. Content is
 separate: the supplied packs load from `https://sethmorton.github.io/fieldwork/`
 and cache in the userscript manager. First use requires a download; after that,
 the content host can be unavailable and cached practice still works (GeoGuessr
-itself still needs internet). A failed first download shows **Retry** and a pack
-import option. Background update checks never block cached Continue practice.
+itself still needs internet). A failed first download keeps one panel open:
+network, timeout and server errors retry automatically after 10 s, 30 s, 2 min,
+then every 5 min, and a pack the host does not offer yet is checked every
+5 min. Verification, format, engine and browser-storage errors wait for you.
+The panel offers **Retry now**, any other bound pack, and a pack file import.
+Background update checks never block cached Continue practice.
 
 Version 0.10 migrates your installed packs once, and 0.11 moves pack bodies out
 of userscript storage into the browser's IndexedDB (Tampermonkey loads all

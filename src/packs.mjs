@@ -1,4 +1,5 @@
 import {validatePack,updatedPack} from './next-set.mjs';
+import {notice} from './load-errors.mjs';
 
 export function mergePacks(stored,legacy,bundled) {
   const packs=new Map((stored??[]).map(pack=>[pack.id,pack]));
@@ -7,8 +8,8 @@ export function mergePacks(stored,legacy,bundled) {
   const maps=new Set();
   for(const pack of packs.values()){
     validatePack(pack);
-    if(!/^[a-f\d]{24}$/i.test(pack.practiceMapId??'')||/^0+$/.test(pack.practiceMapId))throw Error('Each pack needs a dedicated owned practice map.');
-    if(maps.has(pack.practiceMapId))throw Error('Different packs cannot share a writable practice map.');
+    if(!/^[a-f\d]{24}$/i.test(pack.practiceMapId??'')||/^0+$/.test(pack.practiceMapId))throw notice('Each pack needs a dedicated owned practice map.');
+    if(maps.has(pack.practiceMapId))throw notice('Different packs cannot share a writable practice map.');
     maps.add(pack.practiceMapId);
   }
   return [...packs.values()];

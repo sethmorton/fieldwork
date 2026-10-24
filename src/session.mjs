@@ -1,6 +1,7 @@
 import {regionAt} from './geo.mjs';
 import {MAX_PER_FAMILY} from './lib/adaptive.ts';
 import {skillStatus} from './lib/mastery.ts';
+import {notice} from './load-errors.mjs';
 
 /** Only render this after a completed guess; never disclose an upcoming target. */
 export function practiceFeedback(history,round,now=Date.now()) {
@@ -34,7 +35,7 @@ export function recordRecognition(pack,history,round,{recognized,knew=false,fami
   // Elsewhere an unknown region result stays unknown: practice, but no scheduler review.
   const recognitionDecides=byRecognition||(typeof correct!=='boolean'&&!!round.location.country&&round.location.region===round.location.country
     &&(skill.curriculum?.scope??'country-identification')!=='country-identification');
-  if(typeof recognized!=='boolean' || (!assumed&&!recognitionDecides&&recognized&&typeof correct!=='boolean')) throw Error('Confirm clue recognition and the region result.');
+  if(typeof recognized!=='boolean' || (!assumed&&!recognitionDecides&&recognized&&typeof correct!=='boolean')) throw notice('Confirm clue recognition and the region result.');
   const prior=history.find(attempt=>attempt.id===round.id);
   if(prior && (assumed || prior.feedbackSource!=='assumed-on-advance'))return history;
   const wasSeen=history.some(attempt=>attempt.id!==round.id&&attempt.locationRef===round.location.id);
@@ -83,7 +84,7 @@ export function advanceRecognition(pack,history,pending,nextState,now=new Date()
 export async function publishPracticeSet(pack,set,request,backup) {
   const id=pack.practiceMapId;
   if(!/^[a-f\d]{24}$/i.test(id??'') || pack.pools.some(pool=>pool.id===id||pool.mapUrl.endsWith('/'+id))
-    || pack.locations.some(location=>location.sourceMapId===id)) throw Error('Use a separate owned practice map, never the source map.');
+    || pack.locations.some(location=>location.sourceMapId===id)) throw notice('Use a separate owned practice map, never the source map.');
   const coordinates=set.mapMaking.customCoordinates;
   if(coordinates.length!==5 || new Set(coordinates.map(location=>location.panoId)).size!==5
     || coordinates.some(location=>!pack.locations.some(source=>source.panoId===location.panoId&&source.lat===location.lat&&source.lng===location.lng))) throw Error('A practice map requires five distinct source panoramas.');
@@ -99,7 +100,7 @@ export async function publishPracticeSet(pack,set,request,backup) {
   }
   const url=`/api/v4/user-maps/drafts/${id}`;
   const draft=await request(url);
-  if(typeof draft.name!=='string'||!draft.name.startsWith('Fieldwork')||!Number.isInteger(draft.version)) throw Error('Open your dedicated Fieldwork map; its draft could not be verified.');
+  if(typeof draft.name!=='string'||!draft.name.startsWith('Fieldwork')||!Number.isInteger(draft.version)) throw notice('Open your dedicated Fieldwork map. Its draft could not be verified.');
   await backup(draft);
   const {name,avatar,description,highlighted}=draft;
   await request(url,{method:'PUT',body:JSON.stringify({name,avatar,description,highlighted,version:draft.version+1,customCoordinates:coordinates})});
