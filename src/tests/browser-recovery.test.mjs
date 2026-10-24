@@ -51,7 +51,8 @@ function fixture(path='/game/current-game',{cold=false,gm=true,host:initialHost=
   };
   const navigate=pathname=>{location.pathname=pathname;observer()};
   const page={fetch:nativeFetch,GEFFetchEvents:events,GeoGuessrEventFramework:{state:{current_game_id:'previous-game',current_round:5}},next:{router:{push:async pathname=>{navigate(pathname);return true}}}};
-  const settle=async()=>{for(let i=0;i<20;i++)await new Promise(resolve=>setImmediate(resolve))};
+  // Cold loads hash and cache a pack through several real async hops (crypto.subtle); slower CI runners need more turns.
+  const settle=async()=>{for(let i=0;i<200;i++)await new Promise(resolve=>setImmediate(resolve))};
   const clock=cold?fakeClock(settle):{setTimeout,clearTimeout};
   const gmRequest=details=>{const request={details,aborted:false,abort(){request.aborted=true;details.onabort?.()}};downloads.push(request);host(details);return request};
   const context=vm.createContext({URL,URLSearchParams,TextEncoder,crypto,Promise,Date,EventTarget,CustomEvent,structuredClone,setTimeout:clock.setTimeout,clearTimeout:clock.clearTimeout,
