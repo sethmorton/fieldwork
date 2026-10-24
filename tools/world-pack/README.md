@@ -34,7 +34,6 @@ Upstream inputs under `WORLD_PACK_INPUTS`:
 Versioned inputs under `WORLD_PACK_DATA/gap/`, rebuilt only when Vali's data changes:
 
 - `subdivisions.json` from https://raw.githubusercontent.com/slashP/Vali/master/src/Vali.Core/Data/subdivisions.json
-- `country-weights.json`, `{ISO2: weight}` parsed from `vali countries "*" --distribution acw`
 
 ## Accounts and tools
 
@@ -64,7 +63,7 @@ Versioned inputs under `WORLD_PACK_DATA/gap/`, rebuilt only when Vali's data cha
 | `regions.py` | Small model: which ISO 3166-2 subdivisions each regional clue applies to | `gap/clue-regions.json` |
 | `gapfill.py` | Vali samples inside those regions for clues still short of two locations | `gap/pools/`, `gap/candidates.jsonl` |
 | `neighbours.py` | Same-spot captures and road neighbours of clues with one location | `near/candidates.jsonl` |
-| `acow.py weights`, `sample`, `classify`, `score` | Official A Competitive World country distribution ([tinyurl.com/acowdist](https://tinyurl.com/acowdist)), about 1,250 ACoW-shaped rounds from the Vali pools, a small model naming the clues visible in each. Score = ranked rounds per 1,000 in which the clue is visible | `acow/` |
+| `acow.py weights`, `sample`, `classify`, `score` | Official A Competitive World country distribution ([tinyurl.com/acowdist](https://tinyurl.com/acowdist)), about 1,250 ACoW-shaped rounds from the Vali pools, a small model naming the clues visible in each. Score = the model's estimated detection rate per 1,000 ACoW-shaped rounds. It is biased toward large features (landscape) because small roadside details are hard to see in 640 by 400 thumbnails, and Vali pools do not reproduce ACoW's subdivision and urban mix. Only clues seen in two or more rounds are promoted | `acow/` |
 | `audit.py` | Contact sheet of reviewed candidates for a person to spot-check | a JPEG and its id list |
 
 Review verdicts are keyed by a fingerprint of clue text, source, panorama and camera, so a rerun never reuses a

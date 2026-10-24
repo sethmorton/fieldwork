@@ -74,10 +74,12 @@ def main():
     world = json.loads((WORK / 'worldwide/countries-50m.geojson').read_text())
     country_at = bc.geolocator(world)
     regions = json.loads((HERE / 'gap/clue-regions.json').read_text()) if (HERE / 'gap/clue-regions.json').exists() else {}
-    # Official A Competitive World country distribution (acow.py, from https://tinyurl.com/acowdist), and for each clue
-    # the ranked rounds per 1,000 in which it is visible (acow.py score).
+    # Official A Competitive World country distribution (acow.py weights, https://tinyurl.com/acowdist), and for each
+    # clue the small model's estimated detection rate on ACoW-shaped rounds (acow.py score). A clue seen only once is
+    # too uncertain to jump the curated order, so only clues seen in two or more rounds are promoted.
     country_weights = json.loads((HERE / 'acow/weights.json').read_text())['countries']
-    acow_value = json.loads((HERE / 'acow/clue-value.json').read_text()) if (HERE / 'acow/clue-value.json').exists() else {}
+    acow_seen = json.loads((HERE / 'acow/clue-value.json').read_text())['clues'] if (HERE / 'acow/clue-value.json').exists() else {}
+    acow_value = {t: c['per1000'] for t, c in acow_seen.items() if c['hits'] >= 2}
     pano_subdivision = {l['panoId']: (l.get('extra', {}).get('tags') or [None])[0]
                         for p in (HERE / 'gap/pools').glob('*-locations.json')
                         for l in (lambda d: d['customCoordinates'] if isinstance(d, dict) else d)(json.loads(p.read_text()))}
