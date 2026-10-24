@@ -298,7 +298,8 @@ export function planPractice(
   }};
   if (learn) {
     // Learn mode: clues missed elsewhere (duels) but never played here, most-missed first, then new clues in
-    // curriculum order. Reviews only fill what is left.
+    // curriculum order. Reviews only fill what is left. Duel misses skip the introduction gates, as they already do
+    // as due reviews outside learn mode: the learner met them in a real game.
     addTargets(ranked.filter(skill => bySkill.has(skill.id) && !restingTargets.has(skill.id)
       && bySkill.get(skill.id)!.every(attempt => attempt.feedbackSource === 'missed-elsewhere'))
       .sort((a, b) => bySkill.get(b.id)!.length - bySkill.get(a.id)!.length
