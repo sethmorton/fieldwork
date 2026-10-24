@@ -30,10 +30,14 @@ python3 sources.py fetch                             # GeoHints examples (cached
 python3 sources.py map                               # small model maps each example to its tip
 python3 collect.py                                   # guide links, map-maker views, GeoHints, thumbnails
 python3 review.py candidates.jsonl                   # picks frames; gates machine-oriented views (review.accepts)
+python3 acow.py weights                              # official A Competitive World country distribution
 python3 build.py --fieldwork "$FIELDWORK"            # first pass marks short clues
 python3 regions.py                                   # where each regional clue applies (cached per clue)
 python3 gapfill.py                                   # Vali candidates for short clues a 90-degree view can prove
 python3 review.py gap/candidates.jsonl
+python3 acow.py sample                               # ~1,250 ACoW-shaped rounds from the Vali pools
+python3 acow.py classify                             # small model: which clues each round shows
+python3 acow.py score                                # clue value = ranked rounds per 1,000 showing it
 python3 build.py --fieldwork "$FIELDWORK"
 python3 neighbours.py                                # same-spot captures and road neighbours of one-location clues
 python3 review.py near/candidates.jsonl

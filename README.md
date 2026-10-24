@@ -8,7 +8,7 @@ Fieldwork is a Tampermonkey userscript. It turns a GeoGuessr map you own into a 
 
 ## What you get
 
-- **The World pack.** About 2,150 Plonk It clues across 118 countries, each with two or three real Street View locations. Foundational clues (poles, signs, phone codes, plates, car meta) come before landscape and finer regional detail.
+- **The World pack.** About 2,150 Plonk It clues across 118 countries, each with two or three real Street View locations. New clues come in order of how often they are visible on A Competitive World, the ranked No Move map, measured on about 1,250 rounds shaped like it.
 - **A clue card after every guess.** The Plonk It text and image, a link to the guide page, and three buttons: **Missed it**, **Spotted it**, **Knew it**.
 - **Quick check.** Flip through clue cards without playing rounds and clear the ones you already know.
 - **An expandable card.** Press ⤢ (or click the image) to see the image full size over the map. Fieldwork remembers your choice.
@@ -53,7 +53,7 @@ Open **Content & progress** on the start panel (or **Your progress tree** on a c
 
 | Pack | What it covers |
 | --- | --- |
-| World PlonkIt clue bank | About 2,150 Plonk It region-guessing clues, foundational first, 2-3 locations each |
+| World PlonkIt clue bank | About 2,150 Plonk It region-guessing clues, ordered by how often ranked No Move shows them, 2-3 locations each |
 | World foundations & intermediate | Bollards, pedestrian signs, languages, poles, chevrons, plates, Brazilian phone codes and more |
 | Australia region practice | State-level clues within Australia |
 | Philippines region practice | Regional clues within the Philippines |

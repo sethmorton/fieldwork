@@ -74,8 +74,10 @@ def main():
     world = json.loads((WORK / 'worldwide/countries-50m.geojson').read_text())
     country_at = bc.geolocator(world)
     regions = json.loads((HERE / 'gap/clue-regions.json').read_text()) if (HERE / 'gap/clue-regions.json').exists() else {}
-    # `vali countries "*" --distribution acw`, saved as {ISO2: relative weight}.
-    country_weights = json.loads((HERE / 'gap/country-weights.json').read_text())
+    # Official A Competitive World country distribution (acow.py, from https://tinyurl.com/acowdist), and for each clue
+    # the ranked rounds per 1,000 in which it is visible (acow.py score).
+    country_weights = json.loads((HERE / 'acow/weights.json').read_text())['countries']
+    acow_value = json.loads((HERE / 'acow/clue-value.json').read_text()) if (HERE / 'acow/clue-value.json').exists() else {}
     pano_subdivision = {l['panoId']: (l.get('extra', {}).get('tags') or [None])[0]
                         for p in (HERE / 'gap/pools').glob('*-locations.json')
                         for l in (lambda d: d['customCoordinates'] if isinstance(d, dict) else d)(json.loads(p.read_text()))}
@@ -105,17 +107,17 @@ def main():
     bank, skills, locations, order_key, utility_tier = [], [], [], {}, {}
     max_weight = math.log1p(max(country_weights.values()))
 
-    # Seth's priority inside a tier: things you read off the roadside (poles, signs, phone codes, plates, car meta)
-    # before buildings and crops, and landscape last.
+    # Fallback priority for clues the ACoW sample never showed: roadside things you read (poles, signs, phone codes,
+    # plates, car meta) before buildings and crops, and landscape last.
     KIND_GROUP = {'infrastructure': 0, 'signs-and-text': 0, 'phone-and-plates': 0, 'car-and-camera': 0,
                   'architecture': 1, 'agriculture': 1, 'other': 1, 'landscape-and-vegetation': 2}
 
     def utility_key(clue, weight):
-        """Tier, then kind group, then each country's own order, interleaved across countries so every country's top
-        tips come before anyone's tenth, with frequently played countries slightly ahead."""
+        """How often the clue is usable in ranked No Move first (measured on ACoW). Clues never seen there follow in
+        the curated order: tier, kind group, then each country's own order interleaved by ACoW country weight."""
         tier, kind, position = curated.get(clue['topicId'], ('niche', 'other', 999))
         utility_tier[clue['topicId']] = tier
-        return (TIERS.index(tier), clue['stage'] == 'specialist', KIND_GROUP[kind],
+        return (-acow_value.get(clue['topicId'], 0), TIERS.index(tier), clue['stage'] == 'specialist', KIND_GROUP[kind],
                 position / (0.5 + math.log1p(weight) / max_weight))
 
     def is_practice(clue):
@@ -191,7 +193,8 @@ def main():
                            'source': {'guide': clue['slug'], 'tipId': topic['tipId'], 'section': topic['sectionIndex'],
                                       'sourceOrder': topic['sourceOrder'], 'guideStage': stage,
                                       'guideUpdatedAt': unit.get('guideUpdatedAt'), 'mapping': 'topic-match',
-                                      'utilityTier': utility_tier[clue['topicId']]}},
+                                      'utilityTier': utility_tier[clue['topicId']],
+                                      'acowPer1000': acow_value.get(clue['topicId'], 0)}},
         })
         for loc in chosen:
             locations.append({'id': f"pk:{clue['slug']}:{topic['tipId']}:{loc['panoId']}", 'panoId': loc['panoId'],
@@ -203,8 +206,7 @@ def main():
                                              'reviewModel': loc['review']['model'], 'reviewConfidence': loc['review']['confidence'],
                                              'countryBasis': 'Natural Earth 50m polygon'}})
 
-    # One world-wide introduction order (see utility_key): regional before Spotlight, core before useful before
-    # niche, then infrastructure before landscape, then how often you would meet the clue.
+    # One world-wide introduction order (see utility_key): what ranked No Move shows most, then the curated order.
     skills.sort(key=lambda s: (order_key[s['id']], s['id']))
     for rank, skill in enumerate(skills, 1):
         skill['curriculum']['rank'] = rank

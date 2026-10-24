@@ -32,13 +32,16 @@ test('world practice opens on regional clues, not a country-identification gate'
  assert.equal(set.selectedLocations.length,5);
  assert.ok(set.focus.some(f=>skillOf.get(f.id).phase==='Regional clues'));
 });
-test('new clues come foundational first, then useful, then niche',()=>{
+test('new clues come in order of how often ranked No Move shows them, then foundational, useful, niche',()=>{
  const order={foundational:0,useful:1,niche:2};
  const ranked=pack.skills.filter(s=>s.availability==='available').sort((a,b)=>a.curriculum.rank-b.curriculum.rank);
- for(let i=1;i<ranked.length;i++)assert.ok(order[ranked[i-1].curriculum.source.utilityTier]<=order[ranked[i].curriculum.source.utilityTier],ranked[i].id);
- // The first set actually introduces foundational clues.
+ for(let i=1;i<ranked.length;i++){
+  const [a,b]=[ranked[i-1].curriculum.source,ranked[i].curriculum.source];
+  assert.ok(a.acowPer1000>b.acowPer1000||(a.acowPer1000===b.acowPer1000&&order[a.utilityTier]<=order[b.utilityTier]),ranked[i].id);
+ }
+ // The first set introduces clues ranked games actually show.
  const set=makeNextSet(pack,[],{now,seenLocationRefs:[],previousSetLocationRefs:[]});
- assert.ok(set.focus.every(f=>skillOf.get(f.id).curriculum.source.utilityTier==='foundational'),JSON.stringify(set.focus.map(f=>f.id)));
+ assert.ok(set.focus.every(f=>skillOf.get(f.id).curriculum.source.acowPer1000>0),JSON.stringify(set.focus.map(f=>f.id)));
 });
 test('world practice keeps five countries and at most two clues per family per set and is publishable',()=>{
  let attempts=[],seen=[],previous=[],covered=new Set();
