@@ -18,7 +18,18 @@ Routine play has no Fieldwork account or application backend.
 - Cached practice starts without waiting for the host. On a practice-map page,
   the script checks for content changes in the background, at most every 15 minutes after
   a successful check. Changes apply when preparing the next set, not midway
-  through a game. An unavailable first download needs a retry or manual import.
+  through a game. A failed first download has one load per page and pack
+  (`src/load-errors.mjs` maps error codes to retry delays and learner copy).
+  A route change ends that load when Fieldwork navigates, when the page
+  reconciles the change, or when a retry or result arrives on another path.
+  Leaving and returning before any of those keeps the same load and its retry
+  schedule, so the next retry runs once, for the page the learner is on.
+  Status lines show only coded Fieldwork errors and explicit `notice`
+  validation messages. Anything else gets neutral copy.
+  Content and source-note requests have their own deadline (20 s manifests and
+  notes, 120 s bodies) because Tampermonkey ignores `timeout` for anonymous
+  requests in Chromium. Opening IndexedDB gives up after 10 s. A game whose
+  pinned content is missing or damaged reports that instead of loading another version.
 - Full inventories (`sourceCoverage` and `curriculum`) are separate assets.
   **Export source inventory** downloads them only when requested; the progress
   tree needs just skill metadata and local observations.
