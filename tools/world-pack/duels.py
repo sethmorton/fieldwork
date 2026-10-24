@@ -277,7 +277,8 @@ Return exactly {n} results, n=1..{n}."""
 
 def guess_inside(items):
     """{key: bool}: does the area of the clue contain the player's guess? items are (key, round, clue text); only
-    same-country guesses need asking (a clue of the true country excludes a guess abroad). Cached in duels/areas.json."""
+    same-country guesses need asking (a clue of the true country excludes a guess abroad), so a missing key means a
+    guess abroad. Exits when a check stays unanswered. Cached in duels/areas.json."""
     path = OUT / 'areas.json'
     known = json.loads(path.read_text()) if path.exists() else {}
     asks = {k: (r, t, curate.fingerprint(curate.MODEL, AREA_PROMPT, t, r['myGuess'], r['view']['lat'], r['view']['lng']))
@@ -303,7 +304,11 @@ def guess_inside(items):
         for got in pool.map(one, [todo[i:i + 15] for i in range(0, len(todo), 15)]):
             known.update(got)
             path.write_text(json.dumps(known))
-    return {k: known[k]['containsGuess'] for k, (_, _, fp) in asks.items() if known.get(k, {}).get('fingerprint') == fp}
+    # An unanswered check must not count as a miss (nor as a gap): stop, so the next run retries before any output.
+    open_checks = [k for k, (_, _, fp) in asks.items() if known.get(k, {}).get('fingerprint') != fp]
+    if open_checks:
+        sys.exit(f'{len(open_checks)} area checks got no answer; run again.')
+    return {k: known[k]['containsGuess'] for k in asks}
 
 
 def areas():

@@ -126,6 +126,9 @@ miss at the time of the round, so those clues are due right away and lead your
 next sets. It is personal data: it stays in your data folder and in your local
 build, never in the public pack.
 
+It needs the Natural Earth admin-1 file listed in
+[tools/world-pack/README.md](../tools/world-pack/README.md) under `WORLD_PACK_INPUTS`.
+
 ```sh
 set -a; . ~/.config/fieldwork/gg.env; set +a   # GG_NCFA=<your _ncfa cookie>
 for step in fetch rounds classify areas export report; do WORLD_PACK_DATA=/path/to/world-map python3 tools/world-pack/duels.py $step; done
