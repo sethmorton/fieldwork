@@ -121,8 +121,10 @@ def frames(r):
     for view, fov in views:
         try:
             paths.append(collect.thumb(view, fov))
-        except urllib.error.HTTPError:
-            break  # the thumbnail service rejects some panoramas (unofficial or removed): treated as gone
+        except urllib.error.HTTPError as e:
+            if e.code not in (400, 404):
+                return None  # transient (rate limit, server error): no judgement now, the next run retries
+            break  # the thumbnail service rejects unofficial or removed panoramas: treated as gone
     return [p for p in paths if p]
 
 
@@ -177,16 +179,18 @@ def inputs(by_code, line):
 
 
 def classify(limit=None):
-    rounds = sorted(json.loads((OUT / 'rounds.json').read_text()), key=lambda r: not r['lost'])[:limit]
+    rounds = sorted(json.loads((OUT / 'rounds.json').read_text()), key=lambda r: not r['lost'])
     by_code, line = practice_clues()
     current = inputs(by_code, line)
     out = OUT / 'classified.jsonl'
     done = {(r['id'], r.get('inputs')) for r in map(json.loads, out.read_text().splitlines())} if out.exists() else set()
-    todo = [r for r in rounds if (r['id'], current.get(r['countryCode'])) not in done]
+    todo = [r for r in rounds if (r['id'], current.get(r['countryCode'])) not in done][:limit]
 
     def one(r):
         candidates = by_code.get(r['countryCode'], [])
         images = frames(r)
+        if images is None:
+            return None
         stamp = {'id': r['id'], 'inputs': current.get(r['countryCode'])}
         if not candidates or not images:
             return {**stamp, 'clues': [], 'missedNote': '', 'skipped': 'no practicable clues' if images else 'panorama gone'}
