@@ -116,7 +116,7 @@ export function startPanel(pack,{onNext,onQuickCheck,onExport,onImport,onCoverag
   button(actions,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=plainMessage(error);this.disabled=false}},'primary');
   if(onQuickCheck)button(actions,'Quick check',onQuickCheck);
   if(onLearn){const label=document.createElement('label');const box=document.createElement('input');box.type='checkbox';box.checked=learn;
-    box.addEventListener('change',()=>onLearn(box.checked));label.append(box,document.createTextNode(' Learn mode: duel misses and new clues only, reviews wait'));section.append(label);}
+    box.addEventListener('change',()=>onLearn(box.checked));label.append(box,document.createTextNode(' Learn mode: duel misses and new clues first, reviews wait'));section.append(label);}
   const {details}=treeDetails(section,pack,getAttempts,'Content & progress');
   if(pack.coverageSummary){const coverage=document.createElement('details');text(coverage,'summary','Source coverage');text(coverage,'p',pack.coverageSummary,'muted');details.append(coverage);}
   if(onCoverage)button(details,'Export source inventory',async()=>{try{await onCoverage()}catch(error){status.textContent=plainMessage(error)}});
