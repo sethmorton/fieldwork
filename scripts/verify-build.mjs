@@ -20,11 +20,13 @@ export async function checkHostedContent(publicCatalog,manifest,readBody){
   }
   return bodies;
 }
-// The smallest hosted pack body is over 800 KB, so an engine under ENGINE_MAX cannot be carrying one.
+// The smallest hosted pack body is over 800 KB, so an engine under ENGINE_MAX cannot be carrying one. The bundled
+// catalog (personal bindings and missed duel clues in local builds) is configuration, not engine, so it does not count.
 const ENGINE_MAX=150000;
 async function verifyBuild(){
   const script=await readFile('dist/fieldwork.user.js','utf8');
-  assert.ok(Buffer.byteLength(script)<ENGINE_MAX,'The userscript must not embed content packs.');
+  const catalogBytes=Buffer.byteLength(await readFile('dist/practice-catalog.json','utf8'));
+  assert.ok(Buffer.byteLength(script)-catalogBytes<ENGINE_MAX,'The userscript must not embed content packs.');
   const configured=JSON.parse(await readFile('dist/practice-packs.json','utf8'));
   for(const pack of configured)assert.ok(!script.includes(pack.locations[0]?.panoId),'Panorama data leaked into the engine bundle.');
   const catalog=JSON.parse(await readFile('dist/content-host/catalog.json','utf8'));

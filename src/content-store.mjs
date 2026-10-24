@@ -24,7 +24,8 @@ export function createContentStore({get:gmGet,set:gmSet,list:gmList,remove:gmRem
   // 0.9 kept every pack in one registry; register its packs now and move their bodies during migration.
   const legacyPacks=schema<1?mergePacks(get('fieldwork:packs',[]),get('fieldwork:pack',null),[]):[];
   for(const pack of legacyPacks)registered.set(pack.id,{id:pack.id,title:pack.title,subject:pack.subject,practiceMapId:pack.practiceMapId,...registered.get(pack.id)});
-  for(const entry of catalog){
+  // `missedClues` (local builds only) is replayed into attempts by the browser and never stored in the GM catalog.
+  for(const {missedClues,...entry} of catalog){
     const old=registered.get(entry.id);
     registered.set(entry.id,old?.localOnly?old:{...old,...entry,practiceMapId:old?.practiceMapId??entry.practiceMapId});
   }

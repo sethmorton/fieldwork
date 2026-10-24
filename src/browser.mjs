@@ -4,7 +4,7 @@ import {indexedDbCache} from './content-cache.mjs';
 import {sourceNote} from './source-note.mjs';
 import {makeNextSet} from './next-set.mjs';
 import {packForPage} from './packs.mjs';
-import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,quickCheckQueue,recordKnown} from './session.mjs';
+import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,quickCheckQueue,recordKnown,recordMissed} from './session.mjs';
 import {reviewPanel,startPanel,loadingPanel,bindPanel,quickCheckPanel} from './ui.mjs';
 import {fail,classified,retryDelay,canRetry,loadMessage,plainMessage,notice} from './load-errors.mjs';
 import {stateFromGameData} from './game-state.mjs';
@@ -144,6 +144,9 @@ function attempt(current){
   store.load(current.entry.id,{gameId:gameId()}).then(value=>{
     if(stale(current))return;
     load=null;pack=value;context=contextFor(current.entry);current.resolve(value);
+    // Clues missed in competitive duels ship in the local build's catalog (never public) and become due misses once.
+    const missed=catalog.find(entry=>entry.id===pack.id)?.missedClues;
+    if(missed){const old=history(),updated=recordMissed(pack,old,missed);if(updated!==old)GM_setValue(key('attempts'),updated);}
     if(gameId())store.pinGame(pack.id,gameId());
     remove();render();
     // Warm-cache practice never waits for the content host. Apply updates to the next set.

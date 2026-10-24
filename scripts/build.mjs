@@ -15,8 +15,11 @@ export async function buildFieldwork(){
   const publicPacks=await readPublicPacks();
   await writeContentAssets(packs,'dist');
   await buildPublicContent();
+  // Personal: clues you missed in competitive duels (tools/world-pack/duels.py export), replayed as due misses.
+  const missed=new Map(await Promise.all((config.missedCluesPaths??[]).map(async file=>{const value=JSON.parse(await readFile(file,'utf8'));return [value.packId,value.missed]})));
   const catalog=packs.map(item=>({id:item.id,title:item.title,subject:item.subject,practiceMapId:item.practiceMapId,minimumRevision:item.contentRevision??0,
-    manifestUrl:publicPacks.some(source=>source.id===item.id)?new URL('catalog.json',contentHost).href:'http://127.0.0.1:8787/catalog.json'}));
+    manifestUrl:publicPacks.some(source=>source.id===item.id)?new URL('catalog.json',contentHost).href:'http://127.0.0.1:8787/catalog.json',
+    ...(missed.has(item.id)?{missedClues:missed.get(item.id)}:{})}));
   await writeFile('dist/practice-catalog.json',JSON.stringify(catalog));
   const {version}=JSON.parse(await readFile('package.json','utf8'));
   await bundleUserscript('dist/practice-catalog.json','dist/fieldwork.user.js',userscriptHeader(version));
