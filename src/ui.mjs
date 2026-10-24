@@ -1,6 +1,8 @@
 import {renderProgressTree} from './progress.mjs';
 import {practiceFeedback} from './session.mjs';
 import {curriculumProgress} from './lib/adaptive.ts';
+import {plainMessage} from './load-errors.mjs';
+const notSaved='This change could not be saved. Try again.';
 // Compact post-guess UI. Source HTML is converted to text, never executed.
 // Panel size: compact by default, expanded (wide, full images and text) when the learner asks; remembered per browser.
 const isWide=()=>localStorage.getItem('fieldwork:wide')==='1';
@@ -82,36 +84,40 @@ export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],g
   if(result===null&&!currentSkill.recognitionOnly){text(section,'p','Was your guess in the right region?','muted');const choices=document.createElement('div');choices.className='actions';section.append(choices);for(const [title,value] of [['Yes',true],['No',false]])button(choices,title,()=>{result=value;onChange({familiar:seen.checked,correct:result});for(const child of choices.children)child.classList.remove('primary');choices.children[value?0:1].classList.add('primary');});}
   const status=text(section,'p',saved?'Saved on this device.':'','muted');status.setAttribute('role','status');
   const actions=document.createElement('div');actions.className='actions';section.append(actions);
-  const save=(recognized,knew=false)=>{try{onSave({recognized,knew,familiar:seen.checked,correct:result});tree.refresh();for(const child of actions.children)child.disabled=true;status.textContent='Saved on this device.';}catch(error){status.textContent=error.message}};
+  const save=(recognized,knew=false)=>{try{onSave({recognized,knew,familiar:seen.checked,correct:result});tree.refresh();for(const child of actions.children)child.disabled=true;status.textContent='Saved on this device.';}catch(error){status.textContent=plainMessage(error,notSaved)}};
   button(actions,'Missed it',()=>save(false),'primary');button(actions,'Spotted it',()=>save(true));button(actions,'Knew it',()=>save(true,true));
   for(const child of actions.children)child.disabled=saved;
-  if(round.round===5){const next=button(section,'Continue practice',async()=>{next.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=error.message;next.disabled=false}},'primary');next.style.marginTop='12px';}
+  if(round.round===5){const next=button(section,'Continue practice',async()=>{next.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=plainMessage(error);next.disabled=false}},'primary');next.style.marginTop='12px';}
   const tree=treeDetails(section,pack,getAttempts,'Your progress tree');
 }
 function packImport(parent,onImport,status){
-  const label=text(parent,'label','Import a practice pack');const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async()=>{try{if(!input.files[0])return;await onImport(JSON.parse(await input.files[0].text()));status.textContent='Pack imported.';}catch(error){status.textContent=error.message}};label.append(input);
+  const label=text(parent,'label','Import a practice pack');const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async()=>{try{if(!input.files[0])return;await onImport(JSON.parse(await input.files[0].text()));status.textContent='Pack imported.';}catch(error){status.textContent=plainMessage(error)}};label.append(input);
 }
-export function loadingPanel(pack,{error,message='Loading practice content…',onRetry,onImport}){
+const packChoice=(section,pack,packs,onChoosePack,label='Practice pack')=>{const wrap=text(section,'label',label);const choose=document.createElement('select');choose.setAttribute('aria-label',label);for(const item of packs){const option=text(choose,'option',item.title);option.value=item.id;option.selected=item.id===pack.id;}choose.onchange=()=>onChoosePack(choose.value);wrap.append(choose);};
+// While content loads or cannot load: another bound pack opens its own map, Retry now joins the single load, and a pack file is the last resort.
+export function loadingPanel(pack,{error,message='Loading practice content…',onRetry,onImport,packs=[],onChoosePack}){
   const {section}=panel();header(section,'Fieldwork · practice');text(section,'h2',pack.title);
   const status=text(section,'p',error??message,'muted');status.setAttribute('role','status');
-  if(error){button(section,'Retry',onRetry,'primary');packImport(section,onImport,status)}
+  if(error&&onRetry)button(section,'Retry now',onRetry,'primary');
+  if(packs.length&&onChoosePack)packChoice(section,pack,[pack,...packs],onChoosePack,'Practice another pack');
+  if(error&&onImport){const details=document.createElement('details');text(details,'summary','Import a pack file');section.append(details);packImport(details,onImport,status)}
 }
 export function bindPanel(packs,{onBind}){
   const {section}=panel();header(section,'Fieldwork · setup');text(section,'h2','Use this map for practice?');
   const status=text(section,'p','Fieldwork replaces this map’s locations with each new five-round set. Pick the pack this map is for:','muted');status.setAttribute('role','status');
-  for(const item of packs)button(section,item.title,()=>{try{onBind(item.id)}catch(error){status.textContent=error.message}},'primary').style.cssText='display:block;width:100%;margin-top:8px';
+  for(const item of packs)button(section,item.title,()=>{try{onBind(item.id)}catch(error){status.textContent=plainMessage(error)}},'primary').style.cssText='display:block;width:100%;margin-top:8px';
 }
 export function startPanel(pack,{onNext,onQuickCheck,onExport,onImport,onCoverage,attempts=[],getAttempts=()=>attempts,packs=[],onChoosePack}) {
   const {section}=panel();header(section,'Fieldwork · practice');text(section,'h2',pack.title);
-  if(packs.length>1){const label=text(section,'label','Practice pack');const choose=document.createElement('select');choose.setAttribute('aria-label','Practice pack');for(const item of packs){const option=text(choose,'option',item.title);option.value=item.id;option.selected=item.id===pack.id;}choose.onchange=()=>onChoosePack(choose.value);label.append(choose);}
+  if(packs.length>1)packChoice(section,pack,packs,onChoosePack);
   text(section,'p',curriculumProgress(pack,attempts).message,'muted');
   const status=text(section,'p',`${pack.answerAreaLabel??pack.title}. At most two clues per family. New clues adapt to recent practice.`,'muted');status.setAttribute('role','status');
   const actions=document.createElement('div');actions.className='actions';section.append(actions);
-  button(actions,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=error.message;this.disabled=false}},'primary');
+  button(actions,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=plainMessage(error);this.disabled=false}},'primary');
   if(onQuickCheck)button(actions,'Quick check',onQuickCheck);
   const {details}=treeDetails(section,pack,getAttempts,'Content & progress');
   if(pack.coverageSummary){const coverage=document.createElement('details');text(coverage,'summary','Source coverage');text(coverage,'p',pack.coverageSummary,'muted');details.append(coverage);}
-  if(onCoverage)button(details,'Export source inventory',async()=>{try{await onCoverage()}catch(error){status.textContent=error.message}});
+  if(onCoverage)button(details,'Export source inventory',async()=>{try{await onCoverage()}catch(error){status.textContent=plainMessage(error)}});
   button(details,'Export progress',onExport);packImport(details,onImport,status);
 }
 /** Clear clues you already know without spending rounds: one card at a time, K = knew it, N = not yet. */
@@ -123,7 +129,7 @@ export function quickCheckPanel(pack,queue,{onKnown,onDone}) {
     const skill=queue[index];clue(section,skill,pack.notesSourceUrl);
     const status=text(section,'p','Know it well enough to spot it in a round? Known clues skip the short repeats. New ones return in about a week.','muted');status.setAttribute('role','status');
     const actions=document.createElement('div');actions.className='actions';section.append(actions);
-    button(actions,'Knew it (K)',()=>{try{onKnown(skill.id);known++;index++;show()}catch(error){status.textContent=error.message}},'primary');
+    button(actions,'Knew it (K)',()=>{try{onKnown(skill.id);known++;index++;show()}catch(error){status.textContent=plainMessage(error,notSaved)}},'primary');
     button(actions,'Not yet (N)',()=>{index++;show()});
     button(section,'Stop',onDone).style.marginTop='8px';
   };

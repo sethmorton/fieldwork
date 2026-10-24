@@ -6,30 +6,53 @@ import {makeNextSet} from './next-set.mjs';
 import {packForPage} from './packs.mjs';
 import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,quickCheckQueue,recordKnown} from './session.mjs';
 import {reviewPanel,startPanel,loadingPanel,bindPanel,quickCheckPanel} from './ui.mjs';
+import {fail,classified,retryDelay,canRetry,loadMessage,plainMessage,notice} from './load-errors.mjs';
 import {stateFromGameData} from './game-state.mjs';
 import {observeGameResponses} from './game-responses.mjs';
 const gameResponses=unsafeWindow.GEFFetchEvents;
 
-function fetchText(url) {
-  if(typeof GM_xmlhttpRequest==='function')return new Promise((resolve,reject)=>GM_xmlhttpRequest({url,method:'GET',anonymous:true,timeout:20000,
-    onload:response=>response.status>=200&&response.status<300?resolve(response.responseText):reject(Error(`Content returned ${response.status}.`)),
-    onerror:()=>reject(Error('Content could not be downloaded.')),ontimeout:()=>reject(Error('Content download timed out.'))}));
-  return fetch(url,{credentials:'omit',signal:AbortSignal.timeout(20000)}).then(response=>{if(!response.ok)throw Error(`Content returned ${response.status}.`);return response.text()});
+// Anonymous GM requests run in fetch mode, where Chromium ignores details.timeout: enforce our own deadline and abort.
+function fetchText(url,{timeout=20000}={}) {
+  const host=new URL(url).host,status=response=>fail('http',{status:response.status,host});
+  // Reading the body can fail or time out too, so normalize the whole chain.
+  if(typeof GM_xmlhttpRequest!=='function')return fetch(url,{credentials:'omit',signal:AbortSignal.timeout(timeout)})
+    .then(response=>{if(!response.ok)throw status(response);return response.text()})
+    .catch(error=>{throw classified(error)?error:fail(error?.name==='TimeoutError'?'timeout':'network',{host})});
+  return new Promise((resolve,reject)=>{
+    // A settled promise ignores late callbacks. A permission prompt left unanswered may never call back at all.
+    let request;const timer=setTimeout(()=>{reject(fail('timeout',{host}));request?.abort?.()},timeout);
+    const settle=(done,value)=>{clearTimeout(timer);done(value)},network=()=>settle(reject,fail('network',{host}));
+    try{request=GM_xmlhttpRequest({url,method:'GET',anonymous:true,timeout,onerror:network,onabort:network,ontimeout:()=>settle(reject,fail('timeout',{host})),
+      onload:response=>response.status>=200&&response.status<300?settle(resolve,response.responseText):settle(reject,status(response))})}
+    catch{network()}
+  });
 }
-const store=createContentStore({get:GM_getValue,set:GM_setValue,list:GM_listValues,remove:GM_deleteValue,cache:indexedDbCache(globalThis.indexedDB??unsafeWindow.indexedDB),catalog,fetchText});
-const packs=store.catalog;
-let pack=null,context='',loading='',stateQueue=Promise.resolve();
+// Storage or configuration can make the store fail before anything else runs. Then only a recovery panel is shown.
+let store,startupError=null;
+try{store=createContentStore({get:GM_getValue,set:GM_setValue,list:GM_listValues,remove:GM_deleteValue,cache:indexedDbCache(globalThis.indexedDB??unsafeWindow.indexedDB),catalog,fetchText})}
+catch(error){startupError=error}
+const packs=store?.catalog??[];
+let pack=null,context='',stateQueue=Promise.resolve();
 const gameStates=new Map();
 const gameId=()=>/^\/(?:game|results)\/([^/]+)$/.exec(location.pathname)?.[1];
 const contextFor=entry=>`${entry.id}:${gameId()??'map'}`;
 // Client-side navigation keeps GeoGuessr's app, this script and its loaded content alive; a full page load is the fallback.
 function go(path) {
+  // Leaving a page ends its load now, before any scheduled retry can fire for it.
+  dropLoad();
   const router=unsafeWindow.next?.router;
   if(typeof router?.push!=='function')return location.assign(path);
   // Next's router resolves false when a navigation is cancelled; then load the page directly.
   Promise.resolve(router.push(path)).then(ok=>{if(ok===false)location.assign(path)},()=>location.assign(path));
 }
-const importPack=async imported=>{await store.add(imported);go(`/maps/${imported.practiceMapId}`)};
+const choosePack=id=>go(`/maps/${packs.find(item=>item.id===id).practiceMapId}`);
+const importPack=async imported=>{
+  await store.add(imported);
+  // Load the imported content even on this same route, whose own load may have failed or be waiting to retry.
+  dropLoad();context='';
+  const path=`/maps/${imported.practiceMapId}`;
+  if(location.pathname===path)render();else go(path);
+};
 const key=(suffix,id=pack.id)=>`fieldwork:${id}:${suffix}`;
 const history=(id=pack.id)=>GM_getValue(key('attempts',id),[]);
 const exposures=(id=pack.id)=>GM_getValue(key('exposures',id),[]);
@@ -50,7 +73,7 @@ function download(value,name) {
 }
 async function request(url,options={}) {
   const response=await fetch(url,{...options,credentials:'same-origin',headers:{'Content-Type':'application/json'}});
-  if(!response.ok)throw Error(`GeoGuessr returned ${response.status}. Your feedback is still saved; retry from the practice map.`);
+  if(!response.ok)throw notice(`GeoGuessr returned ${response.status}. Your feedback is still saved. Retry from the practice map.`);
   const body=await response.text();return body?JSON.parse(body):null;
 }
 // Use the native Play control so GeoGuessr retains the learner's game settings. The request survives a full
@@ -95,6 +118,52 @@ function offerBinding() {
   return true;
 }
 const remove=()=>{document.getElementById('fieldwork-practice')?.remove();mounted=''};
+// One content load per route and pack, shared by render() and receiveState(). DOM mutations and repeated game responses
+// join it, so they never restart a download or reset the retry schedule. A route change drops it and its callbacks.
+let load=null;
+function loadFor(entry){
+  const key=contextFor(entry)+location.pathname;
+  if(load?.key===key){if(mounted!=='loading')showLoad(load);return load.done}
+  dropLoad();
+  let resolve;const done=new Promise(settle=>resolve=settle);
+  load={key,route:location.pathname,entry,failures:0,timer:null,delay:null,running:false,error:null,done,resolve};
+  attempt(load);return done;
+}
+// Resolves waiters with null: they belong to a page the learner has left.
+function dropLoad(){
+  if(!load)return;
+  clearTimeout(load.timer);load.resolve(null);load=null;
+  if(mounted==='loading')remove();
+}
+// A navigation can finish before the DOM observer reports it: such a result belongs to no current page.
+const stale=current=>{if(load!==current)return true;if(location.pathname===current.route)return false;dropLoad();render();return true};
+function attempt(current){
+  // A scheduled retry or a stale Retry now button must not download or show a panel for a page the learner has left.
+  if(stale(current)||current.running)return;
+  clearTimeout(current.timer);current.running=true;showLoad(current);
+  store.load(current.entry.id,{gameId:gameId()}).then(value=>{
+    if(stale(current))return;
+    load=null;pack=value;context=contextFor(current.entry);current.resolve(value);
+    if(gameId())store.pinGame(pack.id,gameId());
+    remove();render();
+    // Warm-cache practice never waits for the content host. Apply updates to the next set.
+    if(!gameId())store.refresh(pack.id).catch(()=>{});
+  },error=>{
+    if(stale(current))return;
+    // Delays count from the failure, so a slow download never overlaps its own retry.
+    current.running=false;current.error=error;current.delay=retryDelay(error,++current.failures);
+    if(current.delay!=null)current.timer=setTimeout(()=>attempt(current),current.delay);
+    showLoad(current);
+  });
+}
+function showLoad(current){
+  const error=current.running?null:current.error,others=packs.filter(item=>item.practiceMapId&&item.id!==current.entry.id);
+  if(!document.body)return;
+  // Clue-free on every page, so the escape actions exist while loading too.
+  loadingPanel(current.entry,{error:error&&loadMessage(error,{delay:current.delay,others:others.length>0}),
+    onRetry:error&&canRetry(error)?()=>attempt(current):null,onImport:importPack,packs:others,onChoosePack:choosePack});
+  mounted='loading';
+}
 // GeoGuessr mutates the DOM continuously; reconcile at most once per frame instead of once per mutation batch.
 let renderQueued=false;
 function scheduleRender() {
@@ -102,6 +171,7 @@ function scheduleRender() {
   renderQueued=true;requestAnimationFrame(()=>{renderQueued=false;render()});
 }
 function render() {
+  if(load&&load.route!==location.pathname)dropLoad();
   const currentGame=gameId();
   const frameworkState=unsafeWindow.GeoGuessrEventFramework?.state;
   const state=gameStates.get(currentGame)??(lastState?.current_game_id===currentGame?lastState:null)??(frameworkState?.current_game_id===currentGame?frameworkState:null);
@@ -114,29 +184,15 @@ function render() {
     if(mounted)remove();return;
   }
   const selected=packForPage(packs,location.pathname,state);
-  if(!selected){if(offerBinding())return;if(mounted||loading)remove();loading='';return;}
+  if(!selected){if(offerBinding())return;if(mounted)remove();return;}
   const wanted=contextFor(selected);
-  if(context!==wanted){
-    if(loading===wanted)return;
-    loading=wanted;const route=location.pathname;
-    if(!gameId())loadingPanel(selected,{onImport:importPack});
-    store.load(selected.id,{gameId:gameId()}).then(value=>{
-      // A navigation finished first: release the lock so that page (or a later return here) loads afresh.
-      if(location.pathname!==route){if(loading===wanted)loading='';return}
-      pack=value;context=wanted;loading='';
-      if(gameId())store.pinGame(pack.id,gameId());
-      remove();render();
-      // Warm-cache practice never waits for the content host. Apply updates to the next set.
-      if(!gameId())store.refresh(pack.id).catch(()=>{});
-    }).catch(error=>{if(loading===wanted)loading='';if(location.pathname===route)loadingPanel(selected,{error:error.message,onRetry:()=>{loading='';render()},onImport:importPack})});
-    return;
-  }
+  if(context!==wanted){loadFor(selected);return}
   commitPendingReview(state);
   const mapPage=location.pathname===`/maps/${pack.practiceMapId}`||location.pathname===`/map-maker/${pack.practiceMapId}`;
   if(mapPage){
     if(startPreparedGame()){if(mounted!=='launch'){loadingPanel(pack,{message:'Starting your next set…'});mounted='launch'}return}
     if(mounted==='start'||mounted==='quick')return;
-    startPanel(pack,{onNext:prepare,attempts:history(),getAttempts:history,packs:packs.filter(item=>item.practiceMapId),onChoosePack:id=>go(`/maps/${packs.find(item=>item.id===id).practiceMapId}`),
+    startPanel(pack,{onNext:prepare,attempts:history(),getAttempts:history,packs:packs.filter(item=>item.practiceMapId),onChoosePack:choosePack,
       onQuickCheck:()=>{mounted='quick';quickCheckPanel(pack,quickCheckQueue(pack,history()),{
         onKnown:skillId=>GM_setValue(key('attempts'),recordKnown(pack,history(),skillId)),onDone:()=>{remove();render()}})},
       onExport:()=>download({packId:pack.id,attempts:history(),exposures:exposures(),previousDraft:GM_getValue(key('previous-draft'),null),pendingBackup:GM_getValue(key('pending-backup'),null)},`fieldwork-progress-${pack.id}.json`),
@@ -187,16 +243,21 @@ function receiveState(state) {
   gameStates.set(state.current_game_id,state);
   stateQueue=stateQueue.then(async()=>{
     if(gameId()!==state.current_game_id)return;
-    const value=await store.load(selected.id,{gameId:state.current_game_id});
+    // Until content is loaded, join the page's shared load: it owns retries and the error panel.
+    const value=context===contextFor(selected)?await store.load(selected.id,{gameId:state.current_game_id}):await loadFor(selected);
     // A navigation can finish during the download. Never show an old game's card there.
-    if(gameId()!==state.current_game_id)return;
-    pack=value;context=contextFor(selected);loading='';store.pinGame(pack.id,state.current_game_id);
+    if(!value||gameId()!==state.current_game_id)return;
+    pack=value;context=contextFor(selected);store.pinGame(pack.id,state.current_game_id);
     commitPendingReview(state);lastState=state;if(document.body)render();
-  }).catch(error=>{loading='';if(document.body&&gameId()===state.current_game_id)loadingPanel(selected,{error:error.message,onRetry:()=>receiveState(state),onImport:importPack})});
+  }).catch(error=>console.warn('Fieldwork could not apply a game response.',error));
   return stateQueue;
 }
 // Subscribe before DOMContentLoaded: the initial game response can arrive first.
 const acceptData=data=>{const state=stateFromGameData(data);if(state)receiveState(state)};
-gameResponses?.addEventListener('received_data',event=>acceptData(event.detail));
-observeGameResponses(unsafeWindow,acceptData);
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+function startupFailed(){loadingPanel({title:'Fieldwork could not start'},{error:plainMessage(startupError),onRetry:()=>location.reload()});mounted='loading'}
+if(store){
+  gameResponses?.addEventListener('received_data',event=>acceptData(event.detail));
+  observeGameResponses(unsafeWindow,acceptData);
+}
+const begin=store?start:startupFailed;
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',begin,{once:true});else begin();
