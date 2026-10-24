@@ -143,7 +143,7 @@ function referenceKeys(reference: string) {
 export function planPractice(
   pack: PracticePack,
   attempts: Attempt[],
-  { size = 5, now = Date.now(), seenLocationRefs = [], previousSetLocationRefs = [] }: { size?: number; now?: Clock; seenLocationRefs?: string[]; previousSetLocationRefs?: string[] } = {},
+  { size = 5, now = Date.now(), seenLocationRefs = [], previousSetLocationRefs = [], learn = false }: { size?: number; now?: Clock; seenLocationRefs?: string[]; previousSetLocationRefs?: string[]; learn?: boolean } = {},
 ): Plan {
   const nowMs = new Date(now).getTime();
   if (!Number.isFinite(nowMs)) throw new Error('Invalid current date.');
@@ -296,6 +296,15 @@ export function planPractice(
     selected.push(location); focusSkills.push(skill); options.push(eligible);
     familyCounts.set(family(skill), (familyCounts.get(family(skill)) ?? 0) + 1); usedPanoramas.add(location.panoId ?? location.id);
   }};
+  if (learn) {
+    // Learn mode: clues missed elsewhere (duels) but never played here, most-missed first, then new clues in
+    // curriculum order. Reviews only fill what is left.
+    addTargets(ranked.filter(skill => bySkill.has(skill.id) && !restingTargets.has(skill.id)
+      && bySkill.get(skill.id)!.every(attempt => attempt.feedbackSource === 'missed-elsewhere'))
+      .sort((a, b) => bySkill.get(b.id)!.length - bySkill.get(a.id)!.length
+        || (a.curriculum?.rank ?? Number.MAX_SAFE_INTEGER) - (b.curriculum?.rank ?? Number.MAX_SAFE_INTEGER)), limit);
+    addTargets(introductions.filter(skill => !restingTargets.has(skill.id)), limit);
+  }
   const dueReviews = ranked.filter(skill => !isNew(skill) && !restingTargets.has(skill.id) && urgency(skill) > 0);
   // Bounded waiting: the longest-overdue due review is placed first and counts toward its scope's one-per-set quota,
   // so misses lead the rest but cannot starve it.
@@ -326,7 +335,8 @@ export function planPractice(
   // GeoGuessr chooses its own round order; do not publish a syllabus-ordered coordinate list.
   selected.sort((a, b) => hash(':order:' + a.id) - hash(':order:' + b.id));
   const reasons = [progression.message,
-    `Due reviews first; up to ${progression.newLimit} new clues fill the rest. Cold starts and family/country constraints can require more.`,
+    learn ? 'Learn mode: clues you missed in duels first, then new clues in curriculum order; reviews wait.'
+      : `Due reviews first; up to ${progression.newLimit} new clues fill the rest. Cold starts and family/country constraints can require more.`,
     'Targets practised in the previous set within 20 hours rest for one set when enough other location-backed clues are available, including after a miss.',
     `${new Set(focusSkills.map(family)).size} clue families selected (at most ${MAX_PER_FAMILY} clues each); ${selected.filter(location => !aliases(location).some(key => observed.has(key))).length} unseen panoramas.`,
     'Assumed recognition can guide practice, but does not establish verified mastery.'];

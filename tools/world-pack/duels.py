@@ -5,7 +5,7 @@ Personal data: everything is written under WORLD_PACK_DATA/duels/ (never in the 
   fetch     every duel in your GeoGuessr activity feed (ranked and unranked) with its rounds from the game server, needs GG_NCFA (the _ncfa cookie) in the env
   rounds    every round with its result (lost = your team scored below the opponent outside a healing round)
   classify  small model (CURATE_MODEL, default gpt-6-luna) looks at what you could see and names the visible clues
-  export    duels/missed-clues.json for the local build (`missedCluesPaths` in .fieldwork.local.json): lost rounds only
+  export    duels/missed-clues.json for the local build (`missedCluesPaths` in .fieldwork.local.json): rounds you lost or guessed more than FAR_KM away
   report    duels/report.json: where you lose, which countries you confuse, which clues you miss and which you use
 Usage: WORLD_PACK_DATA=<caches> python3 tools/world-pack/duels.py fetch|rounds|classify [LIMIT]|export|report
 """
@@ -219,14 +219,18 @@ def current_judgements():
             if r['id'] in rounds and r.get('inputs') == current.get(rounds[r['id']]['countryCode'])}
 
 
+FAR_KM = 500
+
+
 def export():
-    """One missed observation per (lost round, clue) whose clue is playable in the World pack."""
+    """One missed observation per (missed round, clue) whose clue is playable in the World pack. A round is missed
+    when you lost it or your guess was more than FAR_KM away (a won round can still be a big miss)."""
     rounds = {r['id']: r for r in json.loads((OUT / 'rounds.json').read_text())}
     bank = {b['topicId']: b for b in json.loads((HERE / 'clue-bank.json').read_text())}
     missed = []
     for rec in current_judgements().values():
         r = rounds[rec['id']]
-        if not r['lost']:
+        if not (r['lost'] or (r['myGuess'].get('distance') or 0) > FAR_KM * 1000):
             continue
         for c in rec['clues']:
             b = bank[c['topicId']]

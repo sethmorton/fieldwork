@@ -12,6 +12,8 @@ export type Attempt = {
   reason: string;
   /** Set only by "Knew it" (result card or quick check); every other success replays as Good. */
   grade?: 'easy';
+  /** 'missed-elsewhere' marks a miss imported from outside Fieldwork (a duel), not a round played here. */
+  feedbackSource?: string;
 };
 type Clock = Date | string | number;
 export type SkillStatus = {
