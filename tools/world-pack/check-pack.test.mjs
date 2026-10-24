@@ -32,18 +32,19 @@ test('world practice opens on regional clues, not a country-identification gate'
  assert.equal(set.selectedLocations.length,5);
  assert.ok(set.focus.some(f=>skillOf.get(f.id).phase==='Regional clues'));
 });
-test('new clues come landscape and poles first, then other regional, then country identification, each by estimated ranked No Move detection, then foundational, useful, niche',()=>{
- const order={foundational:0,useful:1,niche:2},group={'landscape-and-poles':0,'other-regional':1,'country-identification':2};
+test('new clues come landscape, poles and plates first (tree and plant clues leading), then other regional, then country identification, each by estimated ranked No Move detection, then foundational, useful, niche',()=>{
+ const order={foundational:0,useful:1,niche:2},group={'landscape-poles-plates':0,'other-regional':1,'country-identification':2};
  const ranked=pack.skills.filter(s=>s.availability==='available').sort((a,b)=>a.curriculum.rank-b.curriculum.rank);
  for(const s of ranked){
-  const landscapeOrPole=s.practiceFamily==='landscape-and-vegetation'||s.practiceFamily==='utility-poles';
-  const expected=landscapeOrPole?'landscape-and-poles':s.curriculum.source.guideStage==='country-identification'?'country-identification':'other-regional';
+  const first=['landscape-and-vegetation','utility-poles','phone-and-plates'].includes(s.practiceFamily);
+  const expected=first?'landscape-poles-plates':s.curriculum.source.guideStage==='country-identification'?'country-identification':'other-regional';
   assert.equal(s.curriculum.source.priorityGroup,expected,s.id);
  }
  for(let i=1;i<ranked.length;i++){
   const [a,b]=[ranked[i-1].curriculum.source,ranked[i].curriculum.source];
-  assert.ok(group[a.priorityGroup]<group[b.priorityGroup]||(a.priorityGroup===b.priorityGroup&&(a.acowPer1000>b.acowPer1000
-   ||(a.acowPer1000===b.acowPer1000&&order[a.utilityTier]<=order[b.utilityTier]))),ranked[i].id);
+  assert.ok(group[a.priorityGroup]<group[b.priorityGroup]||(a.priorityGroup===b.priorityGroup&&(a.plant&&!b.plant
+   ||(a.plant===b.plant&&(a.acowPer1000>b.acowPer1000
+   ||(a.acowPer1000===b.acowPer1000&&order[a.utilityTier]<=order[b.utilityTier]))))),ranked[i].id);
  }
  // A scored build introduces clues ranked games show; a build without acow/clue-value.json keeps the curated order.
  const set=makeNextSet(pack,[],{now,seenLocationRefs:[],previousSetLocationRefs:[]});

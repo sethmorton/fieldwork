@@ -74,6 +74,8 @@ export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],g
     const status=text(source,'p','Loading source explanation…','muted');
     loadNote(currentSkill).then(skill=>{if(!source.isConnected)return;source.replaceChildren();clue(source,skill,pack.notesSourceUrl)}).catch(()=>{status.textContent='Explanation unavailable. Use the original source link; your feedback still saves.'});
   }
+  // A location can say what to look for in this exact panorama (e.g. what was visible in a duel round you missed).
+  if(round.location.note)text(section,'p',round.location.note);
   if(round.location.assessmentEligible===false)text(section,'p','Teaching example · practice credit only.','muted');
   text(section,'p',practiceFeedback(attempts,round),'muted');
   text(section,'p','Moving on saves “spotted it.” “Knew it” skips the short repeats and checks back later in a real round.','muted');

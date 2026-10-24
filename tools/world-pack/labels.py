@@ -2,8 +2,9 @@
 """Small-model labels for the judgement calls the pipeline needs about guide text (no pattern matching).
 
   labels.py   # per clue: is there something to spot in one panorama? which guide links are comparisons?
+              # per landscape clue: a plant, a terrain, or only a broad overview?
 
-Writes labels/clues.json (cached per clue + text fingerprint; resumable). Learnable Meta meta -> tip mapping and
+Writes labels/clues.json and labels/landscape.json (cached per clue + text fingerprint; resumable). Learnable Meta meta -> tip mapping and
 per-country tiers live in curate.py.
 """
 import concurrent.futures as cf
@@ -115,6 +116,42 @@ def clues():
     run(jobs, OUT / 'clues.json', worker)
 
 
+LANDSCAPE_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['results'], 'properties': {'results': {
+    'type': 'array', 'items': {'type': 'object', 'additionalProperties': False, 'required': ['n', 'subject'],
+                               'properties': {'n': {'type': 'integer'},
+                                              'subject': {'type': 'string', 'enum': ['plant', 'terrain', 'broad']}}}}}}
+LANDSCAPE_PROMPT = """Each numbered item is a landscape or vegetation tip from the Plonk It GeoGuessr guide.
+For each item give subject:
+- plant: it teaches a specific tree, palm, shrub, grass, crop or other plant (named, or clearly described) and where it grows.
+- terrain: it teaches a specific landform, rock, soil colour or scenery type found in a named area (red soil, tall mesas,
+  a flat plain in a named region).
+- broad: it only gives an overview with nothing specific to recognise: a density, elevation, climate or topographic map,
+  or a general statement such as "the country is mostly flat and green" or "the north is drier than the south".
+
+{items}
+
+Return exactly {n} results, n=1..{n}."""
+
+
+def landscape():
+    """Per landscape clue: does it teach a plant, a terrain, or only a broad overview?"""
+    kinds = {f'plonkit:{slug}:{r["tipId"]}': r['kind'] for slug, v in json.loads((OUT / 'curation.json').read_text()).items()
+             for r in v['order']}
+    jobs = [{'key': c['topicId'], 'clue': c, 'fingerprint': fingerprint(c['text'], LANDSCAPE_PROMPT)}
+            for c in json.loads((HERE / 'clues.json').read_text()) if kinds.get(c['topicId']) == 'landscape-and-vegetation']
+
+    def worker(batch):
+        items = [f"Item {n} ({j['clue']['title']}): {j['clue']['text'][:900]}" for n, j in enumerate(batch, 1)]
+        try:
+            answers = ask(LANDSCAPE_PROMPT.format(items='\n\n'.join(items), n=len(batch)), LANDSCAPE_SCHEMA)
+        except Exception:
+            return {}
+        return {j['key']: {'subject': answers[n]['subject'], 'model': MODEL, 'fingerprint': j['fingerprint']}
+                for n, j in enumerate(batch, 1) if n in answers}
+    run(jobs, OUT / 'landscape.json', worker)
+
+
 if __name__ == '__main__':
     OUT.mkdir(exist_ok=True)
     clues()
+    landscape()

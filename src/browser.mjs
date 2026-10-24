@@ -56,7 +56,7 @@ const importPack=async imported=>{
 const key=(suffix,id=pack.id)=>`fieldwork:${id}:${suffix}`;
 const history=(id=pack.id)=>GM_getValue(key('attempts',id),[]);
 const exposures=(id=pack.id)=>GM_getValue(key('exposures',id),[]);
-const nextSet=(subject=pack)=>makeNextSet(subject,history(subject.id),{size:5,learn:GM_getValue(key('learn-mode',subject.id),false),seenLocationRefs:exposures(subject.id).map(item=>item.locationRef),previousSetLocationRefs:GM_getValue(key('active-set',subject.id),null)?.locationIds??[]});
+const nextSet=(subject=pack)=>makeNextSet(subject,history(subject.id),{size:5,learn:GM_getValue(key('learn-mode',subject.id),false),focus:catalog.find(entry=>entry.id===subject.id)?.focusClues,seenLocationRefs:exposures(subject.id).map(item=>item.locationRef),previousSetLocationRefs:GM_getValue(key('active-set',subject.id),null)?.locationIds??[]});
 function commitPendingReview(nextState,advance=false) {
   if(!pack)return;
   const pending=GM_getValue(key('pending-review'),null);

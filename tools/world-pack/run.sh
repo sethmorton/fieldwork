@@ -17,7 +17,7 @@ for f in "$DATA/gap/subdivisions.json" "$INPUTS/location-database/foundations/al
   [ -f "$f" ] || { echo "missing prerequisite $f" >&2; exit 1; }
 done
 python3 collect.py                                   # writes clues.json (first pass)
-python3 labels.py                                    # small model: observable? which guide links are comparisons?
+python3 labels.py                                    # small model: observable? comparison links? landscape: plant, terrain or broad?
 python3 harvest_lm.py metas                          # shared Learnable Meta meta lists (cached per map)
 python3 harvest_lm.py index                          # flat meta list for curation
 python3 curate.py visual                             # small model describes each guide image (local refs only)

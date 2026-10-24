@@ -24,7 +24,7 @@ bc = collect.bc
 
 PER_CLUE = 3
 MIN_PLAYABLE = 2  # Fieldwork convention: a target needs two distinct panoramas (docs/CONTENT.md)
-PRIORITY_GROUPS = ('landscape-and-poles', 'other-regional', 'country-identification')
+PRIORITY_GROUPS = ('landscape-poles-plates', 'other-regional', 'country-identification')
 SETTING_RANK = {'rural': 0, 'suburban': 1, 'urban': 2}
 SOURCE_RANK = {'plonkit-example-link': 0, 'learnable-meta-export': 1, 'learnable-meta-catalogue': 2, 'geohints': 2,
                'geometas': 2, 'same-spot': 2, 'vali-region': 3, 'neighbour': 3, 'acow-sample': 3}
@@ -66,6 +66,7 @@ def main():
     topics = {t['sourceTopicId']: (u, t) for u in inventory['units'] for t in u['topics']}
     clue_text = {c['topicId']: c['text'] for c in clues}
     clue_labels = json.loads((HERE / 'labels/clues.json').read_text())
+    landscape_subject = {k: v['subject'] for k, v in json.loads((HERE / 'labels/landscape.json').read_text()).items()}
     # A verdict counts only for the exact candidate it reviewed: the id fingerprints clue text, source, panorama and cameras.
     candidates = {c['id']: c for p in ('candidates.jsonl', 'gap/candidates.jsonl', 'gap/rural-candidates.jsonl', 'near/candidates.jsonl', 'acow/candidates.jsonl')
                   for c in read_jsonl(HERE / p)
@@ -121,9 +122,9 @@ def main():
         return kind == 'infrastructure' and 'utility-poles' in concepts and 'bollards' not in concepts
 
     def priority_group(clue, kind):
-        """0: landscape and utility poles at any stage (Seth's ranked No Move priority, so country-identification
-        poles and landscape stay first as before), 1: other regional clues, 2: other country identification."""
-        if kind == 'landscape-and-vegetation' or is_pole(clue, kind):
+        """0: landscape, utility poles, plates and phone codes at any stage (Seth's ranked No Move priority, so
+        country-identification ones stay first too), 1: other regional clues, 2: other country identification."""
+        if kind in ('landscape-and-vegetation', 'phone-and-plates') or is_pole(clue, kind):
             return 0
         return 2 if clue['stage'] == 'country-identification' else 1
 
@@ -133,15 +134,18 @@ def main():
         interleaved by ACoW country weight) for clues seen once or never."""
         tier, kind, position = curated.get(clue['topicId'], ('niche', 'other', 999))
         utility_tier[clue['topicId']] = tier
-        return (priority_group(clue, kind), -acow_value.get(clue['topicId'], 0),
+        # Trees and plants lead landscape and poles (Seth: learn where the different trees grow).
+        return (priority_group(clue, kind), landscape_subject.get(clue['topicId']) != 'plant', -acow_value.get(clue['topicId'], 0),
                 TIERS.index(tier), clue['stage'] == 'specialist', KIND_GROUP[kind], position / (0.5 + math.log1p(weight) / max_weight))
 
     def is_practice(clue):
         """Every clue with something to spot in one panorama (small-model labels), except tips curated as skip.
         Country-identification clues outside landscape and poles are practice too but come last (priority_group), so
-        they reach a learner mainly through clues missed in duels."""
+        they reach a learner mainly through clues missed in duels. Broad landscape overviews (density, elevation or
+        climate maps, "mostly flat") teach nothing specific to recognise and stay in the bank only."""
         tier = curated.get(clue['topicId'], ('niche',))[0]
-        return tier != 'skip' and clue_labels.get(clue['topicId'], {}).get('observable', False)
+        return (tier != 'skip' and clue_labels.get(clue['topicId'], {}).get('observable', False)
+                and landscape_subject.get(clue['topicId']) != 'broad')
 
     # The engine resolves a published round back to its clue by panoId, so a panorama may serve one clue only.
     # Practice clues claim panoramas before bank-only ones, regional before country identification; inside each,
@@ -213,7 +217,8 @@ def main():
                                       'guideUpdatedAt': unit.get('guideUpdatedAt'), 'mapping': 'topic-match',
                                       'utilityTier': utility_tier[clue['topicId']],
                                       'acowPer1000': acow_value.get(clue['topicId'], 0),
-                                      'priorityGroup': PRIORITY_GROUPS[order_key[sid][0]]}},
+                                      'priorityGroup': PRIORITY_GROUPS[order_key[sid][0]],
+                                      'plant': not order_key[sid][1]}},
         })
         for loc in chosen:
             locations.append({'id': f"pk:{clue['slug']}:{topic['tipId']}:{loc['panoId']}", 'panoId': loc['panoId'],

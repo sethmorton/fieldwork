@@ -5,7 +5,7 @@ Personal data: everything is written under WORLD_PACK_DATA/duels/ (never in the 
   fetch     every duel in your GeoGuessr activity feed (ranked and unranked) with its rounds from the game server, needs GG_NCFA (the _ncfa cookie) in the env
   rounds    every round with its result (lost = your team scored below the opponent outside a healing round)
   classify  small model (CURATE_MODEL, default gpt-6-luna) looks at what you could see and names the visible clues
-  export    duels/missed-clues.json for the local build (`missedCluesPaths` in .fieldwork.local.json): rounds you lost or guessed more than FAR_KM away
+  export    duels/missed-clues.json (missed clues, plus per-clue focus weights by points lost per country) for the local build (`missedCluesPaths` in .fieldwork.local.json): rounds you lost or guessed more than FAR_KM away
   report    duels/report.json: where you lose, which countries you confuse, which clues you miss and which you use
 Usage: WORLD_PACK_DATA=<caches> python3 tools/world-pack/duels.py fetch|rounds|classify [LIMIT]|export|report
 """
@@ -151,9 +151,9 @@ def practice_clues():
     return by_code, line
 
 
-def visible_clues(images, country, context, candidates, line):
+def visible_clues(images, country, context, candidates, line, source='Plonk It'):
     """Small-model judgement: which of these practice clues are clearly visible in the frames. None if the call failed."""
-    prompt = (f"{context}\nFrom the numbered Plonk It clues for {country} below, list only clues that are actually visible in "
+    prompt = (f"{context}\nFrom the numbered {source} clues for {country} below, list only clues that are actually visible in "
               f"the frames and would have pointed to the true region (or country), best first, at most {MAX_CLUES}. For each "
               "give the tip id in brackets, the frame number and what exactly is visible and where in the frame. Only list a "
               "clue when the specific thing it describes is clearly there (a road-line clue needs visible road lines, a pole "
@@ -194,13 +194,7 @@ def classify(limit=None):
         stamp = {'id': r['id'], 'inputs': current.get(r['countryCode'])}
         if not candidates or not images:
             return {**stamp, 'clues': [], 'missedNote': '', 'skipped': 'no practicable clues' if images else 'panorama gone'}
-        seen = 'only frame 1 (no moving, no turning)' if r['movement'].get('forbidRotating') else f'frames 1-{len(images)} (it could turn around)'
-        guess = (f"The player guessed {r['myGuessCountry'] or 'somewhere'} at {round((r['myGuess']['distance'] or 0) / 1000)} km away"
-                 if r['myGuess'].get('lat') is not None else 'The player did not guess')
-        context = (f"A GeoGuessr player {'lost' if r['lost'] else 'played'} this duel round. The true location is in {r['country']} "
-                   f"({r['view']['lat']:.3f}, {r['view']['lng']:.3f}). {guess}; the opponent was "
-                   f"{round((r['theirDistance'] or 0) / 1000)} km away. The player could see {seen}.")
-        result = visible_clues(images, r['country'], context, candidates, line)
+        result = visible_clues(images, r['country'], context(r, len(images)), candidates, line)
         return result and {**stamp, **result}
 
     with open(out, 'a') as f, cf.ThreadPoolExecutor(curate.WORKERS) as pool:
@@ -209,6 +203,15 @@ def classify(limit=None):
                 f.write(json.dumps(rec, ensure_ascii=False) + '\n')
                 f.flush()
     print(json.dumps({'judged': len(current_judgements())}))
+
+
+def context(r, frame_count):
+    seen = 'only frame 1 (no moving, no turning)' if r['movement'].get('forbidRotating') else f'frames 1-{frame_count} (it could turn around)'
+    guess = (f"The player guessed {r['myGuessCountry'] or 'somewhere'} at {round((r['myGuess']['distance'] or 0) / 1000)} km away"
+             if r['myGuess'].get('lat') is not None else 'The player did not guess')
+    return (f"A GeoGuessr player {'lost' if r['lost'] else 'played'} this duel round. The true location is in {r['country']} "
+            f"({r['view']['lat']:.3f}, {r['view']['lng']:.3f}). {guess}; the opponent was "
+            f"{round((r['theirDistance'] or 0) / 1000)} km away. The player could see {seen}.")
 
 
 def current_judgements():
@@ -222,26 +225,44 @@ def current_judgements():
 FAR_KM = 500
 
 
+def is_missed(r):
+    """A competitive round (ranked or competitive-mode duel; unranked games include city maps like San Francisco)
+    that you lost, or where your guess was more than FAR_KM away (a won round can still be a big miss)."""
+    return r['mode'] not in (None, 'None') and (r['lost'] or (r['myGuess'].get('distance') or 0) > FAR_KM * 1000)
+
+
+def round_misses(r, rec, bank):
+    """The judged clues of a missed round that count as misses: playable practice clues, and country clues only when
+    the guess landed in the wrong country."""
+    if not is_missed(r):
+        return []
+    right_country = r['myGuessCountry'] == r['country']
+    return [c for c in rec['clues'] if bank[c['topicId']]['practice'] and bank[c['topicId']]['status'] == 'playable'
+            and not (bank[c['topicId']]['stage'] == 'country-identification' and right_country)]
+
+
 def export():
-    """One missed observation per (missed round, clue) whose clue is playable in the World pack. A round is missed
-    when you lost it or your guess was more than FAR_KM away (a won round can still be a big miss)."""
+    """One missed observation per (missed round, clue) whose clue is playable in the World pack (round_misses)."""
     rounds = {r['id']: r for r in json.loads((OUT / 'rounds.json').read_text())}
     bank = {b['topicId']: b for b in json.loads((HERE / 'clue-bank.json').read_text())}
     missed = []
     for rec in current_judgements().values():
         r = rounds[rec['id']]
-        if not (r['lost'] or (r['myGuess'].get('distance') or 0) > FAR_KM * 1000):
-            continue
-        for c in rec['clues']:
-            b = bank[c['topicId']]
-            # A country clue only counts as missed when the guess landed in the wrong country.
-            right_country = r['myGuessCountry'] == r['country']
-            if b['practice'] and b['status'] == 'playable' and not (b['stage'] == 'country-identification' and right_country):
-                _, slug, tip = c['topicId'].split(':')
-                missed.append({'id': f"{rec['id']}:{tip}", 'skillId': f'world:pk:{slug}:{tip}',
-                               'occurredAt': rounds[rec['id']]['endTime'], 'reason': c['evidence']})
-    (OUT / 'missed-clues.json').write_text(json.dumps({'packId': 'world-plonkit-clue-bank', 'missed': missed}, ensure_ascii=False))
-    print(json.dumps({'missed': len(missed), 'clues': len({m['skillId'] for m in missed})}))
+        for c in round_misses(r, rec, bank):
+            _, slug, tip = c['topicId'].split(':')
+            missed.append({'id': f"{rec['id']}:{tip}", 'skillId': f'world:pk:{slug}:{tip}',
+                           'occurredAt': r['endTime'], 'reason': c['evidence']})
+    # Focus: every playable practice clue weighted by the points you have been behind in its country, so learn mode
+    # introduces the countries you lose most in first.
+    behind = {}
+    for r in rounds.values():
+        behind[r['countryCode']] = behind.get(r['countryCode'], 0) + max(0, r['theirScore'] - r['myScore'])
+    total = sum(behind.values()) or 1
+    focus = {f"world:pk:{t.split(':')[1]}:{t.split(':')[2]}": round(behind[code] / total, 5)
+             for code, ts in practice_clues()[0].items() if behind.get(code) for t in ts if bank[t]['status'] == 'playable'}
+    (OUT / 'missed-clues.json').write_text(json.dumps({'packId': 'world-plonkit-clue-bank', 'missed': missed, 'focus': focus},
+                                                      ensure_ascii=False))
+    print(json.dumps({'missed': len(missed), 'clues': len({m['skillId'] for m in missed}), 'focusClues': len(focus)}))
 
 
 def report():
