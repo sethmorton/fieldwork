@@ -146,15 +146,16 @@ you won but guessed more than 500 km away count as missed too.
 
 ## Your own map from the duel rounds you missed
 
-`tools/world-pack/misses.py` turns the rounds you missed into a separate practice
-pack: each clue you missed, played on the panorama you missed it on (facing where
-the clue was visible, with a note saying what was there), plus other examples of
-the same clue. For missed rounds no Plonk It clue explains, a small model checks
-the Learnable Meta metas of that country that Plonk It does not cover (existing
-community metas only). `guide` writes a study guide to read before practising.
+`tools/world-pack/misses.py` turns the competitive rounds you missed into a separate
+practice pack: one item per round, played on that round's own panorama (facing where
+the clue was visible, with a note saying what was there), poles first, then landscape.
+For missed rounds no Plonk It clue explains, a small model checks the Learnable Meta
+metas of that country that Plonk It does not cover (existing community metas only).
+`verify` checks that every panorama is one of your own missed rounds; `guide` writes
+a study guide from the same rounds.
 
 ```sh
-for step in lm pack; do WORLD_PACK_DATA=/path/to/world-map python3 tools/world-pack/misses.py $step; done
+for step in lm pack verify; do WORLD_PACK_DATA=/path/to/world-map python3 tools/world-pack/misses.py $step; done
 WORLD_PACK_DATA=/path/to/world-map python3 tools/world-pack/misses.py guide ~/Desktop/geoguessr
 ```
 

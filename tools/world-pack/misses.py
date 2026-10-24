@@ -4,15 +4,14 @@
 Personal data: everything is read from and written to WORLD_PACK_DATA/duels/ (never the repo).
   lm     for missed rounds no Plonk It clue explains: a small model checks the round against the Learnable Meta metas of
          that country that no Plonk It tip covers (known community metas only, nothing invented) -> duels/lm.jsonl
-  pack   duels/pack.json: every clue you missed, practised on the panorama you missed it on (facing the clue, with what
-         was visible as the round note) plus the World pack's and Learnable Meta's other examples of the same clue
-  guide  <DIR>/guide.html: a study guide to read before practising, country by country in the order you lose points:
-         every utility pole, plate and phone code, tree and plant and terrain clue, the ones you missed first, each
-         missed one with the duel panorama you missed it on
+  pack   duels/pack.json: one practice item per missed round, played on that round's own panorama (facing the clue,
+         with what was visible as the round note), poles first, then landscape, then the rest
+  verify check that every panorama in the pack is one of your own missed duel rounds, with a clue from its country
+  guide  <DIR>/guide.html: a study guide built only from those rounds, utility poles then landscape, country by
+         country in the order you lose points, each clue with every round you missed it in
 Run after duels.py classify. Add the pack to .fieldwork.local.json additionalPacks with its own Fieldwork map.
-Usage: WORLD_PACK_DATA=<caches> python3 tools/world-pack/misses.py lm [LIMIT]|pack|guide DIR
+Usage: WORLD_PACK_DATA=<caches> python3 tools/world-pack/misses.py lm [LIMIT]|pack|verify|guide DIR
 """
-import collections
 import concurrent.futures as cf
 import html
 import json
@@ -105,32 +104,38 @@ def lm(limit=None):
     print(json.dumps({'gapRounds': len(key), 'judged': len(recs), 'withMeta': sum(bool(r['clues']) for r in recs)}))
 
 
-SCOPE_PROMPT = """Each numbered item is a Learnable Meta GeoGuessr meta for one country. For each give scope:
-- region: it narrows down where in the country you are (a state, region, area, or a feature found only in part of it).
-- country: it only tells you which country you are in.
+LM_PROMPT = """Each numbered item is a Learnable Meta GeoGuessr meta for one country. For each give:
+- scope: region if it narrows down where in the country you are (a state, region, area, or a feature found only in
+  part of it); country if it only tells you which country you are in.
+- kind: utility-poles (poles, pole markings, pole hardware); landscape (trees, plants, crops, soil, terrain, scenery);
+  other (roads, signs, bollards, houses, cars, plates and everything else).
 
 {items}
 
 Return exactly {n} results, n=1..{n}."""
+LM_SCHEMA = curate.schema({'n': {'type': 'integer'}, 'scope': {'type': 'string', 'enum': ['region', 'country']},
+                           'kind': {'type': 'string', 'enum': ['utility-poles', 'landscape', 'other']}})
 
 
-def scopes(metas):
-    """{metaId: 'region' | 'country'} for these metas (small model, cached in labels/lm-scope.json)."""
-    path = HERE / 'labels/lm-scope.json'
+def lm_labels(metas):
+    """{metaId: {'scope', 'kind'}} for these metas (small model, cached in labels/lm-labels.json)."""
+    path = HERE / 'labels/lm-labels.json'
     known = json.loads(path.read_text()) if path.exists() else {}
-    fp = {m['metaId']: curate.fingerprint(curate.MODEL, SCOPE_PROMPT, m['metaName'], m['note']) for m in metas}
+    fp = {m['metaId']: curate.fingerprint(curate.MODEL, LM_PROMPT, m['metaName'], m['note']) for m in metas}
     todo = list({m['metaId']: m for m in metas if known.get(str(m['metaId']), {}).get('fingerprint') != fp[m['metaId']]}.values())
     for i in range(0, len(todo), 15):
         batch = todo[i:i + 15]
         items = '\n'.join(f"Item {n}: {m['metaName']}: {text.plain(m['note'] or '')[:300]}" for n, m in enumerate(batch, 1))
-        got = curate.ask(SCOPE_PROMPT.format(items=items, n=len(batch)),
-                         curate.schema({'n': {'type': 'integer'}, 'scope': {'type': 'string', 'enum': ['region', 'country']}}))
-        for r in got['results']:
+        for r in curate.ask(LM_PROMPT.format(items=items, n=len(batch)), LM_SCHEMA)['results']:
             if 1 <= r['n'] <= len(batch):
                 m = batch[r['n'] - 1]
-                known[str(m['metaId'])] = {'scope': r['scope'], 'fingerprint': fp[m['metaId']]}
+                known[str(m['metaId'])] = {'scope': r['scope'], 'kind': r['kind'], 'fingerprint': fp[m['metaId']]}
         path.write_text(json.dumps(known))
-    return {int(k): v['scope'] for k, v in known.items()}
+    return {int(k): v for k, v in known.items()}
+
+
+# Seth's focus: poles first, then landscape (trees, plants, crops, terrain), then the rest.
+FOCUS = {'utility-poles': 0, 'landscape-and-vegetation': 1, 'agriculture': 1, 'lm:utility-poles': 0, 'lm:landscape': 1}
 
 
 def facing(r, frame):
@@ -138,184 +143,178 @@ def facing(r, frame):
     return r['view']['heading'] if r['movement'].get('forbidRotating') else (r['view']['heading'] + 90 * (frame - 1)) % 360
 
 
-def pack():
-    world = json.loads((REPO / 'content/world.json').read_text())
-    skills = {s['id']: s for s in world['skills'] if s['availability'] == 'available'}
-    world_locations = {}
-    for loc in world['locations']:
-        world_locations.setdefault(loc['skillIds'][0], []).append(loc)
+def missed_rounds():
+    """{round id: [(clue id, judged clue), ...]} best first: Plonk It clues that count as misses, else Learnable Meta
+    metas (region-scoped ones only when the guess was in the right country). Also returns the meta details and labels."""
     rounds = {r['id']: r for r in json.loads((OUT / 'rounds.json').read_text())}
     bank = {b['topicId']: b for b in json.loads((HERE / 'clue-bank.json').read_text())}
     by_country, line, meta = lm_candidates()
-    lm_examples = {}
-    for e in map(json.loads, (HERE / 'lm/exports.jsonl').read_text().splitlines()):
-        lm_examples[e['metaId']] = e['locations']
-
-    # Each missed round: its clues as skill ids, best first.
     picks = {}
     for rec in duels.current_judgements().values():
-        r = rounds[rec['id']]
-        for c in duels.round_misses(r, rec, bank):
+        for c in duels.round_misses(rounds[rec['id']], rec, bank):
             _, slug, tip = c['topicId'].split(':')
-            picks.setdefault(r['id'], []).append((f'world:pk:{slug}:{tip}', c))
+            picks.setdefault(rec['id'], []).append((f'world:pk:{slug}:{tip}', c))
     lm_recs = [rec for rec in lm_judgements(by_country, line).values() if rec['clues'] and rec['id'] not in picks]
-    scope = scopes([meta[int(c['topicId'].split(':')[2])] for rec in lm_recs for c in rec['clues']])
+    labels = lm_labels([meta[int(c['topicId'].split(':')[2])] for rec in lm_recs for c in rec['clues']])
     for rec in lm_recs:
         r = rounds[rec['id']]
         # As with Plonk It: a country-only meta is a miss only when the guess landed in the wrong country.
-        kept = [(f"duel:lm:{c['topicId'].split(':')[2]}", c) for c in rec['clues']
-                if r['myGuessCountry'] != r['country'] or scope[int(c['topicId'].split(':')[2])] == 'region']
+        kept = [(f"lm:{c['topicId'].split(':')[2]}", c) for c in rec['clues']
+                if r['myGuessCountry'] != r['country'] or labels[int(c['topicId'].split(':')[2])]['scope'] == 'region']
         if kept:
             picks[rec['id']] = kept
+    return rounds, picks, meta, labels
 
-    out_skills, locations, misses, used = {}, [], {}, set()
+
+def clue_skill(cid, world_skills, meta, labels, country):
+    """The clue as shown on a card: the World pack skill, or one built from a Learnable Meta meta."""
+    if cid in world_skills:
+        return world_skills[cid]
+    m = meta[int(cid.split(':')[1])]
+    url = f"https://learnablemeta.com/maps/{m['mapId']}"
+    return {'title': f"{country} · {m['metaName']}", 'phase': 'Regional clues' if labels[m['metaId']]['scope'] == 'region' else 'Country clues',
+            'practiceFamily': f"lm:{labels[m['metaId']]['kind']}", 'sourceNoteHtml': (m['note'] or '') + (m['footer'] or ''),
+            'notesCountry': country, 'imageUrls': m['images'][:2], 'source': {'title': f"Learnable Meta · {m['mapName']}", 'url': url},
+            'attributionHtml': f'From the Learnable Meta map <a href="{url}">{m["mapName"]}</a>.'}
+
+
+def pack():
+    """One skill per missed round, played on that round's own panorama only, so a full pass plays every round."""
+    world = json.loads((REPO / 'content/world.json').read_text())
+    world_skills = {s['id']: s for s in world['skills']}
+    rounds, picks, meta, labels = missed_rounds()
+    behind = duels.points_behind(rounds.values(), 'country')
+    skills, locations, used = [], [], set()
     for rid, clues in picks.items():
         r = rounds[rid]
-        for sid, _ in clues:
-            misses[sid] = misses.get(sid, 0) + 1
-            if sid in skills:
-                out_skills[sid] = skills[sid]
-            elif sid not in out_skills:
-                m = meta[int(sid.rsplit(':', 1)[1])]
-                url = f"https://learnablemeta.com/maps/{m['mapId']}"
-                out_skills[sid] = {
-                    # Scheduled with the regional clues (as the World pack does with country clues), so no country
-                    # gate holds them back; the phase and lmScope say what the meta actually narrows down.
-                    'id': sid, 'title': f"{r['country']} · {m['metaName']}", 'prerequisites': [],
-                    'phase': 'Regional clues' if scope[m['metaId']] == 'region' else 'Country clues',
-                    # One family per Learnable Meta map: at most two metas of the same map in a set.
-                    'practiceFamily': f"lm:{m['mapName']}", 'importance': 100, 'availability': 'available',
-                    'sourceNoteHtml': (m['note'] or '') + (m['footer'] or ''), 'notesCountry': r['country'],
-                    'imageUrls': m['images'][:2], 'source': {'title': f"Learnable Meta · {m['mapName']}", 'url': url},
-                    'attributionHtml': f'From the Learnable Meta map <a href="{url}">{m["mapName"]}</a>.',
-                    'curriculum': {'scope': 'within-country-regional', 'rank': 0, 'source': {'learnableMeta': m['metaId'], 'lmScope': scope[m['metaId']]}}}
-        sid, c = clues[0]
-        # The panorama you missed, facing where the clue was seen; one panorama serves one clue (the first round).
-        if r['view']['panoId'] in used:
+        if r['view']['panoId'] in used:  # one panorama serves one clue
             continue
         used.add(r['view']['panoId'])
-        locations.append({'id': rid, 'panoId': r['view']['panoId'], 'lat': r['view']['lat'], 'lng': r['view']['lng'],
-                          'heading': facing(r, c['frame']), 'pitch': 0, 'zoom': 0, 'skillIds': [sid], 'country': r['country'],
-                          'region': r['country'], 'assessmentEligible': False, 'note': f"In your duel: {c['evidence']}",
+        # The round's clue: a pole if one was visible, else landscape, else the model's best (Seth's focus).
+        cid, c = min(clues, key=lambda cc: FOCUS.get(clue_skill(cc[0], world_skills, meta, labels, r['country'])['practiceFamily'], 2))
+        clue = clue_skill(cid, world_skills, meta, labels, r['country'])
+        # Outside every country polygon (a coast): GeoGuessr's own country, as named by the clue's guide.
+        country = r['country'] or clue['notesCountry']
+        skills.append({k: v for k, v in clue.items() if k not in ('id', 'curriculum', 'availability', 'actualImportedLocationCount')} | {
+            'id': rid, 'prerequisites': [], 'importance': 100, 'availability': 'available',
+            'curriculum': {'scope': 'within-country-regional', 'rank': 0, 'source': {'clue': cid, 'game': r['gameId'], 'round': r['round']}}})
+        locations.append({'id': f'pano:{rid}', 'panoId': r['view']['panoId'], 'lat': r['view']['lat'], 'lng': r['view']['lng'],
+                          # Facing where the clue was seen.
+                          'heading': facing(r, c['frame']), 'pitch': 0, 'zoom': 0, 'skillIds': [rid], 'country': country,
+                          'region': country, 'assessmentEligible': False, 'note': f"In your duel: {c['evidence']}",
                           'provenance': {'kind': 'duel-round', 'lost': r['lost']}})
-    for sid, s in out_skills.items():
-        examples = world_locations.get(sid, []) if sid in skills else [
-            {'id': f"lm:{loc['panoId']}", 'panoId': loc['panoId'], 'lat': loc['lat'], 'lng': loc['lng'],
-             'heading': loc.get('heading') or 0, 'pitch': loc.get('pitch') or 0, 'zoom': loc.get('zoom') or 0, 'skillIds': [sid],
-             'country': s['notesCountry'], 'region': s['notesCountry'], 'assessmentEligible': False,
-             'provenance': {'kind': 'learnable-meta-example'}}
-            for loc in lm_examples.get(s['curriculum']['source']['learnableMeta'], [])[:5]]
-        for loc in examples:
-            if loc['panoId'] not in used:
-                used.add(loc['panoId'])
-                locations.append(loc)
-
-    # A clue with no panorama stays listed (the guide shows it) but cannot be practised.
-    located = {loc['skillIds'][0] for loc in locations}
-    for sid in out_skills:
-        if sid not in located:
-            out_skills[sid] = {**out_skills[sid], 'availability': 'needs-locations'}
-    # Most-missed first; equal counts by the points you lost in that country (competitive rounds).
-    behind = duels.points_behind(rounds.values(), 'country')
-    order = sorted(out_skills, key=lambda sid: (-misses[sid], -behind.get(out_skills[sid].get('notesCountry'), 0), sid))
-    for rank, sid in enumerate(order, 1):
-        out_skills[sid] = {**out_skills[sid], 'curriculum': {**out_skills[sid]['curriculum'], 'rank': rank}}
+    # Poles, then landscape, then the rest; inside each, the countries you lose most points in.
+    skills.sort(key=lambda s: (FOCUS.get(s['practiceFamily'], 2), -behind.get(s['notesCountry'], 0), s['id']))
+    for rank, s in enumerate(skills, 1):
+        s['curriculum']['rank'] = rank
     result = {'id': 'duel-misses', 'title': 'Duel misses · the rounds you lost', 'subject': 'GeoGuessr', 'schemaVersion': 1,
               'contentRevision': int(time.time()), 'practiceMapId': '000000000000000000000000',
               'answerAreaLabel': 'Your missed duel rounds. Country accuracy; the clue is tracked through your answer',
               'gradingPolicy': 'recognition', 'maxLocationsPerCountry': 2, 'initialSkillIds': [],
               'regionFeatures': world['regionFeatures'],
-              'coverageSummary': f'{len(out_skills)} clues from {len(picks)} missed duel rounds, {len(locations)} panoramas.',
-              'skills': [out_skills[sid] for sid in order], 'locations': locations,
-              'pools': [{'id': 'duel-misses', 'title': 'Your missed duel rounds', 'skillIds': order,
+              'coverageSummary': f'{len(skills)} of your missed competitive duel rounds, each on its own panorama.',
+              'skills': skills, 'locations': locations,
+              'pools': [{'id': 'duel-misses', 'title': 'Your missed duel rounds', 'skillIds': [s['id'] for s in skills],
                          'mapUrl': world['pools'][0]['mapUrl']}]}
     (OUT / 'pack.json').write_text(json.dumps(result, ensure_ascii=False))
-    print(json.dumps({'skills': len(order), 'learnableMeta': sum(sid.startswith('duel:lm:') for sid in order),
-                      'rounds': len(picks), 'locations': len(locations)}))
+    print(json.dumps({'rounds': len(skills), 'learnableMeta': sum(s['curriculum']['source']['clue'].startswith('lm:') for s in skills),
+                      'poles': sum(FOCUS.get(s['practiceFamily']) == 0 for s in skills),
+                      'landscape': sum(FOCUS.get(s['practiceFamily']) == 1 for s in skills)}))
 
 
-SECTIONS = (('Utility poles', lambda s: s['practiceFamily'] == 'utility-poles'),
-            ('Plates and phone codes', lambda s: s['practiceFamily'] == 'phone-and-plates'),
-            ('Trees and plants', lambda s: s['practiceFamily'] == 'landscape-and-vegetation' and s['curriculum']['source'].get('plant')),
-            ('Landscape and terrain', lambda s: s['practiceFamily'] == 'landscape-and-vegetation'),
-            ('Everything else you missed', lambda s: True))
-GUIDE_COUNTRIES = 25
+def verify():
+    """Every panorama in the pack is the panorama of one of your own duel rounds, in the country GeoGuessr gave it."""
+    raw = json.loads((OUT / 'raw.json').read_text())
+    rounds = {r['id']: r for r in json.loads((OUT / 'rounds.json').read_text())}
+    p = json.loads((OUT / 'pack.json').read_text())
+    skills = {s['id']: s for s in p['skills']}
+    by_code, _ = duels.practice_clues()
+    _, _, meta = lm_candidates()
+    for loc in p['locations']:
+        _, game, n = loc['skillIds'][0].split(':')
+        g = raw['details'][game]
+        assert any(pl['playerId'] == raw['userId'] for t in g['teams'] for pl in t['players']), loc['id']
+        assert duels.pano_id(g['rounds'][int(n) - 1]['panorama']['panoId']) == loc['panoId'], loc['id']
+        assert duels.is_missed(rounds[loc['skillIds'][0]]), loc['id']
+        clue, r = skills[loc['skillIds'][0]]['curriculum']['source']['clue'], rounds[loc['skillIds'][0]]
+        # The clue comes from the guide of the country GeoGuessr placed the round in.
+        if clue.startswith('lm:'):
+            assert meta[int(clue.split(':')[1])]['country'] == curate.country_key(r['country'] or ''), loc['id']
+        else:
+            _, _, slug, tip = clue.split(':')
+            assert f'plonkit:{slug}:{tip}' in by_code[r['countryCode']], loc['id']
+    print(json.dumps({'verified': len(p['locations']), 'allOwnDuelRounds': True}))
+
+
+MODES = {'StandardDuels': 'Moving', 'NoMoveDuels': 'No Move', 'NmpzDuels': 'NMPZ'}
+PARTS = ((0, 'Utility poles', 'Poles you could see in rounds you lost or guessed far away.'),
+         (1, 'Landscape', 'Trees, plants, crops, soil and terrain from the same rounds.'))
 
 
 def guide(target):
-    """Static HTML from the built pack (duels/pack.json) and the public World pack. Images of your rounds are copied
-    next to it, so the folder stands alone."""
+    """A study guide built only from your missed rounds, poles first, then landscape: each clue with its guide text and
+    every round you missed it in. Round images are copied next to it, so the folder stands alone."""
     target = Path(target)
     (target / 'img').mkdir(parents=True, exist_ok=True)
-    world = json.loads((REPO / 'content/world.json').read_text())
     mine = json.loads((OUT / 'pack.json').read_text())
     rounds = {r['id']: r for r in json.loads((OUT / 'rounds.json').read_text())}
-    examples = {}
-    for loc in mine['locations']:
-        if loc['provenance']['kind'] == 'duel-round':
-            examples.setdefault(loc['skillIds'][0], []).append(loc)
-    missed = {s['id'] for s in mine['skills']}
-    # A guide is for reading, so it lists every clue, also those without practice panoramas yet; broad landscape
-    # overviews (density or elevation maps) are left out as in practice.
-    broad = {f"world:pk:{k.split(':')[1]}:{k.split(':')[2]}" for k, v in
-             json.loads((HERE / 'labels/landscape.json').read_text()).items() if v['subject'] == 'broad'}
-    every = {s['id']: s for s in world['skills'] if s['id'] not in broad} | {s['id']: s for s in mine['skills']}
-    # Competitive rounds only, like the misses: unranked games include city maps.
-    played = [r for r in rounds.values() if r['mode'] not in (None, 'None')]
-    behind = duels.points_behind(played, 'country')
-    total = sum(behind.values()) or 1
-    named = {s.get('notesCountry') for s in every.values()}
-    countries = sorted((c for c in behind if c in named), key=lambda c: -behind[c])[:GUIDE_COUNTRIES]
+    pano = {loc['skillIds'][0]: loc for loc in mine['locations']}
+    behind = duels.points_behind(rounds.values(), 'country')
     e = html.escape
+    by_clue = {}
+    for s in mine['skills']:
+        by_clue.setdefault(s['curriculum']['source']['clue'], []).append(s)
 
-    def card(s):
-        shots = ''
-        for loc in examples.get(s['id'], [])[:2]:
-            r = rounds[loc['id']]
-            path = duels.collect.thumb({**r['view'], 'heading': loc['heading']}, 90.0)
-            if path:
-                shutil.copy(path, target / 'img' / path.name)
-                shots += f'<figure><img loading=lazy src="img/{path.name}"><figcaption>{e(loc["note"])}</figcaption></figure>'
-        image = f'<img loading=lazy src="{e(s["imageUrls"][0])}">' if s.get('imageUrls') else ''
-        badge = f'<span class=miss>missed {len(examples.get(s["id"], []))}x</span> ' if s['id'] in missed else ''
-        title = s['title'].split(' · ', 1)[-1]
-        return (f'<div class=card><label><input type=checkbox> {badge}<b>{e(title)}</b></label>{image}'
-                f'<div class=note>{e(text.plain(s.get("sourceNoteHtml") or ""))}</div>'
-                f'<a href="{e(s["source"]["url"])}">{e(s["source"]["title"])}</a>{shots}</div>')
+    def shot(s):
+        r, loc = rounds[s['id']], pano[s['id']]
+        path = duels.collect.thumb({**r['view'], 'heading': loc['heading']}, 90.0)
+        if not path:
+            return ''
+        shutil.copy(path, target / 'img' / path.name)
+        when = r['endTime'][:10] if r.get('endTime') else ''
+        how = f"you scored {r['theirScore'] - r['myScore']:,} fewer points" if r['lost'] else f"your guess was {round(r['myGuess']['distance'] / 1000):,} km off"
+        return (f'<figure><img loading=lazy src="img/{path.name}"><figcaption>{e(loc["note"])} '
+                f'<span class=credit><a href="https://www.geoguessr.com/duels/{r["gameId"]}/summary">{MODES.get(r["mode"], "")} duel, {when}, '
+                f'round {r["round"]}</a>, {how}.</span></figcaption></figure>')
 
-    body, toc = [], []
-    for name in countries:
-        here = [r for r in played if r['country'] == name]
-        wrong = collections.Counter(r['myGuessCountry'] for r in here if r['myGuessCountry'] and r['myGuessCountry'] != name)
-        anchor = curate.country_key(name).replace(' ', '-')
-        mine_here = [s for s in every.values() if s.get('notesCountry') == name]
-        confused = [c for c, _ in wrong.most_common(3)]
-        parts, seen = [], set()
-        for title, belongs in SECTIONS:
-            last = title == SECTIONS[-1][0]
-            picked = sorted((s for s in mine_here if s['id'] not in seen and belongs(s) and (not last or s['id'] in missed)),
-                            key=lambda s: (s['id'] not in missed, s['curriculum']['rank']))
-            seen |= {s['id'] for s in picked}
-            if picked:
-                parts.append(f'<h3>{title} <small>{len(picked)}</small></h3>' + ''.join(map(card, picked)))
-        toc.append(f'<li><a href="#{anchor}">{e(name)}</a> <small>{100 * behind[name] / total:.0f}%</small></li>')
-        body.append(f'<section id={anchor}><h2>{e(name)}</h2><p class=m>{len(here)} competitive rounds, lost {sum(r["lost"] for r in here)}, '
-                    f'wrong country {sum(wrong.values())} times{", mostly guessed " + ", ".join(map(e, confused)) if confused else ""}. '
-                    f'{100 * behind[name] / total:.0f}% of all the points you have been behind.</p>{"".join(parts)}</section>')
-    page = f"""<!doctype html><meta charset=utf-8><title>Your duel study guide</title><style>
-body{{background:#0f1419;color:#d7dde3;font:15px/1.55 -apple-system,system-ui,sans-serif;max-width:900px;margin:5vh auto;padding:0 20px}}
-h1{{font-size:28px}}h2{{font-size:24px;margin-top:56px;color:#9fd3e6}}h3{{margin-top:28px}}small,.m{{color:#8a96a3}}a{{color:#9fd3e6}}
-.card{{background:#151c22;border:1px solid #222b33;border-radius:10px;padding:12px 16px;margin:12px 0}}.card>img{{max-width:100%;max-height:260px;display:block;margin:8px 0;border-radius:6px}}
-figure{{margin:10px 0}}figure img{{max-width:100%;border-radius:6px}}figcaption{{color:#e9c46a;font-size:13px}}.miss{{background:#e76f51;color:#fff;border-radius:4px;padding:1px 6px;font-size:12px}}
-.note{{margin:6px 0}}ol{{columns:3}}</style>
-<h1>Your duel study guide</h1>
-<p>Countries in the order you lose points in duels. In each: utility poles, plates and phone codes, trees and plants, landscape and terrain, then anything else you missed. Clues you missed come first, with the panorama you missed them on. Every clue is from Plonk It or Learnable Meta.</p>
-<p>How to use it: read one country, take notes, then play <b>Duel misses</b> (your own rounds) and <b>World practice</b> with Learn mode on for that day.</p>
-<ol>{''.join(toc)}</ol>{''.join(body)}"""
+    body, total = [], 0
+    for focus, title, dek in PARTS:
+        clues = [(cid, ss) for cid, ss in by_clue.items() if FOCUS.get(ss[0]['practiceFamily'], 2) == focus]
+        clues.sort(key=lambda kv: (-behind.get(kv[1][0]['notesCountry'], 0), -len(kv[1])))
+        body.append(f'<h2 class=part>{title}</h2><p class=dek>{dek}</p>')
+        country = None
+        for cid, ss in clues:
+            s = ss[0]
+            if s['notesCountry'] != country:
+                country = s['notesCountry']
+                body.append(f'<h3 class=country>{e(country)}</h3>')
+            image = f'<img class=guide loading=lazy src="{e(s["imageUrls"][0])}">' if s.get('imageUrls') else ''
+            body.append(f'<article><p class=kicker>Missed in {len(ss)} round{"s" * (len(ss) > 1)}</p>'
+                        f'<h4>{e(s["title"].split(" · ", 1)[-1])}</h4><p>{e(text.plain(s.get("sourceNoteHtml") or ""))}</p>'
+                        f'{image}<p class=source>Source: <a href="{e(s["source"]["url"])}">{e(s["source"]["title"])}</a></p>'
+                        f'{"".join(map(shot, ss))}</article>')
+            total += len(ss)
+    others = len(mine['skills']) - total
+    page = f"""<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width"><title>What you keep missing</title><style>
+body{{background:#fff;color:#121212;font:19px/1.6 Georgia,'Times New Roman',serif;margin:0}}main{{max-width:680px;margin:0 auto;padding:48px 20px 96px}}
+.mast{{font:700 13px/1 'Helvetica Neue',Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid #121212;padding-bottom:10px}}
+h1{{font:700 46px/1.1 Georgia,serif;margin:28px 0 12px}}.lede{{font-size:21px;color:#333}}
+.by{{font:13px 'Helvetica Neue',Arial,sans-serif;color:#727272;border-bottom:1px solid #e2e2e2;padding-bottom:20px}}
+h2.part{{font:700 34px/1.2 Georgia,serif;margin:72px 0 4px;border-top:3px double #121212;padding-top:20px}}.dek{{color:#555;font-style:italic;margin-top:0}}
+h3.country{{font:700 13px 'Helvetica Neue',Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase;margin:48px 0 0;border-bottom:1px solid #e2e2e2;padding-bottom:6px}}
+article{{margin:28px 0 40px}}h4{{font:700 24px/1.25 Georgia,serif;margin:4px 0 10px}}.kicker{{font:700 12px 'Helvetica Neue',Arial,sans-serif;text-transform:uppercase;letter-spacing:.08em;color:#b3261e;margin:0}}
+img{{width:100%;display:block}}img.guide{{max-height:380px;object-fit:contain;background:#f7f7f7;margin:12px 0 4px}}
+figure{{margin:22px 0}}figcaption{{font:14px/1.45 'Helvetica Neue',Arial,sans-serif;color:#333;margin-top:6px}}
+.credit,.source{{font:13px 'Helvetica Neue',Arial,sans-serif;color:#727272}}a{{color:#326891}}</style><main>
+<div class=mast>Fieldwork &middot; Duel study guide</div>
+<h1>What you keep missing</h1>
+<p class=lede>Every clue below was visible in one of your own competitive duel rounds that you lost or guessed more than 500 km away. Poles first, then landscape, country by country in the order you lose points.</p>
+<p class=by>{total} of your {len(mine['skills'])} missed rounds. The other {others} turn on roads, signs, plates and buildings and are left for later. Every photo is your round, turned to face the clue; the link opens the duel.</p>
+{''.join(body)}</main>"""
     (target / 'guide.html').write_text(page)
-    print(json.dumps({'countries': len(countries), 'clues': sum(b.count('class=card') for b in body)}))
+    print(json.dumps({'rounds': total, 'clues': sum(1 for b in body if b.startswith('<article'))}))
 
 
 if __name__ == '__main__':
     command, *rest = sys.argv[1:]
-    {'lm': lambda: lm(int(rest[0]) if rest else None), 'pack': pack, 'guide': lambda: guide(rest[0])}[command]()
+    {'lm': lambda: lm(int(rest[0]) if rest else None), 'pack': pack, 'verify': verify, 'guide': lambda: guide(rest[0])}[command]()
