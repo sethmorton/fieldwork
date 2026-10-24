@@ -39,9 +39,10 @@ test('new clues come in order of how often ranked No Move shows them, then found
   const [a,b]=[ranked[i-1].curriculum.source,ranked[i].curriculum.source];
   assert.ok(a.acowPer1000>b.acowPer1000||(a.acowPer1000===b.acowPer1000&&order[a.utilityTier]<=order[b.utilityTier]),ranked[i].id);
  }
- // The first set introduces clues ranked games actually show.
+ // A scored build introduces clues ranked games show; a build without acow/clue-value.json keeps the curated order.
  const set=makeNextSet(pack,[],{now,seenLocationRefs:[],previousSetLocationRefs:[]});
- assert.ok(set.focus.every(f=>skillOf.get(f.id).curriculum.source.acowPer1000>0),JSON.stringify(set.focus.map(f=>f.id)));
+ if(ranked.some(s=>s.curriculum.source.acowPer1000>0))
+  assert.ok(set.focus.every(f=>skillOf.get(f.id).curriculum.source.acowPer1000>0),JSON.stringify(set.focus.map(f=>f.id)));
 });
 test('world practice keeps five countries and at most two clues per family per set and is publishable',()=>{
  let attempts=[],seen=[],previous=[],covered=new Set();

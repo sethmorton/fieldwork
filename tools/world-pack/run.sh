@@ -12,9 +12,8 @@ DATA=${WORLD_PACK_DATA:-$PWD}
 INPUTS=${WORLD_PACK_INPUTS:-$(dirname "$DATA")}
 # Versioned inputs (rebuild them only when Vali's data changes):
 #   gap/subdivisions.json   = https://raw.githubusercontent.com/slashP/Vali/master/src/Vali.Core/Data/subdivisions.json
-#   gap/country-weights.json = {ISO2: weight} parsed from `vali countries "*" --distribution acw`
 # Upstream inventories come from $INPUTS/location-database, $INPUTS/plonkit-guides and $INPUTS/plonkit-browser-index.
-for f in "$DATA/gap/subdivisions.json" "$DATA/gap/country-weights.json" "$INPUTS/location-database/foundations/all-guide-topic-inventory.json"; do
+for f in "$DATA/gap/subdivisions.json" "$INPUTS/location-database/foundations/all-guide-topic-inventory.json"; do
   [ -f "$f" ] || { echo "missing prerequisite $f" >&2; exit 1; }
 done
 python3 collect.py                                   # writes clues.json (first pass)

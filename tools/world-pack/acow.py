@@ -19,10 +19,10 @@ import sys
 import collect
 import curate
 import duels
+import gapfill
 from text import HERE, WORK
 
 OUT = HERE / 'acow'
-GAP = HERE / 'gap'
 SHEET = 'https://docs.google.com/spreadsheets/d/1AjRLkeEKGFAPOAbXVy7fmrbfVTvstz8opiURgge19RA/export?format=csv&gid=0'
 
 
@@ -42,16 +42,13 @@ def weights():
 
 
 def sample(n=1200):
-    """Rounds per country in proportion to ACoW (at least two, so every country is seen), from its Vali pool."""
+    """Rounds per country in proportion to ACoW (at least two, so every country is seen), from its Vali pool.
+    Countries without a pool yet get one from Vali (the same generator gapfill.py uses)."""
     w = weights()
     total = sum(w.values())
     rounds = []
     for cc, weight in sorted(w.items()):
-        pool_file = GAP / 'pools' / f'{cc}-locations.json'
-        if not pool_file.exists():
-            continue
-        doc = json.loads(pool_file.read_text())
-        pool = [l for l in (doc['customCoordinates'] if isinstance(doc, dict) else doc) if l.get('panoId')]
+        pool = gapfill.vali_pool(cc, 300)
         for loc in random.Random(cc).sample(pool, min(len(pool), max(2, round(n * weight / total)))):
             rounds.append({'id': f"acow:{cc}:{loc['panoId']}", 'countryCode': cc,
                            'view': {'panoId': loc['panoId'], 'lat': loc['lat'], 'lng': loc['lng'],
@@ -62,50 +59,66 @@ def sample(n=1200):
                       'acowWeightCovered': round(100 * covered / total, 1)}))
 
 
+def inputs(by_code, line):
+    """Per country: fingerprint of the candidate clue text and the model, so a judgement is reused only for the same
+    question. (A change to the prompt wording in duels.visible_clues needs acow/classified.jsonl removed.)"""
+    return {cc: curate.fingerprint(curate.MODEL, *(line[t] for t in ts)) for cc, ts in by_code.items()}
+
+
 def classify(limit=None):
     rounds = json.loads((OUT / 'sample.json').read_text())
     rounds = random.Random(0).sample(rounds, len(rounds))[:limit]
     by_code, line = duels.practice_clues()
+    current = inputs(by_code, line)
     country_at = collect.bc.geolocator(json.loads((WORK / 'worldwide/countries-50m.geojson').read_text()))
     out = OUT / 'classified.jsonl'
-    done = {json.loads(l)['id'] for l in out.read_text().splitlines()} if out.exists() else set()
+    done = {(r['id'], r.get('inputs')) for r in map(json.loads, out.read_text().splitlines())} if out.exists() else set()
 
     def one(r):
         candidates = by_code.get(r['countryCode'], [])
         images = duels.frames({**r, 'movement': {}})
+        stamp = {'id': r['id'], 'inputs': current.get(r['countryCode'])}
         if not candidates or not images:
-            return {'id': r['id'], 'clues': [], 'missedNote': '', 'skipped': 'no practicable clues' if images else 'panorama gone'}
+            return {**stamp, 'clues': [], 'missedNote': '', 'skipped': 'no practicable clues' if images else 'panorama gone'}
         country = country_at(r['view']['lat'], r['view']['lng']) or r['countryCode']
         context = (f"This is a round of A Competitive World, the GeoGuessr ranked No Move map. The true location is in "
                    f"{country} ({r['view']['lat']:.3f}, {r['view']['lng']:.3f}). The player can turn around and zoom but "
                    f"not move, so frames 1-{len(images)} are what they can see.")
         result = duels.visible_clues(images, country, context, candidates, line)
-        return result and {'id': r['id'], **result}
+        return result and {**stamp, **result}
 
     with open(out, 'a') as f, cf.ThreadPoolExecutor(curate.WORKERS) as pool:
-        for rec in pool.map(one, [r for r in rounds if r['id'] not in done]):
+        for rec in pool.map(one, [r for r in rounds if (r['id'], current.get(r['countryCode'])) not in done]):
             if rec:
                 f.write(json.dumps(rec, ensure_ascii=False) + '\n')
                 f.flush()
-    recs = [json.loads(l) for l in out.read_text().splitlines()]
-    print(json.dumps({'classified': len(recs), 'withClue': sum(bool(r['clues']) for r in recs)}))
+    print(json.dumps({'classified': sum(1 for _ in out.open())}))
+
+
+def estimate(w, rounds, recs, current):
+    """Estimated detection rate: each sampled round stands for its country's ACoW share split evenly over that
+    country's judged rounds. Only judgements of the current sample with current inputs count. This is how often the
+    small model sees a clue on country-weighted Vali locations, not measured frequency on real ACoW rounds."""
+    total = sum(w.values())
+    latest = {r['id']: r for r in recs if r['id'] in rounds and r.get('inputs') == current.get(rounds[r['id']]['countryCode'])}
+    judged = collections.Counter(rounds[i]['countryCode'] for i, r in latest.items() if not r.get('skipped'))
+    value, hits = collections.Counter(), collections.Counter()
+    for i, rec in latest.items():
+        cc = rounds[i]['countryCode']
+        for c in rec['clues']:
+            value[c['topicId']] += 1000 * w[cc] / total / judged[cc]
+            hits[c['topicId']] += 1
+    return {'clues': {t: {'per1000': round(v, 2), 'hits': hits[t]} for t, v in value.most_common()},
+            'countriesWithoutJudgedRounds': sorted(set(w) - set(judged))}
 
 
 def score():
-    """Each sampled round stands for its country's ACoW share split evenly over that country's sampled rounds."""
-    w = weights()
-    total = sum(w.values())
     rounds = {r['id']: r for r in json.loads((OUT / 'sample.json').read_text())}
     recs = [json.loads(l) for l in (OUT / 'classified.jsonl').read_text().splitlines()]
-    judged = collections.Counter(rounds[r['id']]['countryCode'] for r in recs if not r.get('skipped'))
-    value = collections.Counter()
-    for rec in recs:
-        cc = rounds[rec['id']]['countryCode']
-        for c in rec['clues']:
-            value[c['topicId']] += 1000 * w[cc] / total / judged[cc]
-    (OUT / 'clue-value.json').write_text(json.dumps({t: round(v, 2) for t, v in value.most_common()}))
-    print(json.dumps({'roundsJudged': sum(judged.values()), 'cluesSeen': len(value),
-                      'roundsWithAClue': sum(bool(r['clues']) for r in recs)}))
+    result = estimate(weights(), rounds, recs, inputs(*duels.practice_clues()))
+    (OUT / 'clue-value.json').write_text(json.dumps(result))
+    print(json.dumps({'cluesSeen': len(result['clues']), 'seenTwiceOrMore': sum(c['hits'] >= 2 for c in result['clues'].values()),
+                      'countriesWithoutJudgedRounds': result['countriesWithoutJudgedRounds']}))
 
 
 if __name__ == '__main__':
