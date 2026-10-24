@@ -66,7 +66,7 @@ export function validatePack(pack) {
 export function makeNextSet(pack, attempts, options = {}) {
   validatePack(pack);
   if(!Array.isArray(attempts)) throw new Error('Results must be an attempt array.');
-  const plan = planPractice(pack,attempts,{size:options.size??5,now:options.now??Date.now(),seenLocationRefs:options.seenLocationRefs??[],previousSetLocationRefs:options.previousSetLocationRefs??[]});
+  const plan = planPractice(pack,attempts,{size:options.size??5,now:options.now??Date.now(),seenLocationRefs:options.seenLocationRefs??[],previousSetLocationRefs:options.previousSetLocationRefs??[],learn:!!options.learn});
   const selected = plan.locationIds.map(id=>pack.locations.find(location=>location.id===id));
   if (selected.length < (options.size??5)) throw new Error(`Need ${options.size??5} location-backed clues, at most ${MAX_PER_FAMILY} per family. ${plan.reasons.at(-1)}`);
   return {

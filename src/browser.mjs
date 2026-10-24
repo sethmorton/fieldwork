@@ -56,7 +56,7 @@ const importPack=async imported=>{
 const key=(suffix,id=pack.id)=>`fieldwork:${id}:${suffix}`;
 const history=(id=pack.id)=>GM_getValue(key('attempts',id),[]);
 const exposures=(id=pack.id)=>GM_getValue(key('exposures',id),[]);
-const nextSet=(subject=pack)=>makeNextSet(subject,history(subject.id),{size:5,seenLocationRefs:exposures(subject.id).map(item=>item.locationRef),previousSetLocationRefs:GM_getValue(key('active-set',subject.id),null)?.locationIds??[]});
+const nextSet=(subject=pack)=>makeNextSet(subject,history(subject.id),{size:5,learn:GM_getValue(key('learn-mode',subject.id),false),seenLocationRefs:exposures(subject.id).map(item=>item.locationRef),previousSetLocationRefs:GM_getValue(key('active-set',subject.id),null)?.locationIds??[]});
 function commitPendingReview(nextState,advance=false) {
   if(!pack)return;
   const pending=GM_getValue(key('pending-review'),null);
@@ -196,6 +196,7 @@ function render() {
     if(startPreparedGame()){if(mounted!=='launch'){loadingPanel(pack,{message:'Starting your next set…'});mounted='launch'}return}
     if(mounted==='start'||mounted==='quick')return;
     startPanel(pack,{onNext:prepare,attempts:history(),getAttempts:history,packs:packs.filter(item=>item.practiceMapId),onChoosePack:choosePack,
+      learn:GM_getValue(key('learn-mode'),false),onLearn:value=>GM_setValue(key('learn-mode'),value),
       onQuickCheck:()=>{mounted='quick';quickCheckPanel(pack,quickCheckQueue(pack,history()),{
         onKnown:skillId=>GM_setValue(key('attempts'),recordKnown(pack,history(),skillId)),onDone:()=>{remove();render()}})},
       onExport:()=>download({packId:pack.id,attempts:history(),exposures:exposures(),previousDraft:GM_getValue(key('previous-draft'),null),pendingBackup:GM_getValue(key('pending-backup'),null)},`fieldwork-progress-${pack.id}.json`),

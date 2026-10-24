@@ -119,7 +119,7 @@ it from GitHub Pages like the other supplied packs.
 
 `tools/world-pack/duels.py` reads every duel in your activity feed (ranked and
 unranked, about the last year), and has a small vision model name the World
-pack clues visible in each round. In the rounds your team lost, those clues
+pack clues visible in each round. In the rounds your team lost, or guessed more than 500 km away, those clues
 count as missed (country clues only when you guessed the wrong country). Each becomes an explicit
 miss at the time of the round, so those clues are due right away and lead your
 next sets. It is personal data: it stays in your data folder and in your local
@@ -137,6 +137,11 @@ Add the export to `.fieldwork.local.json`, rebuild, and update the userscript:
 ```
 
 Rerunning adds only new rounds. A round already replayed is never added twice.
+
+Tick **Learn mode** on the practice panel to work through them before any review:
+clues you missed in duels and never played in Fieldwork come first (most missed
+first), then new clues in curriculum order. Reviews only fill what is left. Rounds
+you won but guessed more than 500 km away count as missed too.
 
 ## During practice
 

@@ -188,3 +188,15 @@ test('mastery and scheduling stay linear on one heavily practised clue',()=>{
  assert.equal(status.state,'mastered');assert.equal(status.masteredAt,records[19].occurredAt);
  assert.ok(elapsed<300,`5,000 assessments took ${elapsed} ms`);
 });
+
+test('learn mode fills the set with duel misses never played here, then new clues, ahead of due reviews',()=>{
+ const skills=['r1','r2','d1','d2','n1','n2','n3'].map(id=>skill(id));
+ const at=start+30*DAY,iso=new Date(at-DAY).toISOString();
+ // r1, r2 are due misses played here; d1 was missed twice in duels, d2 once (plus a Fieldwork miss: no longer "unplayed").
+ const history=[outcome('r1',start,false),outcome('r2',start,false),outcome('d2',start,false,1),
+  ...recordMissed({skills},[],[{id:'x1',skillId:'d1',occurredAt:iso,reason:''},{id:'x2',skillId:'d1',occurredAt:iso,reason:''},
+   {id:'x3',skillId:'d2',occurredAt:iso,reason:''}])];
+ const picked=learn=>planPractice(makePack(skills),history,{size:3,now:at,learn}).focusSkills.map(s=>s.id);
+ assert.deepEqual(picked(true),['d1','n1','n2']);
+ assert.ok(picked(false).filter(id=>id.startsWith('r')||id.startsWith('d')).length>=2);
+});
