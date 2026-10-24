@@ -24,8 +24,9 @@ bc = collect.bc
 
 PER_CLUE = 3
 MIN_PLAYABLE = 2  # Fieldwork convention: a target needs two distinct panoramas (docs/CONTENT.md)
+SETTING_RANK = {'rural': 0, 'suburban': 1, 'urban': 2}
 SOURCE_RANK = {'plonkit-example-link': 0, 'learnable-meta-export': 1, 'learnable-meta-catalogue': 2, 'geohints': 2,
-               'geometas': 2, 'same-spot': 2, 'vali-region': 3, 'neighbour': 3}
+               'geometas': 2, 'same-spot': 2, 'vali-region': 3, 'neighbour': 3, 'acow-sample': 3}
 STAGE_LABEL = {'within-country-regional': 'Regional clues', 'specialist': 'Specialist clues',
                'country-identification': 'Country clues'}
 REGIONAL_CAVEAT = ('Country accuracy is scored from the map. The regional or specific clue is tracked by your '
@@ -67,7 +68,7 @@ def main():
     clue_text = {c['topicId']: c['text'] for c in clues}
     clue_labels = json.loads((HERE / 'labels/clues.json').read_text())
     # A verdict counts only for the exact candidate it reviewed: the id fingerprints clue text, source, panorama and cameras.
-    candidates = {c['id']: c for p in ('candidates.jsonl', 'gap/candidates.jsonl', 'near/candidates.jsonl')
+    candidates = {c['id']: c for p in ('candidates.jsonl', 'gap/candidates.jsonl', 'near/candidates.jsonl', 'acow/candidates.jsonl')
                   for c in read_jsonl(HERE / p)
                   if c['topicId'] in clue_text and c['id'] == collect.candidate_id(c, clue_text[c['topicId']])}
     verdicts = {v['id']: v for v in read_jsonl(HERE / 'review.jsonl')}
@@ -80,6 +81,8 @@ def main():
     country_weights = json.loads((HERE / 'acow/weights.json').read_text())['countries']
     acow_seen = json.loads((HERE / 'acow/clue-value.json').read_text())['clues'] if (HERE / 'acow/clue-value.json').exists() else {}
     acow_value = {t: c['per1000'] for t, c in acow_seen.items() if c['hits'] >= 2}
+    # Small-model setting label of each candidate's opening frame (rurality.py); unlabelled counts as suburban.
+    setting = {r['id']: r['setting'] for r in read_jsonl(HERE / 'rurality.jsonl')}
     pano_subdivision = {l['panoId']: (l.get('extra', {}).get('tags') or [None])[0]
                         for p in (HERE / 'gap/pools').glob('*-locations.json')
                         for l in (lambda d: d['customCoordinates'] if isinstance(d, dict) else d)(json.loads(p.read_text()))}
@@ -114,13 +117,18 @@ def main():
     KIND_GROUP = {'infrastructure': 0, 'signs-and-text': 0, 'phone-and-plates': 0, 'car-and-camera': 0,
                   'architecture': 1, 'agriculture': 1, 'other': 1, 'landscape-and-vegetation': 2}
 
+    def is_pole(clue, kind):
+        concepts = topics[clue['topicId']][1]['concepts']
+        return kind == 'infrastructure' and 'utility-poles' in concepts and 'bollards' not in concepts
+
     def utility_key(clue, weight):
-        """Estimated model detection rate on ACoW-shaped Vali rounds first. Clues seen once or never follow in the
-        curated order: tier, kind group, then each country's own order interleaved by ACoW country weight."""
+        """Seth's priority for ranked No Move: landscape and utility poles first. Inside each group, the estimated model
+        detection rate on ACoW-shaped Vali rounds, then the curated order (tier, kind group, each country's own order
+        interleaved by ACoW country weight) for clues seen once or never."""
         tier, kind, position = curated.get(clue['topicId'], ('niche', 'other', 999))
         utility_tier[clue['topicId']] = tier
-        return (-acow_value.get(clue['topicId'], 0), TIERS.index(tier), clue['stage'] == 'specialist', KIND_GROUP[kind],
-                position / (0.5 + math.log1p(weight) / max_weight))
+        return (not (kind == 'landscape-and-vegetation' or is_pole(clue, kind)), -acow_value.get(clue['topicId'], 0),
+                TIERS.index(tier), clue['stage'] == 'specialist', KIND_GROUP[kind], position / (0.5 + math.log1p(weight) / max_weight))
 
     def is_practice(clue):
         """Seth already identifies countries; country clues stay in the bank but only European utility-pole clues
@@ -142,8 +150,11 @@ def main():
         stage = clue['stage']
         practice = is_practice(clue)
         chosen = []
-        # Reviewer-confirmed views first, then the human-placed ones, then by source.
-        ranked = sorted(accepted[clue['topicId']], key=lambda a: (not a[2], SOURCE_RANK[a[0]['source']],
+        # Rural first, like the ranked map (A Competitive World is about 87% rural), except phone codes, plates and
+        # signs, which live in towns. Then reviewer-confirmed views, then the human-placed ones, then by source.
+        town_clue = kind in ('phone-and-plates', 'signs-and-text')
+        ranked = sorted(accepted[clue['topicId']], key=lambda a: (0 if town_clue else SETTING_RANK.get(setting.get(a[0]['id']), 1),
+                                                                   not a[2], SOURCE_RANK[a[0]['source']],
                                                                    -(a[3] or {}).get('verdictConfidence', 0)))
         for c, frame, confirmed, v in ranked:
             if c['view']['panoId'] in used_panos:
@@ -170,9 +181,10 @@ def main():
         if not practice:
             continue
         sid = f"world:pk:{clue['slug']}:{topic['tipId']}"
-        # Family = the curated kind (infrastructure, signs-and-text, phone-and-plates, car-and-camera, landscape...).
-        # The engine allows at most two clues per family in a set, so landscape can never take over a set.
-        family = kind
+        # Family = the curated kind (infrastructure, signs-and-text, phone-and-plates, car-and-camera, landscape...), with
+        # utility poles as their own family. The engine allows at most two clues per family in a set, so a set holds at
+        # most two landscape and two pole clues.
+        family = 'utility-poles' if is_pole(clue, kind) else kind
         code = unit.get('code') or ''
         # Sub-national guides (Alaska, Hawaii, Azores, Madeira) are a small slice of their parent country's coverage.
         weight = country_weights.get(code.split('-')[0], 0) * (0.1 if '-' in code else 1)
@@ -196,7 +208,8 @@ def main():
                                       'sourceOrder': topic['sourceOrder'], 'guideStage': stage,
                                       'guideUpdatedAt': unit.get('guideUpdatedAt'), 'mapping': 'topic-match',
                                       'utilityTier': utility_tier[clue['topicId']],
-                                      'acowPer1000': acow_value.get(clue['topicId'], 0)}},
+                                      'acowPer1000': acow_value.get(clue['topicId'], 0),
+                                      'priorityGroup': 'landscape-and-poles' if order_key[sid][0] is False else 'other'}},
         })
         for loc in chosen:
             locations.append({'id': f"pk:{clue['slug']}:{topic['tipId']}:{loc['panoId']}", 'panoId': loc['panoId'],
@@ -206,7 +219,7 @@ def main():
                               'provenance': {'kind': loc['source'], 'sourceUrl': loc['sourceUrl'], 'sourceMapIds': loc['sourceMapIds'],
                                              'visualChecked': 'cheap-model' if loc['review']['confirmed'] else 'human-placed',
                                              'reviewModel': loc['review']['model'], 'reviewConfidence': loc['review']['confidence'],
-                                             'countryBasis': 'Natural Earth 50m polygon'}})
+                                             'setting': setting.get(loc['candidateId']), 'countryBasis': 'Natural Earth 50m polygon'}})
 
     # One world-wide introduction order (see utility_key): what ranked No Move shows most, then the curated order.
     skills.sort(key=lambda s: (order_key[s['id']], s['id']))

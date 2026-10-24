@@ -8,7 +8,7 @@ Fieldwork is a Tampermonkey userscript. It turns a GeoGuessr map you own into a 
 
 ## What you get
 
-- **The World pack.** About 2,150 Plonk It clues across 118 countries, each with two or three real Street View locations. New clues come in order of how often a small vision model sees them on about 1,270 rounds shaped like A Competitive World, the ranked No Move map (an estimate that favours big features like landscape).
+- **The World pack.** About 2,150 Plonk It clues across 118 countries, each with two or three real Street View locations. New clues come landscape and utility poles first, then in order of how often a small vision model sees them on about 1,270 rounds shaped like A Competitive World, the ranked No Move map. Practice locations prefer rural scenes like the ranked map, except for phone-number and sign clues.
 - **A clue card after every guess.** The Plonk It text and image, a link to the guide page, and three buttons: **Missed it**, **Spotted it**, **Knew it**.
 - **Quick check.** Flip through clue cards without playing rounds and clear the ones you already know.
 - **An expandable card.** Press ⤢ (or click the image) to see the image full size over the map. Fieldwork remembers your choice.
@@ -53,7 +53,7 @@ Open **Content & progress** on the start panel (or **Your progress tree** on a c
 
 | Pack | What it covers |
 | --- | --- |
-| World PlonkIt clue bank | About 2,150 Plonk It region-guessing clues, ordered by estimated detection on ACoW-shaped rounds, 2-3 locations each |
+| World PlonkIt clue bank | About 2,150 Plonk It region-guessing clues, landscape and poles first, rural locations preferred, 2-3 locations each |
 | World foundations & intermediate | Bollards, pedestrian signs, languages, poles, chevrons, plates, Brazilian phone codes and more |
 | Australia region practice | State-level clues within Australia |
 | Philippines region practice | Regional clues within the Philippines |
