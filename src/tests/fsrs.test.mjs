@@ -89,6 +89,7 @@ test('clues missed in duels become due misses that lead the next set, once, and 
  const replayed=recordMissed(p,history,missed);
  assert.equal(replayed.length,history.length+2);
  assert.equal(recordMissed(p,replayed,missed),replayed,'replaying again adds nothing');
+ assert.equal(recordMissed(p,[],[missed[0],missed[0]]).length,1,'a duplicate inside one import is added once');
  assert.ok(skillStatus('E',replayed,now).due&&skillStatus('F',replayed,now).due);
  assert.deepEqual(planPractice(p,replayed,{now,size:3}).focusSkills.slice(0,2).map(s=>s.id).sort(),['E','F']);
 });
