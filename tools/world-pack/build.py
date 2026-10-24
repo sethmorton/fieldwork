@@ -115,8 +115,8 @@ def main():
                   'architecture': 1, 'agriculture': 1, 'other': 1, 'landscape-and-vegetation': 2}
 
     def utility_key(clue, weight):
-        """How often the clue is usable in ranked No Move first (measured on ACoW). Clues never seen there follow in
-        the curated order: tier, kind group, then each country's own order interleaved by ACoW country weight."""
+        """Estimated model detection rate on ACoW-shaped Vali rounds first. Clues seen once or never follow in the
+        curated order: tier, kind group, then each country's own order interleaved by ACoW country weight."""
         tier, kind, position = curated.get(clue['topicId'], ('niche', 'other', 999))
         utility_tier[clue['topicId']] = tier
         return (-acow_value.get(clue['topicId'], 0), TIERS.index(tier), clue['stage'] == 'specialist', KIND_GROUP[kind],

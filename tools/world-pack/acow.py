@@ -5,7 +5,7 @@
   sample    draw ACoW-shaped rounds: countries weighted by acow/weights.json, locations from the per-country Vali
             pools (gap/pools)
   classify  small model (CURATE_MODEL) names the practice clues clearly visible in each round's four directions
-  score     acow/clue-value.json: for each clue, ranked rounds per 1,000 in which it is visible and usable
+  score     acow/clue-value.json: for each clue, the small model's estimated detection rate per 1,000 ACoW-shaped Vali rounds
 Usage: WORLD_PACK_DATA=<caches> python3 tools/world-pack/acow.py weights|sample [N]|classify [LIMIT]|score
 """
 import collections
