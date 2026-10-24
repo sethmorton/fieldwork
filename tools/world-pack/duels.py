@@ -225,6 +225,15 @@ def current_judgements():
 FAR_KM = 500
 
 
+def points_behind(rounds, field):
+    """Points the opponent scored above you, summed per round[field], over competitive rounds only."""
+    behind = {}
+    for r in rounds:
+        if r['mode'] not in (None, 'None'):
+            behind[r[field]] = behind.get(r[field], 0) + max(0, r['theirScore'] - r['myScore'])
+    return behind
+
+
 def is_missed(r):
     """A competitive round (ranked or competitive-mode duel; unranked games include city maps like San Francisco)
     that you lost, or where your guess was more than FAR_KM away (a won round can still be a big miss)."""
@@ -254,9 +263,7 @@ def export():
                            'occurredAt': r['endTime'], 'reason': c['evidence']})
     # Focus: every playable practice clue weighted by the points you have been behind in its country, so learn mode
     # introduces the countries you lose most in first.
-    behind = {}
-    for r in rounds.values():
-        behind[r['countryCode']] = behind.get(r['countryCode'], 0) + max(0, r['theirScore'] - r['myScore'])
+    behind = points_behind(rounds.values(), 'countryCode')
     total = sum(behind.values()) or 1
     focus = {f"world:pk:{t.split(':')[1]}:{t.split(':')[2]}": round(behind[code] / total, 5)
              for code, ts in practice_clues()[0].items() if behind.get(code) for t in ts if bank[t]['status'] == 'playable'}
