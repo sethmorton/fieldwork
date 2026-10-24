@@ -60,10 +60,11 @@ Versioned inputs under `WORLD_PACK_DATA/gap/`, rebuilt only when Vali's data cha
 | `harvest_lm.py wanted`, `export` | Exports the map-maker locations behind foundational and useful tips (needs `lm.env`) | `lm/export-wanted.json`, `lm/exports.jsonl` |
 | `sources.py fetch`, `map` | GeoHints and Geometas example pages (one request a second), then a small model maps each example to its tip | `sources/` |
 | `review.py <candidates>` | Small vision model picks each candidate's frame and says whether the clue is clearly visible | `review.jsonl` |
-| `build.py` | Picks up to three accepted locations per clue, orders clues foundational first and roadside clues before landscape, writes the pack | `clue-bank.json`, `gap-report.json`, `content/world.json`, `local/world-pack.json` |
+| `build.py` | Picks up to three accepted locations per clue, orders clues by how often ranked No Move shows them (then foundational first, roadside clues before landscape), writes the pack | `clue-bank.json`, `gap-report.json`, `content/world.json`, `local/world-pack.json` |
 | `regions.py` | Small model: which ISO 3166-2 subdivisions each regional clue applies to | `gap/clue-regions.json` |
 | `gapfill.py` | Vali samples inside those regions for clues still short of two locations | `gap/pools/`, `gap/candidates.jsonl` |
 | `neighbours.py` | Same-spot captures and road neighbours of clues with one location | `near/candidates.jsonl` |
+| `acow.py weights`, `sample`, `classify`, `score` | Official A Competitive World country distribution ([tinyurl.com/acowdist](https://tinyurl.com/acowdist)), about 1,250 ACoW-shaped rounds from the Vali pools, a small model naming the clues visible in each. Score = ranked rounds per 1,000 in which the clue is visible | `acow/` |
 | `audit.py` | Contact sheet of reviewed candidates for a person to spot-check | a JPEG and its id list |
 
 Review verdicts are keyed by a fingerprint of clue text, source, panorama and camera, so a rerun never reuses a

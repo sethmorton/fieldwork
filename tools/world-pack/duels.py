@@ -123,17 +123,45 @@ SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['clues',
     'missedNote': {'type': 'string'}}}
 
 
-def classify(limit=None):
-    rounds = json.loads((OUT / 'lost.json').read_text())[:limit]
+def practice_clues():
+    """Practice clues by ISO country code, and one prompt line per clue (guide text plus what its image shows)."""
     clues = {c['topicId']: c for c in json.loads((HERE / 'clues.json').read_text())}
-    bank = json.loads((HERE / 'clue-bank.json').read_text())
     visual = json.loads((HERE / 'labels/visual.json').read_text())
     codes = {u['slug']: u.get('code') for u in json.loads(
         (WORK / 'location-database/foundations/all-guide-topic-inventory.json').read_text())['units']}
     by_code = {}
-    for b in bank:
+    for b in json.loads((HERE / 'clue-bank.json').read_text()):
         if b['practice']:
             by_code.setdefault(codes.get(b['slug']), []).append(b['topicId'])
+    line = {t: f"[{t.split(':')[2]}] {clues[t]['text'][:240]}" + (f" (Guide image shows: {visual[t]['lookFor']})" if visual.get(t, {}).get('lookFor') else '')
+            for ts in by_code.values() for t in ts}
+    return by_code, line
+
+
+def visible_clues(images, country, context, candidates, line):
+    """Small-model judgement: which of these practice clues are clearly visible in the frames. None if the call failed."""
+    prompt = (f"{context}\nFrom the numbered Plonk It clues for {country} below, list only clues that are actually visible in "
+              f"the frames and would have pointed to the true region (or country), best first, at most {MAX_CLUES}. For each "
+              "give the tip id in brackets, the frame number and what exactly is visible and where in the frame. Only list a "
+              "clue when the specific thing it describes is clearly there (a road-line clue needs visible road lines, a pole "
+              "clue a visible pole of that type). Do not list clues that are merely consistent with the scene. Return an empty "
+              "list if none is visible. missedNote: one plain sentence on what the player should have noticed (empty if "
+              "nothing).\n\n" + '\n'.join(line[t] for t in candidates))
+    try:
+        answer = curate.ask(prompt, SCHEMA, images)
+    except Exception:
+        return None  # retried on the next run
+    valid, picked = {t.split(':')[2]: t for t in candidates}, {}
+    for c in answer['clues']:
+        tip = c['tipId'].strip('[] ')
+        if tip in valid and 1 <= c['frame'] <= len(images) and valid[tip] not in picked and len(picked) < MAX_CLUES:
+            picked[valid[tip]] = {'topicId': valid[tip], 'frame': c['frame'], 'evidence': c['evidence']}
+    return {'clues': list(picked.values()), 'missedNote': answer['missedNote'], 'model': curate.MODEL}
+
+
+def classify(limit=None):
+    rounds = json.loads((OUT / 'lost.json').read_text())[:limit]
+    by_code, line = practice_clues()
     out = OUT / 'classified.jsonl'
     done = {json.loads(l)['id'] for l in out.read_text().splitlines()} if out.exists() else set()
     todo = [r for r in rounds if r['id'] not in done]
@@ -143,32 +171,14 @@ def classify(limit=None):
         images = frames(r)
         if not candidates or not images:
             return {'id': r['id'], 'clues': [], 'missedNote': '', 'skipped': 'no practicable clues' if images else 'panorama gone'}
-        lines = [f"[{t.split(':')[2]}] {clues[t]['text'][:240]}" + (f" (Guide image shows: {visual[t]['lookFor']})" if visual.get(t, {}).get('lookFor') else '')
-                 for t in candidates]
         seen = 'only frame 1 (no moving, no turning)' if r['movement'].get('forbidRotating') else f'frames 1-{len(images)} (it could turn around)'
         guess = (f"The player guessed {r['myGuessCountry'] or 'somewhere'} at {round((r['myGuess']['distance'] or 0) / 1000)} km away"
                  if r['myGuess'].get('lat') is not None else 'The player did not guess')
-        prompt = (f"A GeoGuessr player lost this competitive duel round. The true location is in {r['country']} "
-                  f"({r['view']['lat']:.3f}, {r['view']['lng']:.3f}). {guess}; the opponent was "
-                  f"{round((r['theirDistance'] or 0) / 1000)} km away. The player could see {seen}.\n"
-                  f"From the numbered Plonk It clues for {r['country']} below, list only clues that are actually visible in the "
-                  f"frames and would have pointed to the true region (or country), best first, at most {MAX_CLUES}. For each give "
-                  "the tip id in brackets, the frame number and what exactly is visible and where in the frame. Only list a clue "
-                  "when the specific thing it describes is clearly there (a road-line clue needs visible road lines, a pole clue a "
-                  "visible pole of that type). Do not list clues that are merely consistent with the scene. Return an empty list "
-                  "if none is visible. missedNote: one plain sentence on what the player should have noticed (empty if nothing).\n\n"
-                  + '\n'.join(lines))
-        try:
-            answer = curate.ask(prompt, SCHEMA, images)
-        except Exception:
-            return None  # retried on the next run
-        valid, picked = {t.split(':')[2]: t for t in candidates}, {}
-        for c in answer['clues']:
-            tip = c['tipId'].strip('[] ')
-            if tip in valid and 1 <= c['frame'] <= len(images) and valid[tip] not in picked and len(picked) < MAX_CLUES:
-                picked[valid[tip]] = {'topicId': valid[tip], 'frame': c['frame'], 'evidence': c['evidence']}
-        picked = list(picked.values())
-        return {'id': r['id'], 'clues': picked, 'missedNote': answer['missedNote'], 'model': curate.MODEL}
+        context = (f"A GeoGuessr player lost this competitive duel round. The true location is in {r['country']} "
+                   f"({r['view']['lat']:.3f}, {r['view']['lng']:.3f}). {guess}; the opponent was "
+                   f"{round((r['theirDistance'] or 0) / 1000)} km away. The player could see {seen}.")
+        result = visible_clues(images, r['country'], context, candidates, line)
+        return result and {'id': r['id'], **result}
 
     with open(out, 'a') as f, cf.ThreadPoolExecutor(curate.WORKERS) as pool:
         for rec in pool.map(one, todo):
