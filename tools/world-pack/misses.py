@@ -49,25 +49,25 @@ def lm_candidates():
     return by_country, line, meta
 
 
-def gaps():
-    """Missed rounds whose judgement found no Plonk It clue that counts as a miss."""
+def gaps(inside):
+    """Missed rounds whose judgement found no Plonk It clue that counts as a miss (inside: duels.areas())."""
     bank = {b['topicId']: b for b in json.loads((HERE / 'clue-bank.json').read_text())}
     judged = duels.current_judgements()
     return [r for r in json.loads((OUT / 'rounds.json').read_text())
             if duels.is_missed(r) and r['id'] in judged and judged[r['id']].get('skipped') != 'panorama gone'
-            and not duels.round_misses(r, judged[r['id']], bank)]
+            and not duels.round_misses(r, judged[r['id']], bank, inside)]
 
 
 def lm_stamps(by_country, line):
     """Per country key: fingerprint of the model, the regional instruction and every candidate meta line."""
-    return {key: curate.fingerprint(curate.MODEL, REGIONAL, *(line[c] for c in ids)) for key, ids in by_country.items()}
+    return {key: curate.fingerprint(curate.MODEL, duels.JUDGE, REGIONAL, *(line[c] for c in ids)) for key, ids in by_country.items()}
 
 
-def lm_judgements(by_country, line):
+def lm_judgements(by_country, line, inside):
     """Latest Learnable Meta judgement per current gap round, made with the current candidates (empty ones too)."""
     path = OUT / 'lm.jsonl'
     stamp = lm_stamps(by_country, line)
-    key = {r['id']: curate.country_key(r['country'] or '') for r in gaps()}
+    key = {r['id']: curate.country_key(r['country'] or '') for r in gaps(inside)}
     return {rec['id']: rec for rec in map(json.loads, path.read_text().splitlines() if path.exists() else [])
             if rec['id'] in key and rec['inputs'] == stamp.get(key[rec['id']])}
 
@@ -77,8 +77,9 @@ def lm(limit=None):
     out = OUT / 'lm.jsonl'
     stamp = lm_stamps(by_country, line)
     done = {(r['id'], r['inputs']) for r in map(json.loads, out.read_text().splitlines())} if out.exists() else set()
-    key = {r['id']: curate.country_key(r['country'] or '') for r in gaps()}
-    todo = [r for r in gaps() if key[r['id']] in by_country and (r['id'], stamp[key[r['id']]]) not in done][:limit]
+    open_rounds = gaps(duels.areas())
+    key = {r['id']: curate.country_key(r['country'] or '') for r in open_rounds}
+    todo = [r for r in open_rounds if key[r['id']] in by_country and (r['id'], stamp[key[r['id']]]) not in done][:limit]
 
     def one(r):
         images = duels.frames(r)
@@ -149,18 +150,21 @@ def missed_rounds():
     rounds = {r['id']: r for r in json.loads((OUT / 'rounds.json').read_text())}
     bank = {b['topicId']: b for b in json.loads((HERE / 'clue-bank.json').read_text())}
     by_country, line, meta = lm_candidates()
-    picks = {}
+    picks, inside = {}, duels.areas()
     for rec in duels.current_judgements().values():
-        for c in duels.round_misses(rounds[rec['id']], rec, bank):
+        for c in duels.round_misses(rounds[rec['id']], rec, bank, inside):
             _, slug, tip = c['topicId'].split(':')
             picks.setdefault(rec['id'], []).append((f'world:pk:{slug}:{tip}', c))
-    lm_recs = [rec for rec in lm_judgements(by_country, line).values() if rec['clues'] and rec['id'] not in picks]
+    lm_recs = [rec for rec in lm_judgements(by_country, line, inside).values() if rec['clues'] and rec['id'] not in picks]
     labels = lm_labels([meta[int(c['topicId'].split(':')[2])] for rec in lm_recs for c in rec['clues']])
+    lm_inside = duels.guess_inside([(f"{rec['id']}|{c['topicId']}", rounds[rec['id']], line[c['topicId']])
+                                    for rec in lm_recs for c in rec['clues']])
     for rec in lm_recs:
         r = rounds[rec['id']]
         # As with Plonk It: a country-only meta is a miss only when the guess landed in the wrong country.
         kept = [(f"lm:{c['topicId'].split(':')[2]}", c) for c in rec['clues']
-                if r['myGuessCountry'] != r['country'] or labels[int(c['topicId'].split(':')[2])]['scope'] == 'region']
+                if (r['myGuessCountry'] != r['country'] or labels[int(c['topicId'].split(':')[2])]['scope'] == 'region')
+                and not lm_inside.get(f"{rec['id']}|{c['topicId']}")]
         if kept:
             picks[rec['id']] = kept
     return rounds, picks, meta, labels
@@ -176,6 +180,16 @@ def clue_skill(cid, world_skills, meta, labels, country):
             'practiceFamily': f"lm:{labels[m['metaId']]['kind']}", 'sourceNoteHtml': (m['note'] or '') + (m['footer'] or ''),
             'notesCountry': country, 'imageUrls': m['images'][:2], 'source': {'title': f"Learnable Meta · {m['mapName']}", 'url': url},
             'attributionHtml': f'From the Learnable Meta map <a href="{url}">{m["mapName"]}</a>.'}
+
+
+def where(r):
+    """'You guessed Mpumalanga, South Africa; it was KwaZulu-Natal.' (subdivision names without their ISO codes)"""
+    def name(sub):
+        return (sub or 'an unknown area').rsplit(' (', 1)[0]
+    if r['myGuess'].get('lat') is None:
+        return f"You did not guess; it was {name(r['subdivision'])}."
+    guess = name(r['myGuessSubdivision']) + ('' if r['myGuessCountry'] == r['country'] else f", {r['myGuessCountry'] or 'outside any country'}")
+    return f"You guessed {guess}; it was {name(r['subdivision'])}."
 
 
 def pack():
@@ -201,7 +215,7 @@ def pack():
         locations.append({'id': f'pano:{rid}', 'panoId': r['view']['panoId'], 'lat': r['view']['lat'], 'lng': r['view']['lng'],
                           # Facing where the clue was seen.
                           'heading': facing(r, c['frame']), 'pitch': 0, 'zoom': 0, 'skillIds': [rid], 'country': country,
-                          'region': country, 'assessmentEligible': False, 'note': f"In your duel: {c['evidence']}",
+                          'region': country, 'assessmentEligible': False, 'note': f"In your duel: {where(r)} {c['evidence']}",
                           'provenance': {'kind': 'duel-round', 'lost': r['lost']}})
     # Poles, then landscape, then the rest; inside each, the countries you lose most points in.
     skills.sort(key=lambda s: (FOCUS.get(s['practiceFamily'], 2), -behind.get(s['notesCountry'], 0), s['id']))
@@ -274,7 +288,7 @@ def guide(target):
         when = r['endTime'][:10] if r.get('endTime') else ''
         how = f"you scored {r['theirScore'] - r['myScore']:,} fewer points" if r['lost'] else f"your guess was {round(r['myGuess']['distance'] / 1000):,} km off"
         return (f'<figure><img loading=lazy src="img/{path.name}"><figcaption>{e(loc["note"])} '
-                f'<span class=credit><a href="https://www.geoguessr.com/duels/{r["gameId"]}/summary">{MODES.get(r["mode"], "")} duel, {when}, '
+                f'<span class=credit><a href="https://www.geoguessr.com/duels/{r["gameId"]}/summary?round={r["round"]}">{MODES.get(r["mode"], "")} duel, {when}, '
                 f'round {r["round"]}</a>, {how}.</span></figcaption></figure>')
 
     body, total = [], 0
