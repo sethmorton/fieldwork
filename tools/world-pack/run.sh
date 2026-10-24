@@ -40,6 +40,10 @@ python3 acow.py score                                # estimated detection rate 
 python3 build.py --fieldwork "$FIELDWORK"
 python3 neighbours.py                                # same-spot captures and road neighbours of one-location clues
 python3 review.py near/candidates.jsonl
+python3 acow.py candidates                           # rural practice candidates from the ACoW-shaped rounds
+python3 review.py acow/candidates.jsonl
+python3 rurality.py pack                             # rural, suburban or urban for each chosen location
+python3 rurality.py alternatives                     # and for the alternatives of clues not yet all rural
 python3 build.py --fieldwork "$FIELDWORK"
 FIELDWORK="$FIELDWORK" node --test check-pack.test.mjs
 (cd "$FIELDWORK" && npm run build)                   # refresh the installer's catalog + pack assets

@@ -5,8 +5,9 @@
   sample    draw ACoW-shaped rounds: countries weighted by acow/weights.json, locations from the per-country Vali
             pools (gap/pools)
   classify  small model (CURATE_MODEL) names the practice clues clearly visible in each round's four directions
+  candidates acow/candidates.jsonl: each round where a clue was seen becomes a rural practice candidate for it
   score     acow/clue-value.json: for each clue, the small model's estimated detection rate per 1,000 ACoW-shaped Vali rounds
-Usage: WORLD_PACK_DATA=<caches> python3 tools/world-pack/acow.py weights|sample [N]|classify [LIMIT]|score
+Usage: WORLD_PACK_DATA=<caches> python3 tools/world-pack/acow.py weights|sample [N]|classify [LIMIT]|candidates|score
 """
 import collections
 import concurrent.futures as cf
@@ -121,8 +122,29 @@ def score():
                       'countriesWithoutJudgedRounds': result['countriesWithoutJudgedRounds']}))
 
 
+def candidates():
+    """Rural practice locations: each sampled round where the model saw a clue becomes a candidate for that clue.
+    They are machine-oriented views, so review.py and review.accepts decide them like Vali samples."""
+    rounds = {r['id']: r for r in json.loads((OUT / 'sample.json').read_text())}
+    clue_text = {c['topicId']: c['text'] for c in json.loads((HERE / 'clues.json').read_text())}
+    out = []
+    for rec in map(json.loads, (OUT / 'classified.jsonl').read_text().splitlines()):
+        r = rounds.get(rec['id'])
+        for c in rec['clues'] if r else []:
+            view = r['view']
+            views = [{'heading': (view['heading'] + 90 * k) % 360, 'pitch': 0, 'fov': 90.0} for k in range(4)]
+            paths = [collect.thumb({**view, 'heading': v['heading']}, 90.0) for v in views]
+            cand = {'source': 'acow-sample', 'topicId': c['topicId'], 'view': view, 'fov': 90.0, 'coordinateCountry': None,
+                    'views': [{**v, 'thumb': str(p.relative_to(HERE))} for v, p in zip(views, paths) if p]}
+            cand['thumbStatus'] = 'ok' if cand['views'] else 'panorama-unavailable'
+            cand['id'] = collect.candidate_id(cand, clue_text[c['topicId']])
+            out.append(cand)
+    (OUT / 'candidates.jsonl').write_text(''.join(json.dumps(c, ensure_ascii=False) + '\n' for c in out))
+    print(json.dumps({'candidates': len(out), 'clues': len({c['topicId'] for c in out})}))
+
+
 if __name__ == '__main__':
     OUT.mkdir(exist_ok=True)
     command, *rest = sys.argv[1:]
     {'weights': fetch_weights, 'sample': lambda: sample(int(rest[0]) if rest else 1200), 'score': score,
-     'classify': lambda: classify(int(rest[0]) if rest else None)}[command]()
+     'candidates': candidates, 'classify': lambda: classify(int(rest[0]) if rest else None)}[command]()

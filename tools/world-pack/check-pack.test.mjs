@@ -32,12 +32,13 @@ test('world practice opens on regional clues, not a country-identification gate'
  assert.equal(set.selectedLocations.length,5);
  assert.ok(set.focus.some(f=>skillOf.get(f.id).phase==='Regional clues'));
 });
-test('new clues come in order of how often ranked No Move shows them, then foundational, useful, niche',()=>{
- const order={foundational:0,useful:1,niche:2};
+test('new clues come landscape and poles first, then by estimated ranked No Move detection, then foundational, useful, niche',()=>{
+ const order={foundational:0,useful:1,niche:2},group={'landscape-and-poles':0,other:1};
  const ranked=pack.skills.filter(s=>s.availability==='available').sort((a,b)=>a.curriculum.rank-b.curriculum.rank);
  for(let i=1;i<ranked.length;i++){
   const [a,b]=[ranked[i-1].curriculum.source,ranked[i].curriculum.source];
-  assert.ok(a.acowPer1000>b.acowPer1000||(a.acowPer1000===b.acowPer1000&&order[a.utilityTier]<=order[b.utilityTier]),ranked[i].id);
+  assert.ok(group[a.priorityGroup]<group[b.priorityGroup]||(a.priorityGroup===b.priorityGroup&&(a.acowPer1000>b.acowPer1000
+   ||(a.acowPer1000===b.acowPer1000&&order[a.utilityTier]<=order[b.utilityTier]))),ranked[i].id);
  }
  // A scored build introduces clues ranked games show; a build without acow/clue-value.json keeps the curated order.
  const set=makeNextSet(pack,[],{now,seenLocationRefs:[],previousSetLocationRefs:[]});
