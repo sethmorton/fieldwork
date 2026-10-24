@@ -53,7 +53,7 @@ Open **Content & progress** on the start panel (or **Your progress tree** on a c
 
 | Pack | What it covers |
 | --- | --- |
-| World PlonkIt clue bank | About 2,150 Plonk It region-guessing clues, ordered by how often ranked No Move shows them, 2-3 locations each |
+| World PlonkIt clue bank | About 2,150 Plonk It region-guessing clues, ordered by estimated detection on ACoW-shaped rounds, 2-3 locations each |
 | World foundations & intermediate | Bollards, pedestrian signs, languages, poles, chevrons, plates, Brazilian phone codes and more |
 | Australia region practice | State-level clues within Australia |
 | Philippines region practice | Regional clues within the Philippines |

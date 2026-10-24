@@ -36,7 +36,7 @@ python3 gapfill.py                                   # Vali candidates for short
 python3 review.py gap/candidates.jsonl
 python3 acow.py sample                               # ~1,250 ACoW-shaped rounds from the Vali pools
 python3 acow.py classify                             # small model: which clues each round shows
-python3 acow.py score                                # clue value = ranked rounds per 1,000 showing it
+python3 acow.py score                                # estimated detection rate per 1,000 ACoW-shaped rounds
 python3 build.py --fieldwork "$FIELDWORK"
 python3 neighbours.py                                # same-spot captures and road neighbours of one-location clues
 python3 review.py near/candidates.jsonl
