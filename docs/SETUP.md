@@ -119,15 +119,16 @@ it from GitHub Pages like the other supplied packs.
 
 `tools/world-pack/duels.py` reads every duel in your activity feed (ranked and
 unranked, about the last year), and has a small vision model name the World
-pack clues visible in each round. In the rounds your team lost, or guessed more than 500 km away, those clues
-count as missed (country clues only when you guessed the wrong country). Each becomes an explicit
+pack clues visible in each round that would have moved your guess toward the true location (a clue whose
+area also contains your guess, like a state you already guessed in, does not count). In competitive rounds your
+team lost, or guessed more than 500 km away, those clues count as missed (country clues only when you guessed the wrong country). Each becomes an explicit
 miss at the time of the round, so those clues are due right away and lead your
 next sets. It is personal data: it stays in your data folder and in your local
 build, never in the public pack.
 
 ```sh
 set -a; . ~/.config/fieldwork/gg.env; set +a   # GG_NCFA=<your _ncfa cookie>
-for step in fetch rounds classify export report; do WORLD_PACK_DATA=/path/to/world-map python3 tools/world-pack/duels.py $step; done
+for step in fetch rounds classify areas export report; do WORLD_PACK_DATA=/path/to/world-map python3 tools/world-pack/duels.py $step; done
 ```
 
 Add the export to `.fieldwork.local.json`, rebuild, and update the userscript:

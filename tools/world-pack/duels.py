@@ -5,9 +5,10 @@ Personal data: everything is written under WORLD_PACK_DATA/duels/ (never in the 
   fetch     every duel in your GeoGuessr activity feed (ranked and unranked) with its rounds from the game server, needs GG_NCFA (the _ncfa cookie) in the env
   rounds    every round with its result (lost = your team scored below the opponent outside a healing round)
   classify  small model (CURATE_MODEL, default gpt-6-luna) looks at what you could see and names the visible clues
+  areas     small model: does each judged clue's area also contain your guess? (then it was not missed)
   export    duels/missed-clues.json (missed clues, plus per-clue focus weights by points lost per country) for the local build (`missedCluesPaths` in .fieldwork.local.json): rounds you lost or guessed more than FAR_KM away
   report    duels/report.json: where you lose, which countries you confuse, which clues you miss and which you use
-Usage: WORLD_PACK_DATA=<caches> python3 tools/world-pack/duels.py fetch|rounds|classify [LIMIT]|export|report
+Usage: WORLD_PACK_DATA=<caches> python3 tools/world-pack/duels.py fetch|rounds|classify [LIMIT]|areas|export|report
 """
 import concurrent.futures as cf
 import json
@@ -75,6 +76,9 @@ def pano_id(encoded):
 def rounds():
     raw = json.loads((OUT / 'raw.json').read_text())
     country_at = collect.bc.geolocator(json.loads((WORK / 'worldwide/countries-50m.geojson').read_text()))
+    admin1 = json.loads((WORK / 'natural-earth-admin1.geojson').read_text())
+    subdivision_at = collect.bc.geolocator({'features': [{'geometry': f['geometry'], 'properties': {
+        'ADMIN': f"{f['properties']['name']} ({f['properties']['iso_3166_2']})"}} for f in admin1['features']]})
     meta = {g['gameId']: g for g in raw['games']}
     out = []
     for game_id, game in raw['details'].items():
@@ -97,12 +101,14 @@ def rounds():
                 'view': {'panoId': pano_id(p['panoId']), 'lat': p['lat'], 'lng': p['lng'], 'heading': p.get('heading') or 0,
                          'pitch': p.get('pitch') or 0, 'zoom': p.get('zoom') or 0},
                 'countryCode': (p.get('countryCode') or '').upper(), 'country': country_at(p['lat'], p['lng']),
+                'subdivision': subdivision_at(p['lat'], p['lng']),
                 # Healing rounds deal no damage, so scoring lower in one is not a lost round.
                 'lost': result['score'] < theirs and not game['rounds'][n - 1].get('isHealingRound'),
                 'map': (game.get('options') or {}).get('map', {}).get('name'),
                 'myScore': result['score'], 'theirScore': theirs,
                 'myGuess': {k: mine_guess.get(k) for k in ('lat', 'lng', 'distance')},
                 'myGuessCountry': country_at(mine_guess['lat'], mine_guess['lng']) if mine_guess.get('lat') is not None else None,
+                'myGuessSubdivision': subdivision_at(mine_guess['lat'], mine_guess['lng']) if mine_guess.get('lat') is not None else None,
                 'theirDistance': their_guess.get('distance')})
     (OUT / 'rounds.json').write_text(json.dumps(out))
     lost = [r for r in out if r['lost']]
@@ -151,15 +157,21 @@ def practice_clues():
     return by_code, line
 
 
+JUDGE = ("list only clues that are actually visible in the frames and would have moved the player's guess toward the true "
+         "location: the clue's area includes the true location but not where the player guessed. Skip a clue whose area "
+         "also contains the guess (for example a clue for a whole state or country the player already guessed in): the "
+         "player did not miss it. Best first, at most {max}. For each give the tip id in brackets, the frame number and what "
+         "exactly is visible and where in the frame. Only list a clue when the specific thing it describes is clearly there "
+         "(a road-line clue needs visible road lines, a pole clue a visible pole of that type). Do not list clues that are "
+         "merely consistent with the scene. Return an empty list if none qualifies. missedNote: one plain sentence on what "
+         "would have told the player the true area rather than where they guessed (empty if nothing).")
+
+
 def visible_clues(images, country, context, candidates, line, source='Plonk It'):
-    """Small-model judgement: which of these practice clues are clearly visible in the frames. None if the call failed."""
-    prompt = (f"{context}\nFrom the numbered {source} clues for {country} below, list only clues that are actually visible in "
-              f"the frames and would have pointed to the true region (or country), best first, at most {MAX_CLUES}. For each "
-              "give the tip id in brackets, the frame number and what exactly is visible and where in the frame. Only list a "
-              "clue when the specific thing it describes is clearly there (a road-line clue needs visible road lines, a pole "
-              "clue a visible pole of that type). Do not list clues that are merely consistent with the scene. Return an empty "
-              "list if none is visible. missedNote: one plain sentence on what the player should have noticed (empty if "
-              "nothing).\n\n" + '\n'.join(line[t] for t in candidates))
+    """Small-model judgement: which of these clues are visible in the frames and point away from the player's guess
+    toward the true location. None if the call failed."""
+    prompt = (f"{context}\nFrom the numbered {source} clues for {country} below, {JUDGE.format(max=MAX_CLUES)}\n\n"
+              + '\n'.join(line[t] for t in candidates))
     try:
         answer = curate.ask(prompt, SCHEMA, images)
     except Exception:
@@ -174,12 +186,13 @@ def visible_clues(images, country, context, candidates, line, source='Plonk It')
 
 def inputs(by_code, line):
     """Per country: fingerprint of the candidate clue text and the model, so a judgement is reused only for the same
-    question. (A change to the prompt wording in visible_clues needs the classified files removed.)"""
-    return {cc: curate.fingerprint(curate.MODEL, *(line[t] for t in ts)) for cc, ts in by_code.items()}
+    question (JUDGE is the prompt's instruction)."""
+    return {cc: curate.fingerprint(curate.MODEL, JUDGE, *(line[t] for t in ts)) for cc, ts in by_code.items()}
 
 
 def classify(limit=None):
-    rounds = sorted(json.loads((OUT / 'rounds.json').read_text()), key=lambda r: not r['lost'])
+    # Only missed rounds are judged: a clue is a miss relative to where you guessed.
+    rounds = sorted((r for r in json.loads((OUT / 'rounds.json').read_text()) if is_missed(r)), key=lambda r: not r['lost'])
     by_code, line = practice_clues()
     current = inputs(by_code, line)
     out = OUT / 'classified.jsonl'
@@ -207,11 +220,12 @@ def classify(limit=None):
 
 def context(r, frame_count):
     seen = 'only frame 1 (no moving, no turning)' if r['movement'].get('forbidRotating') else f'frames 1-{frame_count} (it could turn around)'
-    guess = (f"The player guessed {r['myGuessCountry'] or 'somewhere'} at {round((r['myGuess']['distance'] or 0) / 1000)} km away"
+    guess = (f"The player guessed in {r['myGuessSubdivision'] or 'an unknown area'}, {r['myGuessCountry'] or 'outside any country'} "
+             f"({r['myGuess']['lat']:.3f}, {r['myGuess']['lng']:.3f}), {round((r['myGuess']['distance'] or 0) / 1000)} km away"
              if r['myGuess'].get('lat') is not None else 'The player did not guess')
-    return (f"A GeoGuessr player {'lost' if r['lost'] else 'played'} this duel round. The true location is in {r['country']} "
-            f"({r['view']['lat']:.3f}, {r['view']['lng']:.3f}). {guess}; the opponent was "
-            f"{round((r['theirDistance'] or 0) / 1000)} km away. The player could see {seen}.")
+    return (f"A GeoGuessr player {'lost' if r['lost'] else 'played'} this duel round. The true location is in "
+            f"{r['subdivision'] or 'an unknown area'}, {r['country']} ({r['view']['lat']:.3f}, {r['view']['lng']:.3f}). {guess}; "
+            f"the opponent was {round((r['theirDistance'] or 0) / 1000)} km away. The player could see {seen}.")
 
 
 def current_judgements():
@@ -240,24 +254,77 @@ def is_missed(r):
     return r['mode'] not in (None, 'None') and (r['lost'] or (r['myGuess'].get('distance') or 0) > FAR_KM * 1000)
 
 
-def round_misses(r, rec, bank):
-    """The judged clues of a missed round that count as misses: playable practice clues, and country clues only when
-    the guess landed in the wrong country."""
+def round_misses(r, rec, bank, inside):
+    """The judged clues of a missed round that count as misses: playable practice clues whose area does not contain
+    your guess (inside, from areas()), and country clues only when the guess landed in the wrong country."""
     if not is_missed(r):
         return []
     right_country = r['myGuessCountry'] == r['country']
     return [c for c in rec['clues'] if bank[c['topicId']]['practice'] and bank[c['topicId']]['status'] == 'playable'
-            and not (bank[c['topicId']]['stage'] == 'country-identification' and right_country)]
+            and not (bank[c['topicId']]['stage'] == 'country-identification' and right_country)
+            and not inside.get(f"{r['id']}|{c['topicId']}")]
+
+
+AREA_PROMPT = """Each numbered item is a GeoGuessr clue that was visible in a duel round, with where the round really was
+and where the player guessed (both in the same country). For each answer containsGuess: true if the area the clue
+points to also contains the guessed spot (so spotting it could not have moved the guess closer, for example a clue for
+a whole state the player already guessed in); false if the clue's area includes the true location but not the guess.
+
+{items}
+
+Return exactly {n} results, n=1..{n}."""
+
+
+def guess_inside(items):
+    """{key: bool}: does the area of the clue contain the player's guess? items are (key, round, clue text); only
+    same-country guesses need asking (a clue of the true country excludes a guess abroad). Cached in duels/areas.json."""
+    path = OUT / 'areas.json'
+    known = json.loads(path.read_text()) if path.exists() else {}
+    asks = {k: (r, t, curate.fingerprint(curate.MODEL, AREA_PROMPT, t, r['myGuess'], r['view']['lat'], r['view']['lng']))
+            for k, r, t in items if r['myGuessCountry'] == r['country']}
+    todo = [k for k, (_, _, fp) in asks.items() if known.get(k, {}).get('fingerprint') != fp]
+
+    def one(batch):
+        lines = []
+        for n, k in enumerate(batch, 1):
+            r, t, _ = asks[k]
+            lines.append(f"Item {n}: true location {r['subdivision']}, {r['country']} ({r['view']['lat']:.3f}, {r['view']['lng']:.3f}); "
+                         f"guess {r['myGuessSubdivision']} ({r['myGuess']['lat']:.3f}, {r['myGuess']['lng']:.3f}), "
+                         f"{round(r['myGuess']['distance'] / 1000)} km away. Clue: {t[:500]}")
+        try:
+            got = curate.ask(AREA_PROMPT.format(items='\n\n'.join(lines), n=len(batch)),
+                             curate.schema({'n': {'type': 'integer'}, 'containsGuess': {'type': 'boolean'}}))
+        except Exception:
+            return {}  # retried on the next run
+        return {batch[x['n'] - 1]: {'containsGuess': x['containsGuess'], 'fingerprint': asks[batch[x['n'] - 1]][2]}
+                for x in got['results'] if 1 <= x['n'] <= len(batch)}
+
+    with cf.ThreadPoolExecutor(curate.WORKERS) as pool:
+        for got in pool.map(one, [todo[i:i + 15] for i in range(0, len(todo), 15)]):
+            known.update(got)
+            path.write_text(json.dumps(known))
+    return {k: known[k]['containsGuess'] for k, (_, _, fp) in asks.items() if known.get(k, {}).get('fingerprint') == fp}
+
+
+def areas():
+    """Ask guess_inside for every Plonk It clue judged in a missed round; returns the {key: bool} map."""
+    rounds = {r['id']: r for r in json.loads((OUT / 'rounds.json').read_text())}
+    clues = {c['topicId']: c['text'] for c in json.loads((HERE / 'clues.json').read_text())}
+    items = [(f"{i}|{c['topicId']}", rounds[i], clues[c['topicId']]) for i, rec in current_judgements().items()
+             if is_missed(rounds[i]) for c in rec['clues']]
+    inside = guess_inside(items)
+    print(json.dumps({'asked': len(inside), 'containGuess': sum(inside.values())}))
+    return inside
 
 
 def export():
     """One missed observation per (missed round, clue) whose clue is playable in the World pack (round_misses)."""
     rounds = {r['id']: r for r in json.loads((OUT / 'rounds.json').read_text())}
     bank = {b['topicId']: b for b in json.loads((HERE / 'clue-bank.json').read_text())}
-    missed = []
+    missed, inside = [], areas()
     for rec in current_judgements().values():
         r = rounds[rec['id']]
-        for c in round_misses(r, rec, bank):
+        for c in round_misses(r, rec, bank, inside):
             _, slug, tip = c['topicId'].split(':')
             missed.append({'id': f"{rec['id']}:{tip}", 'skillId': f'world:pk:{slug}:{tip}',
                            'occurredAt': r['endTime'], 'reason': c['evidence']})
@@ -273,8 +340,7 @@ def export():
 
 
 def report():
-    """Where the points go: per country rounds, losses and wrong-country guesses; the countries you confuse; per clue
-    how often it was visible when you lost versus when you did not."""
+    """Where the points go: per country rounds, losses and wrong-country guesses; the countries you confuse; per mode."""
     rounds = json.loads((OUT / 'rounds.json').read_text())
     judged = current_judgements()
     by_country = {}
@@ -289,19 +355,13 @@ def report():
         if r['myGuessCountry'] and r['country'] and r['myGuessCountry'] != r['country']:
             key = f"{r['country']} -> {r['myGuessCountry']}"
             confusions[key] = confusions.get(key, 0) + 1
-    clues = {}
-    outcome = {r['id']: r['lost'] for r in rounds}
-    for i, rec in judged.items():
-        for c in rec['clues']:
-            k = clues.setdefault(c['topicId'], {'visibleLost': 0, 'visibleNotLost': 0})
-            k['visibleLost' if outcome[i] else 'visibleNotLost'] += 1
     modes = {}
     for r in rounds:
         m = modes.setdefault(f"{r['mode']} | {r['map']}", {'rounds': 0, 'lost': 0})
         m['rounds'] += 1
         m['lost'] += r['lost']
     result = {'rounds': len(rounds), 'judged': len(judged), 'byCountry': by_country, 'modes': modes,
-              'confusions': dict(sorted(confusions.items(), key=lambda kv: -kv[1])), 'clues': clues}
+              'confusions': dict(sorted(confusions.items(), key=lambda kv: -kv[1]))}
     (OUT / 'report.json').write_text(json.dumps(result, ensure_ascii=False, indent=1))
     print(json.dumps({'rounds': len(rounds), 'judged': len(judged), 'countries': len(by_country), 'confusions': len(confusions)}))
 
@@ -309,5 +369,5 @@ def report():
 if __name__ == '__main__':
     OUT.mkdir(exist_ok=True)
     command, *rest = sys.argv[1:]
-    {'fetch': fetch, 'rounds': rounds, 'export': export, 'report': report,
+    {'fetch': fetch, 'rounds': rounds, 'areas': areas, 'export': export, 'report': report,
      'classify': lambda: classify(int(rest[0]) if rest else None)}[command]()
