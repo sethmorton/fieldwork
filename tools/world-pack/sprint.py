@@ -445,11 +445,12 @@ def main(wanted=False):
         {d['locationId'].split(':')[-1] for d in json.loads(dead_path.read_text())['dead']} if dead_path.exists() else set())
     verdict_rank = {'yes': 0, 'partly': 1}
     skills, locations, used = [], [], set(bad)
-    # Deck metas teach only on locations sprint_decks.py verified; one that repeats a pick tops up that card instead.
+    views = json.loads((OUT / 'deck-views.json').read_text()) if (OUT / 'deck-views.json').exists() else {}
     extra, deck = collections.defaultdict(list), []
     for (cc, sid), (subject, repeat) in deck_repeats(picks, cands, name).items():
         c = cands[cc][sid]
-        c['locs'] = [l for l in c['locs'] if verdicts.get(l['panoId']) == 'yes']
+        # Only locations sprint_decks.py verified, in the verified view; a repeat tops up the pick it repeats instead.
+        c['locs'] = [{**l, 'view': views.get(l['panoId'], {})} for l in c['locs'] if verdicts.get(l['panoId']) == 'yes']
         if repeat:
             extra[repeat] += c['locs']
         else:
@@ -475,8 +476,7 @@ def main(wanted=False):
     prefer = lambda l: (verdict_rank.get(verdicts.get(l['panoId']), 2), SETTING_RANK.get(setting.get(l['panoId']), 1))
 
     def add_skill(p, cc):
-        """The pick's skill on up to 2 unused source locations, then Seth's duel views, then a repeating deck meta's
-        locations up to 3 in all; no skill when none is left."""
+        """The pick's skill on up to 2 source locations, Seth's duel views, then repeating deck ones up to 3 in all."""
         c, sid = cands[cc][p['id']], f"sprint:{cc}:{p['id']}"
         chosen = []
         for loc in sorted(c['locs'], key=prefer):
@@ -507,7 +507,7 @@ def main(wanted=False):
         src = [{'id': f"sprint:{loc['panoId']}", 'panoId': loc['panoId'], 'lat': loc['lat'], 'lng': loc['lng'],
                        'heading': loc['heading'] or 0, 'pitch': loc['pitch'] or 0, 'zoom': 0,  # ranked opens unzoomed
                        'skillIds': [sid], 'country': loc['country'], 'assessmentEligible': False,
-                       **({'sourceMapId': loc['sourceMapId']} if 'sourceMapId' in loc else {}),
+                       **({'sourceMapId': loc['sourceMapId']} if 'sourceMapId' in loc else {}), **loc.get('view', {}),
                        'provenance': {'kind': 'source-example', 'source': loc['source']}} for loc in chosen]
         mine = [{'id': f"sprint:duel:{d['panoId']}", 'panoId': d['panoId'], 'lat': d['lat'], 'lng': d['lng'],
                        'heading': d.get('heading') or 0, 'pitch': d.get('pitch') or 0, 'zoom': 0,
