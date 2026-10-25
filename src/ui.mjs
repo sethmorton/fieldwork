@@ -2,6 +2,7 @@ import {renderProgressTree} from './progress.mjs';
 import {practiceFeedback} from './session.mjs';
 import {curriculumProgress} from './lib/adaptive.ts';
 import {plainMessage} from './load-errors.mjs';
+import {renderAtlas,sprintSummary,richNote} from './atlas.mjs';
 const notSaved='This change could not be saved. Try again.';
 // Compact post-guess UI. Source HTML is converted to text, never executed.
 // Panel size: compact by default, expanded (wide, full images and text) when the learner asks; remembered per browser.
@@ -13,10 +14,10 @@ function applySize(section,treeOpen=false){
   const toggle=section.querySelector('.size');if(toggle){toggle.textContent=wide?'⤡':'⤢';toggle.setAttribute('aria-label',wide?'Shrink panel':'Expand panel')}
 }
 const toggleWide=section=>{localStorage.setItem('fieldwork:wide',isWide()?'0':'1');applySize(section,!!section.querySelector('details.tree[open]'))};
-export function panel() {
-  document.getElementById('fieldwork-practice')?.remove();
-  const host=document.createElement('aside');host.id='fieldwork-practice';
-  Object.assign(host.style,{position:'fixed',bottom:'18px',left:'18px',zIndex:9999,width:'min(340px, calc(100vw - 36px))'});
+// Every Fieldwork surface is a shadow-root host sharing one stylesheet.
+function shadowHost(tag,id){
+  document.getElementById(id)?.remove();
+  const host=document.createElement(tag);host.id=id;
   const root=host.attachShadow({mode:'open'});
   const style=document.createElement('style');style.textContent=`
     :host{color:#153946;font:14px/1.4 Arial,sans-serif}*{box-sizing:border-box}
@@ -31,12 +32,31 @@ export function panel() {
     .tree-node{display:flex;align-items:center;gap:10px;width:100%;padding:4px 0;text-align:left;border:0;background:none;border-radius:4px;font-size:12px}.tree-count{display:inline-grid;place-items:center;width:28px;height:28px;flex-shrink:0;border:1px dashed #9bb7c2;border-radius:50%;font:12px ui-monospace,monospace}.learning{background:#d2e8f0;border:1px solid #176b86;color:#153946}.provisional{background:#176b86;border:3px double #eff6f8;color:white;outline:1px solid #176b86}.mastered{background:#276b50;border:1px solid #276b50;color:white}.needs-review .tree-count{box-shadow:0 0 0 3px #d1961f}.tree-node[aria-pressed=true] .tree-name{font-weight:bold;text-decoration:underline}.tree-node:focus-visible{outline:3px solid #d1961f;outline-offset:3px}.tree-inspect{min-height:24px;font-size:12px}.tree-inspect p{margin:4px 0}
     .preview{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}.wide .preview{display:block}
     .wide img{max-height:none;cursor:zoom-out}img{cursor:zoom-in}header .size{margin-left:auto}
-  `;root.append(style);const section=document.createElement('section');root.append(section);document.body.append(host);
+    dialog.overlay{width:100vw;height:100vh;max-width:none;max-height:none;margin:0;padding:16px;border:0;background:#eff6f8;color:#153946;overflow:auto}
+  `;root.append(style);return {host,root};
+}
+export function panel() {
+  const {host,root}=shadowHost('aside','fieldwork-practice');
+  Object.assign(host.style,{position:'fixed',bottom:'18px',left:'18px',zIndex:9999,width:'min(340px, calc(100vw - 36px))'});
+  const section=document.createElement('section');root.append(section);document.body.append(host);
   applySize(section);
   return {host,section};
 }
 const text=(parent,tag,content,cls)=>{const node=document.createElement(tag);node.textContent=content;if(cls)node.className=cls;parent.append(node);return node};
 const button=(parent,label,handler,cls)=>{const node=text(parent,'button',label,cls);node.type='button';node.onclick=handler;return node};
+// Sprint progress is the atlas, in a full-viewport modal dialog: focus stays inside, Escape closes it and focus returns
+// to the opener. Keys stop at the dialog, so typing never fires GeoGuessr shortcuts.
+function openAtlas(pack,attempts,opener,loadNote){
+  const {host,root}=shadowHost('div','fieldwork-atlas');
+  const dialog=document.createElement('dialog');dialog.className='overlay';dialog.setAttribute('aria-label','Atlas');root.append(dialog);
+  const head=document.createElement('header');dialog.append(head);text(head,'small','Fieldwork · atlas');
+  button(head,'×',()=>dialog.close(),'close').setAttribute('aria-label','Close atlas');
+  renderAtlas(dialog,pack,attempts,{loadNote});
+  dialog.addEventListener('keydown',event=>event.stopPropagation());
+  dialog.onclose=()=>{host.remove();opener.focus()};
+  document.body.append(host);dialog.showModal();
+}
+const atlasButton=(parent,pack,getAttempts,loadNote)=>button(parent,'Open atlas',function(){openAtlas(pack,getAttempts(),this,loadNote)});
 function header(section,label) {
   const head=document.createElement('header');section.append(head);text(head,'small',label);
   button(head,'⤢',()=>toggleWide(section),'close size');
@@ -52,45 +72,51 @@ function treeDetails(section,pack,getAttempts,title){
 function clue(section,skill,sourceUrl) {
   sourceUrl=skill.notesSourceUrl??sourceUrl;
   text(section,'h2',skill.title);
+  if(skill.tell){const tell=text(section,'p',null);text(tell,'strong',skill.tell).style.fontSize='1.15em';}
   const imageUrl=skill.imageUrls?.find(url=>url.startsWith('https://learnablemeta.com/images/')||url.startsWith('https://www.plonkit.net/images/')||url.startsWith('https://ocsc00skc0wokcs8kw8g8k84.geohints.com/storage/'));
   if(imageUrl){const img=document.createElement('img');img.src=imageUrl;img.alt=skill.title+' — source example';img.title='Click to enlarge';
     img.onclick=()=>toggleWide(img.getRootNode().querySelector('section'));section.append(img);}
-  const details=document.createElement('details');text(details,'summary','Clue & source');
+  const details=document.createElement('details');details.open=skill.subject==='duel'||skill.subject==='contrast';text(details,'summary','Clue & source');
   const parsed=new DOMParser().parseFromString(skill.sourceNoteHtml??skill.trainingNote??'','text/html');const note=(parsed.body.textContent??'').trim();
-  const preview=skill.trainingNote??note;
+  // With a tell, the preview is just the note's first paragraph (the facts line); the rest stays under 'Clue & source'.
+  const preview=skill.tell?(parsed.body.querySelector?.('p')?.textContent??'').trim():skill.trainingNote??note;
   if(preview)text(section,'p',preview,'muted preview');
-  text(details,'p',note);
+  richNote(details,skill.sourceNoteHtml??skill.trainingNote);
   if(skill.scoringCaveats?.length)text(details,'p',skill.scoringCaveats.join(' '),'muted');
   if(sourceUrl?.startsWith('https://')){const source=text(details,'a','Original clues');source.href=sourceUrl;source.target='_blank';source.rel='noopener noreferrer';}
   if(skill.source?.url?.startsWith('https://')){text(details,'span',' · ');const guide=text(details,'a','Guide');guide.href=skill.source.url;guide.target='_blank';guide.rel='noopener noreferrer';}
   const attribution=new DOMParser().parseFromString(skill.attributionHtml??'','text/html');text(details,'p',attribution.body.textContent??'','muted');section.append(details);
 }
-export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],getAttempts=()=>attempts,onChange=()=>{},onSave,onNext,loadNote}) {
+export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],getAttempts=()=>attempts,onChange=()=>{},onSave,onNext,loadNote,atlasNote}) {
   const {section}=panel();header(section,`Fieldwork · round ${round.round}/5`);
   const source=document.createElement('div');section.append(source);
-  const currentSkill=pack.skills.find(skill=>skill.id===round.location.skillIds[0]);
+  const currentSkill=pack.skills.find(skill=>skill.id===round.location.skillIds[0]),sprint=pack.scheduler==='sprint';
   clue(source,currentSkill,pack.notesSourceUrl);
   if(loadNote&&!currentSkill.sourceNoteHtml&&currentSkill.noteOrigin!=='fieldwork-authored'){
     const status=text(source,'p','Loading source explanation…','muted');
     loadNote(currentSkill).then(skill=>{if(!source.isConnected)return;source.replaceChildren();clue(source,skill,pack.notesSourceUrl)}).catch(()=>{status.textContent='Explanation unavailable. Use the original source link; your feedback still saves.'});
   }
+  const plain=value=>(value??'').replace(/\s+/g,' ').trim(),noteText=plain(`${currentSkill.trainingNote??''} ${new DOMParser().parseFromString(currentSkill.sourceNoteHtml??'','text/html').body.textContent}`);
+  if(sprint){if(currentSkill.relevance)text(section,'p',currentSkill.relevance,'muted');if(!currentSkill.tell&&currentSkill.why&&!noteText.includes(plain(currentSkill.why)))text(section,'p',currentSkill.why);}
   // A location can say what to look for in this exact panorama (e.g. what was visible in a duel round you missed).
   if(round.location.note)text(section,'p',round.location.note);
-  if(round.location.assessmentEligible===false)text(section,'p','Teaching example · practice credit only.','muted');
+  if(!sprint&&round.location.assessmentEligible===false)text(section,'p','Teaching example · practice credit only.','muted');
   text(section,'p',practiceFeedback(attempts,round),'muted');
-  text(section,'p','Moving on saves “spotted it.” “Knew it” skips the short repeats and checks back later in a real round.','muted');
+  text(section,'p',sprint?'Spotted twice on explicit clicks retires a clue. Knew it retires it now. Moving on without a click counts as shown only.'
+    :'Moving on saves “spotted it.” “Knew it” skips the short repeats and checks back later in a real round.','muted');
   if(currentSkill.recognitionOnly)text(section,'p','Feature recognition practice. Your region guess is tracked separately.','muted');
   const label=document.createElement('label');const seen=document.createElement('input');seen.type='checkbox';seen.checked=familiar;label.append(seen,document.createTextNode('I had seen this panorama before'));section.append(label);
   let result=round.correct;
   seen.onchange=()=>onChange({familiar:seen.checked,correct:result});
-  if(result===null&&!currentSkill.recognitionOnly){text(section,'p','Was your guess in the right region?','muted');const choices=document.createElement('div');choices.className='actions';section.append(choices);for(const [title,value] of [['Yes',true],['No',false]])button(choices,title,()=>{result=value;onChange({familiar:seen.checked,correct:result});for(const child of choices.children)child.classList.remove('primary');choices.children[value?0:1].classList.add('primary');});}
+  if(result===null&&!currentSkill.recognitionOnly&&pack.gradingPolicy!=='recognition'){text(section,'p','Was your guess in the right region?','muted');const choices=document.createElement('div');choices.className='actions';section.append(choices);for(const [title,value] of [['Yes',true],['No',false]])button(choices,title,()=>{result=value;onChange({familiar:seen.checked,correct:result});for(const child of choices.children)child.classList.remove('primary');choices.children[value?0:1].classList.add('primary');});}
   const status=text(section,'p',saved?'Saved on this device.':'','muted');status.setAttribute('role','status');
   const actions=document.createElement('div');actions.className='actions';section.append(actions);
   const save=(recognized,knew=false)=>{try{onSave({recognized,knew,familiar:seen.checked,correct:result});tree.refresh();for(const child of actions.children)child.disabled=true;status.textContent='Saved on this device.';}catch(error){status.textContent=plainMessage(error,notSaved)}};
   button(actions,'Missed it',()=>save(false),'primary');button(actions,'Spotted it',()=>save(true));button(actions,'Knew it',()=>save(true,true));
   for(const child of actions.children)child.disabled=saved;
   if(round.round===5){const next=button(section,'Continue practice',async()=>{next.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=plainMessage(error);next.disabled=false}},'primary');next.style.marginTop='12px';}
-  const tree=treeDetails(section,pack,getAttempts,'Your progress tree');
+  const tree=sprint?{refresh(){}}:treeDetails(section,pack,getAttempts,'Your progress tree');
+  if(sprint)atlasButton(section,pack,getAttempts,atlasNote).style.marginTop='12px';
 }
 function packImport(parent,onImport,status){
   const label=text(parent,'label','Import a practice pack');const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async()=>{try{if(!input.files[0])return;await onImport(JSON.parse(await input.files[0].text()));status.textContent='Pack imported.';}catch(error){status.textContent=plainMessage(error)}};label.append(input);
@@ -109,17 +135,22 @@ export function bindPanel(packs,{onBind}){
   const status=text(section,'p','Fieldwork replaces this map’s locations with each new five-round set. Pick the pack this map is for:','muted');status.setAttribute('role','status');
   for(const item of packs)button(section,item.title,()=>{try{onBind(item.id)}catch(error){status.textContent=plainMessage(error)}},'primary').style.cssText='display:block;width:100%;margin-top:8px';
 }
-export function startPanel(pack,{onNext,onQuickCheck,onExport,onImport,onCoverage,attempts=[],getAttempts=()=>attempts,packs=[],onChoosePack,learn=false,onLearn}) {
+export function startPanel(pack,{onNext,onQuickCheck,onExport,onImport,onCoverage,attempts=[],getAttempts=()=>attempts,packs=[],onChoosePack,learn=false,onLearn,atlasNote}) {
   const {section}=panel();header(section,'Fieldwork · practice');text(section,'h2',pack.title);
   if(packs.length>1)packChoice(section,pack,packs,onChoosePack);
-  text(section,'p',curriculumProgress(pack,attempts).message,'muted');
-  const status=text(section,'p',`${pack.answerAreaLabel??pack.title}. At most two clues per family. New clues adapt to recent practice.`,'muted');status.setAttribute('role','status');
+  const sprint=pack.scheduler==='sprint';
+  text(section,'p',sprint?sprintSummary(pack,attempts):curriculumProgress(pack,attempts).message,'muted');
+  const status=text(section,'p',sprint?`${pack.answerAreaLabel}.`:`${pack.answerAreaLabel??pack.title}. At most two clues per family. New clues adapt to recent practice.`,'muted');status.setAttribute('role','status');
   const actions=document.createElement('div');actions.className='actions';section.append(actions);
   button(actions,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=plainMessage(error);this.disabled=false}},'primary');
-  if(onQuickCheck)button(actions,'Quick check',onQuickCheck);
-  if(onLearn){const label=document.createElement('label');const box=document.createElement('input');box.type='checkbox';box.checked=learn;
-    box.addEventListener('change',()=>onLearn(box.checked));label.append(box,document.createTextNode(' Learn mode: duel misses and new clues first, reviews wait'));section.append(label);}
-  const {details}=treeDetails(section,pack,getAttempts,'Content & progress');
+  if(sprint)atlasButton(actions,pack,getAttempts,atlasNote);
+  else{
+    if(onQuickCheck)button(actions,'Quick check',onQuickCheck);
+    if(onLearn){const label=document.createElement('label');const box=document.createElement('input');box.type='checkbox';box.checked=learn;
+      box.addEventListener('change',()=>onLearn(box.checked));label.append(box,document.createTextNode(' Learn mode: duel misses and new clues first, reviews wait'));section.append(label);}
+  }
+  const details=sprint?document.createElement('details'):treeDetails(section,pack,getAttempts,'Content & progress').details;
+  if(sprint){text(details,'summary','Content & progress');section.append(details);}
   if(pack.coverageSummary){const coverage=document.createElement('details');text(coverage,'summary','Source coverage');text(coverage,'p',pack.coverageSummary,'muted');details.append(coverage);}
   if(onCoverage)button(details,'Export source inventory',async()=>{try{await onCoverage()}catch(error){status.textContent=plainMessage(error)}});
   button(details,'Export progress',onExport);packImport(details,onImport,status);

@@ -1,4 +1,5 @@
 import { MAX_PER_FAMILY, planPractice } from './lib/adaptive.ts';
+import { planSprint } from './sprint.mjs';
 
 export function updatedPack(stored,bundled) {
   if(!stored)return bundled;
@@ -12,6 +13,7 @@ export function validatePack(pack) {
     throw new Error('A pack needs id, title, subject, skills, pools and real tagged locations.');
   if(pack.maxLocationsPerCountry!==undefined&&(!Number.isInteger(pack.maxLocationsPerCountry)||pack.maxLocationsPerCountry<1))throw Error('Country limit must be a positive integer.');
   if(pack.gradingPolicy!==undefined&&pack.gradingPolicy!=='recognition')throw Error('Unknown grading policy.');
+  if(pack.scheduler!==undefined&&pack.scheduler!=='sprint')throw Error('Unknown scheduler.');
   const skills = new Set(pack.skills.map(skill => skill.id));
   if (skills.size !== pack.skills.length) throw new Error('Skill IDs must be unique.');
   for (const skill of pack.skills) {
@@ -66,9 +68,11 @@ export function validatePack(pack) {
 export function makeNextSet(pack, attempts, options = {}) {
   validatePack(pack);
   if(!Array.isArray(attempts)) throw new Error('Results must be an attempt array.');
-  const plan = planPractice(pack,attempts,{size:options.size??5,now:options.now??Date.now(),seenLocationRefs:options.seenLocationRefs??[],previousSetLocationRefs:options.previousSetLocationRefs??[],learn:!!options.learn,focus:options.focus??{}});
+  const size=options.size??5,sprint=pack.scheduler==='sprint';
+  const plan = sprint?sprintPlan(pack,attempts,size)
+    :planPractice(pack,attempts,{size,now:options.now??Date.now(),seenLocationRefs:options.seenLocationRefs??[],previousSetLocationRefs:options.previousSetLocationRefs??[],learn:!!options.learn,focus:options.focus??{}});
   const selected = plan.locationIds.map(id=>pack.locations.find(location=>location.id===id));
-  if (selected.length < (options.size??5)) throw new Error(`Need ${options.size??5} location-backed clues, at most ${MAX_PER_FAMILY} per family. ${plan.reasons.at(-1)}`);
+  if (selected.length < size) throw new Error(`Need ${size} location-backed clues${sprint?'':`, at most ${MAX_PER_FAMILY} per family`}. ${plan.reasons.at(-1)}`);
   return {
     packId:pack.id, phase:plan.phase, focus:plan.focusSkills.map(({id,title})=>({id,title})), reasons:plan.reasons,
     // Assignment is a training selection; it is not evidence that a clue was recognized.
@@ -80,3 +84,8 @@ export function makeNextSet(pack, attempts, options = {}) {
     sourceNotes: pack.skills.filter(skill=>plan.focusSkills.some(focus=>focus.id===skill.id)),
   };
 }
+const sprintPlan=(pack,attempts,size)=>{
+  const {locationIds,reasons}=planSprint(pack,attempts,{size});
+  const ids=locationIds.map(id=>pack.locations.find(location=>location.id===id).skillIds[0]);
+  return {phase:'Sprint',locationIds,reasons,focusSkills:ids.map(id=>pack.skills.find(skill=>skill.id===id))};
+};

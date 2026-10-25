@@ -4,6 +4,7 @@ import {pathToFileURL} from 'node:url';
 import {configurePack} from './setup.mjs';
 import {mergePacks} from '../src/packs.mjs';
 import {writeContentAssets,contentHost,buildPublicContent,readPublicPacks,userscriptHeader,bundleUserscript} from './content-assets.mjs';
+import {buildAtlasPage} from './atlas-page.mjs';
 
 export async function buildFieldwork(){
   let config;try{config=JSON.parse(await readFile('.fieldwork.local.json','utf8'))}catch{throw Error('Run npm run setup -- --map <your-owned-map-ID> first.');}
@@ -12,6 +13,10 @@ export async function buildFieldwork(){
   await mkdir('dist',{recursive:true});
   await writeFile('dist/practice-pack.json',JSON.stringify(pack,null,2)+'\n');
   await writeFile('dist/practice-packs.json',JSON.stringify(packs,null,2)+'\n');
+  // The atlas outlines ship with the separately loaded sprint pack, never inside the size-limited userscript.
+  const geometry=JSON.parse(await readFile('src/world-geometry.json','utf8'));
+  const attempts=config.sprintAttemptsPath?JSON.parse(await readFile(config.sprintAttemptsPath,'utf8')):[];
+  for(const item of packs.filter(entry=>entry.scheduler==='sprint')){item.atlas={...item.atlas,geometry};await buildAtlasPage(item,'dist/atlas',attempts)}
   const publicPacks=await readPublicPacks();
   await writeContentAssets(packs,'dist');
   await buildPublicContent();

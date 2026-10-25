@@ -14,3 +14,4 @@ tools/world-pack/*/
 !tools/world-pack/seed/
 tools/world-pack/*.json
 tools/world-pack/*.jsonl
+.scratch/

@@ -107,7 +107,7 @@ export async function publishPracticeSet(pack,set,request,backup) {
     const skill=pack.skills.find(skill=>skill.id===source.skillIds[0]);
     return skill.practiceFamily??skill.id;
   });
-  if(families.some(family=>families.filter(value=>value===family).length>MAX_PER_FAMILY))throw Error(`A practice map allows at most ${MAX_PER_FAMILY} clues per family.`);
+  if(pack.scheduler!=='sprint'&&families.some(family=>families.filter(value=>value===family).length>MAX_PER_FAMILY))throw Error(`A practice map allows at most ${MAX_PER_FAMILY} clues per family.`);
   if(pack.maxLocationsPerCountry){
     const countries=coordinates.map(location=>pack.locations.find(source=>source.panoId===location.panoId).country);
     if(countries.some(country=>!country||countries.filter(value=>value===country).length>pack.maxLocationsPerCountry))throw Error('This practice pack requires a varied set of known countries.');

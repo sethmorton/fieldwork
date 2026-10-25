@@ -117,7 +117,7 @@ function offerBinding() {
   if(ok===true&&mounted!=='bind:'+mapId){bindPanel(unbound,{onBind:id=>{store.bind(id,mapId);remove();render()}});mounted='bind:'+mapId}
   return true;
 }
-const remove=()=>{document.getElementById('fieldwork-practice')?.remove();mounted=''};
+const remove=()=>{for(const id of ['fieldwork-practice','fieldwork-atlas'])document.getElementById(id)?.remove();mounted=''};
 // One content load per route and pack, shared by render() and receiveState(). DOM mutations and repeated game responses
 // join it, so they never restart a download or reset the retry schedule. A route change drops it and its callbacks.
 let load=null;
@@ -200,7 +200,7 @@ function render() {
       onQuickCheck:()=>{mounted='quick';quickCheckPanel(pack,quickCheckQueue(pack,history()),{
         onKnown:skillId=>GM_setValue(key('attempts'),recordKnown(pack,history(),skillId)),onDone:()=>{remove();render()}})},
       onExport:()=>download({packId:pack.id,attempts:history(),exposures:exposures(),previousDraft:GM_getValue(key('previous-draft'),null),pendingBackup:GM_getValue(key('pending-backup'),null)},`fieldwork-progress-${pack.id}.json`),
-      onImport:importPack,onCoverage:async()=>download(await store.audit(pack.id),`fieldwork-sources-${pack.id}.json`),
+      onImport:importPack,onCoverage:async()=>download(await store.audit(pack.id),`fieldwork-sources-${pack.id}.json`),atlasNote,
     });mounted='start';return;
   }
   const round=completedRound(pack,state);
@@ -217,9 +217,10 @@ function render() {
   if(!history().some(item=>item.id===round.id))GM_setValue(key('pending-review'),{round,familiar,correct:round.correct});
   reviewPanel(pack,round,{familiar,attempts:history(),getAttempts:history,saved:history().some(item=>item.id===round.id&&item.feedbackSource!=='assumed-on-advance'),
     onChange:response=>{const pending=GM_getValue(key('pending-review'),null);if(pending?.round.id===round.id)GM_setValue(key('pending-review'),{...pending,...response})},
-    loadNote:skill=>sourceNote(skill,round.location,{fetchText,get:GM_getValue,set:GM_setValue,revision:pack.contentRevision}),
+    loadNote:skill=>atlasNote(skill,round.location),atlasNote,
     onSave:response=>{const updated=recordRecognition(pack,history(),round,response);GM_setValue(key('attempts'),updated);GM_setValue(key('pending-review'),null);return updated},onNext:prepare});mounted=lastShown=round.id;
 }
+const atlasNote=(skill,location)=>sourceNote(skill,location,{fetchText,get:GM_getValue,set:GM_setValue,revision:pack.contentRevision});
 function start() {
   const framework=unsafeWindow.GeoGuessrEventFramework;
   if(framework&&!gameResponses){

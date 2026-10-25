@@ -46,11 +46,11 @@ def fingerprint(*parts):
     return hashlib.sha1(json.dumps(parts, sort_keys=True).encode()).hexdigest()[:12]
 
 
-def ask(prompt, schema, images=()):
+def ask(prompt, schema, images=(), model=None):
     with tempfile.NamedTemporaryFile('w', suffix='.json', delete=False) as f:
         json.dump(schema, f)
     args = [a for path in images for a in ('-i', str(path))]
-    out = subprocess.run(['codex', 'exec', '--skip-git-repo-check', '--ignore-rules', '-s', 'read-only', '-m', MODEL,
+    out = subprocess.run(['codex', 'exec', '--skip-git-repo-check', '--ignore-rules', '-s', 'read-only', '-m', model or MODEL,
                           '--output-schema', f.name, *args, '--', prompt], capture_output=True, text=True, timeout=1200,
                          cwd=tempfile.gettempdir())
     return json.loads(out.stdout.strip().splitlines()[-1])
