@@ -56,6 +56,28 @@ def ask(prompt, schema, images=(), model=None):
     return json.loads(out.stdout.strip().splitlines()[-1])
 
 
+def ask_cached(path, prompts, schema, model):
+    """{(country, clue): answer} from one text-only call per prompt, cached by fingerprint in path (a failed call leaves
+    its key out until a later run answers)."""
+    known = json.loads(path.read_text()) if path.exists() else {}
+    stamp = {k: fingerprint(model, schema, prompt) for k, prompt in prompts.items()}
+    todo = [k for k in prompts if stamp[k] not in known]
+    print(f'{path.name}: asking {model} {len(todo)} of {len(prompts)}', flush=True)
+
+    def one(k):
+        try:
+            return k, ask(prompts[k], schema, (), model)
+        except Exception as e:
+            print(path.name, 'failed', k, e, flush=True)
+            return k, None
+    with cf.ThreadPoolExecutor(12) as pool:
+        for (cc, clue), answer in pool.map(one, todo):
+            if answer:
+                known[stamp[cc, clue]] = {'country': cc, 'clue': clue, **answer}
+                path.write_text(json.dumps(known, ensure_ascii=False, indent=1))
+    return {k: known[stamp[k]] for k in prompts if stamp[k] in known}
+
+
 def schema(items):
     return {'type': 'object', 'additionalProperties': False, 'required': ['results'], 'properties': {'results': {
         'type': 'array', 'items': {'type': 'object', 'additionalProperties': False, 'required': list(items),

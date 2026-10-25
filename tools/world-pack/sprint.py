@@ -14,9 +14,11 @@ road line and Google car clues, aimed at what Seth still gets wrong.
      CHECK_MODEL validates each roads and car pick's teaching quote (cached in sprint/subject-check.json)
   5. 'duel' cards ("Your rounds", sprint_rounds.py): your recent missed rounds on their own panoramas, about every 3rd
      new card
-  6. sprint/pack.json
+  6. deck cards (DECKS): every meta of a whole Learnable Meta map, past the judge and quotas, on the locations
+     sprint_decks.py verified, leading the new cards 1 in 3; a meta repeating a pick tops that card up to 3 locations
+  7. sprint/pack.json
 ACoW countries without a Plonk It guide use the Learnable Meta maps named after them: `sprint.py wanted` lists their
-metas without exported locations in sprint/export-wanted.json for `harvest_lm.py export`.
+metas, and the DECKS metas, without exported locations in sprint/export-wanted.json for `harvest_lm.py export`.
 Personal data (duel rounds): WORLD_PACK_DATA must be outside the repository.
 Usage: WORLD_PACK_DATA=<caches> WORLD_PACK_INPUTS=<inputs> python3 tools/world-pack/sprint.py [wanted]
 """
@@ -117,6 +119,20 @@ tape, visible car body) that the source ties to a region of {country}? Camera ge
 or blur alone do NOT count. Give a one-sentence reason, then answer yes or no."""}
 CHECK_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['reason', 'answer'],
                 'properties': {'reason': {'type': 'string'}, 'answer': {'type': 'string', 'enum': ['yes', 'no']}}}
+# Learnable Meta maps taught whole, each named after its country ('A Learnable Meta Brazil Poles').
+DECKS = ['682f72974b4204c8b6a3cc6d']
+REPEAT = """A GeoGuessr study pack for {country} has these cards:
+{cards}
+
+New clue from a Learnable Meta map for {country}:
+{clue}
+
+Is the new clue about utility poles or about vegetation and landscape? Does it teach the same clue as one of the cards
+of that subject above (the same pole type, marking, insulator, plant or terrain)? Give a one-sentence reason, the
+subject, and the number of the card it repeats, or 0 if it repeats none."""
+REPEAT_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['reason', 'subject', 'card'],
+                 'properties': {'reason': {'type': 'string'}, 'subject': {'type': 'string', 'enum': ['poles', 'landscape']},
+                                'card': {'type': 'integer'}}}
 
 
 def urban_shares():
@@ -196,7 +212,7 @@ def subdivision_note(s):
             f"{'east' if east > 0 else 'west'}. Regions where he loses most to opponents: {worst}.")
 
 
-def candidates(code_of_slug, country_at, guideless):
+def candidates(code_of_slug, country_at, guideless, decks):
     """{ISO2: {source id: candidate}} with prompt line, full text, stage, images, source and authored locations."""
     clues = {c['topicId']: c for c in json.loads((HERE / 'clues.json').read_text())}
     kinds = {f"plonkit:{slug}:{r['tipId']}": r['kind'] for slug, v in curate.load('curation.json').items() for r in v['order']}
@@ -218,9 +234,10 @@ def candidates(code_of_slug, country_at, guideless):
     # same note copied into another map is skipped.
     exports = {(e['mapId'], e['metaId']): e['locations'] for e in read_jsonl(HERE / 'lm/exports.jsonl')}
     units = {curate.country_key(u['title']): u for u in guide_units()}
-    groups = [(code_of_slug[units[key]['slug']], units[key]['slug'], units[key]['title'], ms)
-              for key, ms in curate.lm_by_country().items()] + [(cc, '', title, ms) for cc, (title, ms) in guideless.items()]
-    for cc, slug, title, ms in groups:
+    groups = [(code_of_slug[units[key]['slug']], units[key]['slug'], units[key]['title'], ms, False)
+              for key, ms in curate.lm_by_country().items()] + [(cc, '', title, ms, False) for cc, (title, ms) in guideless.items()] \
+        + [(cc, '', title, ms, True) for cc, (title, ms) in decks.items()]
+    for cc, slug, title, ms, deck in groups:
         seen = set()
         for meta in ms:
             note = text.plain(meta['note'] or '').strip()
@@ -238,7 +255,9 @@ def candidates(code_of_slug, country_at, guideless):
                 'noteFields': {'notesSourceMapId': meta['mapId'], 'sourceMetaName': meta['metaName']},
                 'images': meta['images'][:3], 'locs': locs,
                 'source': {'title': f"Learnable Meta · {meta['mapName']}", 'url': url},
-                'attributionHtml': f'From the Learnable Meta map <a href="{url}">{meta["mapName"]}</a>.'}
+                'attributionHtml': f'From the Learnable Meta map <a href="{url}">{meta["mapName"]}</a>.',
+                # A DECKS meta skips the judge: titled by its own name, its note shown verbatim.
+                **({'deck': True, 'label': meta['metaName'].strip(), 'noteHtml': meta['note']} if deck else {})}
     return out
 
 
@@ -309,33 +328,31 @@ def judge(jobs):
 
 
 def subject_check(picks, cands, name, rivals, mode):
-    """Picks without the roads and car picks whose teaching quote CHECK_MODEL rejects (cached by fingerprint in
-    sprint/subject-check.json; a failed call keeps the pick out until a later run answers)."""
-    path = OUT / 'subject-check.json'
-    known = json.loads(path.read_text()) if path.exists() else {}
+    """Picks without the roads and car picks whose teaching quote CHECK_MODEL rejects (sprint/subject-check.json)."""
     check = lambda cc, p: CHECKS['car-regional' if p['subject'] == 'car' and mode[cc] == 'regional' else p['subject']]
-    prompts = {(cc, p['id']): check(cc, p).format(country=name(cc), label=p['label'], quote=teaching(cands[cc], p),
-                                                  rivals=rivals(cc) or 'no country in particular')
-               for cc, ps in picks.items() for p in ps if p['subject'] in CHECKS}
-    stamp = {k: curate.fingerprint(CHECK_MODEL, CHECK_SCHEMA, prompt) for k, prompt in prompts.items()}
-    todo = [k for k in prompts if stamp[k] not in known]
-    print(f'checking {len(todo)} of {len(prompts)} roads and car picks with {CHECK_MODEL}', flush=True)
-
-    def one(k):
-        try:
-            return k, curate.ask(prompts[k], CHECK_SCHEMA, (), CHECK_MODEL)
-        except Exception as e:
-            print('subject check failed', k, e, flush=True)
-            return k, None
-    with cf.ThreadPoolExecutor(12) as pool:
-        for (cc, sid), answer in pool.map(one, todo):
-            if answer:
-                known[stamp[cc, sid]] = {'country': cc, 'clue': sid, **answer}
-                path.write_text(json.dumps(known, ensure_ascii=False, indent=1))
-    ok = lambda cc, p: p['subject'] not in CHECKS or known.get(stamp[cc, p['id']], {}).get('answer') == 'yes'
+    answers = curate.ask_cached(OUT / 'subject-check.json', {
+        (cc, p['id']): check(cc, p).format(country=name(cc), label=p['label'], quote=teaching(cands[cc], p),
+                                           rivals=rivals(cc) or 'no country in particular')
+        for cc, ps in picks.items() for p in ps if p['subject'] in CHECKS}, CHECK_SCHEMA, CHECK_MODEL)
+    ok = lambda cc, p: p['subject'] not in CHECKS or answers.get((cc, p['id']), {}).get('answer') == 'yes'
     dropped = collections.Counter(p['subject'] for cc, ps in picks.items() for p in ps if not ok(cc, p))
     print('subject check dropped', dict(dropped), flush=True)
     return {cc: [p for p in ps if ok(cc, p)] for cc, ps in picks.items()}
+
+
+def deck_repeats(picks, cands, name):
+    """{(ISO2, deck source id): (subject, source id of the pole or landscape pick of that subject it repeats, or None)}
+    (CHECK_MODEL, sprint/deck-repeats.json)."""
+    shown = {cc: [p for p in picks.get(cc, []) if p['subject'] in ('poles', 'landscape')] for cc in cands}
+    answers = curate.ask_cached(OUT / 'deck-repeats.json', {
+        (cc, sid): REPEAT.format(country=name(cc), clue=c['text'], cards='\n'.join(
+            f"{n}. [{p['subject']}] {p['label']}: {cs[p['id']]['text'][:400]}" for n, p in enumerate(shown[cc], 1)))
+        for cc, cs in cands.items() for sid, c in cs.items() if c.get('deck')}, REPEAT_SCHEMA, CHECK_MODEL)
+    out = {}
+    for (cc, sid), a in answers.items():
+        same = shown[cc][a['card'] - 1] if 0 < a['card'] <= len(shown[cc]) else None
+        out[cc, sid] = (a['subject'], same['id'] if same and same['subject'] == a['subject'] else None)
+    return out
 
 
 def teaching(cands, p):
@@ -365,12 +382,13 @@ def main(wanted=False):
     weights = json.loads((HERE / 'acow/weights.json').read_text())['countries']
     share = {cc: w / sum(weights.values()) for cc, w in weights.items()}
     guideless = guideless_metas(names, sorted(set(share) - set(code_of_slug.values())))
+    decks = {cc: (n, [m for m in ms if m['mapId'] in DECKS]) for cc, (n, ms) in guideless_metas(names, share).items()}
     if wanted:  # their metas' map-maker locations, for harvest_lm.py export
         exported = {(e['mapId'], e['metaId']) for e in read_jsonl(HERE / 'lm/exports.jsonl')}
-        rows = [{'metaId': m['metaId'], 'mapId': m['mapId']} for _, ms in guideless.values() for m in ms
+        rows = [{'metaId': m['metaId'], 'mapId': m['mapId']} for _, ms in [*guideless.values(), *decks.values()] for m in ms
                 if m['locationsCount'] and (m['mapId'], m['metaId']) not in exported]
         (OUT / 'export-wanted.json').write_text(json.dumps(rows))
-        print(f'{len(rows)} metas to export for {", ".join(cc for cc, (_, ms) in guideless.items() if ms)}')
+        print(f'{len(rows)} metas to export for {", ".join(cc for cc, (_, ms) in [*guideless.items(), *decks.items()] if ms)}')
         return
     played, wrong, involved, confused, stats = duel_stats(to_code, share)
     mode = {cc: 'regional' if REGIONAL_RULE(stats['n'][cc], stats['hit'][cc], stats['false'][cc]) else 'identify'
@@ -385,7 +403,7 @@ def main(wanted=False):
               f"{mode[cc]:9} {quota[cc]}")
     print(f'total {sum(quota.values())}', flush=True)
 
-    cands = candidates(code_of_slug, collect.bc.geolocator(world), guideless)
+    cands = candidates(code_of_slug, collect.bc.geolocator(world), guideless, decks)
     # A regional country keeps only within-country candidates: the Plonk It stage, or a Learnable Meta meta (no stage),
     # whose pick the model must scope 'regional'.
     cands = {cc: {sid: c for sid, c in cs.items() if mode[cc] == 'identify' or c['stage'] in (None, 'within-country-regional')}
@@ -399,7 +417,8 @@ def main(wanted=False):
             return REGIONAL.format(country=name(cc), subdiv=subdivision_note(subdiv.get(cc)), roads=roads)
         return IDENTIFY.format(country=name(cc), roads=roads, confusions=(
             f"Seth confuses {name(cc)} with {rivals(cc)}: prefer clues that tell them apart.\n" if rivals(cc) else ''))
-    jobs = {cc: (name(cc), quota[cc], int(share[cc] >= BIG_SHARE), focus(cc), cands[cc]) for cc in quota if cands.get(cc)}
+    judged = {cc: {sid: c for sid, c in cs.items() if not c.get('deck')} for cc, cs in cands.items()}
+    jobs = {cc: (name(cc), quota[cc], int(share[cc] >= BIG_SHARE), focus(cc), judged[cc]) for cc in quota if judged.get(cc)}
     picks = {cc: [p for p in ps if mode[cc] == 'identify' or cands[cc][p['id']]['stage'] or p.get('scope') == 'regional']
              for cc, ps in judge(jobs).items()}
     picks = subject_check(picks, cands, name, rivals, mode)
@@ -407,8 +426,9 @@ def main(wanted=False):
     regions = json.loads((HERE / 'gap/clue-regions.json').read_text())
     subdivision = {s['SubdivisionCode']: s['Name'] for s in json.loads((HERE / 'gap/subdivisions.json').read_text())}
     setting_of = {r['id']: r['setting'] for r in read_jsonl(HERE / 'rurality.jsonl')}
-    setting = {l['panoId']: setting_of[l['candidateId']] for t in json.loads((HERE / 'clue-bank.json').read_text())
-               for l in t['locations'] if l.get('candidateId') in setting_of}
+    # Deck locations are labelled by panorama id (sprint_decks.py), the others by candidate id.
+    setting = setting_of | {l['panoId']: setting_of[l['candidateId']] for t in json.loads((HERE / 'clue-bank.json').read_text())
+                            for l in t['locations'] if l.get('candidateId') in setting_of}
     # Each country's broadest clue first: country identification (the Plonk It stage, or the model's scope for a Learnable
     # Meta clue), then nationwide, then regional; importance breaks ties.
     stage = lambda cc, p: cands[cc][p['id']]['stage'] or ('country-identification' if p.get('scope') == 'country'
@@ -425,6 +445,16 @@ def main(wanted=False):
         {d['locationId'].split(':')[-1] for d in json.loads(dead_path.read_text())['dead']} if dead_path.exists() else set())
     verdict_rank = {'yes': 0, 'partly': 1}
     skills, locations, used = [], [], set(bad)
+    # Deck metas teach only on locations sprint_decks.py verified; one that repeats a pick tops up that card instead.
+    extra, deck = collections.defaultdict(list), []
+    for (cc, sid), (subject, repeat) in deck_repeats(picks, cands, name).items():
+        c = cands[cc][sid]
+        c['locs'] = [l for l in c['locs'] if verdicts.get(l['panoId']) == 'yes']
+        if repeat:
+            extra[repeat] += c['locs']
+        else:
+            deck.append(({'id': sid, 'subject': subject, 'label': c['label'], 'importance': 3,
+                          'scope': 'regional' if mode[cc] == 'regional' else 'country'}, cc))
     # One stream per subject: identify clues by (the country's n-th card of that subject, points Seth loses there, as in
     # win/WinStats.md), alternating with regional clues by (n-th card, ACoW share). The subject streams are then drawn
     # from in PATTERN order.
@@ -442,44 +472,53 @@ def main(wanted=False):
     cycles = []
     while any(queues.values()):
         cycles.append([queues[s].popleft() for s in PATTERN if queues[s]])
+    prefer = lambda l: (verdict_rank.get(verdicts.get(l['panoId']), 2), SETTING_RANK.get(setting.get(l['panoId']), 1))
+
+    def add_skill(p, cc):
+        """The pick's skill on up to 2 unused source locations, then Seth's duel views, then a repeating deck meta's
+        locations up to 3 in all; no skill when none is left."""
+        c, sid = cands[cc][p['id']], f"sprint:{cc}:{p['id']}"
+        chosen = []
+        for loc in sorted(c['locs'], key=prefer):
+            if loc['panoId'] not in used and len(chosen) < 2:
+                used.add(loc['panoId'])
+                chosen.append(loc)
+        mine = [d for d in duels.get(p['id'], []) if d['panoId'] not in used][:2]
+        used.update(d['panoId'] for d in mine)
+        if not chosen and not mine:
+            return
+        for loc in sorted(extra.get(p['id'], []), key=prefer):
+            if loc['panoId'] not in used and len(chosen) + len(mine) < 3:
+                used.add(loc['panoId'])
+                chosen.append(loc)
+        region = regions.get(p['id'])
+        area = {'area': 'Nationwide'} if region and region['nationwide'] else {
+            'area': ', '.join(subdivision[s] for s in region['subdivisions'])} if region and region['subdivisions'] else {}
+        skills.append({
+            'id': sid, 'title': f"{name(cc)} · {p['label']}", 'phase': p['subject'].capitalize(),
+            'practiceFamily': f"{cc}:{p['subject']}", 'prerequisites': [], 'availability': 'available', 'importance': 100,
+            'country': cc, 'countryName': name(cc), 'subject': p['subject'], 'mode': mode[cc], **area,
+            'why': teaching(cands[cc], p),
+            'relevance': relevance(cc),
+            'sourceNoteHtml': c.get('noteHtml') or note_html(c['text'], None), **c['noteFields'], 'imageUrls': c['images'],
+            'source': c['source'], 'attributionHtml': c['attributionHtml'],
+            'curriculum': {'scope': 'country-identification' if breadth(cc, p)[0] == 0 else 'within-country-regional',
+                           'rank': len(skills) + 1, 'source': {'clue': p['id']}}})
+        src = [{'id': f"sprint:{loc['panoId']}", 'panoId': loc['panoId'], 'lat': loc['lat'], 'lng': loc['lng'],
+                       'heading': loc['heading'] or 0, 'pitch': loc['pitch'] or 0, 'zoom': 0,  # ranked opens unzoomed
+                       'skillIds': [sid], 'country': loc['country'], 'assessmentEligible': False,
+                       **({'sourceMapId': loc['sourceMapId']} if 'sourceMapId' in loc else {}),
+                       'provenance': {'kind': 'source-example', 'source': loc['source']}} for loc in chosen]
+        mine = [{'id': f"sprint:duel:{d['panoId']}", 'panoId': d['panoId'], 'lat': d['lat'], 'lng': d['lng'],
+                       'heading': d.get('heading') or 0, 'pitch': d.get('pitch') or 0, 'zoom': 0,
+                       'skillIds': [sid], 'country': name(cc), 'assessmentEligible': False,
+                       'note': f"Your ACoW duel, {d['date']}: the clue is visible here.",
+                       'provenance': {'kind': 'duel-round', 'round': d['round']}} for d in mine]
+        # The scheduler shows unused locations in order: teach on a source example, re-show on Seth's own duel.
+        locations.extend(src[:1] + mine + src[1:])
     for cycle in cycles:
         for p, cc in cycle:
-            c, sid = cands[cc][p['id']], f"sprint:{cc}:{p['id']}"
-            chosen = []
-            for loc in sorted(c['locs'], key=lambda l: (verdict_rank.get(verdicts.get(l['panoId']), 2),
-                                                        SETTING_RANK.get(setting.get(l['panoId']), 1))):
-                if loc['panoId'] not in used and len(chosen) < 2:
-                    used.add(loc['panoId'])
-                    chosen.append(loc)
-            mine = [d for d in duels.get(p['id'], []) if d['panoId'] not in used][:2]
-            used.update(d['panoId'] for d in mine)
-            if not chosen and not mine:
-                continue
-            region = regions.get(p['id'])
-            area = {'area': 'Nationwide'} if region and region['nationwide'] else {
-                'area': ', '.join(subdivision[s] for s in region['subdivisions'])} if region and region['subdivisions'] else {}
-            skills.append({
-                'id': sid, 'title': f"{name(cc)} · {p['label']}", 'phase': p['subject'].capitalize(),
-                'practiceFamily': f"{cc}:{p['subject']}", 'prerequisites': [], 'availability': 'available', 'importance': 100,
-                'country': cc, 'countryName': name(cc), 'subject': p['subject'], 'mode': mode[cc], **area,
-                'why': teaching(cands[cc], p),
-                'relevance': relevance(cc),
-                'sourceNoteHtml': note_html(c['text'], None), **c['noteFields'], 'imageUrls': c['images'],
-                'source': c['source'], 'attributionHtml': c['attributionHtml'],
-                'curriculum': {'scope': 'country-identification' if breadth(cc, p)[0] == 0 else 'within-country-regional',
-                               'rank': len(skills) + 1, 'source': {'clue': p['id']}}})
-            src = [{'id': f"sprint:{loc['panoId']}", 'panoId': loc['panoId'], 'lat': loc['lat'], 'lng': loc['lng'],
-                           'heading': loc['heading'] or 0, 'pitch': loc['pitch'] or 0, 'zoom': 0,  # ranked opens unzoomed
-                           'skillIds': [sid], 'country': loc['country'], 'assessmentEligible': False,
-                           **({'sourceMapId': loc['sourceMapId']} if 'sourceMapId' in loc else {}),
-                           'provenance': {'kind': 'source-example', 'source': loc['source']}} for loc in chosen]
-            mine = [{'id': f"sprint:duel:{d['panoId']}", 'panoId': d['panoId'], 'lat': d['lat'], 'lng': d['lng'],
-                           'heading': d.get('heading') or 0, 'pitch': d.get('pitch') or 0, 'zoom': 0,
-                           'skillIds': [sid], 'country': name(cc), 'assessmentEligible': False,
-                           'note': f"Your ACoW duel, {d['date']}: the clue is visible here.",
-                           'provenance': {'kind': 'duel-round', 'round': d['round']}} for d in mine]
-            # The scheduler shows unused locations in order: teach on a source example, re-show on Seth's own duel.
-            locations += src[:1] + mine + src[1:]
+            add_skill(p, cc)
 
     # The country's own guide, not a subdivision's (united-states, not hawaii, whose code is US-HI).
     guide_url = {u['code']: f"https://www.plonkit.net/{u['slug']}" for u in units if u.get('code') and '-' not in u['code']}
@@ -509,10 +548,14 @@ def main(wanted=False):
     # Introduction order: a mistake duel card after every 2nd regular card, then a contrast card after every 5th card;
     # exposure duel cards make the tail, 1 in 5 from the last regular card on, the rest after everything else.
     regular = len(skills)
+    for p, cc in deck:  # after the duel and contrast cards, so those keep their panoramas
+        add_skill(p, cc)
+    skills, deck = skills[:regular], skills[regular:]
     order = sprinkle(skills, [s for s in duel_skills if not s.get('exposure')], 3)
     order = sprinkle(order, contrasts, 6)
     last = max(i for i, s in enumerate(order) if s['subject'] in SUBJECTS) + 1 if regular else 0
     skills = order[:last] + sprinkle(order[last:], [s for s in duel_skills if s.get('exposure')], 5)
+    skills = sprinkle(skills, deck, 3)  # deck cards lead the new cards, 1 in every 3: Seth wants them now
     for rank, s in enumerate(skills, 1):
         s['curriculum']['rank'] = rank
         if s['id'] in tells:

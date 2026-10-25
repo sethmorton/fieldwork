@@ -29,11 +29,17 @@ seen until he has spotted it twice. This replaces FSRS depth on niche metas.
                                     // then after every 5th card one 'contrast' card (sprint/contrast.json, biggest-loss pair first,
                                     // each with its own location; items with mergeIntoDuel add their 'A vs B' note, and their why
                                     // as tell, to that duel card instead); 'exposure' duel cards (exposure: true) form the tail,
-                                    // 1 in 5 from the last regular card on. tell: '<one line>' from sprint/tells.json {skill id: tell}
+                                    // 1 in 5 from the last regular card on; finally one deck card after every 2nd card from the
+                                    // front. tell: '<one line>' from sprint/tells.json {skill id: tell}
     id: 'sprint:<ISO2>:<source id>', title: '<Country> · <short label>', phase: 'Poles' | 'Landscape' | 'Roads' | 'Car',
     practiceFamily: '<ISO2>:poles' | '<ISO2>:landscape' | '<ISO2>:roads' | '<ISO2>:car', prerequisites: [],
     availability: 'available', importance: 100,
     country: '<ISO2>', countryName: '<name>', subject: 'poles' | 'landscape' | 'roads' | 'car',
+    // deck cards (sprint.py DECKS, whole Learnable Meta maps such as 'A Learnable Meta Brazil Poles'): every meta of the
+    // map, skipping the judge and the quotas, id 'sprint:<ISO2>:lm:<mapId>:<metaId>', title '<Country> · <meta name>',
+    // subject from gpt-6.1-sol (poles or landscape), sourceNoteHtml the Learnable Meta note verbatim; up to 2 locations
+    // that both vision models confirm at zoom 0 (sprint_decks.py), rural first. A meta that gpt-6.1-sol finds repeating a
+    // pole or landscape card of its country adds its confirmed locations to that card instead, up to 3 in all.
     // 'duel' cards (tools/world-pack/sprint_rounds.py): Seth's own rounds of the last 14 days on the five world maps in the
     // wrong country or more than 750 km off, plus every round of the last 24 hours, ACoW countries only. id
     // 'sprint:duel:<round id>', title '<Country> · <subdivision> (your duel, Oct 24)', phase 'Your rounds', practiceFamily
