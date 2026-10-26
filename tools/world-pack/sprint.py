@@ -15,7 +15,8 @@ road line and Google car clues, aimed at what Seth still gets wrong.
   5. 'duel' cards ("Your rounds", sprint_rounds.py): your recent missed rounds on their own panoramas, about every 3rd
      new card; the latest session's mistakes lead the new cards 1 in 2. Every card of the last build is kept
   6. deck cards (DECKS): every meta of a whole Learnable Meta map, past the judge and quotas, on its author-placed
-     locations still served, leading the new cards 1 in 3; a meta repeating a pick tops that card up to 3 locations
+     locations still served, leading the new cards 1 in 3; a meta repeating a pick tops that card up to 3 locations.
+     sprint/decks picks (sprint_picks.py) are taught the same way, past the judge, identify picks first
   7. sprint/pack.json
 ACoW countries without a Plonk It guide use the Learnable Meta maps named after them: `sprint.py wanted` lists their
 metas, and the DECKS metas, without exported locations in sprint/export-wanted.json for `harvest_lm.py export`.
@@ -39,9 +40,11 @@ if __name__ == '__main__' and (not os.environ.get('WORLD_PACK_DATA') or Path(os.
 import acow
 import collect
 import curate
+import sprint_picks
 import sprint_rounds
 import text
 from build import SETTING_RANK, card_image, note_html, read_jsonl
+from sprint_decks import DECKS, TRUSTED, deck_repeats
 from text import HERE, WORK
 
 OUT = HERE / 'sprint'
@@ -52,6 +55,7 @@ REGIONAL_RULE = lambda n, hit, false: n >= 6 and hit >= 0.75 * n and false <= 0.
 # Curation (modes, quotas, confusions, so the judge prompts and every card id) uses only rounds that ended before this:
 # card ids must stay stable while Seth plays. Newer rounds still become 'duel' cards. Move it only to re-curate.
 STATS_UNTIL = '2026-10-25T07:00'
+JUDGED_EXPORTS = 5332  # lm/exports.jsonl lines the curation saw (as STATS_UNTIL: move it only to re-curate)
 KINDS = {'infrastructure', 'landscape-and-vegetation', 'agriculture', 'signs-and-text', 'car-and-camera'}
 SUBJECTS = ('poles', 'landscape', 'roads', 'car')
 # Introduction rhythm over the per-subject streams: poles most often, then landscape, then roads, then car.
@@ -118,21 +122,6 @@ tape, visible car body) that the source ties to a region of {country}? Camera ge
 or blur alone do NOT count. Give a one-sentence reason, then answer yes or no."""}
 CHECK_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['reason', 'answer'],
                 'properties': {'reason': {'type': 'string'}, 'answer': {'type': 'string', 'enum': ['yes', 'no']}}}
-# Whole Learnable Meta maps ('A Learnable Meta Brazil Poles', '... Brazil - Vegetation'), taught on their author-placed
-# locations (sprint_decks.py).
-DECKS, TRUSTED = ['682f72974b4204c8b6a3cc6d', '6857dcd4087c8c0071fe0740'], 'trusted: author-placed'
-REPEAT = """A GeoGuessr study pack for {country} has these cards:
-{cards}
-
-New clue from a Learnable Meta map for {country}:
-{clue}
-
-Is the new clue about utility poles or about vegetation and landscape? Does it teach the same clue as one of the cards
-of that subject above (the same pole type, marking, insulator, plant or terrain)? Give a one-sentence reason, the
-subject, and the number of the card it repeats, or 0 if it repeats none."""
-REPEAT_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['reason', 'subject', 'card'],
-                 'properties': {'reason': {'type': 'string'}, 'subject': {'type': 'string', 'enum': ['poles', 'landscape']},
-                                'card': {'type': 'integer'}}}
 
 
 def first_sentence(note):
@@ -196,10 +185,11 @@ def subdivision_note(s):
 
 
 def candidates(code_of_slug, country_at, guideless, decks):
-    """{ISO2: {source id: candidate}} with prompt line, full text, stage, images, source and authored locations."""
+    """({ISO2: {source id: candidate}} with prompt line, full text, stage, images, source and authored locations, the same
+    for the sprint/decks picks, kept apart so a pick that is also a judge candidate leaves the judge's pool as it was)."""
     clues = {c['topicId']: c for c in json.loads((HERE / 'clues.json').read_text())}
     kinds = {f"plonkit:{slug}:{r['tipId']}": r['kind'] for slug, v in curate.load('curation.json').items() for r in v['order']}
-    out = collections.defaultdict(dict)
+    out, picked = collections.defaultdict(dict), collections.defaultdict(dict)
     for tip in json.loads((HERE / 'clue-bank.json').read_text()):
         tid, cc = tip['topicId'], code_of_slug.get(tip['slug'])
         locs = [l for l in tip['locations'] if l['source'] in AUTHORED]
@@ -215,7 +205,10 @@ def candidates(code_of_slug, country_at, guideless, decks):
     # Learnable Meta: no stage of its own (the model judges each pick's scope). Its note is not redistributable, so the
     # app fetches it live from the meta's own map by panorama: a candidate keeps only its own map's locations, and the
     # same note copied into another map is skipped.
-    exports = {(e['mapId'], e['metaId']): e['locations'] for e in read_jsonl(HERE / 'lm/exports.jsonl')}
+    rows = read_jsonl(HERE / 'lm/exports.jsonl')
+    exports = {(e['mapId'], e['metaId']): e['locations'] for e in rows}
+    # The judge sees only the exports it was curated on (append-only file), so newer ones (deck picks) leave it unchanged.
+    judged = {(e['mapId'], e['metaId']) for e in rows[:JUDGED_EXPORTS]}
     units = {curate.country_key(u['title']): u for u in guide_units()}
     groups = [(code_of_slug[units[key]['slug']], units[key]['slug'], units[key]['title'], ms, False)
               for key, ms in curate.lm_by_country().items()] + [(cc, '', title, ms, False) for cc, (title, ms) in guideless.items()] \
@@ -224,24 +217,27 @@ def candidates(code_of_slug, country_at, guideless, decks):
         seen = set()
         for meta in ms:
             note = text.plain(meta['note'] or '').strip()
-            locs = [{**v, 'country': actual, 'source': 'learnable-meta-export', 'sourceMapId': meta['mapId']}
-                    for v in exports.get((meta['mapId'], meta['metaId']), []) if v.get('panoId')
+            src = meta.get('exportMapId', meta['mapId'])
+            locs = [{**v, 'country': actual, 'source': 'learnable-meta-export', 'sourceMapId': src}
+                    for v in exports.get((src, meta['metaId']), []) if v.get('panoId')
                     for actual, same in [text.in_guide_country(v, slug, title, country_at)] if same]
-            if not cc or not locs or note in seen:
+            sid = f"lm:{meta['mapId']}:{meta['metaId']}"
+            if not cc or not locs or note in seen or (not deck and (meta['mapId'], meta['metaId']) not in judged):
                 continue
             seen.add(note)
-            sid = f"lm:{meta['mapId']}:{meta['metaId']}"
             url = f"https://learnablemeta.com/maps/{meta['mapId']}"
-            out[cc][sid] = {
+            (picked if 'pick' in meta else out)[cc][sid] = {
                 'line': f"[Learnable Meta | {meta['mapName']}] {meta['metaName']}: {note[:350]}",
                 'text': f"{meta['metaName']}\n{note}", 'why': first_sentence(note or meta['metaName']), 'stage': None,
                 'noteFields': {'notesSourceMapId': meta['mapId'], 'sourceMetaName': meta['metaName']},
                 'images': meta['images'][:3], 'locs': locs,
                 'source': {'title': f"Learnable Meta · {meta['mapName']}", 'url': url},
                 'attributionHtml': f'From the Learnable Meta map <a href="{url}">{meta["mapName"]}</a>.',
-                # A DECKS meta skips the judge: titled by its own name, its note shown verbatim.
-                **({'deck': True, 'label': meta['metaName'].strip(), 'noteHtml': meta['note']} if deck else {})}
-    return out
+                # A DECKS meta skips the judge: titled by its own name, its note shown verbatim. A pick brings its why.
+                **({'deck': True, 'label': meta['metaName'].strip(), 'noteHtml': meta['note']} if deck else {}),
+                **({'pick': meta['pick'], 'why': sprint_picks.SIGN * (meta['pick']['subject'] == 'signs')
+                    + meta['pick']['why']} if 'pick' in meta else {})}
+    return out, picked
 
 
 def guide_units():
@@ -323,21 +319,6 @@ def subject_check(picks, cands, name, rivals, mode):
     return {cc: [p for p in ps if ok(cc, p)] for cc, ps in picks.items()}
 
 
-def deck_repeats(picks, cands, name):
-    """{(ISO2, deck source id): (subject, source id of the pole or landscape pick of that subject it repeats, or None)}
-    (CHECK_MODEL, sprint/deck-repeats.json)."""
-    shown = {cc: [p for p in picks.get(cc, []) if p['subject'] in ('poles', 'landscape')] for cc in cands}
-    answers = curate.ask_cached(OUT / 'deck-repeats.json', {
-        (cc, sid): REPEAT.format(country=name(cc), clue=c['text'], cards='\n'.join(
-            f"{n}. [{p['subject']}] {p['label']}: {cs[p['id']]['text'][:400]}" for n, p in enumerate(shown[cc], 1)))
-        for cc, cs in cands.items() for sid, c in cs.items() if c.get('deck')}, REPEAT_SCHEMA, CHECK_MODEL)
-    out = {}
-    for (cc, sid), a in answers.items():
-        same = shown[cc][a['card'] - 1] if 0 < a['card'] <= len(shown[cc]) else None
-        out[cc, sid] = (a['subject'], same['id'] if same and same['subject'] == a['subject'] else None)
-    return out
-
-
 def teaching(cands, p):
     """The card's why line: the model's quote, whole, only when it is verbatim source text, else the source's first
     sentence."""
@@ -366,10 +347,12 @@ def main(wanted=False):
     share = {cc: w / sum(weights.values()) for cc, w in weights.items()}
     guideless = guideless_metas(names, sorted(set(share) - set(code_of_slug.values())))
     decks = {cc: (n, [m for m in ms if m['mapId'] in DECKS]) for cc, (n, ms) in guideless_metas(names, share).items()}
+    for cc, ms in sprint_picks.load().items():  # sprint/decks picks: taught like DECKS metas
+        decks[cc][1].extend(ms)
     if wanted:  # their metas' map-maker locations, for harvest_lm.py export
         exported = {(e['mapId'], e['metaId']) for e in read_jsonl(HERE / 'lm/exports.jsonl')}
         rows = [{'metaId': m['metaId'], 'mapId': m['mapId']} for _, ms in [*guideless.values(), *decks.values()] for m in ms
-                if m['locationsCount'] and (m['mapId'], m['metaId']) not in exported]
+                if m['locationsCount'] and (m.get('exportMapId', m['mapId']), m['metaId']) not in exported]
         (OUT / 'export-wanted.json').write_text(json.dumps(rows))
         print(f'{len(rows)} metas to export for {", ".join(cc for cc, (_, ms) in [*guideless.items(), *decks.items()] if ms)}')
         return
@@ -386,7 +369,7 @@ def main(wanted=False):
               f"{mode[cc]:9} {quota[cc]}")
     print(f'total {sum(quota.values())}', flush=True)
 
-    cands = candidates(code_of_slug, collect.bc.geolocator(world), guideless, decks)
+    cands, pick_cands = candidates(code_of_slug, collect.bc.geolocator(world), guideless, decks)
     # A regional country keeps only within-country candidates: the Plonk It stage, or a Learnable Meta meta (no stage),
     # whose pick the model must scope 'regional'.
     cands = {cc: {sid: c for sid, c in cs.items() if mode[cc] == 'identify' or c['stage'] in (None, 'within-country-regional')}
@@ -436,7 +419,7 @@ def main(wanted=False):
     skills, locations, used = [], [], set(bad)
     views = json.loads((OUT / 'deck-views.json').read_text()) if (OUT / 'deck-views.json').exists() else {}
     extra, deck = collections.defaultdict(list), []
-    for (cc, sid), (subject, repeat) in deck_repeats(picks, cands, name).items():
+    for (cc, sid), (subject, repeat) in deck_repeats(picks, cands, name, CHECK_MODEL).items():
         c = cands[cc][sid]
         # A clearer view an earlier vision check found (deck-views.json), else the author's; repeats top up their pick.
         c['locs'] = [{**l, 'view': views.get(l['panoId'], {'zoom': l.get('zoom') or 0})} for l in c['locs']
@@ -446,6 +429,13 @@ def main(wanted=False):
         else:
             deck.append(({'id': sid, 'subject': subject, 'label': c['label'], 'importance': 3,
                           'scope': 'regional' if mode[cc] == 'regional' else 'country'}, cc))
+    # sprint/decks picks join the candidates only now, past the judge; one the judge already picked stays that card.
+    for cc, cs in pick_cands.items():
+        cands.setdefault(cc, {}).update({sid: c for sid, c in cs.items() if sid not in {p['id'] for p in picks.get(cc, [])}})
+    picked = sorted((({'id': sid, 'subject': c['pick']['subject'], 'label': c['label'], 'importance': 3, 'mode': m,
+                       'scope': 'regional' if m == 'regional' else 'country'}, cc) for cc, cs in cands.items()
+                     for sid, c in cs.items() if 'pick' in c for m in [c['pick'].get('mode', mode[cc])]),
+                    key=sprint_picks.rank(share))
     # One stream per subject: identify clues by (the country's n-th card of that subject, points Seth loses there, as in
     # win/WinStats.md), alternating with regional clues by (n-th card, ACoW share). The subject streams are then drawn
     # from in PATTERN order.
@@ -486,7 +476,7 @@ def main(wanted=False):
         skills.append({
             'id': sid, 'title': f"{name(cc)} · {p['label']}", 'phase': p['subject'].capitalize(),
             'practiceFamily': f"{cc}:{p['subject']}", 'prerequisites': [], 'availability': 'available', 'importance': 100,
-            'country': cc, 'countryName': name(cc), 'subject': p['subject'], 'mode': mode[cc], **area,
+            'country': cc, 'countryName': name(cc), 'subject': p['subject'], 'mode': p.get('mode', mode[cc]), **area,
             'why': teaching(cands[cc], p),
             'relevance': relevance(cc),
             'sourceNoteHtml': c.get('noteHtml') or note_html(c['text'], None), **c['noteFields'], 'imageUrls': c['images'],
@@ -540,7 +530,10 @@ def main(wanted=False):
     regular = len(skills)
     for p, cc in deck:  # after the duel and contrast cards, so those keep their panoramas
         add_skill(p, cc)
-    skills, deck = skills[:regular], skills[regular:]
+    decked = len(skills)
+    for p, cc in picked:
+        add_skill(p, cc)
+    skills, deck, picked = skills[:regular], skills[regular:decked], skills[decked:]
     # Mistakes of the latest session (RECENT_HOURS up to the newest round) lead the new cards, 1 in 2, most recent and
     # costliest first: Seth fixes them now.
     by_round = {r['id']: r for r in rounds}
@@ -554,6 +547,7 @@ def main(wanted=False):
     last = max(i for i, s in enumerate(order) if s['subject'] in SUBJECTS) + 1 if regular else 0
     skills = order[:last] + sprinkle(order[last:], [s for s in duel_skills if s.get('exposure')], 5)
     skills = sprinkle(skills, deck, 3)  # deck cards lead the new cards, 1 in every 3: Seth wants them now
+    skills = sprinkle(skills, picked, 3)  # then the country picks, identify first, by expected loss (sprint_picks.py)
     skills = sprinkle(skills, fresh, 2)
     for rank, s in enumerate(skills, 1):
         s['curriculum']['rank'] = rank
@@ -587,8 +581,6 @@ def main(wanted=False):
                       'missingPoles': sorted(cc for cc in covered if 'poles' not in subjects[cc]),
                       'missingLandscape': sorted(cc for cc in covered if 'landscape' not in subjects[cc])}, indent=1))
     print('per subject', dict(collections.Counter(s['subject'] for s in skills)))
-    for s in skills[:20]:
-        print(s['curriculum']['rank'], s['title'], '|', s['phase'], '|', s.get('area', '-'))
     print('fresh mistakes', len(fresh), 'dropped from the last build', sorted(kept - {s['id'] for s in skills}))
     print('duel locations', sum(l['id'].startswith('sprint:duel:') for l in locations), 'duel cards', len(duel_skills))
 
