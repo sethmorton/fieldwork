@@ -90,7 +90,7 @@ function clue(section,skill,sourceUrl) {
   const imageUrl=exampleImage(skill);
   if(imageUrl){const img=document.createElement('img');img.src=imageUrl;img.alt=skill.title+' — source example';img.title='Click to enlarge';
     img.onclick=()=>toggleWide(img.getRootNode().querySelector('section'));section.append(img);}
-  const details=document.createElement('details');details.open=skill.subject==='duel'||skill.subject==='contrast';text(details,'summary','Clue & source');
+  const details=document.createElement('details');text(details,'summary','Clue & source');
   const parsed=new DOMParser().parseFromString(skill.sourceNoteHtml??skill.trainingNote??'','text/html');const note=(parsed.body.textContent??'').trim();
   // With a tell, the preview is just the note's first paragraph (the facts line); the rest stays under 'Clue & source'.
   const preview=skill.tell?(parsed.body.querySelector?.('p')?.textContent??'').trim():skill.trainingNote??note;
@@ -109,8 +109,14 @@ function sourceDetails(details,skill,sourceUrl){
 function sprintCard(card,skill,round,attempts,sourceUrl){
   text(card,'h2',skill.title);
   const parsed=new DOMParser().parseFromString(skill.sourceNoteHtml??skill.trainingNote??'','text/html'),note=(parsed.body.textContent??'').trim();
-  const first=note.match(/^.*?[.!?](?=\s|$)/)?.[0]??note,tell=skill.tell?.split(' -> ')[0].toLowerCase();
-  text(card,'p',skill.tell?skill.tell.replace(' -> ',' → '):first,'tell');
+  // Plain text above the fold: a trailing '(Source name)' citation stays under 'Clue & source'.
+  const plainLine=p=>{const cite=[...p.querySelectorAll('a')].at(-1)?.textContent,line=p.textContent.trim();return cite&&line.endsWith(`(${cite})`)?line.slice(0,-cite.length-2).trim():line};
+  const paragraphs=[...parsed.body.querySelectorAll('p')],isHeading=p=>p.childNodes.length===1&&p.firstChild?.nodeName==='STRONG';
+  // Without a tell, the first 'Points to X' line is the headline; the facts line ('Answer: …') is not a clue.
+  const pointsTo=skill.tell?null:paragraphs.find((p,index)=>index&&isHeading(paragraphs[index-1])&&/^Points to/.test(paragraphs[index-1].textContent)&&!isHeading(p));
+  const first=note.match(/^.*?[.!?](?=\s|$)/)?.[0]??note,headline=skill.tell?skill.tell.replace(' -> ',' → '):pointsTo?plainLine(pointsTo):first;
+  const tell=(skill.tell?.split(' -> ')[0]??(pointsTo&&headline))?.toLowerCase();
+  text(card,'p',headline,'tell');
   if(skill.stakes)text(card,'p',skill.stakes,'stakes');
   const url=exampleImage(skill);
   if(url){const img=document.createElement('img');img.className='hero';img.src=url;img.alt=`${skill.title}: source example`;img.title='Click for full screen';card.append(img);
@@ -119,17 +125,16 @@ function sprintCard(card,skill,round,attempts,sourceUrl){
   const lead=document.createElement('div');lead.className='lead';card.append(lead);
   if(skill.subject==='duel'||skill.subject==='contrast'){
     // Duels: the 'Seen in this round' and 'Points to X instead' blocks. Contrasts: the pair under the title, minus the tell's line.
+    // The model's 'In view' description is never shown here: it may be wrong, so it stays under 'Clue & source'.
     let take=0,headings=0,label=null;
-    for(const p of parsed.body.querySelectorAll('p')){
-      if(p.childNodes.length===1&&p.firstChild.nodeName==='STRONG'){headings++;take=/^(Seen in this round|Points to)/.test(p.textContent)||(skill.subject==='contrast'&&headings===1)?(skill.subject==='contrast'?2:1):0;
+    for(const p of paragraphs){
+      if(isHeading(p)){headings++;take=/^(Seen in this round|Points to)/.test(p.textContent)||(skill.subject==='contrast'&&headings===1&&!/^In view/.test(p.textContent))?(skill.subject==='contrast'?2:1):0;
         label=take&&!(skill.subject==='contrast'&&headings===1)?p.textContent:null;continue;}
-      // A line the tell already states adds only its '(Visible when you turn …)' hint.
+      // A line the headline already states adds only its '(Visible when you turn …)' hint.
       const dup=tell&&p.textContent.toLowerCase().includes(tell),hint=p.textContent.match(/\((Visible[^()]*)\)\s*$/)?.[1];
       if(take>0&&(!dup||hint)){take--;
         if(label)text(lead,'p',label,'label');label=null;
-        // Plain text mid-round: a trailing '(Source name)' citation stays under 'Clue & source'.
-        const cite=[...p.querySelectorAll('a')].at(-1)?.textContent,line=p.textContent.trim();
-        text(lead,'p',dup?`${hint}.`:cite&&line.endsWith(`(${cite})`)?line.slice(0,-cite.length-2).trim():line);}
+        text(lead,'p',dup?`${hint}.`:plainLine(p));}
     }
   // Other cards: the tell already says it; without one, the note's first paragraph after its bold first sentence.
   }else if(!skill.tell){const rest=(parsed.body.querySelector('p')?.textContent??note).trim().slice(first.length).trim();if(rest)text(lead,'p',rest,'preview');}
