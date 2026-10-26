@@ -14,8 +14,8 @@ road line and Google car clues, aimed at what Seth still gets wrong.
      CHECK_MODEL validates each roads and car pick's teaching quote (cached in sprint/subject-check.json)
   5. 'duel' cards ("Your rounds", sprint_rounds.py): your recent missed rounds on their own panoramas, about every 3rd
      new card
-  6. deck cards (DECKS): every meta of a whole Learnable Meta map, past the judge and quotas, on the locations
-     sprint_decks.py verified, leading the new cards 1 in 3; a meta repeating a pick tops that card up to 3 locations
+  6. deck cards (DECKS): every meta of a whole Learnable Meta map, past the judge and quotas, on its author-placed
+     locations still served, leading the new cards 1 in 3; a meta repeating a pick tops that card up to 3 locations
   7. sprint/pack.json
 ACoW countries without a Plonk It guide use the Learnable Meta maps named after them: `sprint.py wanted` lists their
 metas, and the DECKS metas, without exported locations in sprint/export-wanted.json for `harvest_lm.py export`.
@@ -119,8 +119,8 @@ tape, visible car body) that the source ties to a region of {country}? Camera ge
 or blur alone do NOT count. Give a one-sentence reason, then answer yes or no."""}
 CHECK_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['reason', 'answer'],
                 'properties': {'reason': {'type': 'string'}, 'answer': {'type': 'string', 'enum': ['yes', 'no']}}}
-# Learnable Meta maps taught whole, each named after its country ('A Learnable Meta Brazil Poles').
-DECKS = ['682f72974b4204c8b6a3cc6d']
+# Whole Learnable Meta maps ('A Learnable Meta Brazil Poles'), taught on their author-placed locations (sprint_decks.py).
+DECKS, TRUSTED = ['682f72974b4204c8b6a3cc6d'], 'trusted: author-placed'
 REPEAT = """A GeoGuessr study pack for {country} has these cards:
 {cards}
 
@@ -443,14 +443,15 @@ def main(wanted=False):
     verdicts = json.loads(verdicts_path.read_text()) if verdicts_path.exists() else {}
     bad = {pano for pano, v in verdicts.items() if v in ('no', 'dead')} | (
         {d['locationId'].split(':')[-1] for d in json.loads(dead_path.read_text())['dead']} if dead_path.exists() else set())
-    verdict_rank = {'yes': 0, 'partly': 1}
+    verdict_rank = {'yes': 0, TRUSTED: 0, 'partly': 1}
     skills, locations, used = [], [], set(bad)
     views = json.loads((OUT / 'deck-views.json').read_text()) if (OUT / 'deck-views.json').exists() else {}
     extra, deck = collections.defaultdict(list), []
     for (cc, sid), (subject, repeat) in deck_repeats(picks, cands, name).items():
         c = cands[cc][sid]
-        # Only locations sprint_decks.py verified, in the verified view; a repeat tops up the pick it repeats instead.
-        c['locs'] = [{**l, 'view': views.get(l['panoId'], {})} for l in c['locs'] if verdicts.get(l['panoId']) == 'yes']
+        # A clearer view an earlier vision check found (deck-views.json), else the author's; repeats top up their pick.
+        c['locs'] = [{**l, 'view': views.get(l['panoId'], {'zoom': l.get('zoom') or 0})} for l in c['locs']
+                     if verdicts.get(l['panoId']) == TRUSTED]
         if repeat:
             extra[repeat] += c['locs']
         else:
@@ -474,7 +475,6 @@ def main(wanted=False):
     while any(queues.values()):
         cycles.append([queues[s].popleft() for s in PATTERN if queues[s]])
     prefer = lambda l: (verdict_rank.get(verdicts.get(l['panoId']), 2), SETTING_RANK.get(setting.get(l['panoId']), 1))
-
     def add_skill(p, cc):
         """The pick's skill on up to 2 source locations, Seth's duel views, then repeating deck ones up to 3 in all."""
         c, sid = cands[cc][p['id']], f"sprint:{cc}:{p['id']}"

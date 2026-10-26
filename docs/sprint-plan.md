@@ -37,11 +37,12 @@ seen until he has spotted it twice. This replaces FSRS depth on niche metas.
     country: '<ISO2>', countryName: '<name>', subject: 'poles' | 'landscape' | 'roads' | 'car',
     // deck cards (sprint.py DECKS, whole Learnable Meta maps such as 'A Learnable Meta Brazil Poles'): every meta of the
     // map, skipping the judge and the quotas, id 'sprint:<ISO2>:lm:<mapId>:<metaId>', title '<Country> · <meta name>',
-    // subject from gpt-6.1-sol (poles or landscape), sourceNoteHtml the Learnable Meta note verbatim; up to 2 locations
-    // that both vision models confirm (sprint_decks.py), rural first, each in the first view that passes: the author's
-    // own (heading, pitch, zoom), then zoom 1 and 2, then turned 90, 180 or 270 degrees at zoom 1 (sprint/deck-views.json).
-    // A meta that gpt-6.1-sol finds repeating a pole or landscape card of its country adds its confirmed locations to
-    // that card instead, up to 3 in all.
+    // subject from gpt-6.1-sol (poles or landscape), sourceNoteHtml the Learnable Meta note verbatim; up to 2 of the
+    // author-placed locations, rural first, trusted without a visibility check (authors place them on purpose) unless the
+    // panorama is gone (sprint_decks.py: 'trusted: author-placed' or 'dead' in win/location-verdicts.json). Each keeps the
+    // author's view, or the clearer view an earlier two-model check found (sprint/deck-views.json). A meta that
+    // gpt-6.1-sol finds repeating a pole or landscape card of its country adds its locations to that card instead, up to
+    // 3 in all.
     // 'duel' cards (tools/world-pack/sprint_rounds.py): Seth's own rounds of the last 14 days on the five world maps in the
     // wrong country or more than 750 km off, plus every round of the last 24 hours, ACoW countries only. id
     // 'sprint:duel:<round id>', title '<Country> · <subdivision> (your duel, Oct 24)', phase 'Your rounds', practiceFamily
