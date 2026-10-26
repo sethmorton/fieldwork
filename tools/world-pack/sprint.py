@@ -42,6 +42,7 @@ import collect
 import curate
 import sprint_picks
 import sprint_rounds
+import sprint_stakes
 import text
 from build import SETTING_RANK, card_image, note_html, read_jsonl
 from sprint_decks import DECKS, TRUSTED, deck_repeats
@@ -554,6 +555,8 @@ def main(wanted=False):
         if s['id'] in tells:
             s['tell'] = tells[s['id']]
 
+    sprint_stakes.add(skills, to_code, name, share, regions, {f'sprint:{cc}:{sid}': c['pick'].get('rival')
+                                                              for cc, cs in cands.items() for sid, c in cs.items() if 'pick' in c})
     urban = acow.urban_shares()
     covered = {s['country'] for s in skills}
     gaps = [name(cc) for cc in sorted(share, key=lambda c: -share[c]) if cc not in covered]

@@ -17,8 +17,10 @@ def load():
     else another map that shares the meta."""
     matches = json.loads((HERE / 'lm/matches.json').read_text())
     by_key, by_id = {(m['mapId'], m['metaId']): m for m in matches}, {m['metaId']: m for m in matches}
-    exported = {(e['mapId'], e['metaId']) for e in read_jsonl(HERE / 'lm/exports.jsonl')}
-    other = {meta: map_id for map_id, meta in exported}
+    rows = read_jsonl(HERE / 'lm/exports.jsonl')
+    exported, other = {(e['mapId'], e['metaId']) for e in rows}, {}
+    for e in rows:  # the first map the meta was exported under
+        other.setdefault(e['metaId'], e['mapId'])
     out = {}
     for f in sorted((HERE / 'sprint/decks').glob('*.json')):
         d = json.loads(f.read_text())
