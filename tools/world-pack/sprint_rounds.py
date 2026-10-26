@@ -9,7 +9,7 @@ import html
 import json
 from pathlib import Path
 
-from build import note_html
+from build import card_image, note_html
 from text import HERE
 
 MAPS = {'A Competitive World', 'A Community World', 'An Arbitrary World', 'An Extra-Informed World', 'A Moving World'}
@@ -163,8 +163,12 @@ def cards(rounds, to_code, now, pack_skills, used, regions, views, name, mode, r
             note += f'<p><strong>Points to {html.escape(gsub if same else name(gcc))} instead</strong></p>' + tip_html(other[0])
         if r['id'] in survey:
             note += '<p><strong>In view (model description, may be wrong)</strong></p>' + in_view(survey[r['id']])
-        # The tip's own first sentence, so the tell adds no facts.
-        tell = f"{hits[0][0]['text'].split('. ')[0].rstrip('.')} -> {sub or name(cc)}" if hits else None
+        # The tip's own first sentence, so the tell adds no facts: the verified tip, else the first answer tip of the
+        # subdivision itself (a nationwide tip would not point to it).
+        lead = shown[:1] or [c for c in rest if covers(c, code)][:1]
+        tell = f"{lead[0]['text'].split('. ')[0].rstrip('.')} -> {sub or name(cc)}" if lead else None
+        # Images of the cited tips, answer side first: verified, then the answer's, then the guess's.
+        images = list(dict.fromkeys(card_image(u) for c in shown + rest + other for u in c['imageUrls'][:1]))[:2]
         sid = f"sprint:duel:{r['id']}"
         title = f"{name(cc)}{f' · {sub}' if sub else ''} " + ('(ranked map)' if exposure else f"(your duel, {when:%b} {when.day})")
         skills.append({
@@ -173,7 +177,7 @@ def cards(rounds, to_code, now, pack_skills, used, regions, views, name, mode, r
             'importance': 100, 'country': cc, 'countryName': name(cc), 'subject': 'duel', 'mode': mode[cc],
             **({'area': sub} if sub else {}), **({'exposure': True} if exposure else {}), **({'tell': tell} if tell else {}), 'why': answer, 'relevance': relevance(cc),
             # Your round plus verbatim Plonk It tips, each linked to its source.
-            'sourceNoteHtml': note, 'noteLicense': 'own; linked Plonk It tips CC BY-NC-SA 4.0', 'imageUrls': [],
+            'sourceNoteHtml': note, 'noteLicense': 'own; linked Plonk It tips CC BY-NC-SA 4.0', 'imageUrls': images,
             'source': {'title': f'Plonk It · {name(cc)}', **({'url': guide_url[cc]} if cc in guide_url else {})},
             'attributionHtml': 'Your own GeoGuessr duel round. Linked tips from Plonk It (CC BY-NC-SA 4.0, '
                                'https://creativecommons.org/licenses/by-nc-sa/4.0/).',
