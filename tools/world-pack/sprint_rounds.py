@@ -26,16 +26,21 @@ def place(subdivision):
     return (name, code.rstrip(')')) if name else (subdivision or None, None)
 
 
-def replays(rounds, to_code, now):
-    """Rounds to replay: the last DAYS days on MAPS in the wrong country or more than FAR_M off, plus every round of the
-    last RECENT_HOURS hours; most recent day first, then the biggest deficit."""
+def missed(r, to_code):
+    """A mistake: the wrong country, or more than FAR_M off."""
+    return to_code.get(r['myGuessCountry']) != r['countryCode'] or (r['myGuess'] or {}).get('distance', 0) > FAR_M
+
+
+def replays(rounds, to_code, now, keep=()):
+    """Rounds to replay: the last DAYS days' mistakes on MAPS, every round of the last RECENT_HOURS hours, and every round
+    whose replay card is in keep (the last build's, so its id stays); most recent day first, then the biggest deficit."""
     out = []
     for r in rounds:
         end = dt.datetime.fromisoformat(r['endTime']) if r['endTime'] else None
-        if r['map'] not in MAPS or not end or end < now - dt.timedelta(days=DAYS):
+        if r['map'] not in MAPS or not end:
             continue
-        missed = to_code.get(r['myGuessCountry']) != r['countryCode'] or (r['myGuess'] or {}).get('distance', 0) > FAR_M
-        if missed or end >= now - dt.timedelta(hours=RECENT_HOURS):
+        if f"sprint:duel:{r['id']}" in keep or end >= now - dt.timedelta(hours=RECENT_HOURS) or (
+                missed(r, to_code) and end >= now - dt.timedelta(days=DAYS)):
             out.append((end, r))
     return [r for end, r in sorted(out, key=lambda er: (-er[0].toordinal(), (er[1]['myScore'] or 0) - (er[1]['theirScore'] or 0)))]
 
@@ -90,9 +95,10 @@ def in_view(v):
     return ''.join(f'<p>{html.escape(x)}</p>' for x in out)
 
 
-def cards(rounds, to_code, now, pack_skills, used, regions, views, name, mode, relevance, guide_url):
-    """(skills, locations): mistake cards for the replayed rounds, then 'exposure' cards for every other ACoW round, each on
-    a panorama the pack does not use yet. regions: gap/clue-regions.json; views: sprint/duel-views.json ({clue: [{round, ...}]})."""
+def cards(rounds, to_code, now, pack_skills, used, regions, views, name, mode, relevance, guide_url, keep=()):
+    """(skills, locations): mistake cards for the replayed rounds (keep: replay card ids to keep), then 'exposure' cards for
+    every other ACoW round, each on a panorama the pack does not use yet. regions: gap/clue-regions.json; views:
+    sprint/duel-views.json ({clue: [{round, ...}]})."""
     by_clue = {s['curriculum']['source']['clue']: s for s in pack_skills}
     by_country = collections.defaultdict(list)
     for s in pack_skills:
@@ -112,7 +118,7 @@ def cards(rounds, to_code, now, pack_skills, used, regions, views, name, mode, r
     # A subdivision's tips, without those about one smaller place inside it unless nothing else is left.
     wide = lambda code: [c for c in by_code.get(code, []) if not local(c, code)] or by_code.get(code, [])[:1]
     skills, locations = [], []
-    mistakes = replays(rounds, to_code, now)
+    mistakes = replays(rounds, to_code, now, keep)
     ids = {r['id'] for r in mistakes}
     for r, exposure in [(r, False) for r in mistakes] + [(r, True) for r in rounds if r['map'] == ACOW and r['id'] not in ids]:
         cc, view = r['countryCode'], r['view']

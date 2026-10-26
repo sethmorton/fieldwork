@@ -16,6 +16,8 @@ import io
 import json
 import random
 import sys
+import xml.etree.ElementTree as ET
+import zipfile
 
 import collect
 import curate
@@ -40,6 +42,23 @@ def fetch_weights():
 
 def weights():
     return json.loads((OUT / 'weights.json').read_text())['countries']
+
+
+def urban_shares():
+    """ISO2 -> urban share of ACoW locations, from the distribution sheet's third tab (CountryCode/REST/URBAN in
+    columns B/E/F, I/L/M, P/S/T and W/Z/AA below a two-row header)."""
+    m = '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
+    book = zipfile.ZipFile(HERE / 'acow/acowdist.xlsx')
+    strings = [''.join(t.text or '' for t in si.iter(m + 't')) for si in ET.fromstring(book.read('xl/sharedStrings.xml'))]
+    counts = collections.defaultdict(lambda: [0.0, 0.0])
+    for row in list(ET.fromstring(book.read('xl/worksheets/sheet3.xml')).iter(m + 'row'))[2:]:
+        cells = {''.join(ch for ch in c.get('r') if ch.isalpha()): strings[int(v.text)] if c.get('t') == 's' else v.text
+                 for c in row for v in [c.find(m + 'v')] if v is not None}
+        for code, rest, urban in (('B', 'E', 'F'), ('I', 'L', 'M'), ('P', 'S', 'T'), ('W', 'Z', 'AA')):
+            if cells.get(code):
+                counts[cells[code]][0] += float(cells[rest])
+                counts[cells[code]][1] += float(cells[urban])
+    return {cc: round(u / (r + u), 3) for cc, (r, u) in counts.items() if r + u}
 
 
 def sample(n=1200):

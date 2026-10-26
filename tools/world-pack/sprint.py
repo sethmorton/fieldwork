@@ -13,7 +13,7 @@ road line and Google car clues, aimed at what Seth still gets wrong.
   4. a small model (curate.MODEL) edits each country's candidates down to its quota (cached in sprint/judge.json), and
      CHECK_MODEL validates each roads and car pick's teaching quote (cached in sprint/subject-check.json)
   5. 'duel' cards ("Your rounds", sprint_rounds.py): your recent missed rounds on their own panoramas, about every 3rd
-     new card
+     new card; the latest session's mistakes lead the new cards 1 in 2. Every card of the last build is kept
   6. deck cards (DECKS): every meta of a whole Learnable Meta map, past the judge and quotas, on its author-placed
      locations still served, leading the new cards 1 in 3; a meta repeating a pick tops that card up to 3 locations
   7. sprint/pack.json
@@ -30,14 +30,13 @@ import json
 import os
 import sys
 import time
-import xml.etree.ElementTree as ET
-import zipfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 if __name__ == '__main__' and (not os.environ.get('WORLD_PACK_DATA') or Path(os.environ['WORLD_PACK_DATA']).resolve()
                                .is_relative_to(REPO)):
     sys.exit('Set WORLD_PACK_DATA to a data folder outside the repository: duel history is personal.')
+import acow
 import collect
 import curate
 import sprint_rounds
@@ -119,8 +118,9 @@ tape, visible car body) that the source ties to a region of {country}? Camera ge
 or blur alone do NOT count. Give a one-sentence reason, then answer yes or no."""}
 CHECK_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['reason', 'answer'],
                 'properties': {'reason': {'type': 'string'}, 'answer': {'type': 'string', 'enum': ['yes', 'no']}}}
-# Whole Learnable Meta maps ('A Learnable Meta Brazil Poles'), taught on their author-placed locations (sprint_decks.py).
-DECKS, TRUSTED = ['682f72974b4204c8b6a3cc6d'], 'trusted: author-placed'
+# Whole Learnable Meta maps ('A Learnable Meta Brazil Poles', '... Brazil - Vegetation'), taught on their author-placed
+# locations (sprint_decks.py).
+DECKS, TRUSTED = ['682f72974b4204c8b6a3cc6d', '6857dcd4087c8c0071fe0740'], 'trusted: author-placed'
 REPEAT = """A GeoGuessr study pack for {country} has these cards:
 {cards}
 
@@ -133,23 +133,6 @@ subject, and the number of the card it repeats, or 0 if it repeats none."""
 REPEAT_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['reason', 'subject', 'card'],
                  'properties': {'reason': {'type': 'string'}, 'subject': {'type': 'string', 'enum': ['poles', 'landscape']},
                                 'card': {'type': 'integer'}}}
-
-
-def urban_shares():
-    """ISO2 -> urban share of ACoW locations, from the distribution sheet's third tab (CountryCode/REST/URBAN in
-    columns B/E/F, I/L/M, P/S/T and W/Z/AA below a two-row header)."""
-    m = '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
-    book = zipfile.ZipFile(HERE / 'acow/acowdist.xlsx')
-    strings = [''.join(t.text or '' for t in si.iter(m + 't')) for si in ET.fromstring(book.read('xl/sharedStrings.xml'))]
-    counts = collections.defaultdict(lambda: [0.0, 0.0])
-    for row in list(ET.fromstring(book.read('xl/worksheets/sheet3.xml')).iter(m + 'row'))[2:]:
-        cells = {''.join(ch for ch in c.get('r') if ch.isalpha()): strings[int(v.text)] if c.get('t') == 's' else v.text
-                 for c in row for v in [c.find(m + 'v')] if v is not None}
-        for code, rest, urban in (('B', 'E', 'F'), ('I', 'L', 'M'), ('P', 'S', 'T'), ('W', 'Z', 'AA')):
-            if cells.get(code):
-                counts[cells[code]][0] += float(cells[rest])
-                counts[cells[code]][1] += float(cells[urban])
-    return {cc: round(u / (r + u), 3) for cc, (r, u) in counts.items() if r + u}
 
 
 def first_sentence(note):
@@ -444,6 +427,12 @@ def main(wanted=False):
     bad = {pano for pano, v in verdicts.items() if v in ('no', 'dead')} | (
         {d['locationId'].split(':')[-1] for d in json.loads(dead_path.read_text())['dead']} if dead_path.exists() else set())
     verdict_rank = {'yes': 0, TRUSTED: 0, 'partly': 1}
+    # The last build: its cards stay, and a clue card borrows only the duel rounds it borrowed then, so newer rounds get
+    # cards of their own.
+    prior = json.loads((OUT / 'pack.json').read_text()) if (OUT / 'pack.json').exists() else {'skills': [], 'locations': []}
+    kept = {s['id'] for s in prior['skills']}
+    lent = {l['provenance']['round'] for l in prior['locations'] if l['provenance']['kind'] == 'duel-round'
+            and not l['skillIds'][0].startswith('sprint:duel:')}
     skills, locations, used = [], [], set(bad)
     views = json.loads((OUT / 'deck-views.json').read_text()) if (OUT / 'deck-views.json').exists() else {}
     extra, deck = collections.defaultdict(list), []
@@ -483,7 +472,7 @@ def main(wanted=False):
             if loc['panoId'] not in used and len(chosen) < 2:
                 used.add(loc['panoId'])
                 chosen.append(loc)
-        mine = [d for d in duels.get(p['id'], []) if d['panoId'] not in used][:2]
+        mine = [d for d in duels.get(p['id'], []) if d['panoId'] not in used and (d['round'] in lent or not kept)][:2]
         used.update(d['panoId'] for d in mine)
         if not chosen and not mine:
             return
@@ -522,9 +511,10 @@ def main(wanted=False):
 
     # The country's own guide, not a subdivision's (united-states, not hawaii, whose code is US-HI).
     guide_url = {u['code']: f"https://www.plonkit.net/{u['slug']}" for u in units if u.get('code') and '-' not in u['code']}
+    rounds = json.loads((HERE / 'duels/rounds.json').read_text())
     duel_skills, duel_locations = sprint_rounds.cards(
-        json.loads((HERE / 'duels/rounds.json').read_text()), to_code, dt.datetime.now(dt.timezone.utc), skills, used,
-        regions, duels, name, mode, relevance, guide_url)
+        rounds, to_code, dt.datetime.now(dt.timezone.utc), skills, used, regions, duels, name, mode, relevance, guide_url,
+        {s['id'] for s in prior['skills'] if s['subject'] == 'duel' and not s.get('exposure')})
     locations += duel_locations
     # Optional contrast cards (sprint/contrast.json: card objects, biggest-loss pairs first, each with its `location`),
     # after the duel cards so a duel card keeps its panorama.
@@ -551,17 +541,26 @@ def main(wanted=False):
     for p, cc in deck:  # after the duel and contrast cards, so those keep their panoramas
         add_skill(p, cc)
     skills, deck = skills[:regular], skills[regular:]
-    order = sprinkle(skills, [s for s in duel_skills if not s.get('exposure')], 3)
+    # Mistakes of the latest session (RECENT_HOURS up to the newest round) lead the new cards, 1 in 2, most recent and
+    # costliest first: Seth fixes them now.
+    by_round = {r['id']: r for r in rounds}
+    round_of = lambda s: by_round[s['curriculum']['source']['clue']]
+    cut = max(dt.datetime.fromisoformat(r['endTime']) for r in rounds if r['endTime']) \
+        - dt.timedelta(hours=sprint_rounds.RECENT_HOURS)
+    fresh = [s for s in duel_skills if not s.get('exposure') and dt.datetime.fromisoformat(round_of(s)['endTime']) >= cut
+             and sprint_rounds.missed(round_of(s), to_code)]
+    order = sprinkle(skills, [s for s in duel_skills if not s.get('exposure') and s not in fresh], 3)
     order = sprinkle(order, contrasts, 6)
     last = max(i for i, s in enumerate(order) if s['subject'] in SUBJECTS) + 1 if regular else 0
     skills = order[:last] + sprinkle(order[last:], [s for s in duel_skills if s.get('exposure')], 5)
     skills = sprinkle(skills, deck, 3)  # deck cards lead the new cards, 1 in every 3: Seth wants them now
+    skills = sprinkle(skills, fresh, 2)
     for rank, s in enumerate(skills, 1):
         s['curriculum']['rank'] = rank
         if s['id'] in tells:
             s['tell'] = tells[s['id']]
 
-    urban = urban_shares()
+    urban = acow.urban_shares()
     covered = {s['country'] for s in skills}
     gaps = [name(cc) for cc in sorted(share, key=lambda c: -share[c]) if cc not in covered]
     pack = {'id': 'sprint-acow', 'title': 'Sprint · A Competitive World', 'subject': 'GeoGuessr', 'schemaVersion': 1,
@@ -590,9 +589,7 @@ def main(wanted=False):
     print('per subject', dict(collections.Counter(s['subject'] for s in skills)))
     for s in skills[:20]:
         print(s['curriculum']['rank'], s['title'], '|', s['phase'], '|', s.get('area', '-'))
-    for cc in ('RU', 'AU', 'NA'):
-        print(f'{cc}:', ' / '.join(f"{s['title'].split(' · ', 1)[1]} ({s['subject']})" for s in skills
-                                   if s['country'] == cc and s['subject'] in SUBJECTS))
+    print('fresh mistakes', len(fresh), 'dropped from the last build', sorted(kept - {s['id'] for s in skills}))
     print('duel locations', sum(l['id'].startswith('sprint:duel:') for l in locations), 'duel cards', len(duel_skills))
 
 

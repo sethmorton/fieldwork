@@ -9,7 +9,8 @@ Two independent checks by two different strong vision models; a match counts onl
 Verdicts are cached by fingerprint in sprint/duel-verdicts.json; frames reuse duels.frames() and its thumbnail cache.
 Writes sprint/duel-views.json ({source clue id: [views]}) and sprint/duel-views-audit.jpg (contact sheet of matches),
 leaving out the matches a human rejected on the sheet (sprint/duel-rejects.json: [{round, clue: source id}]).
-Usage: WORLD_PACK_DATA=<caches> uv run --with pillow python3 tools/world-pack/sprint_duels.py
+With SINCE (an ISO time) only rounds that ended since then are checked; the other rounds keep their views and come first.
+Usage: WORLD_PACK_DATA=<caches> uv run --with pillow python3 tools/world-pack/sprint_duels.py [SINCE]
 """
 import concurrent.futures as cf
 import json
@@ -138,13 +139,13 @@ def contact_sheet(accepted, path, cols=4, w=400, h=250, caption=48):
     sheet.save(path, quality=85)
 
 
-def main():
+def main(since=''):
     pack = json.loads((OUT / 'pack.json').read_text())
     by_country = {}
     for s in pack['skills']:
         if s['subject'] != 'duel':  # your own rounds are not clues to look for
             by_country.setdefault(s['country'], []).append(s)
-    rounds = [r for r in json.loads((HERE / 'duels/rounds.json').read_text()) if r['map'] == MAP]
+    rounds = [r for r in json.loads((HERE / 'duels/rounds.json').read_text()) if r['map'] == MAP and (r['endTime'] or '') >= since]
     cache = collect.JsonCache(OUT / 'duel-verdicts.json')
     accepted, rejected, failed = [], [], 0
     print(f'checking {len(rounds)} {MAP} rounds: {FIND_MODEL} finds, {CONFIRM_MODEL} confirms', flush=True)
@@ -166,6 +167,11 @@ def main():
     accepted = sorted(((r, c) for r, c in accepted if (r['id'], c['skill']['curriculum']['source']['clue']) not in rejects),
                       key=lambda rc: (rc[1]['skill']['id'], rc[0]['id']))
     found = views(accepted)
+    if since:  # earlier rounds keep their views, first, so the cards that show them keep their locations
+        checked = {r['id'] for r in rounds}
+        old = json.loads((OUT / 'duel-views.json').read_text())
+        found = dict(sorted({clue: [v for v in old.get(clue, []) if v['round'] not in checked] + found.get(clue, [])
+                             for clue in old.keys() | found.keys()}.items()))
     (OUT / 'duel-views.json').write_text(json.dumps(found, ensure_ascii=False, indent=1))
     contact_sheet(accepted, OUT / 'duel-views-audit.jpg')
     print(json.dumps({'rounds': len(rounds), 'failed': failed, 'accepted': len(accepted), 'clues': len(found),
@@ -173,4 +179,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(*sys.argv[1:2])
