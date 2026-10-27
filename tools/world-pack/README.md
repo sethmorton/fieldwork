@@ -97,6 +97,18 @@ local build and writes `duels/report.json` (where you lose points, which countri
 [docs/SETUP.md](../../docs/SETUP.md#practise-the-clues-you-missed-in-duels). `misses.py` builds your own pack and study guide from those rounds
 (see [docs/SETUP.md](../../docs/SETUP.md#your-own-map-from-the-duel-rounds-you-missed)).
 
+## Globe data
+
+`globe_data.py` writes the personal Globe's files into `../fieldwork-site/globe/` (or the folder given as its argument):
+`countries.json` and `admin1/<ISO2>.json` (Natural Earth, simplified with Douglas-Peucker as in
+`scripts/world-geometry.mjs`; admin-1 files coarsen until under 400 KB) and `data.json` (world-map duel stats per country
+and admin-1 region, the Sprint pack's cards plus regional Plonk It landscape, infrastructure and agriculture tips as
+ranked metas, and every world-map round). Stdlib only, a few seconds, no network:
+
+```sh
+WORLD_PACK_DATA=/path/to/world-map python3 tools/world-pack/globe_data.py && python3 tools/world-pack/test_globe_data.py
+```
+
 ## Licence
 
 The pipeline code is MIT like the rest of the repo. The pack embeds Plonk It guide text and image links, which are
