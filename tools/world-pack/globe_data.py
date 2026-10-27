@@ -73,15 +73,15 @@ def simplify_polys(polys, tol, digits):
         rings = []
         for ring in poly[:1] + [h for h in poly[1:] if area(h) >= MIN_AREA]:
             simple = simplify_ring(ring, tol)
-            simple = simple if len(simple) > 3 else ring  # collapsed: keep it as is
+            simple = simple if len(simple) > 3 and area(simple) > 1e-6 else ring  # collapsed: keep it as is
             rings.append([[round(x, digits), round(y, digits)] for x, y in simple])
-        out.append(rings)
+        if area(rings[0]) > 1e-6:  # zero-area rings (collinear once rounded) render inverted over the whole globe
+            out.append([r for r in rings if area(r) > 1e-6])
     return out
 
 
 def feature(code, name, polys):
-    return {'type': 'Feature', 'properties': {'code': code, 'name': name},
-            'geometry': {'type': 'MultiPolygon', 'coordinates': polys}}
+    return {'type': 'Feature', 'properties': {'code': code, 'name': name}, 'geometry': {'type': 'MultiPolygon', 'coordinates': polys}}
 
 
 def inside(lng, lat, polys):
