@@ -7,6 +7,12 @@ square = [[0, 0], [1, 0], [1, 0.5], [1.001, 0.6], [1, 1], [0, 1], [0, 0]]
 assert len(g.simplify_ring(square, 0.01)) == 5, g.simplify_ring(square, 0.01)
 assert [1.5, 0.5] in g.simplify_ring([[0, 0], [1, 0], [1.5, 0.5], [1, 1], [0, 1], [0, 0]], 0.01)
 
+# d3 winding whatever the input's: outer rings clockwise (signed area < 0), holes counter-clockwise.
+ccw = [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]]
+hole = [[1, 1], [1, 3], [3, 3], [3, 1], [1, 1]]
+outer, inner = g.simplify_polys([[ccw, hole]], 0.01, 3)[0]
+assert g.area(outer, True) < 0 < g.area(inner, True)
+
 # Even-odd point-in-polygon honours holes.
 donut = [[[[0, 0], [4, 0], [4, 4], [0, 4]], [[1, 1], [3, 1], [3, 3], [1, 3]]]]
 assert g.inside(0.5, 0.5, donut) and not g.inside(2, 2, donut) and not g.inside(5, 5, donut)

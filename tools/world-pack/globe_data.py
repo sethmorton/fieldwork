@@ -55,8 +55,9 @@ def simplify_ring(ring, tol):
     return simplify(ring[:far + 1], tol)[:-1] + simplify(ring[far:], tol)
 
 
-def area(ring):
-    return abs(sum(x * ny - nx * y for (x, y), (nx, ny) in zip(ring, ring[1:] + ring[:1]))) / 2
+def area(ring, signed=False):
+    s = sum(x * ny - nx * y for (x, y), (nx, ny) in zip(ring, ring[1:] + ring[:1])) / 2  # > 0: counter-clockwise
+    return s if signed else abs(s)
 
 
 def polygons(geometry):
@@ -65,16 +66,15 @@ def polygons(geometry):
 
 def simplify_polys(polys, tol, digits):
     """Drop islets and holes under MIN_AREA (but always keep the largest polygon), simplify the rest, round."""
-    largest = max(area(p[0]) for p in polys)
-    out = []
+    largest, out = max(area(p[0]) for p in polys), []
     for poly in polys:
         if area(poly[0]) < MIN_AREA and area(poly[0]) != largest:
             continue
         rings = []
         for ring in poly[:1] + [h for h in poly[1:] if area(h) >= MIN_AREA]:
-            simple = simplify_ring(ring, tol)
-            simple = simple if len(simple) > 3 and area(simple) > 1e-6 else ring  # collapsed: keep it as is
-            rings.append([[round(x, digits), round(y, digits)] for x, y in simple])
+            simple = s if len(s := simplify_ring(ring, tol)) > 3 and area(s) > 1e-6 else ring  # collapsed: keep as is
+            r = [[round(x, digits), round(y, digits)] for x, y in simple]
+            rings.append(r if (area(r, True) < 0) == (not rings) else r[::-1])  # d3: outer clockwise, holes not
         if area(rings[0]) > 1e-6:  # zero-area rings (collinear once rounded) render inverted over the whole globe
             out.append([r for r in rings if area(r) > 1e-6])
     return out
