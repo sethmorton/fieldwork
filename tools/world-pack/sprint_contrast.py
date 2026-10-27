@@ -12,12 +12,15 @@
      else separates the pair, is prefixed SIGN. VERIFY_MODEL keeps only tells its sources support, that tell A from B and
      that do not infer a place from a feature's absence. Both calls are cached in sprint/contrast-cache.json.
   4. sprint/contrast.json: skills, biggest-loss pair first, each with its round's `location`; sprint.py wires them in.
-Usage: WORLD_PACK_DATA=<caches> WORLD_PACK_INPUTS=<inputs> python3 tools/world-pack/sprint_contrast.py
+Usage: WORLD_PACK_DATA=<caches> WORLD_PACK_INPUTS=<inputs> python3 tools/world-pack/sprint_contrast.py [SINCE [A-B ...]]
+  With SINCE (an ISO time) the existing cards stay as they are; only pairs that cost more than NEW_MIN points in rounds
+  ended since then, and the A-B pairs named, are added when they have no card yet.
 """
 import collections
 import concurrent.futures as cf
 import html
 import json
+import sys
 import threading
 from pathlib import Path
 
@@ -31,7 +34,7 @@ from text import HERE, WORK
 OUT = HERE / 'sprint'
 CACHE = OUT / 'contrast-cache.json'
 SURVEY = HERE / 'win/survey.jsonl'  # round vision survey (optional): what each round's panorama shows
-SELECT_MODEL, VERIFY_MODEL, WORKERS, PAIRS = 'gpt-6.1-sol', 'gpt-6-astra', 10, 25
+SELECT_MODEL, VERIFY_MODEL, WORKERS, PAIRS, NEW_MIN = 'gpt-6.1-sol', 'gpt-6-astra', 10, 25, 2000
 REQUIRED = [('US', 'CA'), ('MY', 'ID'), ('RU', 'UA'), ('BE', 'SK'), ('BE', 'NL'), ('TR', 'CY'), ('NO', 'US'),
             ('NO', 'SE'), ('NA', 'KE'), ('NA', 'ZA'), ('ES', 'TR')]
 # Brazilian macro-regions as sides of a regional pair (IBGE regions; ISO 3166-2 has none).
@@ -199,7 +202,9 @@ def side_of(r, guess_code):
     return r['countryCode'], guess_code
 
 
-def main():
+def main(since=None, *wanted):
+    """since (an ISO time): only add pairs that cost more than NEW_MIN points in rounds ended since then, plus the wanted
+    pairs ('NO-CA'), that have no card yet, keeping sprint/contrast.json's cards as they are."""
     world = json.loads((WORK / 'worldwide/countries-50m.geojson').read_text())
     props = [f['properties'] for f in world['features']]
     to_code = {p[k]: p['ISO_A2_EH'] for p in props for k in ('NAME', 'ADMIN')}
@@ -214,6 +219,8 @@ def main():
     pack_locs = [l for l in pack['locations'] if not set(l['skillIds']) & contrast]
     duel = {l['panoId']: l['skillIds'][0] for l in pack_locs if l['skillIds'][0].startswith('sprint:duel:')}
     used = {l['panoId'] for l in pack_locs} - set(duel)
+    old = json.loads((OUT / 'contrast.json').read_text()) if since else []
+    used |= {c['location']['panoId'] for c in old}
     pack_ids = {s['curriculum']['source']['clue'] for s in pack['skills']}
 
     lost, rounds = collections.Counter(), collections.defaultdict(list)
@@ -230,6 +237,15 @@ def main():
     regional = frozenset(REGIONS)
     pairs = list(dict.fromkeys([frozenset(p) for p in REQUIRED] + [regional] * (regional in weight)
                                + [p for p, _ in weight.most_common() if not p & regional]))[:PAIRS]
+    if since:
+        have = {frozenset(c['id'].split(':')[2].split('-')) for c in old}
+        recent = collections.Counter()
+        for (ka, kb), rs in rounds.items():
+            recent[frozenset((ka, kb))] += sum(max(0, (r['theirScore'] or 0) - (r['myScore'] or 0))
+                                               for r in rs if (r['endTime'] or '') >= since)
+        pairs = [p for p in dict.fromkeys([p for p, v in recent.items() if v > NEW_MIN]
+                                          + [frozenset(w.split('-')) for w in wanted]) if p not in have]
+        print('new pairs', [(sorted(p), recent[p]) for p in pairs])
     pairs.sort(key=lambda p: -weight[p])
 
     clues = json.loads((HERE / 'clues.json').read_text())
@@ -258,12 +274,13 @@ def main():
     cache = json.loads(CACHE.read_text()) if CACHE.exists() else {}
     with cf.ThreadPoolExecutor(WORKERS) as pool:
         results = list(pool.map(lambda j: tells(j, cache), jobs))
-    out = [card(j, kept, rank) for rank, (j, kept) in enumerate(((j, k) for j, k in zip(jobs, results) if k), 1)]
-    (OUT / 'contrast.json').write_text(json.dumps(out, ensure_ascii=False, indent=1) + '\n')
+    out = [card(j, kept, rank) | ({'added': since} if since else {})  # sprint.py leads with cards added this session
+           for rank, (j, kept) in enumerate(((j, k) for j, k in zip(jobs, results) if k), len(old) + 1)]
+    (OUT / 'contrast.json').write_text(json.dumps(old + out, ensure_ascii=False, indent=1) + '\n')
     for j, k in zip(jobs, results):
         print(f"{j['ka']}->{j['kb']}", 'failed' if k is None else f'{len(k)} tells', j['round']['id'])
     print(len(out), 'contrast cards over', len({frozenset((j['ka'], j['kb'])) for j, k in zip(jobs, results) if k}), 'pairs')
 
 
 if __name__ == '__main__':
-    main()
+    main(*sys.argv[1:2])

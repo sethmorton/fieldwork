@@ -61,6 +61,7 @@ KINDS = {'infrastructure', 'landscape-and-vegetation', 'agriculture', 'signs-and
 SUBJECTS = ('poles', 'landscape', 'roads', 'car')
 # Introduction rhythm over the per-subject streams: poles most often, then landscape, then roads, then car.
 PATTERN = ('poles', 'landscape', 'poles', 'roads', 'poles', 'landscape', 'car')
+EUROPE_FIRST = {'FR', 'GB', 'HU', 'NO', 'PT', 'IT', 'HR'}  # their identify cards come right after the newest fixes
 AUTHORED = {'plonkit-example-link', 'learnable-meta-export', 'learnable-meta-catalogue'}
 EDITOR = """You are an EDITOR choosing what a fast learner practises for {country} on A Competitive World, a ranked
 GeoGuessr map that is 87% rural with no moving: only what is visible from a rural road matters.
@@ -236,8 +237,8 @@ def candidates(code_of_slug, country_at, guideless, decks):
                 'attributionHtml': f'From the Learnable Meta map <a href="{url}">{meta["mapName"]}</a>.',
                 # A DECKS meta skips the judge: titled by its own name, its note shown verbatim. A pick brings its why.
                 **({'deck': True, 'label': meta['metaName'].strip(), 'noteHtml': meta['note']} if deck else {}),
-                **({'pick': meta['pick'], 'why': sprint_picks.SIGN * (meta['pick']['subject'] == 'signs')
-                    + meta['pick']['why']} if 'pick' in meta else {})}
+                **({'pick': meta['pick'], 'why': sprint_picks.SIGN * (meta['pick']['subject'] == 'signs'
+                    and not meta['pick']['why'].startswith(sprint_picks.SIGN)) + meta['pick']['why']} if 'pick' in meta else {})}
     return out, picked
 
 
@@ -503,8 +504,10 @@ def main(wanted=False):
     # The country's own guide, not a subdivision's (united-states, not hawaii, whose code is US-HI).
     guide_url = {u['code']: f"https://www.plonkit.net/{u['slug']}" for u in units if u.get('code') and '-' not in u['code']}
     rounds = json.loads((HERE / 'duels/rounds.json').read_text())
+    # A country absent from the published weights (Italy) still gets cards for its ACoW rounds, as an identify country.
+    duel_mode = {r['countryCode']: 'identify' for r in rounds if r['map'] == sprint_rounds.ACOW} | mode
     duel_skills, duel_locations = sprint_rounds.cards(
-        rounds, to_code, dt.datetime.now(dt.timezone.utc), skills, used, regions, duels, name, mode, relevance, guide_url,
+        rounds, to_code, dt.datetime.now(dt.timezone.utc), skills, used, regions, duels, name, duel_mode, relevance, guide_url,
         {s['id'] for s in prior['skills'] if s['subject'] == 'duel' and not s.get('exposure')})
     locations += duel_locations
     # Optional contrast cards (sprint/contrast.json: card objects, biggest-loss pairs first, each with its `location`),
@@ -513,9 +516,10 @@ def main(wanted=False):
     contrasts = []
     tells_path = OUT / 'tells.json'  # optional: {skill id: the one-line tell to look for}
     tells = json.loads(tells_path.read_text()) if tells_path.exists() else {}
-    by_id = {s['id']: s for s in skills + duel_skills}
+    by_id, added = {s['id']: s for s in skills + duel_skills}, {}
     for card in json.loads(contrast_path.read_text()) if contrast_path.exists() else []:
         card = dict(card)
+        added[card['id']] = card.pop('added', '')  # sprint_contrast.py SINCE: the session the card was added for
         loc = card.pop('location', None)
         target = by_id.get(card.get('mergeIntoDuel'))
         if target:  # an 'A vs B' block for one of your rounds: added to that duel card, not a card of its own
@@ -534,7 +538,9 @@ def main(wanted=False):
     decked = len(skills)
     for p, cc in picked:
         add_skill(p, cc)
-    skills, deck, picked = skills[:regular], skills[regular:decked], skills[decked:]
+    na = {f"sprint:{cc}:{p['id']}" for p, cc in picked if cands[cc][p['id']]['pick']['deck'] == sprint_picks.NA_FIX}
+    skills, deck, picked, na = (skills[:regular], skills[regular:decked], [s for s in skills[decked:] if s['id'] not in na],
+                                [s for s in skills[decked:] if s['id'] in na])
     # Mistakes of the latest session (RECENT_HOURS up to the newest round) lead the new cards, 1 in 2, most recent and
     # costliest first: Seth fixes them now.
     by_round = {r['id']: r for r in rounds}
@@ -547,9 +553,17 @@ def main(wanted=False):
     order = sprinkle(order, contrasts, 6)
     last = max(i for i, s in enumerate(order) if s['subject'] in SUBJECTS) + 1 if regular else 0
     skills = order[:last] + sprinkle(order[last:], [s for s in duel_skills if s.get('exposure')], 5)
-    skills = sprinkle(skills, deck, 3)  # deck cards lead the new cards, 1 in every 3: Seth wants them now
+    # The Brazil pole deck now gains him points (win/WhyFlat.md): after everything else. The other deck leads, 1 in 3.
+    poles = [s for s in deck if s.get('notesSourceMapId') == DECKS[0]]
+    skills = sprinkle(skills, [s for s in deck if s not in poles], 3)
     skills = sprinkle(skills, picked, 3)  # then the country picks, identify first, by expected loss (sprint_picks.py)
-    skills = sprinkle(skills, fresh, 2)
+    # Front of the new cards (win/WhyFlat.md: wrong-country rounds cost most): the latest mistakes 1 in 2, over the
+    # contrast cards added for the latest session, then the Europe identify cards, then the North America fix deck 1 in 3.
+    europe = [s for s in skills if s['country'] in EUROPE_FIRST and s['subject'] not in ('duel', 'contrast')
+              and (s['mode'] == 'identify' or mode[s['country']] == 'regional')]
+    front = [s for s in contrasts if added[s['id']] >= cut.isoformat()] + europe
+    ahead = {s['id'] for s in front}
+    skills = sprinkle(front + sprinkle([s for s in skills if s['id'] not in ahead] + poles, na, 3), fresh, 2)
     for rank, s in enumerate(skills, 1):
         s['curriculum']['rank'] = rank
         if s['id'] in tells:

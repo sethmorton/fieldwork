@@ -10,6 +10,7 @@ from text import HERE
 
 ORDER = ('US', 'IN', 'AU', 'CA')  # highest expected loss first (win/WinOpus.md)
 SIGN = '(if a sign is visible) '  # prefixes a signs pick's why, as sprint_contrast.py does for sign tells
+NA_FIX = 'na-region'  # North America regionguessing fix deck: its picks may name their own country; sprint.py leads with them
 
 
 def load():
@@ -24,10 +25,10 @@ def load():
     out = {}
     for f in sorted((HERE / 'sprint/decks').glob('*.json')):
         d = json.loads(f.read_text())
-        for p in [{**({'mode': d['mode']} if 'mode' in d else {}), **p} for p in d['picks']]:
+        for p in [{**({'mode': d['mode']} if 'mode' in d else {}), 'deck': f.stem, **p} for p in d['picks']]:
             key = (p['mapId'], p['metaId'])
             meta = by_key.get(key) or by_id[p['metaId']]
-            out.setdefault(d['country'], []).append({**meta, 'mapId': p['mapId'], 'pick': p,
+            out.setdefault(p.get('country') or d['country'], []).append({**meta, 'mapId': p['mapId'], 'pick': p,
                                                      'exportMapId': p['mapId'] if key in exported else other.get(p['metaId'])})
     return out
 
