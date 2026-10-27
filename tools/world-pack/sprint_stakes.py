@@ -63,7 +63,8 @@ def contrast(s):
 
 
 def add(skills, to_code, name, share, regions, rivals):
-    """Sets skill['stakes'] on every skill. regions: gap/clue-regions.json; rivals: {skill id: ISO2 of its pick's rival}."""
+    """Sets skill['stakes'] on every skill, and skill['cost']: the points that line reports lost (0 if none).
+    regions: gap/clue-regions.json; rivals: {skill id: ISO2 of its pick's rival}."""
     raw = json.loads((HERE / 'duels/raw.json').read_text())
     world = {g['options']['map']['name'] for g in raw['details'].values()
              if g['options']['map']['maxErrorDistance'] >= 14_000_000}
@@ -75,23 +76,26 @@ def add(skills, to_code, name, share, regions, rivals):
     for s in skills:
         cc, src = s['country'], s['curriculum']['source']['clue']
         if s['subject'] == 'duel':
-            s['stakes'] = duel(by_id[src], lost)
+            r = by_id[src]
+            s['stakes'], s['cost'] = duel(r, lost), max(0, (r['theirScore'] or 0) - (r['myScore'] or 0))
         elif s['subject'] == 'contrast':
-            s['stakes'] = contrast(s)
+            s['stakes'], s['cost'] = contrast(s), int(s['relevance'].rpartition(', ')[2].split(' points', 1)[0].replace(',', ''))
         elif s['mode'] == 'identify':
             options, rival = wrong.get(cc, {}), rivals.get(s['id'])
             if rival not in options:
                 rival = max(options, key=options.get, default=None)
             pts, n = options.get(rival, (0, 0))
+            s['cost'] = pts if n else 0
             s['stakes'] = fit(f'{name(cc)} guessed as {name(rival)}: {pts:,} pts lost in {rounds_text(n)}' if n
                               else f'Wrong-country guesses on {name(cc)}: none yet')
         elif s['mode'] == 'regional' and s.get('area'):
             codes = regions.get(src, {}).get('subdivisions', [])
             pts, n = map(sum, zip((0, 0), *(far[c] for c in codes if c in far)))
+            s['cost'] = pts if n else far.get(cc, [0])[0]
             area = s['area'].split(', ')
             s['stakes'] = fit(f"{s['area']}: {pts:,} pts lost in {rounds_text(n)} when you misplaced it",
                               f'{area[0]} and {len(area) - 1} more: {pts:,} pts lost in {rounds_text(n)} when you misplaced it',
                               f'{area[0]} and {len(area) - 1} more: {pts:,} pts lost in {rounds_text(n)}') if n else \
                 fit(f"{name(cc)} regional misses: {far.get(cc, [0])[0]:,} pts in {rounds_text(far.get(cc, [0, 0])[1])}")
         else:
-            s['stakes'] = fit(f'{name(cc)}: {100 * share.get(cc, 0):.1f}% of ranked rounds')
+            s['stakes'], s['cost'] = fit(f'{name(cc)}: {100 * share.get(cc, 0):.1f}% of ranked rounds'), 0

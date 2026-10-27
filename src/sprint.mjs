@@ -58,8 +58,10 @@ export function planSprint(pack,attempts,{size=5,now=Date.now()}={}) {
     }
   };
   // While new clues remain, every pass keeps at most DUE_CAP due clues. Only a set that would be short takes more.
-  take(due);
-  take(fresh);
+  // Costliest first across due and new; ties keep due (soonest first) before new (pack order: fresh mistakes first),
+  // so a cost-0 due clue fills a slot only once no costed clue is left.
+  const cost=item=>item.skill.cost??0;
+  take([...due,...fresh].sort((a,b)=>cost(b)-cost(a)));
   take([...seen,...fresh]);
   take([...seen,...fresh],{perCountry:false});
   take(due,{perCountry:false,capped:false});

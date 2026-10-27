@@ -70,6 +70,11 @@ test('the due cap holds in every fallback pass and gives way only when the set w
   assert.deepEqual(skillsOf(short),['A','C','E','H','F']);
   assert.equal(plan(short).reasons[0],'1 new, 4 due');
 });
+test('the costliest due or new clue wins over a cheap due one',()=>{
+  const costed={...pack,skills:skills.map(s=>({...s,cost:{A:0,C:50,E:900,G:400,H:700}[s.id]??0}))};
+  const history=[at('A',false),at('C',false),at('E',false),at('F',false),at('B',true),at('B',true),at('D',true),at('D',true),at('D',true,{assumed:true})];
+  assert.deepEqual(planSprint(costed,history,{now:T0}).locationIds.map(id=>id[0]),['E','H','G','C','A']);
+});
 test('an unused panorama is preferred, then the least recently used, until the sprint is complete',()=>{
   const others='BCDEFGH'.split('').flatMap(id=>[at(id,true,{easy:true}),at(id,true,{time:T12})]);
   const history=[at('A',true),...others];
