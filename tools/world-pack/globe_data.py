@@ -129,10 +129,8 @@ def geometry():
     return countries, admin1, to_code, {k: sorted(v) for k, v in alias.items() if k not in admin1}
 
 
-def sub_code(label):
-    """'Delaware (US-DE)' -> 'US-DE'."""
-    m = re.search(r'\(([A-Z]{2}-\w+)\)$', label or '')
-    return m and m.group(1)
+def sub_code(label):  # 'Delaware (US-DE)' -> 'US-DE'
+    return (m := re.search(r'\(([A-Z]{2}-\w+)\)$', label or '')) and m.group(1)
 
 
 def attempts():
@@ -145,9 +143,7 @@ def attempts():
 
 
 def sprint_of(tries):
-    if not tries:
-        return {'attempts': 0, 'spotted': 0, 'state': 'new'}
-    return {'attempts': len(tries), 'spotted': sum(tries), 'state': 'known' if tries[-1] else 'missed'}
+    return {'attempts': len(tries), 'spotted': sum(tries), 'state': 'new' if not tries else 'known' if tries[-1] else 'missed'}
 
 
 def duel_summary():
@@ -158,18 +154,22 @@ def duel_summary():
     ended = {}
     for r in rounds:
         ended[r['gameId']] = max(ended.get(r['gameId'], ''), r['endTime'] or '')
-    wins, losses, ratings = 0, 0, []
+    wins, losses, ratings, modes = 0, 0, [], {}
     for gid in sorted(ended, key=ended.get):
         g = raw['details'][gid]
         team = next(t for t in g['teams'] if any(p['playerId'] == raw['userId'] for p in t['players']))
         me = next(p for p in team['players'] if p['playerId'] == raw['userId'])
         winner = (g.get('result') or {}).get('winningTeamId')
         wins, losses = wins + (winner == team['id']), losses + (bool(winner) and winner != team['id'])
-        progress = ((me.get('progressChange') or {}).get('rankedSystemProgress') or {}).get('ratingAfter')
-        if progress or me.get('rating'):
-            ratings.append(progress or me['rating'])
+        # Ranked games only: ratingAfter is the overall ranked rating, gameModeRatingAfter that mode's own rating.
+        ranked = ((me.get('progressChange') or {}).get('rankedSystemProgress') or {})
+        if ranked.get('ratingAfter'):
+            ratings.append(ranked['ratingAfter'])
+            if ranked.get('gameModeRatingAfter'):
+                modes.setdefault(ranked['gameMode'], []).append(ranked['gameModeRatingAfter'])
     return rounds, {'rounds': len(rounds), 'games': len(ended), 'record': {'w': wins, 'l': losses},
-                    'rating': {'now': ratings[-1] if ratings else None, 'peak': max(ratings, default=None)},
+                    'rating': {'now': ratings[-1] if ratings else None, 'peak': max(ratings, default=None),
+                               'modes': {m: {'now': r[-1], 'peak': max(r)} for m, r in modes.items()}},
                     'since': min(ended.values(), default='')[:10]}
 
 
@@ -224,7 +224,7 @@ def metas(admin1, alias, tries, names):
         out[s['id']] = {'title': s['title'], 'tell': s.get('tell') or s['why'], 'stakes': s['stakes'], 'cost': s['cost'],
                         'subject': s['subject'], 'country': s['country'], 'regions': where,
                         'image': (s['imageUrls'] or [None])[0], 'sourceTitle': s['source']['title'],
-                        'sourceUrl': s['source'].get('url'), 'kind': 'card', 'sprint': sprint_of(tries.get(s['id']))}
+                        'sourceUrl': s['source'].get('url'), 'kind': 'card', 'sprint': sprint_of(tries.get(s['id'], []))}
     kinds = {f"plonkit:{slug}:{r['tipId']}": r['kind'] for slug, v in load(HERE / 'labels/curation.json').items()
              for r in v['order']}
     units = load(WORK / 'location-database/foundations/all-guide-topic-inventory.json')['units']
