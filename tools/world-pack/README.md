@@ -103,7 +103,9 @@ local build and writes `duels/report.json` (where you lose points, which countri
 `countries.json` and `admin1/<ISO2>.json` (Natural Earth, simplified with Douglas-Peucker as in
 `scripts/world-geometry.mjs`; admin-1 files coarsen until under 400 KB) and `data.json` (world-map duel stats per country
 and admin-1 region, the Sprint pack's cards plus regional Plonk It landscape, infrastructure and agriculture tips as
-ranked metas, and every world-map round). Stdlib only, a few seconds, no network:
+ranked metas, and every world-map round). Region lists put that region's own metas first (poles, then landscape and
+agriculture, then roads and infrastructure, signs last; narrower first), then nationwide ones, with restated tells
+dropped. Polygon helpers live in `globe_geometry.py`. Stdlib only, a few seconds, no network:
 
 ```sh
 WORLD_PACK_DATA=/path/to/world-map python3 tools/world-pack/globe_data.py && python3 tools/world-pack/test_globe_data.py
