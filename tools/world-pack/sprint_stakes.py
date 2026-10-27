@@ -1,11 +1,14 @@
 """The build-time `stakes` line of each sprint skill (at most MAX characters): what that clue has cost Seth in his
 world-map duels (duels/rounds.json; for the totals, maps with maxErrorDistance 14,000 km or more, as in
 win/WinStats.md). pts is the positive deficit, their score minus his. First match wins: a duel card's own round, a
-contrast card's relevance numbers, an identify skill's wrong-country losses (its pick's rival first), a regional skill's
-misplaced rounds in its area (else in its country), else the country's ACoW share."""
+contrast card's relevance numbers, a region card's misplaced rounds in the subdivisions its area names (else 0), an
+identify skill's wrong-country losses (its pick's rival first), a regional skill's misplaced rounds in its area (else in
+its country), else the country's ACoW share."""
 import collections
 import datetime as dt
 import json
+import re
+import unicodedata
 
 from sprint_rounds import place
 from text import HERE
@@ -20,6 +23,31 @@ def fit(*lines):
 
 def rounds_text(n):
     return f"{n} round{'s' * (n != 1)}"
+
+
+def fold(s):
+    return unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode().casefold()
+
+
+def area_codes(area, cc, rounds):
+    """Codes of cc's round subdivisions that the area text names, longest name first so 'West Virginia' is not also
+    Virginia."""
+    rest, codes = fold(area), []
+    for name, code in sorted({place(r['subdivision']) for r in rounds if r['countryCode'] == cc}, key=lambda p: -len(p[0] or '')):
+        pattern = rf'\b{re.escape(fold(name or ""))}\b'
+        if code and name and re.search(pattern, rest):
+            codes.append(code)
+            rest = re.sub(pattern, '|', rest)
+    return codes
+
+
+def misplaced(area, pts, n):
+    parts = area.split(', ')
+    if len(parts) == 1:
+        return fit(f"{area}: {pts:,} pts lost in {rounds_text(n)} when you misplaced it", f"{area}: {pts:,} pts lost in {rounds_text(n)}")
+    return fit(f"{area}: {pts:,} pts lost in {rounds_text(n)} when you misplaced it",
+               f'{parts[0]} and {len(parts) - 1} more: {pts:,} pts lost in {rounds_text(n)} when you misplaced it',
+               f'{parts[0]} and {len(parts) - 1} more: {pts:,} pts lost in {rounds_text(n)}')
 
 
 def totals(rounds, to_code):
@@ -62,9 +90,10 @@ def contrast(s):
     return fit(f'{a} guessed as {b}: {lost} pts lost in {rounds_text(n)}')
 
 
-def add(skills, to_code, name, share, regions, rivals):
+def add(skills, to_code, name, share, regions, rivals, region_cards=()):
     """Sets skill['stakes'] on every skill, and skill['cost']: the points that line reports lost (0 if none).
-    regions: gap/clue-regions.json; rivals: {skill id: ISO2 of its pick's rival}."""
+    regions: gap/clue-regions.json; rivals: {skill id: ISO2 of its pick's rival}; region_cards: ids of the skills whose
+    area is their deck pick's region."""
     raw = json.loads((HERE / 'duels/raw.json').read_text())
     world = {g['options']['map']['name'] for g in raw['details'].values()
              if g['options']['map']['maxErrorDistance'] >= 14_000_000}
@@ -80,6 +109,10 @@ def add(skills, to_code, name, share, regions, rivals):
             s['stakes'], s['cost'] = duel(r, lost), max(0, (r['theirScore'] or 0) - (r['myScore'] or 0))
         elif s['subject'] == 'contrast':
             s['stakes'], s['cost'] = contrast(s), int(s['relevance'].rpartition(', ')[2].split(' points', 1)[0].replace(',', ''))
+        elif s['id'] in region_cards:
+            pts, n = map(sum, zip((0, 0), *(far[c] for c in area_codes(s['area'], cc, every) if c in far)))
+            s['cost'] = pts
+            s['stakes'] = misplaced(s['area'], pts, n) if n else fit(f"{s['area']}: no misplaced rounds there yet")
         elif s['mode'] == 'identify':
             options, rival = wrong.get(cc, {}), rivals.get(s['id'])
             if rival not in options:
@@ -92,10 +125,7 @@ def add(skills, to_code, name, share, regions, rivals):
             codes = regions.get(src, {}).get('subdivisions', [])
             pts, n = map(sum, zip((0, 0), *(far[c] for c in codes if c in far)))
             s['cost'] = pts if n else far.get(cc, [0])[0]
-            area = s['area'].split(', ')
-            s['stakes'] = fit(f"{s['area']}: {pts:,} pts lost in {rounds_text(n)} when you misplaced it",
-                              f'{area[0]} and {len(area) - 1} more: {pts:,} pts lost in {rounds_text(n)} when you misplaced it',
-                              f'{area[0]} and {len(area) - 1} more: {pts:,} pts lost in {rounds_text(n)}') if n else \
+            s['stakes'] = misplaced(s['area'], pts, n) if n else \
                 fit(f"{name(cc)} regional misses: {far.get(cc, [0])[0]:,} pts in {rounds_text(far.get(cc, [0, 0])[1])}")
         else:
             s['stakes'], s['cost'] = fit(f'{name(cc)}: {100 * share.get(cc, 0):.1f}% of ranked rounds'), 0

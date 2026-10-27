@@ -2,7 +2,8 @@
 metaName, subject, why, and for identify picks mode 'identify' and rival}]}), Learnable Meta metas chosen by reading
 each country's maps. sprint.py teaches each pick like a DECKS meta on its exported author-placed locations, keeps every
 pick out of the judge's candidates so curation stays as it was, and introduces identify picks first, then the
-countries in ORDER, then the rest by ACoW share."""
+countries in ORDER, then the rest by ACoW share. A deck with source 'plonkit' ({country, source, picks: [{topicId,
+subject, label, why, states}]}) picks Plonk It tips instead, taught verbatim on their clue-bank locations."""
 import json
 
 from build import read_jsonl
@@ -11,6 +12,11 @@ from text import HERE
 ORDER = ('US', 'IN', 'AU', 'CA')  # highest expected loss first (win/WinOpus.md)
 SIGN = '(if a sign is visible) '  # prefixes a signs pick's why, as sprint_contrast.py does for sign tells
 NA_FIX = 'na-region'  # North America regionguessing fix deck: its picks may name their own country; sprint.py leads with them
+PLONKIT = 'plonkit'  # a deck's source when its picks are Plonk It tips (plonkit())
+# Decks introduced after every other card (the scheduler is cost-first), each pick on the first CHECKED of its unused
+# author-placed locations whose panorama is still served; its 'region' is the card's area.
+LATE = ('more-us-west', 'more-us-east', 'more-americas', 'more-europe', 'more-asiaoce', 'more-africame', 'plonk-us')
+CHECKED = 4
 
 
 def load():
@@ -25,11 +31,23 @@ def load():
     out = {}
     for f in sorted((HERE / 'sprint/decks').glob('*.json')):
         d = json.loads(f.read_text())
+        if d.get('source') == PLONKIT:  # plonkit() reads these
+            continue
         for p in [{**({'mode': d['mode']} if 'mode' in d else {}), 'deck': f.stem, **p} for p in d['picks']]:
             key = (p['mapId'], p['metaId'])
             meta = by_key.get(key) or by_id[p['metaId']]
             out.setdefault(p.get('country') or d['country'], []).append({**meta, 'mapId': p['mapId'], 'pick': p,
                                                      'exportMapId': p['mapId'] if key in exported else other.get(p['metaId'])})
+    return out
+
+
+def plonkit():
+    """{ISO2: [Plonk It pick with 'deck']} of the decks with source 'plonkit'."""
+    out = {}
+    for f in sorted((HERE / 'sprint/decks').glob('*.json')):
+        d = json.loads(f.read_text())
+        if d.get('source') == PLONKIT:
+            out.setdefault(d['country'], []).extend({'deck': f.stem, **p} for p in d['picks'])
     return out
 
 

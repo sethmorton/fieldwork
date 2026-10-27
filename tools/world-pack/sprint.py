@@ -16,7 +16,8 @@ road line and Google car clues, aimed at what Seth still gets wrong.
      new card; the latest session's mistakes lead the new cards 1 in 2. Every card of the last build is kept
   6. deck cards (DECKS): every meta of a whole Learnable Meta map, past the judge and quotas, on its author-placed
      locations still served, leading the new cards 1 in 3; a meta repeating a pick tops that card up to 3 locations.
-     sprint/decks picks (sprint_picks.py) are taught the same way, past the judge, identify picks first
+     sprint/decks picks (sprint_picks.py) are taught the same way, past the judge, identify picks first; the LATE decks'
+     cards come after every other card, on locations still served, their pick's region as the card's area
   7. sprint/pack.json
 ACoW countries without a Plonk It guide use the Learnable Meta maps named after them: `sprint.py wanted` lists their
 metas, and the DECKS metas, without exported locations in sprint/export-wanted.json for `harvest_lm.py export`.
@@ -45,7 +46,7 @@ import sprint_rounds
 import sprint_stakes
 import text
 from build import SETTING_RANK, card_image, note_html, read_jsonl
-from sprint_decks import DECKS, TRUSTED, deck_repeats
+from sprint_decks import DECKS, TRUSTED, deck_repeats, frame
 from text import HERE, WORK
 
 OUT = HERE / 'sprint'
@@ -192,18 +193,29 @@ def candidates(code_of_slug, country_at, guideless, decks):
     clues = {c['topicId']: c for c in json.loads((HERE / 'clues.json').read_text())}
     kinds = {f"plonkit:{slug}:{r['tipId']}": r['kind'] for slug, v in curate.load('curation.json').items() for r in v['order']}
     out, picked = collections.defaultdict(dict), collections.defaultdict(dict)
-    for tip in json.loads((HERE / 'clue-bank.json').read_text()):
+    plonk = lambda c, locs: {
+        'line': f"[{c['stage']} | {c['section']}] {c['text'][:350]}", 'text': c['text'], 'why': first_sentence(c['text']),
+        'stage': c['stage'], 'noteFields': {'noteLicense': 'CC BY-NC-SA 4.0'},
+        'images': [card_image(u) for u in c['imageUrls'][:3]], 'locs': locs,
+        'source': {'title': f"Plonk It · {c['title']}", 'url': c['tipUrl']},
+        'attributionHtml': f'Description and image from <a href="{c["tipUrl"]}">Plonk It</a> '
+                           '(CC BY-NC-SA 4.0, https://creativecommons.org/licenses/by-nc-sa/4.0/).'}
+    bank = json.loads((HERE / 'clue-bank.json').read_text())
+    for tip in bank:
         tid, cc = tip['topicId'], code_of_slug.get(tip['slug'])
         locs = [l for l in tip['locations'] if l['source'] in AUTHORED]
         if not cc or not locs or kinds.get(tid, 'unlabelled') not in KINDS | {'unlabelled'}:
             continue
-        c = clues[tid]
-        out[cc][tid] = {'line': f"[{c['stage']} | {c['section']}] {c['text'][:350]}", 'text': c['text'],
-                        'why': first_sentence(c['text']), 'stage': c['stage'], 'noteFields': {'noteLicense': 'CC BY-NC-SA 4.0'},
-                        'images': [card_image(u) for u in c['imageUrls'][:3]], 'locs': locs,
-                        'source': {'title': f"Plonk It · {c['title']}", 'url': c['tipUrl']},
-                        'attributionHtml': f'Description and image from <a href="{c["tipUrl"]}">Plonk It</a> '
-                                           '(CC BY-NC-SA 4.0, https://creativecommons.org/licenses/by-nc-sa/4.0/).'}
+        out[cc][tid] = plonk(clues[tid], locs)
+    # Plonk It deck picks (sprint_picks.plonkit()): verbatim, on the reviewed author-placed clue-bank locations of a
+    # playable tip.
+    tips = {t['topicId']: t for t in bank if t['status'] in ('playable', 'one-location')}
+    for cc, ps in sprint_picks.plonkit().items():
+        for p in ps:
+            if p['topicId'] in tips:
+                locs = [l for l in tips[p['topicId']]['locations'] if l['source'] in AUTHORED]
+                picked[cc][p['topicId']] = {**plonk(clues[p['topicId']], locs), 'deck': True,
+                                            'label': p['label'], 'pick': p, 'why': p['why']}
     # Learnable Meta: no stage of its own (the model judges each pick's scope). Its note is not redistributable, so the
     # app fetches it live from the meta's own map by panorama: a candidate keeps only its own map's locations, and the
     # same note copied into another map is skipped.
@@ -212,9 +224,11 @@ def candidates(code_of_slug, country_at, guideless, decks):
     # The judge sees only the exports it was curated on (append-only file), so newer ones (deck picks) leave it unchanged.
     judged = {(e['mapId'], e['metaId']) for e in rows[:JUDGED_EXPORTS]}
     units = {curate.country_key(u['title']): u for u in guide_units()}
+    # A deck's country takes its guide's aliases (Serbia's locations geolocate to 'Republic of Serbia').
+    slug_of = {u['code']: u['slug'] for u in units.values() if u.get('code') and '-' not in u['code']}
     groups = [(code_of_slug[units[key]['slug']], units[key]['slug'], units[key]['title'], ms, False)
               for key, ms in curate.lm_by_country().items()] + [(cc, '', title, ms, False) for cc, (title, ms) in guideless.items()] \
-        + [(cc, '', title, ms, True) for cc, (title, ms) in decks.items()]
+        + [(cc, slug_of.get(cc, ''), title, ms, True) for cc, (title, ms) in decks.items()]
     for cc, slug, title, ms, deck in groups:
         seen = set()
         for meta in ms:
@@ -472,8 +486,8 @@ def main(wanted=False):
             if loc['panoId'] not in used and len(chosen) + len(mine) < 3:
                 used.add(loc['panoId'])
                 chosen.append(loc)
-        region = regions.get(p['id'])
-        area = {'area': 'Nationwide'} if region and region['nationwide'] else {
+        region, pick = regions.get(p['id']), c.get('pick', {})
+        area = {'area': pick['region']} if 'region' in pick else {'area': 'Nationwide'} if region and region['nationwide'] else {
             'area': ', '.join(subdivision[s] for s in region['subdivisions'])} if region and region['subdivisions'] else {}
         skills.append({
             'id': sid, 'title': f"{name(cc)} · {p['label']}", 'phase': p['subject'].capitalize(),
@@ -536,11 +550,27 @@ def main(wanted=False):
     for p, cc in deck:  # after the duel and contrast cards, so those keep their panoramas
         add_skill(p, cc)
     decked = len(skills)
+    sid = lambda p, cc: f"sprint:{cc}:{p['id']}"
+    late = {sid(p, cc) for p, cc in picked if cands[cc][p['id']]['pick']['deck'] in sprint_picks.LATE}
     for p, cc in picked:
-        add_skill(p, cc)
-    na = {f"sprint:{cc}:{p['id']}" for p, cc in picked if cands[cc][p['id']]['pick']['deck'] == sprint_picks.NA_FIX}
-    skills, deck, picked, na = (skills[:regular], skills[regular:decked], [s for s in skills[decked:] if s['id'] not in na],
-                                [s for s in skills[decked:] if s['id'] in na])
+        if sid(p, cc) not in late:
+            add_skill(p, cc)
+    # Then the LATE picks, so the older cards keep their panoramas, each on its first CHECKED unused locations whose
+    # panorama is still served (sprint_decks.frame; thumbnails cached).
+    todo = {(cc, p['id']): sorted((l for l in cands[cc][p['id']]['locs'] if l['panoId'] not in used),
+                                  key=prefer)[:sprint_picks.CHECKED] for p, cc in picked if sid(p, cc) in late}
+    panos = {l['panoId']: l for ls in todo.values() for l in ls}
+    with cf.ThreadPoolExecutor(curate.WORKERS) as pool:
+        alive = dict(zip(panos, pool.map(lambda l: frame(l)[0] == TRUSTED, panos.values())))
+    for (cc, pid), ls in todo.items():
+        cands[cc][pid]['locs'] = [l for l in ls if alive[l['panoId']]]
+    for p, cc in picked:
+        if sid(p, cc) in late:
+            add_skill(p, cc)
+    na = {sid(p, cc) for p, cc in picked if cands[cc][p['id']]['pick']['deck'] == sprint_picks.NA_FIX}
+    skills, deck, picked, na, late = (skills[:regular], skills[regular:decked],
+                                      [s for s in skills[decked:] if s['id'] not in na | late],
+                                      [s for s in skills[decked:] if s['id'] in na], [s for s in skills[decked:] if s['id'] in late])
     # Mistakes of the latest session (RECENT_HOURS up to the newest round) lead the new cards, 1 in 2, most recent and
     # costliest first: Seth fixes them now.
     by_round = {r['id']: r for r in rounds}
@@ -563,14 +593,15 @@ def main(wanted=False):
               and (s['mode'] == 'identify' or mode[s['country']] == 'regional')]
     front = [s for s in contrasts if added[s['id']] >= cut.isoformat()] + europe
     ahead = {s['id'] for s in front}
-    skills = sprinkle(front + sprinkle([s for s in skills if s['id'] not in ahead] + poles, na, 3), fresh, 2)
+    skills = sprinkle(front + sprinkle([s for s in skills if s['id'] not in ahead] + poles, na, 3), fresh, 2) + late
     for rank, s in enumerate(skills, 1):
         s['curriculum']['rank'] = rank
         if s['id'] in tells:
             s['tell'] = tells[s['id']]
 
     sprint_stakes.add(skills, to_code, name, share, regions, {f'sprint:{cc}:{sid}': c['pick'].get('rival')
-                                                              for cc, cs in cands.items() for sid, c in cs.items() if 'pick' in c})
+                                                              for cc, cs in cands.items() for sid, c in cs.items() if 'pick' in c},
+                      {s['id'] for s in late if s.get('area')})
     urban = acow.urban_shares()
     covered = {s['country'] for s in skills}
     gaps = [name(cc) for cc in sorted(share, key=lambda c: -share[c]) if cc not in covered]
