@@ -75,6 +75,10 @@ test('the costliest due or new clue wins over a cheap due one',()=>{
   const history=[at('A',false),at('C',false),at('E',false),at('F',false),at('B',true),at('B',true),at('D',true),at('D',true),at('D',true,{assumed:true})];
   assert.deepEqual(planSprint(costed,history,{now:T0}).locationIds.map(id=>id[0]),['E','H','G','C','A']);
 });
+test('a recent mistake leads, even over a costlier clue',()=>{
+  const costed={...pack,skills:skills.map(s=>({...s,cost:{C:50,E:900,G:400,H:700}[s.id]??0,recent:s.id==='C'}))};
+  assert.deepEqual(planSprint(costed,[],{now:T0}).locationIds.map(id=>id[0]),['C','E','H','G','A']);
+});
 test('an unused panorama is preferred, then the least recently used, until the sprint is complete',()=>{
   const others='BCDEFGH'.split('').flatMap(id=>[at(id,true,{easy:true}),at(id,true,{time:T12})]);
   const history=[at('A',true),...others];

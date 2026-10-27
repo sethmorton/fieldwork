@@ -10,10 +10,12 @@ import json
 import re
 import unicodedata
 
-from sprint_rounds import place
+from sprint_rounds import missed, place
 from text import HERE
 
-MAX, FAR_M = 90, 500_000
+# A mistake ending within RECENT of the build is 'recent': src/sprint.mjs shows recent cards before all others. 12 h, not
+# 24: a day-long window also catches the previous evening's sitting, whose blow-ups outrank the latest one's.
+MAX, FAR_M, RECENT, BOOST = 90, 500_000, dt.timedelta(hours=12), 3
 
 
 def fit(*lines):
@@ -82,6 +84,14 @@ def duel(r, lost):
                f"Cost you {deficit:,} pts: {r['country']} guessed as {r['myGuessCountry'] or 'no guess'}, {day}{tail}")
 
 
+def duel_cost(r, mistake, now):
+    """(cost, recent): the round's deficit, BOOST times for a recent mistake (sprint_rounds.missed).
+    ponytail: fixed at build time, so it lasts until the next rebuild."""
+    deficit = max(0, (r['theirScore'] or 0) - (r['myScore'] or 0))
+    recent = mistake and now - dt.datetime.fromisoformat(r['endTime']) <= RECENT
+    return deficit * BOOST if recent else deficit, recent
+
+
 def contrast(s):
     """From the card's relevance line: 'Your world-map duels: {n} round(s) in {A} guessed {B}, {lost:,} points lost.'"""
     a, b = s['title'].split(' vs ', 1)
@@ -102,11 +112,13 @@ def add(skills, to_code, name, share, regions, rivals, region_cards=()):
     every = json.loads((HERE / 'duels/rounds.json').read_text())
     by_id = {r['id']: r for r in every}
     wrong, far = totals([r for r in every if r['map'] in world], to_code)
+    now = dt.datetime.now(dt.timezone.utc)
     for s in skills:
         cc, src = s['country'], s['curriculum']['source']['clue']
         if s['subject'] == 'duel':
             r = by_id[src]
-            s['stakes'], s['cost'] = duel(r, lost), max(0, (r['theirScore'] or 0) - (r['myScore'] or 0))
+            s['cost'], s['recent'] = duel_cost(r, missed(r, to_code), now)
+            s['stakes'] = duel(r, lost)
         elif s['subject'] == 'contrast':
             s['stakes'], s['cost'] = contrast(s), int(s['relevance'].rpartition(', ')[2].split(' points', 1)[0].replace(',', ''))
         elif s['id'] in region_cards:

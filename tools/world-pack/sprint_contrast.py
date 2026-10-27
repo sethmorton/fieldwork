@@ -34,7 +34,7 @@ from text import HERE, WORK
 OUT = HERE / 'sprint'
 CACHE = OUT / 'contrast-cache.json'
 SURVEY = HERE / 'win/survey.jsonl'  # round vision survey (optional): what each round's panorama shows
-SELECT_MODEL, VERIFY_MODEL, WORKERS, PAIRS, NEW_MIN = 'gpt-6.1-sol', 'gpt-6-astra', 10, 25, 2000
+SELECT_MODEL, VERIFY_MODEL, WORKERS, PAIRS, NEW_MIN = 'gpt-6.1-sol', 'gpt-6-astra', 10, 25, 1500
 REQUIRED = [('US', 'CA'), ('MY', 'ID'), ('RU', 'UA'), ('BE', 'SK'), ('BE', 'NL'), ('TR', 'CY'), ('NO', 'US'),
             ('NO', 'SE'), ('NA', 'KE'), ('NA', 'ZA'), ('ES', 'TR')]
 # Brazilian macro-regions as sides of a regional pair (IBGE regions; ISO 3166-2 has none).

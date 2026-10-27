@@ -15,7 +15,7 @@ NA_FIX = 'na-region'  # North America regionguessing fix deck: its picks may nam
 PLONKIT = 'plonkit'  # a deck's source when its picks are Plonk It tips (plonkit())
 # Decks introduced after every other card (the scheduler is cost-first), each pick on the first CHECKED of its unused
 # author-placed locations whose panorama is still served; its 'region' is the card's area.
-LATE = ('more-us-west', 'more-us-east', 'more-americas', 'more-europe', 'more-asiaoce', 'more-africame', 'plonk-us')
+LATE = ('more-us-west', 'more-us-east', 'more-americas', 'more-europe', 'more-asiaoce', 'more-africame', 'plonk-us', 'veg-focus')
 CHECKED = 4
 
 
