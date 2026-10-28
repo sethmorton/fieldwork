@@ -14,7 +14,7 @@ PATH="$ROOT/.scratch/nocodex:$PATH" python3 sprint.py
 cd "$ROOT"
 npm run build
 version=$(npm version patch --no-git-tag-version)
-git add -A
+git add package.json package-lock.json  # the pack itself lives in WORLD_PACK_DATA, outside the repo
 git commit -m 'refresh: duel cards from latest rounds'
 git push
 echo "version: $version"
