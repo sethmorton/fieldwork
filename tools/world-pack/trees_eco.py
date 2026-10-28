@@ -164,6 +164,11 @@ def rounds(df):
     return {int(l3): {'n': int(len(g)), 'ptsLost': int(g.lost.sum())} for l3, g in hit.groupby('l3')}
 
 
+def title(caps):
+    """EPA's upper-case L1/L2 names in title case, keeping USA and a lower-case 'and'."""
+    return caps.title().replace('Usa', 'USA').replace(' And ', ' and ')
+
+
 def data():
     df, text = regions(), descriptions()
     prompts = {(str(r.l3), r.name): PROMPT.format(l3=r.l3, name=r.name, text=text[r.l3], ids=', '.join(KNOWN_IDS),
@@ -179,7 +184,7 @@ def data():
             print('missing answer', r.l3, r.name)
             continue
         prev = old.get('ecoregions', {}).get(r.code, {})
-        ecos[r.code] = {'name': r.name, 'l3': int(r.l3), 'l1': r.l1.title(), 'l2': r.l2.title(), **clean(a, text[r.l3]),
+        ecos[r.code] = {'name': r.name, 'l3': int(r.l3), 'l1': title(r.l1), 'l2': title(r.l2), **clean(a, text[r.l3]),
                         'panos': prev.get('panos', []), 'rounds': counts.get(r.l3, {'n': 0, 'ptsLost': 0})}
     sources = old.get('sources', [])
     sources += [s for s in SOURCES if s not in sources]
