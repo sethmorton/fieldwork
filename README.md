@@ -96,6 +96,8 @@ The full verification builds your local userscript, so run `npm run setup` first
 npm run build && node --check dist/fieldwork.user.js && node scripts/verify-build.mjs && npm run check
 ```
 
+`npm run refresh` fetches your latest duels, rebuilds the Sprint cards offline, bumps the patch version, commits and pushes ([tools/world-pack/refresh.sh](tools/world-pack/refresh.sh)).
+
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): content delivery, storage, set selection and FSRS details.
 - [docs/SETUP.md](docs/SETUP.md): local builds, custom packs and troubleshooting.
 - [docs/CONTENT.md](docs/CONTENT.md): authoring and importing packs.
