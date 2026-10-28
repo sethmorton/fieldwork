@@ -13,6 +13,22 @@ test('only completed rounds on the dedicated map can show a clue',()=>{
   assert.equal(completedRound(pack,{...state,current_round:0}),null);
   assert.equal(completedRound(pack,state).correct,true);
 });
+test('a sprint round is graded automatically from the guessed country; an explicit grade overrides it once',()=>{
+  // Atlas outlines: x=lng+180, y=90-lat. Testland spans lat/lng -10..10, Otherland lng 20..40.
+  const geometry={XA:{name:'Testland',d:'M170 80L190 80L190 100L170 100Z'},XB:{name:'Otherland',d:'M200 80L220 80L220 100L200 100Z'}};
+  const sprint={...pack,scheduler:'sprint',gradingPolicy:'recognition',regionFeatures:undefined,atlas:{geometry},
+    skills:pack.skills.map(skill=>({...skill,country:'XA'})),locations:pack.locations.map(({region,...location})=>location)};
+  const at=(lat,lng)=>completedRound(sprint,{...state,rounds:[{location:{panoId:'0'},player_guess:{lat,lng}}]});
+  assert.deepEqual([at(1,1).guessedCountry,at(1,1).correct],['XA',true]);
+  assert.deepEqual([at(1,30).guessedCountry,at(1,30).correct],['XB',false]);
+  assert.equal(at(1,60).correct,null,'off every outline: no automatic grade');
+  const auto=recordRecognition(sprint,[],at(1,30),{recognized:false,auto:true});
+  assert.deepEqual([auto[0].correct,auto[0].regionCorrect,auto[0].feedbackSource],[false,false,'auto']);
+  assert.equal(recordRecognition(sprint,auto,at(1,30),{recognized:true,auto:true}),auto,'auto never replaces auto');
+  const knew=recordRecognition(sprint,auto,at(1,30),{recognized:true,knew:true});
+  assert.deepEqual([knew.length,knew[0].correct,knew[0].grade,knew[0].feedbackSource],[1,true,'easy','explicit']);
+  assert.equal(recordRecognition(sprint,knew,at(1,30),{recognized:false}),knew,'an explicit grade is final');
+});
 test('a correct region alone cannot become evidence of clue recognition; duplicate events do not inflate history',()=>{
   const round=completedRound(pack,state);
   assert.throws(()=>recordRecognition(pack,[],round,{}),/Confirm/);

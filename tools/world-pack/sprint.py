@@ -64,6 +64,7 @@ SUBJECTS = ('poles', 'landscape', 'roads', 'car')
 PATTERN = ('poles', 'landscape', 'poles', 'roads', 'poles', 'landscape', 'car')
 EUROPE_FIRST = {'FR', 'GB', 'HU', 'NO', 'PT', 'IT', 'HR'}  # their identify cards come right after the newest fixes
 AUTHORED = {'plonkit-example-link', 'learnable-meta-export', 'learnable-meta-catalogue'}
+TOP_UP = {'lm': 10, 'plonkit': 6}  # panoramas per landscape card, by source
 EDITOR = """You are an EDITOR choosing what a fast learner practises for {country} on A Competitive World, a ranked
 GeoGuessr map that is 87% rural with no moving: only what is visible from a rural road matters.
 Pick only these four subjects:
@@ -342,6 +343,15 @@ def teaching(cands, p):
     return p['quote'] if p.get('quote') and p['quote'] in c['text'] else c['why']
 
 
+def source_location(loc, sid):
+    """A pack location for one of the card's author-placed source examples."""
+    return {'id': f"sprint:{loc['panoId']}", 'panoId': loc['panoId'], 'lat': loc['lat'], 'lng': loc['lng'],
+            'heading': loc['heading'] or 0, 'pitch': loc['pitch'] or 0, 'zoom': 0,  # ranked opens unzoomed
+            'skillIds': [sid], 'country': loc['country'], 'assessmentEligible': False,
+            **({'sourceMapId': loc['sourceMapId']} if 'sourceMapId' in loc else {}), **loc.get('view', {}),
+            'provenance': {'kind': 'source-example', 'source': loc['source']}}
+
+
 def sprinkle(base, extra, every):
     """base with one extra item after every (every - 1) base items; leftover extras at the end."""
     queue = collections.deque(extra)
@@ -499,11 +509,7 @@ def main(wanted=False):
             'source': c['source'], 'attributionHtml': c['attributionHtml'],
             'curriculum': {'scope': 'country-identification' if breadth(cc, p)[0] == 0 else 'within-country-regional',
                            'rank': len(skills) + 1, 'source': {'clue': p['id']}}})
-        src = [{'id': f"sprint:{loc['panoId']}", 'panoId': loc['panoId'], 'lat': loc['lat'], 'lng': loc['lng'],
-                       'heading': loc['heading'] or 0, 'pitch': loc['pitch'] or 0, 'zoom': 0,  # ranked opens unzoomed
-                       'skillIds': [sid], 'country': loc['country'], 'assessmentEligible': False,
-                       **({'sourceMapId': loc['sourceMapId']} if 'sourceMapId' in loc else {}), **loc.get('view', {}),
-                       'provenance': {'kind': 'source-example', 'source': loc['source']}} for loc in chosen]
+        src = [source_location(loc, sid) for loc in chosen]
         mine = [{'id': f"sprint:duel:{d['panoId']}", 'panoId': d['panoId'], 'lat': d['lat'], 'lng': d['lng'],
                        'heading': d.get('heading') or 0, 'pitch': d.get('pitch') or 0, 'zoom': 0,
                        'skillIds': [sid], 'country': name(cc), 'assessmentEligible': False,
@@ -572,6 +578,21 @@ def main(wanted=False):
     for p, cc in picked:
         if sid(p, cc) in late:
             add_skill(p, cc)
+    # Landscape cards learn from many panoramas (win/LearnSeth.md §4): after every other card took its own, each tops up
+    # to TOP_UP author-placed locations (Learnable Meta exports, Plonk It clue-bank) not marked dead, each panorama once in
+    # the pack, appended so a card's earlier locations keep their order and ids.
+    have = collections.Counter(l['skillIds'][0] for l in locations)
+    for s in skills:
+        cc, pid = s['country'], s['curriculum']['source']['clue']
+        if s['subject'] != 'landscape':
+            continue
+        for loc in sorted(cands[cc][pid]['locs'], key=prefer):
+            if have[s['id']] >= TOP_UP['lm' if pid.startswith('lm:') else 'plonkit']:
+                break
+            if loc['panoId'] not in used:
+                used.add(loc['panoId'])
+                have[s['id']] += 1
+                locations.append(source_location(loc, s['id']))
     na = {sid(p, cc) for p, cc in picked if cands[cc][p['id']]['pick']['deck'] == sprint_picks.NA_FIX}
     skills, deck, picked, na, late = (skills[:regular], skills[regular:decked],
                                       [s for s in skills[decked:] if s['id'] not in na | late],
@@ -601,7 +622,7 @@ def main(wanted=False):
     skills = sprinkle(front + sprinkle([s for s in skills if s['id'] not in ahead] + poles, na, 3), fresh, 2) + late
     for rank, s in enumerate(skills, 1):
         s['curriculum']['rank'] = rank
-        if s['id'] in tells:
+        if s['id'] in tells and s.get('tellSource') != 'coach':  # a coach tell (sprint_rounds.py) is read from the round itself
             s['tell'] = tells[s['id']]
 
     sprint_stakes.add(skills, to_code, name, share, regions, {f'sprint:{cc}:{sid}': c['pick'].get('rival')

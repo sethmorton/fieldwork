@@ -2,7 +2,7 @@
 replayed on its own panorama, plus 'exposure' cards for every other A Competitive World round. The note states what
 happened and teaches with verbatim Plonk It tips: those verified visible in the round, the subdivision's (else the
 country's), only ones that tell the answer from a guessed subdivision, 1 tip for a wrongly guessed country, and the
-vision survey's description of the view."""
+vision survey's description of the view. A coach entry (sprint/coach/out-*.json) for the round leads the note."""
 import collections
 import datetime as dt
 import html
@@ -20,6 +20,9 @@ ACOW = 'A Competitive World'
 TEACH = ('landscape-and-vegetation', 'infrastructure', 'agriculture')  # preference order
 VERIFIED, SCOPE = HERE / 'sprint/duel-tip-views.json', HERE / 'sprint/duel-tip-scope.json'
 SURVEY = HERE / 'win/survey.jsonl'  # round vision survey (optional); lost in the 2026-10-25 /tmp wipe until rerun
+# Coach agents' reads of the costliest mistake rounds: {round id: {see, why_answer, vs_guess, tell, frame, confidence}}.
+# Whatever files exist are used; a round without an entry keeps its card as before.
+COACH = HERE / 'sprint/coach'
 
 
 def place(subdivision):
@@ -79,6 +82,13 @@ def candidates(code, slug, by_code, by_slug):
     return (by_code.get(code, [])[:3] + by_slug.get((slug, False), [])[:2]) or by_slug.get((slug, True), [])[:2]
 
 
+def coach_html(read, answer):
+    """The coach's read of the round, at the top of the note: what to see, why it is the answer, why not the guess."""
+    rows = [('See', read.get('see')), (f"Why it's {answer}", read.get('why_answer')), ('Vs your guess', read.get('vs_guess'))]
+    return ("<p><strong>Coach (Claude Opus, from your round's frames)</strong></p>"
+            + ''.join(f'<p>{html.escape(k)}: {html.escape(v)}</p>' for k, v in rows if v))
+
+
 def in_view(v):
     """The survey's visible yes/no categories and plain descriptions; its 'most useful clue' guess is left out."""
     seen = {k: v[k].get('visible') for k in ('poles', 'bollards', 'signs', 'car') if isinstance(v.get(k), dict)}
@@ -115,6 +125,7 @@ def cards(rounds, to_code, now, pack_skills, used, regions, views, name, mode, r
         survey = {x['id']: x['survey'] for x in map(json.loads, SURVEY.read_text().splitlines()) if x.get('survey')}
     verified = json.loads(VERIFIED.read_text()) if VERIFIED.exists() else {}  # duel_tips.py: {round: {topicId: hit}}
     scope = json.loads(SCOPE.read_text()) if SCOPE.exists() else {}  # duel_tips.py: {code: [tips naming a smaller place]}
+    coach = {k: v for f in sorted(COACH.glob('out-*.json')) for k, v in json.loads(f.read_text()).items()}
     local = lambda c, code: c['topicId'] in scope.get(code, ())
     # A subdivision's tips, without those about one smaller place inside it unless nothing else is left.
     wide = lambda code: [c for c in by_code.get(code, []) if not local(c, code)] or by_code.get(code, [])[:1]
@@ -164,10 +175,19 @@ def cards(rounds, to_code, now, pack_skills, used, regions, views, name, mode, r
             note += f'<p><strong>Points to {html.escape(gsub if same else name(gcc))} instead</strong></p>' + tip_html(other[0])
         if r['id'] in survey:
             note += '<p><strong>In view (model description, may be wrong)</strong></p>' + in_view(survey[r['id']])
+        read = coach.get(r['id'])
+        if read:
+            note = coach_html(read, sub if gcc == cc and sub else name(cc)) + note
         # The tip's own first sentence, so the tell adds no facts: the verified tip, else the first answer tip of the
         # subdivision itself (a nationwide tip would not point to it).
         lead = shown[:1] or [c for c in rest if covers(c, code)][:1]
         tell = f"{lead[0]['text'].split('. ')[0].rstrip('.')} -> {sub or name(cc)}" if lead else None
+        # The coach's tell when no tip was verified in the round's frames, or when the coach is confident.
+        coached = bool(read and read.get('tell') and (not hits or str(read.get('confidence')).lower() == 'high'))
+        if coached:
+            tell = read['tell'] if ' -> ' in read['tell'] else f"{read['tell'].rstrip('.')} -> {sub or name(cc)}"
+        # Frame k of the round faces the opening heading + 90(k-1): open on the coach's frame, so the cue is in view.
+        turn = 90 * (int(read.get('frame') or 1) - 1) if read else 0
         # Images of the cited tips, answer side first: verified, then the answer's, then the guess's.
         images = list(dict.fromkeys(card_image(u) for c in shown + rest + other for u in c['imageUrls'][:1]))[:2]
         sid = f"sprint:duel:{r['id']}"
@@ -176,7 +196,8 @@ def cards(rounds, to_code, now, pack_skills, used, regions, views, name, mode, r
             'id': sid, 'title': title,
             'phase': 'Your rounds', 'practiceFamily': f'{cc}:duel', 'prerequisites': [], 'availability': 'available',
             'importance': 100, 'country': cc, 'countryName': name(cc), 'subject': 'duel', 'mode': mode[cc],
-            **({'area': sub} if sub else {}), **({'exposure': True} if exposure else {}), **({'tell': tell} if tell else {}), 'why': answer, 'relevance': relevance(cc),
+            **({'area': sub} if sub else {}), **({'exposure': True} if exposure else {}), **({'tell': tell} if tell else {}),
+            **({'tellSource': 'coach'} if coached else {}), 'why': answer, 'relevance': relevance(cc),
             # Your round plus verbatim Plonk It tips, each linked to its source.
             'sourceNoteHtml': note, 'noteLicense': 'own; linked Plonk It tips CC BY-NC-SA 4.0', 'imageUrls': images,
             'source': {'title': f'Plonk It · {name(cc)}', **({'url': guide_url[cc]} if cc in guide_url else {})},
@@ -185,7 +206,7 @@ def cards(rounds, to_code, now, pack_skills, used, regions, views, name, mode, r
             'curriculum': {'scope': 'within-country-regional' if mode[cc] == 'regional' else 'country-identification',
                            'rank': 0, 'source': {'clue': r['id']}}})
         locations.append({'id': f"sprint:duel:{view['panoId']}", 'panoId': view['panoId'], 'lat': view['lat'],
-                          'lng': view['lng'], 'heading': view['heading'] or 0, 'pitch': view['pitch'] or 0, 'zoom': 0,
+                          'lng': view['lng'], 'heading': ((view['heading'] or 0) + turn) % 360, 'pitch': view['pitch'] or 0, 'zoom': 0,
                           'skillIds': [sid], 'country': name(cc), 'assessmentEligible': False,
                           'provenance': {'kind': 'duel-round', 'round': r['id']}})
     return skills, locations

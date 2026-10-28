@@ -214,8 +214,11 @@ function render() {
   if(mounted===round.id)return;
   const seen=exposures();const familiar=seen.some(item=>item.locationRef===round.location.id&&item.id!==round.id);
   if(!seen.some(item=>item.id===round.id))GM_setValue(key('exposures'),[...seen,{id:round.id,locationRef:round.location.id}]);
+  // Sprint: the guessed country grades the round at once (feedbackSource 'auto'); 1/2/3 still override it.
+  if(pack.scheduler==='sprint'&&typeof round.correct==='boolean'&&!history().some(item=>item.id===round.id))
+    GM_setValue(key('attempts'),recordRecognition(pack,history(),round,{recognized:round.correct,familiar,auto:true}));
   if(!history().some(item=>item.id===round.id))GM_setValue(key('pending-review'),{round,familiar,correct:round.correct});
-  reviewPanel(pack,round,{familiar,attempts:history(),getAttempts:history,saved:history().some(item=>item.id===round.id&&item.feedbackSource!=='assumed-on-advance'),
+  reviewPanel(pack,round,{familiar,attempts:history(),getAttempts:history,saved:history().some(item=>item.id===round.id&&item.feedbackSource==='explicit'),
     onChange:response=>{const pending=GM_getValue(key('pending-review'),null);if(pending?.round.id===round.id)GM_setValue(key('pending-review'),{...pending,...response})},
     loadNote:skill=>atlasNote(skill,round.location),atlasNote,
     onSave:response=>{const updated=recordRecognition(pack,history(),round,response);GM_setValue(key('attempts'),updated);GM_setValue(key('pending-review'),null);return updated},onNext:prepare});mounted=lastShown=round.id;

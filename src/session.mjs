@@ -1,4 +1,4 @@
-import {regionAt} from './geo.mjs';
+import {regionAt,countryAt} from './geo.mjs';
 import {MAX_PER_FAMILY} from './lib/adaptive.ts';
 import {skillStatus} from './lib/mastery.ts';
 import {notice} from './load-errors.mjs';
@@ -21,12 +21,16 @@ export function completedRound(pack,state) {
   const location=pack.locations.find(location=>location.panoId===round.location.panoId);
   if(!location) return null;
   const guessedRegion=regionAt(round.player_guess.lat,round.player_guess.lng,pack.regionFeatures??[]);
+  const inRegion=guessedRegion&&location.region?guessedRegion===location.region:null;
+  // Sprint packs carry the atlas outlines: the guess's country against the card's (ISO2). Off every outline stays unknown.
+  const country=pack.atlas?.geometry&&pack.skills.find(skill=>skill.id===location.skillIds[0])?.country;
+  const guessedCountry=country?countryAt(round.player_guess.lat,round.player_guess.lng,pack.atlas.geometry):null;
   return {id:`${pack.id}:${state.current_game_id}:${state.current_round}`,location,
     round:state.current_round,gameId:state.current_game_id,
-    correct:guessedRegion&&location.region?guessedRegion===location.region:null};
+    ...(guessedCountry?{guessedCountry,correct:guessedCountry===country&&inRegion!==false}:{correct:inRegion})};
 }
 
-export function recordRecognition(pack,history,round,{recognized,knew=false,familiar=false,correct=round.correct,assumed=false},now=new Date()) {
+export function recordRecognition(pack,history,round,{recognized,knew=false,familiar=false,correct=round.correct,assumed=false,auto=false},now=new Date()) {
   const skill=pack.skills.find(skill=>skill.id===round.location.skillIds[0]);
   if(!skill) throw Error('Unknown clue.');
   // gradingPolicy 'recognition' (and recognition-only clues): spotted = Good, missed = Again; the geographic result is kept as regionCorrect.
@@ -37,17 +41,18 @@ export function recordRecognition(pack,history,round,{recognized,knew=false,fami
     &&(skill.curriculum?.scope??'country-identification')!=='country-identification');
   if(typeof recognized!=='boolean' || (!assumed&&!recognitionDecides&&recognized&&typeof correct!=='boolean')) throw notice('Confirm clue recognition and the region result.');
   const prior=history.find(attempt=>attempt.id===round.id);
-  if(prior && (assumed || prior.feedbackSource!=='assumed-on-advance'))return history;
+  // An explicit grade replaces an assumed or automatic one, never the reverse.
+  if(prior && (assumed || auto || prior.feedbackSource==='explicit'))return history;
   const wasSeen=history.some(attempt=>attempt.id!==round.id&&attempt.locationRef===round.location.id);
   const attempt={id:round.id,skillId:round.location.skillIds[0],occurredAt:now.toISOString(),
     correct:recognitionDecides?recognized:correct,regionCorrect:correct,evidenceValid:recognized,confidence:recognized&&knew?3:2,unfamiliar:!familiar&&!wasSeen,
     ...(recognized&&knew?{grade:'easy'}:{}),
-    locationRef:round.location.id,mode:assumed||round.location.assessmentEligible===false||(!skill.recognitionOnly&&correct===null)?'practice':'assessment',feedbackSource:assumed?'assumed-on-advance':'explicit',
+    locationRef:round.location.id,mode:assumed||round.location.assessmentEligible===false||(!skill.recognitionOnly&&correct===null)?'practice':'assessment',feedbackSource:assumed?'assumed-on-advance':auto?'auto':'explicit',
     reason:(assumed?'Recognition assumed on advance by learner preference; not verified mastery evidence.'
       :round.location.assessmentEligible===false?'Source teaching example; practice only, not unseen assessment evidence.'
       :skill.recognitionOnly?'Explicit visual-feature recognition; geographic result recorded separately. Country discrimination was not tested.'
         :'Region result plus self-reported clue recognition after reveal. Confidence was not measured (neutral default).')
-      +(recognized&&knew?' Learner marked it known cold (confidence 3, Easy).':'')};
+      +(recognized&&knew?' Learner marked it known cold (confidence 3, Easy).':'')+(auto?' Graded automatically from the guessed country.':'')};
   // Duplicate framework events and reloads cannot create extra evidence.
   return prior?history.map(item=>item.id===attempt.id?attempt:item):[...history,attempt];
 }

@@ -39,7 +39,8 @@ function shadowHost(tag,id){
     .tell{font:700 19px/1.3 'Trebuchet MS',Arial,sans-serif;margin:6px 0 12px;color:#0f2c37}
     .stakes{margin:0 0 14px;padding:8px 12px;border-left:3px solid #c0571a;background:#fbeee4;color:#7d3410;border-radius:0 6px 6px 0;font-size:14px;font-weight:600}
     .card img.hero{max-height:260px;margin-bottom:12px}.lead p{margin:6px 0}.lead .label{margin:12px 0 2px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#496b79}
-    .session{margin:6px 0 0;font-size:11px;color:#496b79}.rest{margin:4px 0 0;font-size:12px;color:#7d3410}
+    .session{margin:6px 0 0;font-size:11px;color:#496b79}.rest{margin:8px 0;padding:8px 12px;border:1px solid #e3b48f;border-radius:8px;background:#fbeee4;color:#7d3410;font-size:13px;font-weight:600}
+    .auto{margin:8px 0 0;font-weight:700;font-size:15px}.auto.right{color:#276b50}.auto.wrong{color:#c0571a}
     section.drill{max-height:85vh!important}.footer{position:sticky;bottom:-16px;margin:12px -16px -16px;padding:10px 16px 14px;background:#eff6f8;border-top:1px solid #dbe7eb}.footer .actions{margin-top:0}.footer p:empty{display:none}
     button.continue{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px}
     .grades button{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 6px}.grades button:disabled{cursor:default}button.chosen{background:#d2e8f0;border:2px solid #176b86;font-weight:600}button.chosen:disabled{opacity:1}
@@ -106,7 +107,7 @@ function sourceDetails(details,skill,sourceUrl){
   const attribution=new DOMParser().parseFromString(skill.attributionHtml??'','text/html');text(details,'p',attribution.body.textContent??'','muted');
 }
 // Sprint card, in decision order: tell, stakes, example, the foil block; the full note stays under 'Clue & source'.
-function sprintCard(card,skill,round,attempts,sourceUrl){
+function sprintCard(card,skill,round,attempts,pack){
   text(card,'h2',skill.title);
   const parsed=new DOMParser().parseFromString(skill.sourceNoteHtml??skill.trainingNote??'','text/html'),note=(parsed.body.textContent??'').trim();
   // Plain text above the fold: a trailing '(Source name)' citation stays under 'Clue & source'.
@@ -124,11 +125,11 @@ function sprintCard(card,skill,round,attempts,sourceUrl){
       dialog.onclick=()=>dialog.close();dialog.onclose=()=>dialog.remove();dialog.showModal();};}
   const lead=document.createElement('div');lead.className='lead';card.append(lead);
   if(skill.subject==='duel'||skill.subject==='contrast'){
-    // Duels: the 'Seen in this round' and 'Points to X instead' blocks. Contrasts: the pair under the title, minus the tell's line.
+    // Duels: the 'Coach' read (3 lines), the 'Seen in this round' and 'Points to X instead' blocks. Contrasts: the pair under the title, minus the tell's line.
     // The model's 'In view' description is never shown here: it may be wrong, so it stays under 'Clue & source'.
     let take=0,headings=0,label=null;
     for(const p of paragraphs){
-      if(isHeading(p)){headings++;take=/^(Seen in this round|Points to)/.test(p.textContent)||(skill.subject==='contrast'&&headings===1&&!/^In view/.test(p.textContent))?(skill.subject==='contrast'?2:1):0;
+      if(isHeading(p)){headings++;take=/^Coach/.test(p.textContent)?3:/^(Seen in this round|Points to)/.test(p.textContent)||(skill.subject==='contrast'&&headings===1&&!/^In view/.test(p.textContent))?(skill.subject==='contrast'?2:1):0;
         label=take&&!(skill.subject==='contrast'&&headings===1)?p.textContent:null;continue;}
       // A line the headline already states adds only its '(Visible when you turn …)' hint.
       const dup=tell&&p.textContent.toLowerCase().includes(tell),hint=p.textContent.match(/\((Visible[^()]*)\)\s*$/)?.[1];
@@ -140,27 +141,34 @@ function sprintCard(card,skill,round,attempts,sourceUrl){
   }else if(!skill.tell){const rest=(parsed.body.querySelector('p')?.textContent??note).trim().slice(first.length).trim();if(rest)text(lead,'p',rest,'preview');}
   const details=document.createElement('details');text(details,'summary','Clue & source');
   if(round.location.note)text(details,'p',round.location.note);
-  sourceDetails(details,skill,sourceUrl);card.append(details);
-  const status=text(card,'span',cardStatus(attempts,round),'status');if(skill.relevance)status.title=skill.relevance;
+  sourceDetails(details,skill,pack.notesSourceUrl);card.append(details);
+  const status=text(card,'span',cardStatus(pack,attempts,round),'status');if(skill.relevance)status.title=skill.relevance;
 }
-const sessionLine=(section,pack,attempts)=>{const bar=sessionBar(pack,attempts);text(section,'p',bar.text,'session');if(bar.rest)text(section,'p','Take 5 minutes, then come back.','rest');};
+// After a 25-minute block: a banner on the start and review panels (win/LearnSeth.md: first-look accuracy halves after ~30 min).
+const sessionLine=(section,pack,attempts)=>{const bar=sessionBar(pack,attempts);text(section,'p',bar.text,'session');
+  if(bar.rest)text(section,'p','25 minutes done: take 5 minutes off screen, then ranked.','rest').setAttribute('role','status');};
 function sprintReview(pack,round,{familiar=false,saved=false,attempts=[],getAttempts=()=>attempts,onSave,onNext,loadNote}){
   const {host,section}=panel();section.classList.add('drill');header(section,`Fieldwork · round ${round.round}/5`);sessionLine(section,pack,attempts);
-  const skill=pack.skills.find(item=>item.id===round.location.skillIds[0]),card=document.createElement('div');card.className='card';section.append(card);
-  sprintCard(card,skill,round,attempts,pack.notesSourceUrl);
+  const skill=pack.skills.find(item=>item.id===round.location.skillIds[0]),card=document.createElement('div');card.className='card';
+  // The guessed country graded this round already (feedbackSource 'auto'); 1/2/3 override it.
+  if(round.guessedCountry)text(section,'p',round.correct?'Right country':round.guessedCountry===skill.country?'Right country, wrong region'
+    :`Wrong country: you guessed ${pack.atlas.geometry[round.guessedCountry]?.name??round.guessedCountry}`,`auto ${round.correct?'right':'wrong'}`);
+  section.append(card);
+  sprintCard(card,skill,round,attempts,pack);
   if(loadNote&&!skill.sourceNoteHtml&&skill.noteOrigin!=='fieldwork-authored')
-    loadNote(skill).then(loaded=>{if(card.isConnected){card.replaceChildren();sprintCard(card,loaded,round,attempts,pack.notesSourceUrl)}}).catch(()=>{});
+    loadNote(skill).then(loaded=>{if(card.isConnected){card.replaceChildren();sprintCard(card,loaded,round,attempts,pack)}}).catch(()=>{});
   // The grade buttons (and Continue) stay pinned to the panel's bottom edge, so a tall card never hides them.
   const footer=document.createElement('div');footer.className='footer';section.append(footer);
   const actions=document.createElement('div');actions.className='actions grades';footer.append(actions);
   const status=text(footer,'p','','muted');status.setAttribute('role','status');
   let recap=()=>{},next=null;
   // Grading touches only the buttons and the recap rows; the card and its image stay as rendered.
-  const mark=grade=>buttons.forEach((node,index)=>{node.disabled=!!grade;node.classList.toggle('chosen',GRADES[index][0]===grade)});
+  const mark=(grade,final=true)=>buttons.forEach((node,index)=>{node.disabled=final&&!!grade;node.classList.toggle('chosen',GRADES[index][0]===grade)});
   const save=grade=>{try{const updated=onSave({recognized:grade!=='missed',knew:grade==='knew',familiar,correct:round.correct});mark(grade);status.textContent='';
     section.getRootNode().activeElement?.blur();recap(updated??getAttempts());if(round.round===5)section.scrollTop=section.scrollHeight;}catch(error){status.textContent=plainMessage(error,notSaved)}};
   const buttons=GRADES.map(([grade,label],index)=>{const node=button(actions,'',()=>save(grade));text(node,'kbd',String(index+1));node.append(label);return node;});
-  if(saved)mark(gradeOf(attempts.find(attempt=>attempt.id===round.id))??'spotted');
+  const prior=attempts.find(attempt=>attempt.id===round.id);
+  if(saved)mark(gradeOf(prior)??'spotted');else if(prior?.feedbackSource==='auto')mark(gradeOf(prior),false);
   if(round.round===5){
     const list=document.createElement('ol');list.className='recap';list.setAttribute('aria-label','This set');footer.before(list);
     const icons={missed:'✗',spotted:'✓',knew:'★'};

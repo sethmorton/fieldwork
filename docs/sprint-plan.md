@@ -82,7 +82,16 @@ seen until he has spotted it twice. This replaces FSRS depth on niche metas.
 
 - `sprintStatus(pack, attempts)` returns a `Map(skillId -> {state, shown, spotted})`.
   - `state` is one of `'new' | 'learning' | 'missed' | 'retired'`.
-  - Only explicit attempts count as evidence. Attempts with `feedbackSource === 'assumed-on-advance'` add to `shown` but
-    never to `spotted`.
-- `planSprint(pack, attempts, {size = 5})` returns `{locationIds, reasons}`.
+  - Only explicit and automatic attempts count as evidence. Attempts with `feedbackSource === 'assumed-on-advance'` add
+    to `shown` but never to `spotted`.
+  - A spot counts only on a panorama the card has not shown before, until the card has shown all its panoramas.
+    Learned = 2 such spots, or 1 marked Knew it. Retired = one more spot 12 h or more later, on any panorama.
+- `planSprint(pack, attempts, {size = 5})` returns `{locationIds, reasons}`. At most 1 pole clue per set while other
+  clues can fill it, on top of cost and subject weights.
+- Grading: the guessed country (point in the atlas outlines, `src/geo.mjs` `countryAt`) grades the round on reveal as
+  `feedbackSource: 'auto'` (`correct`, `regionCorrect`). The review shows 'Right country' or 'Wrong country: you guessed
+  X'. Keys 1/2/3 override it once. A guess off every outline gets no automatic grade.
+- Landscape cards top up to 10 author-placed panoramas (Learnable Meta exports) or 6 (Plonk It clue-bank), after
+  every other card took its own. Duel cards with a coach read (`sprint/coach/out-*.json`) lead their note with it,
+  take its tell when no tip was verified or the coach is confident, and open on the coach's frame.
 - `makeNextSet` calls `planSprint` when `pack.scheduler === 'sprint'`.
