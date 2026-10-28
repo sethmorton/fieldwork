@@ -12,7 +12,7 @@ road line and Google car clues, aimed at what Seth still gets wrong.
      that country; regional countries keep only the regional ones
   4. a small model (curate.MODEL) edits each country's candidates down to its quota (cached in sprint/judge.json), and
      CHECK_MODEL validates each roads and car pick's teaching quote (cached in sprint/subject-check.json)
-  5. 'duel' cards ("Your rounds", sprint_rounds.py): your recent missed rounds on their own panoramas, about every 3rd
+  5. 'duel' cards ("Your rounds", sprint_rounds.py): every missed round (all time) on its own panorama, about every 3rd
      new card; the latest session's mistakes lead the new cards 1 in 2. Every card of the last build is kept
   6. deck cards (DECKS): every meta of a whole Learnable Meta map, past the judge and quotas, on its author-placed
      locations still served, leading the new cards 1 in 3; a meta repeating a pick tops that card up to 3 locations.
@@ -520,18 +520,23 @@ def main(wanted=False):
     rounds = json.loads((HERE / 'duels/rounds.json').read_text())
     # A country absent from the published weights (Italy) still gets cards for its ACoW rounds, as an identify country.
     duel_mode = {r['countryCode']: 'identify' for r in rounds if r['map'] == sprint_rounds.ACOW} | mode
+    # Contrast cards of the last build keep their panoramas: an older mistake round's duel card must not take one.
+    contrast_path = OUT / 'contrast.json'
+    contrast_cards = json.loads(contrast_path.read_text()) if contrast_path.exists() else []
+    prior_ids = {s['id'] for s in prior['skills']}
+    kept_contrast = {c['location']['panoId'] for c in contrast_cards if c['id'] in prior_ids and c.get('location')}
+    used |= kept_contrast
     duel_skills, duel_locations = sprint_rounds.cards(
         rounds, to_code, dt.datetime.now(dt.timezone.utc), skills, used, regions, duels, name, duel_mode, relevance, guide_url,
         {s['id'] for s in prior['skills'] if s['subject'] == 'duel' and not s.get('exposure')})
     locations += duel_locations
     # Optional contrast cards (sprint/contrast.json: card objects, biggest-loss pairs first, each with its `location`),
     # after the duel cards so a duel card keeps its panorama.
-    contrast_path = OUT / 'contrast.json'
     contrasts = []
     tells_path = OUT / 'tells.json'  # optional: {skill id: the one-line tell to look for}
     tells = json.loads(tells_path.read_text()) if tells_path.exists() else {}
     by_id, added = {s['id']: s for s in skills + duel_skills}, {}
-    for card in json.loads(contrast_path.read_text()) if contrast_path.exists() else []:
+    for card in contrast_cards:
         card = dict(card)
         added[card['id']] = card.pop('added', '')  # sprint_contrast.py SINCE: the session the card was added for
         loc = card.pop('location', None)
@@ -540,7 +545,7 @@ def main(wanted=False):
             target['sourceNoteHtml'] += card['sourceNoteHtml']
             if target['id'] not in tells:
                 target.setdefault('tell', card['why'])
-        elif not card.get('mergeIntoDuel') and loc and loc['panoId'] not in used:
+        elif not card.get('mergeIntoDuel') and loc and (loc['panoId'] not in used or loc['panoId'] in kept_contrast):
             used.add(loc['panoId'])
             contrasts.append({**card, 'subject': 'contrast'})
             locations.append({**loc, 'skillIds': [card['id']]})

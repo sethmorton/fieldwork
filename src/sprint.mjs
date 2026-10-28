@@ -5,6 +5,8 @@ import { notice } from './load-errors.mjs';
 // spot that made it learned. A sooner spot does not count. A miss reactivates any clue. Review gaps count rounds: the
 // clock is the attempt count, so each completed round is one tick.
 const GAP={missed:5,learning:20},CHECK_AFTER=12*3600e3,DUE_CAP=3;
+// Share of Seth's bad-round losses by clue type (win/ClueMix.md): landscape, duel, contrast 1; unlisted 1.
+const SUBJECT_WEIGHT={roads:0.8,poles:0.6,car:0.5,signs:0.2,architecture:0.2};
 const explicit=attempt=>attempt.feedbackSource!=='assumed-on-advance';
 
 // Internal state adds 'learned': awaiting its next-session check since `learnedAt`.
@@ -61,7 +63,7 @@ export function planSprint(pack,attempts,{size=5,now=Date.now()}={}) {
   // Recent mistakes (skill.recent: the build's latest sitting) first, then costliest across due and new; ties keep due
   // (soonest first) before new (pack order: fresh mistakes first), so a cost-0 due clue fills a slot only once no costed
   // clue is left.
-  const cost=item=>item.skill.cost??0,recent=item=>item.skill.recent?1:0;
+  const cost=item=>(item.skill.cost??0)*(SUBJECT_WEIGHT[item.skill.subject]??1),recent=item=>item.skill.recent?1:0;
   take([...due,...fresh].sort((a,b)=>recent(b)-recent(a)||cost(b)-cost(a)));
   take([...seen,...fresh]);
   take([...seen,...fresh],{perCountry:false});

@@ -15,7 +15,7 @@ from text import HERE
 # Rural country and region maps whose mistakes transfer to ranked; city maps (NYC, London, Bay Area) do not.
 MAPS = {'A Competitive World', 'A Community World', 'An Arbitrary World', 'An Extra-Informed World', 'A Moving World',
         'Europe', 'An Arbitrary Asia', 'A Fair & Balanced World'}
-DAYS, RECENT_HOURS, FAR_M = 14, 24, 750_000
+RECENT_HOURS, FAR_M = 24, 750_000
 ACOW = 'A Competitive World'
 TEACH = ('landscape-and-vegetation', 'infrastructure', 'agriculture')  # preference order
 VERIFIED, SCOPE = HERE / 'sprint/duel-tip-views.json', HERE / 'sprint/duel-tip-scope.json'
@@ -34,15 +34,14 @@ def missed(r, to_code):
 
 
 def replays(rounds, to_code, now, keep=()):
-    """Rounds to replay: the last DAYS days' mistakes on MAPS, every round of the last RECENT_HOURS hours, and every round
+    """Rounds to replay: every mistake on MAPS (all time), every round of the last RECENT_HOURS hours, and every round
     whose replay card is in keep (the last build's, so its id stays); most recent day first, then the biggest deficit."""
     out = []
     for r in rounds:
         end = dt.datetime.fromisoformat(r['endTime']) if r['endTime'] else None
         if r['map'] not in MAPS or not end:
             continue
-        if f"sprint:duel:{r['id']}" in keep or end >= now - dt.timedelta(hours=RECENT_HOURS) or (
-                missed(r, to_code) and end >= now - dt.timedelta(days=DAYS)):
+        if f"sprint:duel:{r['id']}" in keep or end >= now - dt.timedelta(hours=RECENT_HOURS) or missed(r, to_code):
             out.append((end, r))
     return [r for end, r in sorted(out, key=lambda er: (-er[0].toordinal(), (er[1]['myScore'] or 0) - (er[1]['theirScore'] or 0)))]
 

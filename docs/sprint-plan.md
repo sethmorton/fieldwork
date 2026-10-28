@@ -43,7 +43,7 @@ seen until he has spotted it twice. This replaces FSRS depth on niche metas.
     // author's view, or the clearer view an earlier two-model check found (sprint/deck-views.json). A meta that
     // gpt-6.1-sol finds repeating a pole or landscape card of its country adds its locations to that card instead, up to
     // 3 in all.
-    // 'duel' cards (tools/world-pack/sprint_rounds.py): Seth's own rounds of the last 14 days on the five world maps in the
+    // 'duel' cards (tools/world-pack/sprint_rounds.py): every one of Seth's rounds (all time) on the five world maps in the
     // wrong country or more than 750 km off, plus every round of the last 24 hours, ACoW countries only. id
     // 'sprint:duel:<round id>', title '<Country> · <subdivision> (your duel, Oct 24)', phase 'Your rounds', practiceFamily
     // '<ISO2>:duel', subject 'duel', area '<subdivision>', noteLicense 'own', imageUrls [], source {title: 'Plonk It ·

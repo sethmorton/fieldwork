@@ -75,6 +75,11 @@ test('the costliest due or new clue wins over a cheap due one',()=>{
   const history=[at('A',false),at('C',false),at('E',false),at('F',false),at('B',true),at('B',true),at('D',true),at('D',true),at('D',true,{assumed:true})];
   assert.deepEqual(planSprint(costed,history,{now:T0}).locationIds.map(id=>id[0]),['E','H','G','C','A']);
 });
+test('cost is weighted by subject: a landscape clue outranks a costlier signs or poles one',()=>{
+  const subject={C:'car',E:'signs',G:'poles',H:'landscape'},price={C:300,E:900,G:400,H:700};
+  const weighted={...pack,skills:skills.map(s=>({...s,subject:subject[s.id]??'roads',cost:price[s.id]??0}))};
+  assert.deepEqual(planSprint(weighted,[],{now:T0}).locationIds.map(id=>id[0]),['H','G','E','C','A']);
+});
 test('a recent mistake leads, even over a costlier clue',()=>{
   const costed={...pack,skills:skills.map(s=>({...s,cost:{C:50,E:900,G:400,H:700}[s.id]??0,recent:s.id==='C'}))};
   assert.deepEqual(planSprint(costed,[],{now:T0}).locationIds.map(id=>id[0]),['C','E','H','G','A']);
