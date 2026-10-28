@@ -38,6 +38,10 @@ SOURCES = [
      'url': S3 + 'Eco_Level_III_descriptions.doc'},
     {'title': 'U.S. EPA, Level III ecoregions of the conterminous United States (shapefile us_eco_l3.zip)',
      'url': S3 + 'us_eco_l3.zip'},
+    {'title': 'Wikipedia: Fagus grandifolia (one of two North American beeches, the other Mexican)',
+     'url': 'https://en.wikipedia.org/wiki/Fagus_grandifolia'},
+    {'title': 'Wikipedia: Populus grandidentata (bigtooth aspen, native to eastern North America)',
+     'url': 'https://en.wikipedia.org/wiki/Populus_grandidentata'},
 ]
 GROUPS = ['southern pine', 'oak-hickory', 'northern hardwood', 'spruce-fir', 'Douglas-fir/hemlock',
           'ponderosa/mixed conifer', 'pinyon-juniper', 'sagebrush steppe', 'desert scrub', 'grassland',
@@ -133,8 +137,12 @@ def inside(text, phrase):
     return phrase.lower() in text.lower()
 
 
-# the model's id drift across regions (EPA spells 'big leaf maple' in 4 and has the typo 'saltbrush' in 20)
-ALIASES = {'big-leaf-maple': 'bigleaf-maple', 'pines': 'pine', 'saltbrush': 'saltbush'}
+# the model's id drift across regions (EPA spells 'big leaf maple' in 4 and has the typo 'saltbrush' in 20), and EPA
+# genus names that can only mean one species where EPA uses them: Fagus grandifolia is the only beech native to the US
+# (the other North American beech is Mexican), and EPA names 'aspen' only in western regions 19, 21 and 80, where
+# bigtooth aspen (eastern North America) is absent. Mesquite and palmetto stay generic: two species are possible.
+ALIASES = {'big-leaf-maple': 'bigleaf-maple', 'pines': 'pine', 'saltbrush': 'saltbush',
+           'beech': 'american-beech', 'aspen': 'quaking-aspen'}
 
 
 def clean(answer, paragraph):
