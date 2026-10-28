@@ -53,7 +53,11 @@ def ask(prompt, schema, images=(), model=None):
     out = subprocess.run(['codex', 'exec', '--skip-git-repo-check', '--ignore-rules', '-s', 'read-only', '-m', model or MODEL,
                           '--output-schema', f.name, *args, '--', prompt], capture_output=True, text=True, timeout=1200,
                          cwd=tempfile.gettempdir())
-    return json.loads(out.stdout.strip().splitlines()[-1])
+    reply = out.stdout.strip()
+    try:  # the model sometimes pretty-prints the JSON over many lines
+        return json.loads(reply)
+    except json.JSONDecodeError:
+        return json.loads(reply.splitlines()[-1])
 
 
 def ask_cached(path, prompts, schema, model):
