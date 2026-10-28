@@ -113,8 +113,10 @@ function sprintCard(card,skill,round,attempts,pack){
   // Plain text above the fold: a trailing '(Source name)' citation stays under 'Clue & source'.
   const plainLine=p=>{const cite=[...p.querySelectorAll('a')].at(-1)?.textContent,line=p.textContent.trim();return cite&&line.endsWith(`(${cite})`)?line.slice(0,-cite.length-2).trim():line};
   const paragraphs=[...parsed.body.querySelectorAll('p')],isHeading=p=>p.childNodes.length===1&&p.firstChild?.nodeName==='STRONG';
-  // Without a tell, the first 'Points to X' line is the headline; the facts line ('Answer: …') is not a clue.
-  const pointsTo=skill.tell?null:paragraphs.find((p,index)=>index&&isHeading(paragraphs[index-1])&&/^Points to/.test(paragraphs[index-1].textContent)&&!isHeading(p));
+  // Without a tell, the first 'Points to <answer>' line is the headline; never 'Points to <guess> instead', which
+  // describes where you guessed, and never the facts line ('Answer: …').
+  const pointsTo=skill.tell?null:paragraphs.find((p,index)=>index&&isHeading(paragraphs[index-1])&&/^Points to/.test(paragraphs[index-1].textContent)
+    &&!/instead$/.test(paragraphs[index-1].textContent.trim())&&!isHeading(p));
   const first=note.match(/^.*?[.!?](?=\s|$)/)?.[0]??note,headline=skill.tell?skill.tell.replace(' -> ',' → '):pointsTo?plainLine(pointsTo):first;
   const tell=(skill.tell?.split(' -> ')[0]??(pointsTo&&headline))?.toLowerCase();
   text(card,'p',headline,'tell');
