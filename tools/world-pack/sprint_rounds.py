@@ -12,7 +12,9 @@ from pathlib import Path
 from build import card_image, note_html
 from text import HERE
 
-MAPS = {'A Competitive World', 'A Community World', 'An Arbitrary World', 'An Extra-Informed World', 'A Moving World'}
+# Rural country and region maps whose mistakes transfer to ranked; city maps (NYC, London, Bay Area) do not.
+MAPS = {'A Competitive World', 'A Community World', 'An Arbitrary World', 'An Extra-Informed World', 'A Moving World',
+        'Europe', 'An Arbitrary Asia', 'A Fair & Balanced World'}
 DAYS, RECENT_HOURS, FAR_M = 14, 24, 750_000
 ACOW = 'A Competitive World'
 TEACH = ('landscape-and-vegetation', 'infrastructure', 'agriculture')  # preference order
