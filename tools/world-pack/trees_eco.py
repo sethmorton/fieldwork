@@ -137,12 +137,24 @@ def inside(text, phrase):
     return phrase.lower() in text.lower()
 
 
-# the model's id drift across regions (EPA spells 'big leaf maple' in 4 and has the typo 'saltbrush' in 20), and EPA
-# genus names that can only mean one species where EPA uses them: Fagus grandifolia is the only beech native to the US
-# (the other North American beech is Mexican), and EPA names 'aspen' only in western regions 19, 21 and 80, where
-# bigtooth aspen (eastern North America) is absent. Mesquite and palmetto stay generic: two species are possible.
-ALIASES = {'big-leaf-maple': 'bigleaf-maple', 'pines': 'pine', 'saltbrush': 'saltbush',
-           'beech': 'american-beech', 'aspen': 'quaking-aspen'}
+# the model's id drift across regions (EPA spells 'big leaf maple' in 4 and has the typo 'saltbrush' in 20)
+ALIASES = {'big-leaf-maple': 'bigleaf-maple', 'pines': 'pine', 'saltbrush': 'saltbush'}
+# EPA genus names that can only mean one species: Fagus grandifolia is the only beech native to the US (the other North
+# American beech is Mexican), and bigtooth aspen is native to eastern North America only, so 'aspen' in these western
+# Level I regions is quaking aspen. Mesquite, palmetto and cottonwood stay generic: several species are possible.
+WEST = {'Marine West Coast Forest', 'Northwestern Forested Mountains', 'North American Deserts', 'Mediterranean California',
+        'Temperate Sierras', 'Southern Semi-Arid Highlands'}
+
+
+def specific(trees, l1):
+    ids = {'beech': 'american-beech', **({'aspen': 'quaking-aspen'} if l1 in WEST else {})}
+    out, seen = [], set()
+    for t in trees:
+        species = ids.get(t['species'], t['species'])
+        if species not in seen:
+            seen.add(species)
+            out.append({**t, 'species': species})
+    return out
 
 
 def clean(answer, paragraph):
@@ -192,8 +204,12 @@ def data():
             print('missing answer', r.l3, r.name)
             continue
         prev = old.get('ecoregions', {}).get(r.code, {})
-        ecos[r.code] = {'name': r.name, 'l3': int(r.l3), 'l1': title(r.l1), 'l2': title(r.l2), **clean(a, text[r.l3]),
-                        'panos': prev.get('panos', []), 'rounds': counts.get(r.l3, {'n': 0, 'ptsLost': 0})}
+        eco = {'name': r.name, 'l3': int(r.l3), 'l1': title(r.l1), 'l2': title(r.l2), **clean(a, text[r.l3]),
+               'panos': prev.get('panos', []), 'rounds': counts.get(r.l3, {'n': 0, 'ptsLost': 0})}
+        if 'treeSources' in prev:  # trees/mixes/understory enriched from Level IV / USFS section text by another pass
+            eco.update({k: prev[k] for k in ('trees', 'mixes', 'understory', 'treeSources')})
+        eco['trees'] = specific(eco['trees'], eco['l1'])
+        ecos[r.code] = eco
     sources = old.get('sources', [])
     sources += [s for s in SOURCES if s not in sources]
     out.write_text(json.dumps({'generated': date.today().isoformat(), 'sources': sources, 'ecoregions': ecos,
