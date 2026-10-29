@@ -13,7 +13,7 @@ window.fetch=async(url,options={})=>{
  if(options.method==='PUT'&&!url.endsWith('/publish'))published=JSON.parse(options.body).customCoordinates;
  const sources=published.map(p=>pack.locations.find(l=>l.panoId===p.panoId));
  document.querySelector('#status').textContent=`${requests} requests · ${new Set(sources.map(l=>l.country)).size} countries · ${new Set(sources.map(l=>pack.skills.find(s=>s.id===l.skillIds[0]).practiceFamily)).size} families`;
- return {ok:true,text:async()=>options.method?'':JSON.stringify({name:'Fieldwork - synthetic world',version:1,avatar:{},description:'Fixture only',highlighted:false,customCoordinates:[]})};
+ return {ok:true,text:async()=>options.method?'':JSON.stringify({name:'Fieldwork - synthetic world',mode:'coordinates',version:1,avatar:{},description:'Fixture only',highlighted:false,customCoordinates:[]})};
 };
 document.querySelector('#play').onclick=()=>{history.replaceState(null,'','/game/worldwide-fixture');window.dispatchEvent(new PopStateEvent('popstate'));};
 document.querySelector('#finish').onclick=()=>{const source=published[0];if(!source)throw Error('Prepare a set first');const result=document.createElement('div');result.dataset.qa='result-view-top';document.body.append(result);window.GEFFetchEvents.dispatchEvent(new CustomEvent('received_data',{detail:{token:'worldwide-fixture',map:pack.practiceMapId,round:1,rounds:[source],player:{guesses:[{lat:source.lat,lng:source.lng}]}}}));};

@@ -4,7 +4,7 @@ import {indexedDbCache} from './content-cache.mjs';
 import {sourceNote} from './source-note.mjs';
 import {makeNextSet} from './next-set.mjs';
 import {packForPage} from './packs.mjs';
-import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,launchRequest,startPracticeGame,quickCheckQueue,recordKnown,recordMissed} from './session.mjs';
+import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,launchRequest,startPracticeGame,quickCheckQueue,recordKnown,recordMissed,REGIONS_MAP} from './session.mjs';
 import {reviewPanel,startPanel,loadingPanel,bindPanel,quickCheckPanel} from './ui.mjs';
 import {cardImages} from './vegcard.mjs';
 import {fail,classified,retryDelay,canRetry,loadMessage,plainMessage,notice} from './load-errors.mjs';
@@ -157,10 +157,11 @@ const owned=new Map();
 function offerBinding() {
   const mapId=/^\/map-maker\/([a-f\d]{24})\/?$/i.exec(location.pathname)?.[1],choices=[...packs.filter(item=>!item.practiceMapId),...packs.filter(item=>item.practiceMapId)];
   if(!mapId||!choices.length)return false;
-  if(!owned.has(mapId))owned.set(mapId,request(`/api/v4/user-maps/drafts/${mapId}`).then(draft=>typeof draft?.name==='string'&&draft.name.startsWith('Fieldwork'),()=>false).then(ok=>{owned.set(mapId,ok);render()}));
+  // true: offer packs. REGIONS_MAP: a Fieldwork map that can never practise, so say why instead. false: not ours, stay silent.
+  if(!owned.has(mapId))owned.set(mapId,request(`/api/v4/user-maps/drafts/${mapId}`).then(draft=>typeof draft?.name==='string'&&draft.name.startsWith('Fieldwork')&&(draft.mode==='coordinates'||REGIONS_MAP),()=>false).then(ok=>{owned.set(mapId,ok);render()}));
   const ok=owned.get(mapId);
   if(ok===false)return false;
-  if(ok===true&&mounted!=='bind:'+mapId){bindPanel(choices,{onBind:id=>{store.bind(id,mapId);context='';remove();render()}});mounted='bind:'+mapId}
+  if((ok===true||ok===REGIONS_MAP)&&mounted!=='bind:'+mapId){bindPanel(ok===true?choices:[],{error:ok===true?null:ok,onBind:id=>{store.bind(id,mapId);context='';remove();render()}});mounted='bind:'+mapId}
   return true;
 }
 const remove=()=>{for(const id of ['fieldwork-practice','fieldwork-atlas'])document.getElementById(id)?.remove();mounted=''};

@@ -242,9 +242,9 @@ export function loadingPanel(pack,{error,message='Loading practice content…',o
   if(packs.length&&onChoosePack)packChoice(section,pack,[pack,...packs],onChoosePack,'Practice another pack');
   if(error&&onImport){const details=document.createElement('details');text(details,'summary','Import a pack file');section.append(details);packImport(details,onImport,status)}
 }
-export function bindPanel(packs,{onBind}){
+export function bindPanel(packs,{onBind,error=null}){
   const {section}=panel();header(section,'Fieldwork · setup');text(section,'h2','Use this map for practice?');
-  const status=text(section,'p','Fieldwork replaces this map’s locations with each new five-round set. Pick the pack this map is for. A pack on another map moves here and keeps its progress.','muted');status.setAttribute('role','status');
+  const status=text(section,'p',error??'Fieldwork replaces this map’s locations with each new five-round set. Pick the pack this map is for. A pack on another map moves here and keeps its progress.','muted');status.setAttribute('role','status');
   for(const item of packs)button(section,item.practiceMapId?`${item.title} (move here)`:item.title,()=>{try{onBind(item.id)}catch(error){status.textContent=plainMessage(error)}},'primary').style.cssText='display:block;width:100%;margin-top:8px';
 }
 export function startPanel(pack,{onNext,onQuickCheck,onExport,onImport,onCoverage,attempts=[],getAttempts=()=>attempts,packs=[],onChoosePack,learn=false,onLearn,atlasNote,message}) {

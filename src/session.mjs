@@ -3,6 +3,10 @@ import {MAX_PER_FAMILY} from './lib/adaptive.ts';
 import {skillStatus} from './lib/mastery.ts';
 import {notice} from './load-errors.mjs';
 
+// Map Maker fixes a map's mode when it is created. A "Polygonal regions" map (mode 'regions') accepts and publishes the
+// coordinate PUT with 200 OK, then still plays random spots inside its polygons. Only 'coordinates' maps can practise.
+export const REGIONS_MAP='This map uses Polygonal regions, so GeoGuessr ignores Fieldwork’s locations and plays random spots. Create a new map with Handpicked locations, name it starting with Fieldwork, and pick your pack on its Map Maker page.';
+
 /** Only render this after a completed guess; never disclose an upcoming target. */
 export function practiceFeedback(history,round,now=Date.now()) {
   const nowMs=new Date(now).getTime();
@@ -123,6 +127,7 @@ export async function publishPracticeSet(pack,set,request,backup) {
   const url=`/api/v4/user-maps/drafts/${id}`;
   const draft=await request(url);
   if(typeof draft.name!=='string'||!draft.name.startsWith('Fieldwork')||!Number.isInteger(draft.version)) throw notice('Open your dedicated Fieldwork map. Its draft could not be verified.');
+  if(draft.mode!=='coordinates')throw notice(REGIONS_MAP);
   await backup(draft);
   const {name,avatar,description,highlighted}=draft;
   await request(url,{method:'PUT',body:JSON.stringify({name,avatar,description,highlighted,version:draft.version+1,customCoordinates:coordinates})});

@@ -149,16 +149,20 @@ test('a public install binds an unbound pack only on the learner\'s own Fieldwor
   const own='aaaaaaaaaaaaaaaaaaaaaaaa';
   const other=fixture('/map-maker/'+own);other.setResponse({name:'Holiday photos',version:3});other.navigate('/map-maker/'+own);await other.settle();
   assert.equal(other.binds.length,0);assert.equal(other.hasPanel(),false);
-  const f=fixture('/map-maker/'+own);f.setResponse({name:'Fieldwork - Practice',version:3});f.navigate('/map-maker/'+own);await f.settle();
+  const f=fixture('/map-maker/'+own);f.setResponse({name:'Fieldwork - Practice',mode:'coordinates',version:3});f.navigate('/map-maker/'+own);await f.settle();
   assert.deepEqual([...f.binds.at(-1).packs].map(item=>item.id),['unbound',pack.id,'other']);assert.deepEqual(f.requests,['/api/v4/user-maps/drafts/'+own]);
   f.binds.at(-1).options.onBind('unbound');await f.settle();
   assert.equal(f.data['fieldwork:catalog'].find(item=>item.id==='unbound').practiceMapId,own);
   assert.equal(f.data['fieldwork:catalog'].find(item=>item.id===pack.id).practiceMapId,map);
   const bound=fixture('/map-maker/'+map);await bound.settle();assert.equal(bound.binds.length,0);
 });
+test('a Fieldwork map made with Polygonal regions explains why it cannot practise and offers no pack',async()=>{
+  const own='cccccccccccccccccccccccc',f=fixture('/map-maker/'+own);f.setResponse({name:'Fieldwork - Practice',mode:'regions',version:3});f.navigate('/map-maker/'+own);await f.settle();
+  assert.equal(f.binds.at(-1).packs.length,0);assert.match(f.binds.at(-1).options.error,/Polygonal regions/);
+});
 test('a pack whose map was deleted moves to a new Fieldwork map in Map Maker and starts there',async()=>{
   const replacement='bbbbbbbbbbbbbbbbbbbbbbbb',f=fixture('/maps/'+map);await f.settle();assert.equal(f.starts,1);
-  f.setResponse({name:'Fieldwork - Practice',version:3});f.navigate('/map-maker/'+replacement);await f.settle();
+  f.setResponse({name:'Fieldwork - Practice',mode:'coordinates',version:3});f.navigate('/map-maker/'+replacement);await f.settle();
   f.binds.at(-1).options.onBind(pack.id);await f.settle();
   assert.equal(f.data['fieldwork:catalog'].find(item=>item.id===pack.id).practiceMapId,replacement);
   assert.equal(f.starts,2);
