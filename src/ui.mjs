@@ -167,7 +167,7 @@ function sprintReview(pack,round,{familiar=false,saved=false,attempts=[],getAtte
   if(round.guessedCountry)text(section,'p',round.correct?'Right country':round.guessedCountry===skill.country?'Right country, wrong region'
     :`Wrong country: you guessed ${pack.atlas.geometry[round.guessedCountry]?.name??round.guessedCountry}`,`auto ${round.correct?'right':'wrong'}`);
   section.append(card);
-  if(veg)vegCard(card,skill,round,pack,{loadImage,zoom:src=>fullscreen(card,src)});
+  if(veg)vegCard(card,skill,round,pack,{loadImage,seen:new Set(attempts.filter(attempt=>attempt.id!==round.id).map(attempt=>attempt.locationRef))});
   else sprintCard(card,skill,round,attempts,pack);
   if(!veg&&loadNote&&!skill.sourceNoteHtml&&skill.noteOrigin!=='fieldwork-authored')
     loadNote(skill).then(loaded=>{if(card.isConnected){card.replaceChildren();sprintCard(card,loaded,round,attempts,pack)}}).catch(()=>{});

@@ -169,6 +169,18 @@ def recent_regions(features):
             and (r.get('myScore') or 0) < (r.get('theirScore') or 0)} - {None}
 
 
+def look(card, most=16):
+    """One short line on how a tree looks: the species card's silhouette, its first sentence; a bare one ('A tall deciduous
+    tree.') gains the first bark/leaf feature. At most `most` words."""
+    first = lambda text: text.split('. ')[0].rstrip('.')
+    line = first(card.get('silhouette', ''))
+    if len(line.split()) < 7:
+        extra = next((f for f in card.get('features', []) if 'bark' in f.lower()), (card.get('features') or [''])[0])
+        line = f'{line}. {first(extra)}' if extra else line
+    words = line.split()
+    return ' '.join(words[:most]) + ('…' if len(words) > most else '')
+
+
 def range_of(eco, species):
     return [c for c, r in eco.items() if species in (r.get('key') or {}).get('trees', [])
             or any(t.get('species') == species and t.get('share', 0) >= 0.03 for t in (r.get('abundance') or {}).get('topSpecies', []))]
@@ -226,14 +238,18 @@ def build(data, geo):
                        'prerequisites': [], 'availability': 'available', 'subject': 'vegetation', 'region': code, 'l1': r.get('l1'),
                        'why': key.get('vibe') or r.get('group') or '', 'lost': (r.get('rounds') or {}).get('ptsLost', 0),
                        **({'recent': True} if code in recent else {}), 'features': feats,
-                       'trees': [{'species': s, 'name': (sp(s) or {}).get('common', s.replace('-', ' ')), **({'ref': ref(s)} if ref(s) else {})}
-                                 for s in key.get('trees', [])]})
+                       'trees': [{'species': s, 'name': (sp(s) or {}).get('common', s.replace('-', ' ')), **({'ref': ref(s)} if ref(s) else {}),
+                                  **({'line': look(sp(s))} if sp(s) else {})} for s in key.get('trees', [])]})
         for p in ordered([p for p in r.get('panos', []) if p.get('drive')]):
             loc = {'id': f"usveg:{p['panoId']}", 'panoId': p['panoId'], 'lat': p['lat'], 'lng': p['lng'], 'heading': p.get('heading', 0),
                    'pitch': p.get('pitch', 0), 'zoom': p.get('zoom', 0), 'skillIds': [f'usveg:{code}'], 'region': code,
                    'state': p.get('state'), 'img': p['img'].removeprefix('img/'), 'season': p.get('season'), 'date': p.get('date'),
                    'verdict': (p.get('coach') or {}).get('verdict') or p.get('caption', ''),
-                   'giveaways': [{'feature': g.get('feature'), 'text': g['text'], 'box': g['box']} for g in (p.get('coach') or {}).get('giveaways', [])]}
+                   'giveaways': [{'feature': g.get('feature'), 'text': g['text'], 'box': g['box']} for g in (p.get('coach') or {}).get('giveaways', [])],
+                   # What the panorama itself names: its species list and, when labelled, one box per tree (card viewer 'Trees').
+                   **({'species': p['species']} if p.get('species') else {}),
+                   **({'trees': [{'species': t.get('species'), 'label': t['label'], 'box': t['box'], 'confidence': t.get('confidence', 'medium')}
+                                 for t in p['trees']]} if p.get('trees') else {})}
             locations.append(loc)
 
     # Grading consistency: a guess on the pano itself must grade as its own region. A miss refines that region and the
@@ -298,6 +314,8 @@ def check():
                                          {'state': 'A', 'season': 'leaf-off'}, {'state': 'B', 'season': 'green'}])] == ['A', 'B', 'A', 'A']
     assert weighted_cost(0.05, 0) == 50 and weighted_cost(0.01, 1) == 20 and weighted_cost(0, 1) == ZERO_COST
     assert weighted_cost(0.03, 0) > weighted_cost(0.01, 1), 'a duel loss lifts a region but cannot outrank 3x its share'
+    assert look({'silhouette': 'A tall deciduous tree. More.', 'features': ['Leaves big.', 'Bark is grey and smooth.']}) == 'A tall deciduous tree. Bark is grey and smooth'
+    assert len(look({'silhouette': ' '.join(['w'] * 30)}).split()) == 16
     print('ok')
 
 

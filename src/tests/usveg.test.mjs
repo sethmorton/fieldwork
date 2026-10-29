@@ -4,7 +4,7 @@ import {readFileSync,existsSync} from 'node:fs';
 import {completedRound,recordRecognition,startPracticeGame,launchRequest} from '../session.mjs';
 import {planSprint,sprintStatus} from '../sprint.mjs';
 import {makeNextSet,validatePack} from '../next-set.mjs';
-import {albersUsa,cropWindow,clauses,km,cardImages} from '../vegcard.mjs';
+import {albersUsa,cropWindow,clauses,km,cardImages,regionThumbs} from '../vegcard.mjs';
 // Synthetic us-vegetation pack: regions R0..R6 are 1-degree squares side by side (lng i..i+1, lat 0..1), three panoramas each.
 const mid='0123456789abcdef01234567',practice='76543210fedcba9876543210';
 const square=i=>({type:'Feature',properties:{name:'R'+i},geometry:{type:'Polygon',coordinates:[[[i,0],[i+1,0],[i+1,1],[i,1],[i,0]]]}});
@@ -152,4 +152,12 @@ test('a pack upgraded mid-session launches its next game with the new content\'s
   assert.deepEqual(pending.gameSettings,upgraded.gameSettings);
   let body;await startPracticeGame(pending,async(url,options)=>{body=JSON.parse(options.body);return {token:'t1',map:practice,...upgraded.gameSettings}});
   assert.deepEqual([body.map,body.timeLimit,body.forbidMoving],[practice,90,true]);
+});
+test('wrong-pin comparison thumbnails: this round\'s season first, then unseen panoramas, then pack order, never this round',()=>{
+  const region={...pack,locations:[['a','leaf-off'],['b','leaf-on'],['c','leaf-on'],['d','leaf-on'],['e','leaf-off']].map(([id,season])=>({id,panoId:'p'+id,lat:0.5,lng:0.5,skillIds:[skills[0].id],region:'R0',season}))};
+  const ids=options=>regionThumbs(region,skills[0],options).map(location=>location.id);
+  assert.deepEqual(ids({season:'leaf-on'}),['b','c']);
+  assert.deepEqual(ids({season:'leaf-on',seen:new Set(['b'])}),['c','d']);
+  assert.deepEqual(ids({season:'leaf-on',exclude:'c',seen:new Set(['b'])}),['d','b']);
+  assert.deepEqual(ids({season:'dormant'}),['a','b'],'no same-season panorama: unseen in pack order');
 });
