@@ -57,6 +57,16 @@ test('a set has five regions, one panorama each, and a region rotates through it
   const set=makeNextSet(pack,attempts);
   assert.equal(set.mapMaking.customCoordinates.length,5);
 });
+test('ACoW weighting: high-share regions are planned before zero-share ones, which stay reachable',()=>{
+  // usveg.py: cost = 1000 x pool share (+ a capped duel bonus); a region without share costs 0.01.
+  const weighted={...pack,skills:pack.skills.map((skill,i)=>({...skill,cost:i<2?0.01:10*i,acow:i<2?0:i/100}))};
+  const first=planSprint(weighted,[],{now:Date.parse('2026-10-29T08:00:00Z')}).locationIds.map(id=>id.split('-')[0]);
+  assert.deepEqual(first,['R6','R5','R4','R3','R2'],'the five highest shares, costliest first');
+  const attempts=first.map((region,n)=>({id:'a'+n,skillId:'usveg:'+region,locationRef:region+'-0',correct:true,feedbackSource:'auto',
+    occurredAt:new Date(Date.parse('2026-10-29T08:00:00Z')+n*1000).toISOString()}));
+  const second=planSprint(weighted,attempts,{now:Date.parse('2026-10-29T08:10:00Z')}).locationIds.map(id=>id.split('-')[0]);
+  assert.ok(second.includes('R0')&&second.includes('R1'),'zero-share regions come once the others are introduced');
+});
 test('card geometry: crops never upscale past 1.25x, labels stay at 16 words, the map projection matches usveg.py',()=>{
   for(const box of [[0.5,0.5,0.01,0.01],[0,0,1,1],[0.529,0,0.083,1],[0.1,0.9,0.8,0.1]]){
     const [x0,y0,cw,ch]=cropWindow(box,180,1.9);

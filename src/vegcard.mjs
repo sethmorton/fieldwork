@@ -19,7 +19,7 @@ const CSS=`
 .vcue .vrest{font:12px/1.3 Arial;color:#496b79;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .vsp{display:grid;grid-template-columns:56px minmax(0,1fr);gap:2px 6px;align-items:center}.vsp .img{height:56px}.vsp .vmap{height:56px;width:auto;max-width:100%}
 .vsp small{grid-column:1/-1;font:600 11px/1.2 Arial;color:#153946;text-transform:none;letter-spacing:0}
-.vmore{display:grid;grid-template-columns:84px repeat(3,minmax(0,1fr));gap:8px;align-items:center}.vmore p{margin:0;font:600 12px/1.3 Arial;color:#496b79;text-transform:uppercase;letter-spacing:.05em}.vmore .img{aspect-ratio:1.6}
+.vmore{display:grid;grid-template-columns:84px repeat(3,minmax(0,1fr));gap:8px;align-items:center}.vmore p{margin:0;overflow-wrap:anywhere;font:600 12px/1.3 Arial;color:#496b79;text-transform:uppercase;letter-spacing:.05em}.vmore .img{aspect-ratio:1.6}
 `;
 const el=(parent,tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text!=null)node.textContent=text;parent?.append(node);return node};
 const svgEl=(parent,tag,attrs)=>{const node=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v] of Object.entries(attrs))node.setAttribute(k,v);parent.append(node);return node};
@@ -53,15 +53,15 @@ export function cropWindow([x,y,w,h],tileWidth,aspect=1.6){
   const start=(mid,len)=>Math.min(1-len,Math.max(0,mid-len/2));
   return [start(x+w/2,cw),start(y+h/2,ch),cw,ch];
 }
-// All regions filled by `fill`; `region` outlined; `pin` a dot; `focus` zooms to that region and the pin (at least 45% of
-// the US wide, so the coast and neighbours keep it placed).
+// All regions filled by `fill`; `region` outlined; `pin` a dot; `focus` zooms to that region and the pin (at least 28% of
+// the US wide, so neighbours keep it placed; small Alaska/Hawaii inset regions still read).
 function regionMap(parent,pack,fill,{region,pin,focus}={}){
   const {viewBox,regions}=pack.vegMap;let [vx,vy,vw,vh]=viewBox;
   const at=pin&&albersUsa(pin.lng,pin.lat),aspect=vw/vh;
   if(focus&&regions[focus]){
     const n=regions[focus].match(/-?\d+(?:\.\d+)?/g).map(Number),xs=n.filter((_,i)=>i%2===0).concat(at?[at[0]]:[]),ys=n.filter((_,i)=>i%2).concat(at?[at[1]]:[]);
     const [x0,x1,y0,y1]=[Math.min(...xs),Math.max(...xs),Math.min(...ys),Math.max(...ys)];
-    let w=Math.max(1.5*(x1-x0),0.45*vw,1.5*(y1-y0)*aspect);w=Math.min(w,vw);const h=w/aspect;
+    let w=Math.max(1.8*(x1-x0),0.28*vw,1.8*(y1-y0)*aspect);w=Math.min(w,vw);const h=w/aspect;
     vx=Math.min(Math.max((x0+x1-w)/2,viewBox[0]),viewBox[0]+vw-w);vy=Math.min(Math.max((y0+y1-h)/2,viewBox[1]),viewBox[1]+vh-h);vw=w;vh=h;
   }
   const svg=svgEl(parent,'svg',{class:'vmap',viewBox:[vx,vy,vw,vh].map(v=>Math.round(v)).join(' '),role:'img'});

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """US Vegetation pack (`us-vegetation`, sprint scheduler) from the Tree Atlas: `npm run usveg` -> local/usveg-pack.json.
 
-  - one skill per ecoregion (data.json ecoregions): title = region name, practiceFamily per Level I, cost = points Seth
-    lost in US duel rounds there (ecoregions[code].rounds), `recent` = a round lost there in the latest session
+  - one skill per ecoregion (data.json ecoregions): title = region name, practiceFamily per Level I, `acow` = the region's
+    share of the ACoW proxy pool (POOL: coverage-spread official US points), cost = 1000 x acow plus up to DUEL_BONUS for
+    points Seth lost in US duel rounds there (ecoregions[code].rounds), ZERO_COST without pool share (reachable, last);
+    `recent` = a round lost there in the latest session. Skills are in cost order, so planSprint fills by share too
   - one location per `drive: true` pano, its coach giveaways (feature id, text, box) and region/state; within a region
     the order round-robins states, then seasons, so the scheduler's unseen-first pick rotates them
   - regionFeatures: simplified polygons (properties.name = code) for auto-grading; every location is checked to land in
@@ -28,6 +30,8 @@ OUT = REPO / 'local/usveg-pack.json'
 IMAGE_BASE = 'http://127.0.0.1:8787/usveg-img/'
 # The competitive map Seth's US duel rounds come from; provenance only, never a writable binding.
 SOURCE_MAP = 'https://www.geoguessr.com/maps/66fda352ee1c8ee4735e1aa8'
+POOL = Path(os.environ.get('USVEG_POOL', WORLD / 'gap/pools/US-locations.json'))
+DUEL_BONUS, ZERO_COST = 10, 0.01  # a top region (~5% share) costs ~50: duel losses lift a region, never dominate
 GRADE_TOL, MAP_TOL = 0.02, 1.2  # degrees (~2 km) for grading; SVG px (960-wide map) for drawing
 RECENT_HOURS = 24
 SEASONS = ('leaf-on', 'green', 'leaf-off', 'dormant')
@@ -168,6 +172,28 @@ def range_of(eco, species):
             or any(t.get('species') == species and t.get('share', 0) >= 0.03 for t in (r.get('abundance') or {}).get('topSpecies', []))]
 
 
+def weighted_cost(acow, loss):
+    """1000 x pool share plus DUEL_BONUS x (points lost there / most lost anywhere); ZERO_COST without share."""
+    return round(1000 * acow + DUEL_BONUS * loss, 3) if acow > 0 else ZERO_COST
+
+
+def pool_shares(features):
+    """{code: share of the pool's points inside it}; points off every region are left out of the denominator."""
+    boxes = []
+    for f in features:
+        pts = [p for rings in polys(f['geometry']) for p in rings[0]]
+        boxes.append((min(p[0] for p in pts), min(p[1] for p in pts), max(p[0] for p in pts), max(p[1] for p in pts), f))
+    counts = {}
+    for point in json.loads(POOL.read_text()):
+        lat, lng = point['lat'], point['lng']
+        hit = next((f['properties']['name'] for x0, y0, x1, y1, f in boxes
+                    if x0 <= lng <= x1 and y0 <= lat <= y1 and in_geometry(lng, lat, f['geometry'])), None)
+        if hit:
+            counts[hit] = counts.get(hit, 0) + 1
+    total = sum(counts.values()) or 1
+    return {c: n / total for c, n in counts.items()}
+
+
 def build(data, geo):
     eco, species, aliases = data['ecoregions'], data['species'], data.get('aliases', {})
     sp = lambda sid: species.get(aliases.get(sid, sid))
@@ -187,7 +213,7 @@ def build(data, geo):
         key = r.get('key') or {}
         skills.append({'id': f'usveg:{code}', 'title': r['name'], 'phase': 'Vegetation', 'practiceFamily': f"usveg:{r.get('l1', '')}",
                        'prerequisites': [], 'availability': 'available', 'subject': 'vegetation', 'region': code, 'l1': r.get('l1'),
-                       'why': key.get('vibe') or r.get('group') or '', 'cost': (r.get('rounds') or {}).get('ptsLost', 0),
+                       'why': key.get('vibe') or r.get('group') or '', 'lost': (r.get('rounds') or {}).get('ptsLost', 0),
                        **({'recent': True} if code in recent else {}), 'features': feats,
                        'trees': [{'species': s, 'name': (sp(s) or {}).get('common', s.replace('-', ' ')), **({'ref': ref(s)} if ref(s) else {})}
                                  for s in key.get('trees', [])]})
@@ -212,6 +238,13 @@ def build(data, geo):
         (kept if region_at(loc['lat'], loc['lng'], order) == loc['region'] else dropped).append(loc)
     seen = set()
     kept = [loc for loc in kept if not (loc['panoId'] in seen or seen.add(loc['panoId']))]
+    # ACoW weighting: each region's share of the pool, graded with the same polygons as a guess.
+    share = pool_shares(order) if POOL.exists() else {}
+    most = max((s['lost'] for s in skills), default=0) or 1
+    for s in skills:
+        s['acow'] = round(share.get(s['region'], 0), 5)
+        s['cost'] = weighted_cost(s['acow'], s.pop('lost') / most)
+    skills.sort(key=lambda s: -s['cost'])
 
     used = {f['species'] for s in skills for f in s['features'] if f.get('species')} | {t['species'] for s in skills for t in s['trees']}
     paths = {c: svg_path(shapes[c]) for c in codes}
@@ -241,6 +274,8 @@ def check():
     assert inset_of(-150, 61) == 'alaska' and inset_of(-157, 21) == 'hawaii' and inset_of(-100, 40) == 'lower48'
     assert [p['state'] for p in ordered([{'state': 'A', 'season': 'leaf-on'}, {'state': 'A', 'season': 'leaf-on'},
                                          {'state': 'A', 'season': 'leaf-off'}, {'state': 'B', 'season': 'green'}])] == ['A', 'B', 'A', 'A']
+    assert weighted_cost(0.05, 0) == 50 and weighted_cost(0.01, 1) == 20 and weighted_cost(0, 1) == ZERO_COST
+    assert weighted_cost(0.03, 0) > weighted_cost(0.01, 1), 'a duel loss lifts a region but cannot outrank 3x its share'
     print('ok')
 
 
