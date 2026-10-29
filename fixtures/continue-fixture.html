@@ -28,7 +28,7 @@ window.fetch=async(url,options={})=>{
   document.querySelector('#repeated').textContent=coords.filter(l=>previousIds.includes(l.extra.tags[0])).length+' previous-set targets repeated · at most '+Math.max(...families.map(f=>families.filter(other=>other===f).length))+' clues per family';
  }
  if(mode==='failure'&&url.endsWith('/publish'))return new Response('Unavailable',{status:503});
- return new Response(JSON.stringify(options.method?{}:{name:'Fieldwork fixture',version:1,customCoordinates:[]}));
+ return new Response(JSON.stringify(options.method?{}:{name:'Fieldwork fixture',mode:'coordinates',version:1,customCoordinates:[]}));
 };
 document.querySelector('#play').onclick=()=>{
  document.querySelector('#started').textContent=(++started)+' games started';

@@ -88,23 +88,28 @@ test('quick check lists unscheduled clues in curriculum order; a known clue stay
 });
 test('publishing is limited to a distinct verified owned map, after a backup, with actual source coordinates',async()=>{
   const set={mapMaking:{customCoordinates:pack.locations}};const calls=[];
-  const request=async(url,options)=>{calls.push([url,options]);return {name:'Fieldwork - Practice',version:4}};
+  const request=async(url,options)=>{calls.push([url,options]);return {name:'Fieldwork - Practice',mode:'coordinates',version:4}};
   await publishPracticeSet(pack,set,request,async()=>calls.push(['backup']));
   assert.deepEqual(calls.map(([url,options])=>options?.method??url),[`/api/v4/user-maps/drafts/${mapId}`,'backup','PUT','PUT']);
   await assert.rejects(()=>publishPracticeSet({...pack,pools:[{id:mapId,mapUrl:'https://example.test'}]},set,request,async()=>{}),/never the source/);
   await assert.rejects(()=>publishPracticeSet(pack,{mapMaking:{customCoordinates:[...pack.locations.slice(1),{...pack.locations[0],lat:99}]}},request,async()=>{}),/source panoramas/);
 });
+test('a Polygonal regions map is refused before any backup or write, because GeoGuessr would ignore the coordinates',async()=>{
+  const calls=[];
+  await assert.rejects(()=>publishPracticeSet(pack,{mapMaking:{customCoordinates:pack.locations}},async(url,options)=>{calls.push(options?.method??'GET');return {name:'Fieldwork - Practice',mode:'regions',version:4}},()=>calls.push('backup')),/Polygonal regions/);
+  assert.deepEqual(calls,['GET']);
+});
 test('publishing allows two clues per family and rejects a third before making any request',async()=>{
  const withFamilies=families=>({...pack,skills:pack.skills.map((skill,i)=>({...skill,practiceFamily:families[i]}))});
  const set={mapMaking:{customCoordinates:pack.locations}};let calls=0;
- await publishPracticeSet(withFamilies(['x','x','y','y','z']),set,async()=>{calls++;return {name:'Fieldwork - Practice',version:1}},async()=>{});
+ await publishPracticeSet(withFamilies(['x','x','y','y','z']),set,async()=>{calls++;return {name:'Fieldwork - Practice',mode:'coordinates',version:1}},async()=>{});
  assert.equal(calls,3);calls=0;
  await assert.rejects(()=>publishPracticeSet(withFamilies(['x','x','x','y','z']),set,()=>calls++,()=>{}),/at most 2 clues per family/);assert.equal(calls,0);
 });
 test('failed draft update never attempts publication',async()=>{
   const methods=[];
   await assert.rejects(()=>publishPracticeSet(pack,{mapMaking:{customCoordinates:pack.locations}},async(url,options)=>{
-    methods.push(options?.method??'GET');if(options)throw Error('Version conflict');return {name:'Fieldwork',version:1};
+    methods.push(options?.method??'GET');if(options)throw Error('Version conflict');return {name:'Fieldwork',mode:'coordinates',version:1};
   },async()=>{}),/Version conflict/);
   assert.deepEqual(methods,['GET','PUT']);
 });
