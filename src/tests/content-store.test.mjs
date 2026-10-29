@@ -246,3 +246,26 @@ test('a damaged or shared stored binding starts unbound instead of blocking star
   assert.deepEqual(saved.data['fieldwork:catalog'].map(entry=>entry.practiceMapId),[map,undefined,undefined]);
   store.bind('ph',otherMap);assert.equal(store.catalog[1].practiceMapId,otherMap);
 });
+test('a local installer pack is re-checked at set preparation; games stay pinned and imports stay managed',async()=>{
+  const local={...descriptor,manifestUrl:'http://127.0.0.1:8787/catalog.json'},saved=storage();let server=await remote(pack('au',1));const requests=[];
+  const fetchText=(url,options)=>{requests.push([url,options?.timeout]);return server.fetchText(url)};
+  const store=createContentStore({...saved,catalog:[local],fetchText});
+  await store.load('au');store.pinSet('au',{selectedLocations:[],sourceNotes:[]});store.pinGame('au','game-1');
+  server=await remote(pack('au',2));requests.length=0;
+  // The background check was just made: within REFRESH_MS a plain load or refresh keeps the old copy (the bug)...
+  assert.equal((await store.load('au')).contentRevision,1);assert.equal((await store.refresh('au')).contentRevision,1);
+  // ...but preparing the next set asks the installer now, with a short deadline, and installs the rebuild.
+  assert.equal((await store.latest('au')).contentRevision,2);
+  assert.deepEqual(requests[0],['http://127.0.0.1:8787/catalog.json',3000]);
+  assert.equal((await store.load('au',{gameId:'game-1'})).contentRevision,1,'a game in progress keeps its version');
+  // A stopped installer keeps the cached copy.
+  const offline=createContentStore({...saved,catalog:[local],fetchText:async()=>{throw Error('connection refused')}});
+  assert.equal((await offline.latest('au')).contentRevision,2);
+  // Hosted packs keep the background check: preparation never waits on the public host.
+  const hosted=storage(),publicServer=await remote(pack('au',1)),calls=[];
+  const publicStore=createContentStore({...hosted,catalog:[descriptor],fetchText:url=>{calls.push(url);return publicServer.fetchText(url)}});
+  await publicStore.load('au');calls.length=0;assert.equal((await publicStore.latest('au')).contentRevision,1);assert.deepEqual(calls,[]);
+  // A manually imported pack is locally managed: the installer cannot replace it.
+  await store.add(pack('au',7));server=await remote(pack('au',9));
+  assert.equal((await store.latest('au')).contentRevision,7);
+});

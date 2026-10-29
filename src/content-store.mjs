@@ -10,6 +10,9 @@ const SCHEMA=2;
 const REFRESH_MS=15*60000;
 // Pack and audit bodies can be megabytes on a slow connection. Manifests and notes use fetchText's 20 s default.
 const BODY_MS=120000;
+// A pack built by this machine's installer (http://127.0.0.1:8787/catalog.json) is checked at every set preparation, with
+// a short manifest deadline: a rebuild must reach the next set, and a stopped installer must not hold up Continue.
+const LOCAL_MS=3000,loopback=url=>/^http:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\//.test(url??'');
 const parse=body=>{try{return JSON.parse(body)}catch{throw fail('format')}};
 const object=value=>typeof value==='object'&&value!==null;
 const ownedMap=id=>typeof id==='string'&&/^[a-f\d]{24}$/i.test(id)&&!/^0+$/.test(id);
@@ -74,11 +77,20 @@ export function createContentStore({get:gmGet,set:gmSet,list:gmList,remove:gmRem
     return parse(body);
   }
   const refreshing=new Map();
-  function refresh(id,options){
-    if(!refreshing.has(id))refreshing.set(id,refreshContent(id,options).finally(()=>refreshing.delete(id)));
-    return refreshing.get(id);
+  // A forced check never joins a throttled one, which could return the stale copy without asking the host.
+  function refresh(id,options={}){
+    const slot=id+(options.force?':force':'');
+    if(!refreshing.has(slot))refreshing.set(slot,refreshContent(id,options).finally(()=>refreshing.delete(slot)));
+    return refreshing.get(slot);
   }
-  async function refreshContent(id,{force=false}={}){
+  /** Content for the next set. Cached and hosted packs: the cached head (the background check updates it). A local
+   *  installer pack: checked now, so a rebuild applies to this set; an unreachable installer keeps the cached copy.
+   *  Imported packs (no manifest) stay as imported. Games never come here: they load their pinned version. */
+  async function latest(id){
+    await ready();
+    return loopback(entryFor(id).manifestUrl)?refresh(id,{force:true,manifestTimeout:LOCAL_MS}):load(id);
+  }
+  async function refreshContent(id,{force=false,manifestTimeout}={}){
     await ready();
     const entry=entryFor(id),head=get(headKey(id),null),cached=await read(id,head?.key);
     if(!entry.manifestUrl)return cached??Promise.reject(fail('custom'));
@@ -86,7 +98,7 @@ export function createContentStore({get:gmGet,set:gmSet,list:gmList,remove:gmRem
     // revision reaches the learner's next set within REFRESH_MS.
     if(cached&&!force&&head.checkedAt&&now()-head.checkedAt<REFRESH_MS)return cached;
     try{
-      const manifest=parse(await fetchText(entry.manifestUrl));
+      const manifest=parse(await fetchText(entry.manifestUrl,manifestTimeout?{timeout:manifestTimeout}:undefined));
       if(!object(manifest))throw fail('format');
       if(manifest.schemaVersion!==1)throw fail('engine');
       if(!Array.isArray(manifest.packs))throw fail('format');
@@ -158,5 +170,5 @@ export function createContentStore({get:gmGet,set:gmSet,list:gmList,remove:gmRem
     entry.practiceMapId=mapId;set('fieldwork:catalog',entries);
     memory.clear();// cached packs carry the old map ID
   }
-  return {catalog:entries,load,refresh,pinSet,pinGame,audit,add,bind};
+  return {catalog:entries,load,latest,refresh,pinSet,pinGame,audit,add,bind};
 }

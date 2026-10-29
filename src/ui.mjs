@@ -247,13 +247,13 @@ export function bindPanel(packs,{onBind}){
   const status=text(section,'p','Fieldwork replaces this map’s locations with each new five-round set. Pick the pack this map is for. A pack on another map moves here and keeps its progress.','muted');status.setAttribute('role','status');
   for(const item of packs)button(section,item.practiceMapId?`${item.title} (move here)`:item.title,()=>{try{onBind(item.id)}catch(error){status.textContent=plainMessage(error)}},'primary').style.cssText='display:block;width:100%;margin-top:8px';
 }
-export function startPanel(pack,{onNext,onQuickCheck,onExport,onImport,onCoverage,attempts=[],getAttempts=()=>attempts,packs=[],onChoosePack,learn=false,onLearn,atlasNote}) {
+export function startPanel(pack,{onNext,onQuickCheck,onExport,onImport,onCoverage,attempts=[],getAttempts=()=>attempts,packs=[],onChoosePack,learn=false,onLearn,atlasNote,message}) {
   const {section}=panel();header(section,'Fieldwork · practice');text(section,'h2',pack.title);
   if(packs.length>1)packChoice(section,pack,packs,onChoosePack);
   const sprint=pack.scheduler==='sprint';
   if(sprint)sessionLine(section,pack,attempts);
   text(section,'p',sprint?sprintSummary(pack,attempts):curriculumProgress(pack,attempts).message,'muted');
-  const status=text(section,'p',sprint?`${pack.answerAreaLabel}.`:`${pack.answerAreaLabel??pack.title}. At most two clues per family. New clues adapt to recent practice.`,'muted');status.setAttribute('role','status');
+  const status=text(section,'p',message??(sprint?`${pack.answerAreaLabel}.`:`${pack.answerAreaLabel??pack.title}. At most two clues per family. New clues adapt to recent practice.`),'muted');status.setAttribute('role','status');
   const actions=document.createElement('div');actions.className='actions';section.append(actions);
   button(actions,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=plainMessage(error);this.disabled=false}},'primary');
   if(sprint){if(pack.atlas)atlasButton(actions,pack,getAttempts,atlasNote);}

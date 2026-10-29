@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
-import {completedRound,recordRecognition} from '../session.mjs';
+import {completedRound,recordRecognition,startPracticeGame} from '../session.mjs';
 import {planSprint} from '../sprint.mjs';
-import {makeNextSet} from '../next-set.mjs';
+import {makeNextSet,validatePack} from '../next-set.mjs';
 import {albersUsa,cropWindow,clauses,km} from '../vegcard.mjs';
 // Synthetic us-vegetation pack: regions R0..R6 are 1-degree squares side by side (lng i..i+1, lat 0..1), three panoramas each.
 const mid='0123456789abcdef01234567',practice='76543210fedcba9876543210';
@@ -90,4 +90,18 @@ test('built us-vegetation pack: every location grades as its own region',{skip:!
     assert.equal(round.guessedRegion,location.region,location.id);assert.equal(round.correct,true);
   }
   assert.ok(veg.skills.every(skill=>veg.vegMap.regions[skill.region]),'every region has a map path');
+});
+test('gameSettings: validated, and Continue starts the game with exactly them',async()=>{
+  const settings={forbidMoving:true,forbidZooming:false,forbidRotating:false,timeLimit:90},withSettings={...pack,gameSettings:settings};
+  assert.equal(validatePack(withSettings),withSettings);
+  for(const bad of [null,{...settings,timeLimit:'90'},{...settings,timeLimit:-1},{...settings,forbidMoving:1},{forbidMoving:true,timeLimit:90},{...settings,extra:1}])
+    assert.throws(()=>validatePack({...pack,gameSettings:bad}),/Game settings/);
+  const sent=[];
+  const request=reply=>async(url,options)=>{sent.push([url,options.method,JSON.parse(options.body)]);return reply};
+  const token=await startPracticeGame(withSettings,request({token:'AbC123',map:practice,...settings}));
+  assert.equal(token,'AbC123');
+  assert.deepEqual(sent[0],['/api/v3/games','POST',{map:practice,type:'standard',rounds:5,timeLimit:90,forbidMoving:true,forbidZooming:false,forbidRotating:false}]);
+  // A game that came back with other settings (or for another map) is refused, never played as if ranked-like.
+  for(const reply of [{token:'x',map:practice,...settings,timeLimit:600},{token:'x',map:practice,...settings,forbidMoving:false},{token:'x',map:mid,...settings},{map:practice,...settings}])
+    await assert.rejects(startPracticeGame(withSettings,request(reply)),/settings/);
 });

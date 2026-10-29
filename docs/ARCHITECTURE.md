@@ -18,7 +18,10 @@ Routine play has no Fieldwork account or application backend.
 - Cached practice starts without waiting for the host. On a practice-map page,
   the script checks for content changes in the background, at most every 15 minutes after
   a successful check. Changes apply when preparing the next set, not midway
-  through a game. A failed first download has one load per page and pack
+  through a game. A pack served by the local installer (manifest on 127.0.0.1) is also
+  checked when Continue prepares a set, with a 3 s manifest deadline, so a rebuild reaches
+  the very next set. A stopped installer keeps the cached copy, and an imported pack stays
+  locally managed. A failed first download has one load per page and pack
   (`src/load-errors.mjs` maps error codes to retry delays and learner copy).
   A route change ends that load when Fieldwork navigates, when the page
   reconciles the change, or when a retry or result arrives on another path.
@@ -61,7 +64,12 @@ Continue practice publishes the set, then navigates to the practice map with
 GeoGuessr's own Next.js router (a full page load only if the router is missing or
 cancels). The script, its loaded content and GeoGuessr's app stay alive, so the
 native Play control is clicked as soon as it renders; an ignored click is retried
-until a game page opens. Concurrent Continue clicks join one publication. DOM
+until a game page opens. A pack with `gameSettings` (validated: `forbidMoving`, `forbidZooming`,
+`forbidRotating`, `timeLimit` 0 to 3600 s) instead starts its game with exactly those settings:
+one `POST /api/v3/games` (the request GeoGuessr's Play makes, sent from the signed-in page) and
+the router to `/game/<token>`. This is preferred to driving the Play settings UI, which is
+unlabelled and changes often. The created game must report the same settings and map, or
+the start panel says so; the POST is never retried, because each one creates a game. Concurrent Continue clicks join one publication. DOM
 changes are reconciled at most once per animation frame; a completed round whose
 result view is revealed by a class change is re-checked for up to five seconds.
 
@@ -218,3 +226,5 @@ panorama's (`feedbackSource: 'auto'`); in this pack a guess off every region is 
 override. Each region is one clue, so a set holds five regions; a region's unseen panoramas come first, then its least
 recently used, ordered to rotate states and seasons. The post-round card (`src/vegcard.mjs`) loads images from the
 local installer through GM blob requests as object URLs; the pack body stays in IndexedDB like every other pack.
+Its `gameSettings` are NoMove with a 90 s limit: Seth's ranked ACoW is NoMove, and 90 s leaves room to read the
+vegetation under time pressure. Each `npm run usveg` writes a higher `contentRevision` than the last build.

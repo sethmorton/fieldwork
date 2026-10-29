@@ -33,6 +33,8 @@ SOURCE_MAP = 'https://www.geoguessr.com/maps/66fda352ee1c8ee4735e1aa8'
 POOL = Path(os.environ.get('USVEG_POOL', WORLD / 'gap/pools/US-locations.json'))
 DUEL_BONUS, ZERO_COST = 10, 0.01  # a top region (~5% share) costs ~50: duel losses lift a region, never dominate
 GRADE_TOL, MAP_TOL = 0.02, 1.2  # degrees (~2 km) for grading; SVG px (960-wide map) for drawing
+# Ranked-like rounds: Seth's ranked ACoW is NoMove; 90 s leaves room to read the vegetation under time pressure.
+GAME_SETTINGS = {'forbidMoving': True, 'forbidZooming': False, 'forbidRotating': False, 'timeLimit': 90}
 RECENT_HOURS = 24
 SEASONS = ('leaf-on', 'green', 'leaf-off', 'dormant')
 
@@ -194,6 +196,15 @@ def pool_shares(features):
     return {c: n / total for c, n in counts.items()}
 
 
+def revision():
+    """A contentRevision above the last build's (installs replace a cached pack only for a higher or re-hashed one)."""
+    try:
+        last = json.loads(OUT.read_text()).get('contentRevision', 0)
+    except (OSError, ValueError):
+        last = 0
+    return max(int(time.time()), last + 1)
+
+
 def build(data, geo):
     eco, species, aliases = data['ecoregions'], data['species'], data.get('aliases', {})
     sp = lambda sid: species.get(aliases.get(sid, sid))
@@ -252,8 +263,8 @@ def build(data, geo):
     ys = [float(v) for d in paths.values() for seg in d.replace('M', 'L').replace('Z', '').split('L') if seg for v in seg.split()[1::2]]
     view = [math.floor(min(xs)) - 4, math.floor(min(ys)) - 4, math.ceil(max(xs) - min(xs)) + 8, math.ceil(max(ys) - min(ys)) + 8]
     pack = {'id': 'us-vegetation', 'title': 'US Vegetation', 'subject': 'GeoGuessr', 'schemaVersion': 1,
-            'contentRevision': int(time.time()), 'scheduler': 'sprint', 'gradingPolicy': 'recognition', 'card': 'veg',
-            'initialSkillIds': [], 'imageBase': IMAGE_BASE,
+            'contentRevision': revision(), 'scheduler': 'sprint', 'gradingPolicy': 'recognition', 'card': 'veg',
+            'gameSettings': GAME_SETTINGS, 'initialSkillIds': [], 'imageBase': IMAGE_BASE,
             'answerAreaLabel': f"{len({loc['region'] for loc in kept})} US ecoregions, {len(kept)} panoramas, graded by the ecoregion you pin",
             'coverageSummary': f"Tree Atlas drive panoramas with coach giveaways (fieldwork-site/trees, {data.get('generated', '')}); EPA Level III ecoregions.",
             'skills': skills, 'locations': kept,

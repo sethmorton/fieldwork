@@ -4,7 +4,7 @@ import {indexedDbCache} from './content-cache.mjs';
 import {sourceNote} from './source-note.mjs';
 import {makeNextSet} from './next-set.mjs';
 import {packForPage} from './packs.mjs';
-import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,quickCheckQueue,recordKnown,recordMissed} from './session.mjs';
+import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,startPracticeGame,quickCheckQueue,recordKnown,recordMissed} from './session.mjs';
 import {reviewPanel,startPanel,loadingPanel,bindPanel,quickCheckPanel} from './ui.mjs';
 import {fail,classified,retryDelay,canRetry,loadMessage,plainMessage,notice} from './load-errors.mjs';
 import {stateFromGameData} from './game-state.mjs';
@@ -86,12 +86,24 @@ async function request(url,options={}) {
   if(!response.ok)throw notice(`GeoGuessr returned ${response.status}. Your feedback is still saved. Retry from the practice map.`);
   const body=await response.text();return body?JSON.parse(body):null;
 }
-// Use the native Play control so GeoGuessr retains the learner's game settings. The request survives a full
-// page load; GeoGuessr can ignore an early click while the map page settles, so retry until a game opens.
+// Packs without `gameSettings`: the native Play control, so GeoGuessr keeps the learner's own game settings; it can
+// ignore an early click while the map page settles, so retry until a game opens. Packs with `gameSettings` (us-vegetation:
+// NoMove, 90 s): one POST /api/v3/games with exactly those settings, the request GeoGuessr's own Play makes, then its
+// router to /game/<token>. Never retried: each POST creates a game. The request survives a full page load either way.
 function startPreparedGame() {
   const pending=GM_getValue(key('launch-request'),null);
   if(!pending)return false;
   if(pending.mapId!==pack.practiceMapId||Date.now()-pending.requestedAt>30000){GM_setValue(key('launch-request'),null);return false}
+  if(pack.gameSettings){
+    if(pending.clickedAt)return true;
+    GM_setValue(key('launch-request'),{...pending,clickedAt:Date.now()});
+    const launched=pack;
+    startPracticeGame(launched,request).then(token=>go(`/game/${token}`),error=>{
+      GM_setValue(key('launch-request',launched.id),null);launchError=plainMessage(error);
+      if(pack===launched&&mounted==='launch'){remove();render()}
+    });
+    return true;
+  }
   if(Date.now()-(pending.clickedAt??0)<1500)return true;
   const play=document.readyState==='complete'&&[...document.querySelectorAll('main button')].find(button=>button.textContent.trim()==='Play'&&!button.disabled&&button.getClientRects().length);
   if(!play)return !!pending.clickedAt;
@@ -104,7 +116,8 @@ let preparing=null;
 const prepare=()=>preparing??=preparePractice().finally(()=>{preparing=null});
 async function preparePractice() {
   if(GM_getValue(key('pending-review'),null)?.round.round===5)commitPendingReview(null,true);
-  const route=location.pathname,routeGame=gameId(),chosen=await store.load(pack.id),set=nextSet(chosen),chosenKey=suffix=>key(suffix,chosen.id);
+  // A pack built by the local installer is re-checked here, so a rebuild reaches this set (never a game in progress).
+  const route=location.pathname,routeGame=gameId(),chosen=await store.latest(pack.id),set=nextSet(chosen),chosenKey=suffix=>key(suffix,chosen.id);
   await publishPracticeSet(chosen,set,request,draft=>{if(!GM_getValue(chosenKey('pending-backup'),null))GM_setValue(chosenKey('pending-backup'),draft)});
   GM_setValue(chosenKey('previous-draft'),GM_getValue(chosenKey('pending-backup'),null));GM_setValue(chosenKey('pending-backup'),null);
   store.pinSet(chosen.id,set,chosen);
@@ -115,7 +128,7 @@ async function preparePractice() {
   if(location.pathname===mapPath){mounted='';render();return}
   go(mapPath);
 }
-let mounted='',lastShown='',revealRound='',revealChecks=0,lastState=null;
+let mounted='',lastShown='',revealRound='',revealChecks=0,lastState=null,launchError=null;
 const owned=new Map();
 // Public installs: on the learner's own unbound map-maker page whose saved name starts with "Fieldwork" (the check publishing
 // repeats), offer every pack: unbound ones first, then bound ones to move here (their old map may have been deleted).
@@ -206,13 +219,14 @@ function render() {
   if(mapPage){
     if(startPreparedGame()){if(mounted!=='launch'){loadingPanel(pack,{message:'Starting your next set…'});mounted='launch'}return}
     if(mounted==='start'||mounted==='quick')return;
-    startPanel(pack,{onNext:prepare,attempts:history(),getAttempts:history,packs:packs.filter(item=>item.practiceMapId),onChoosePack:choosePack,
+    // A failed API launch (gameSettings packs) is shown once on the start panel; Continue prepares a fresh set.
+    startPanel(pack,{onNext:prepare,attempts:history(),getAttempts:history,packs:packs.filter(item=>item.practiceMapId),onChoosePack:choosePack,message:launchError,
       learn:GM_getValue(key('learn-mode'),false),onLearn:value=>GM_setValue(key('learn-mode'),value),
       onQuickCheck:()=>{mounted='quick';quickCheckPanel(pack,quickCheckQueue(pack,history()),{
         onKnown:skillId=>GM_setValue(key('attempts'),recordKnown(pack,history(),skillId)),onDone:()=>{remove();render()}})},
       onExport:()=>download({packId:pack.id,attempts:history(),exposures:exposures(),previousDraft:GM_getValue(key('previous-draft'),null),pendingBackup:GM_getValue(key('pending-backup'),null)},`fieldwork-progress-${pack.id}.json`),
       onImport:importPack,onCoverage:async()=>download(await store.audit(pack.id),`fieldwork-sources-${pack.id}.json`),atlasNote,
-    });mounted='start';return;
+    });mounted='start';launchError=null;return;
   }
   const round=completedRound(pack,state);
   const routeId=location.pathname.split('/').filter(Boolean).at(-1);

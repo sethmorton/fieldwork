@@ -14,6 +14,13 @@ export function validatePack(pack) {
   if(pack.maxLocationsPerCountry!==undefined&&(!Number.isInteger(pack.maxLocationsPerCountry)||pack.maxLocationsPerCountry<1))throw Error('Country limit must be a positive integer.');
   if(pack.gradingPolicy!==undefined&&pack.gradingPolicy!=='recognition')throw Error('Unknown grading policy.');
   if(pack.scheduler!==undefined&&pack.scheduler!=='sprint')throw Error('Unknown scheduler.');
+  // Game settings the pack's games start with (us-vegetation: NoMove, 90 s): exactly these four, 0 = no time limit.
+  if(pack.gameSettings!==undefined){
+    const settings=pack.gameSettings,keys=['forbidMoving','forbidRotating','forbidZooming','timeLimit'];
+    if(!settings||typeof settings!=='object'||Object.keys(settings).sort().join()!==keys.join()
+      ||keys.slice(0,3).some(key=>typeof settings[key]!=='boolean')||!Number.isInteger(settings.timeLimit)||settings.timeLimit<0||settings.timeLimit>3600)
+      throw Error('Game settings need forbidMoving, forbidZooming and forbidRotating (true or false) and a timeLimit of 0 to 3600 seconds.');
+  }
   const skills = new Set(pack.skills.map(skill => skill.id));
   if (skills.size !== pack.skills.length) throw new Error('Skill IDs must be unique.');
   for (const skill of pack.skills) {

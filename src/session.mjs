@@ -128,3 +128,15 @@ export async function publishPracticeSet(pack,set,request,backup) {
   await request(url,{method:'PUT',body:JSON.stringify({name,avatar,description,highlighted,version:draft.version+1,customCoordinates:coordinates})});
   await request(url+'/publish',{method:'PUT',body:'{}'});
 }
+
+/** Packs with `gameSettings` start their game themselves: the POST GeoGuessr's Play makes, with exactly these settings,
+ *  instead of the learner's last-used ones. The created game must report them back; returns its token. */
+export async function startPracticeGame(pack,request) {
+  const {timeLimit,forbidMoving,forbidZooming,forbidRotating}=pack.gameSettings;
+  const game=await request('/api/v3/games',{method:'POST',body:JSON.stringify({map:pack.practiceMapId,type:'standard',rounds:5,
+    timeLimit,forbidMoving,forbidZooming,forbidRotating})});
+  if(typeof game?.token!=='string'||!/^\w+$/.test(game.token)||game.map!==pack.practiceMapId||game.timeLimit!==timeLimit
+    ||game.forbidMoving!==forbidMoving||game.forbidZooming!==forbidZooming||game.forbidRotating!==forbidRotating)
+    throw notice('GeoGuessr did not start the game with this pack\'s settings. Choose Continue practice again.');
+  return game.token;
+}
