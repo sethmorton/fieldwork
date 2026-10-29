@@ -228,3 +228,8 @@ recently used, ordered to rotate states and seasons. The post-round card (`src/v
 local installer through GM blob requests as object URLs; the pack body stays in IndexedDB like every other pack.
 Its `gameSettings` are NoMove with a 90 s limit: Seth's ranked ACoW is NoMove, and 90 s leaves room to read the
 vegetation under time pressure. Each `npm run usveg` writes a higher `contentRevision` than the last build.
+The pack opts into sprint cell coverage (`cellCoverage: 0.1`, validated, sprint packs only). Each location carries its
+`state` cell and `cellShare`, that state's share of the region's points in the ACoW proxy pool. A region shows the cells
+it has never shown first, largest share first, then its least recently used panorama. It cannot become learned (so
+cannot retire) until every cell with at least 10% of its pool has been shown once; smaller cells still rotate in but
+never block it. Packs without the field, such as `sprint-acow`, keep the plain rule.

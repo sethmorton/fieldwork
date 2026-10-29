@@ -34,6 +34,7 @@ POOL = Path(os.environ.get('USVEG_POOL', WORLD / 'gap/pools/US-locations.json'))
 DUEL_BONUS, ZERO_COST = 10, 0.01  # a top region (~5% share) costs ~50: duel losses lift a region, never dominate
 GRADE_TOL, MAP_TOL = 0.02, 1.2  # degrees (~2 km) for grading; SVG px (960-wide map) for drawing
 # Ranked-like rounds: Seth's ranked ACoW is NoMove; 90 s leaves room to read the vegetation under time pressure.
+CELL_MIN = 0.1  # a state with at least this share of a region's pool blocks its retirement until shown
 GAME_SETTINGS = {'forbidMoving': True, 'forbidZooming': False, 'forbidRotating': False, 'timeLimit': 90}
 RECENT_HOURS = 24
 SEASONS = ('leaf-on', 'green', 'leaf-off', 'dormant')
@@ -179,8 +180,8 @@ def weighted_cost(acow, loss):
     return round(1000 * acow + DUEL_BONUS * loss, 3) if acow > 0 else ZERO_COST
 
 
-def pool_shares(features):
-    """{code: share of the pool's points inside it}; points off every region are left out of the denominator."""
+def pool_counts(features):
+    """{(code, state): pool points}; state from the point's 'US-XX' tag. Points off every region are left out."""
     boxes = []
     for f in features:
         pts = [p for rings in polys(f['geometry']) for p in rings[0]]
@@ -190,10 +191,10 @@ def pool_shares(features):
         lat, lng = point['lat'], point['lng']
         hit = next((f['properties']['name'] for x0, y0, x1, y1, f in boxes
                     if x0 <= lng <= x1 and y0 <= lat <= y1 and in_geometry(lng, lat, f['geometry'])), None)
+        state = next((t[3:] for t in point.get('extra', {}).get('tags', []) if t.startswith('US-')), None)
         if hit:
-            counts[hit] = counts.get(hit, 0) + 1
-    total = sum(counts.values()) or 1
-    return {c: n / total for c, n in counts.items()}
+            counts[hit, state] = counts.get((hit, state), 0) + 1
+    return counts
 
 
 def revision():
@@ -249,11 +250,22 @@ def build(data, geo):
         (kept if region_at(loc['lat'], loc['lng'], order) == loc['region'] else dropped).append(loc)
     seen = set()
     kept = [loc for loc in kept if not (loc['panoId'] in seen or seen.add(loc['panoId']))]
-    # ACoW weighting: each region's share of the pool, graded with the same polygons as a guess.
-    share = pool_shares(order) if POOL.exists() else {}
+    # ACoW weighting: each region's share of the pool, graded with the same polygons as a guess; each location's
+    # cellShare is its state's share of its region's points (src/sprint.mjs cellCoverage: unseen cells first, and cells
+    # of at least CELL_MIN of the region must be shown before it can retire).
+    counts = pool_counts(order) if POOL.exists() else {}
+    total, per_region = sum(counts.values()) or 1, {}
+    for (code, _), n in counts.items():
+        per_region[code] = per_region.get(code, 0) + n
+    for loc in kept:
+        loc['cellShare'] = round(counts.get((loc['region'], loc['state']), 0) / per_region.get(loc['region'], 1), 4)
+    have = {(loc['region'], loc['state']) for loc in kept}
+    gaps = sorted(f'{code} {state}' for (code, state), n in counts.items() if n / per_region[code] >= CELL_MIN and (code, state) not in have)
+    if gaps:
+        print(f"{len(gaps)} state cells with >= {CELL_MIN:.0%} of their region's pool have no panorama: {', '.join(gaps)}", file=sys.stderr)
     most = max((s['lost'] for s in skills), default=0) or 1
     for s in skills:
-        s['acow'] = round(share.get(s['region'], 0), 5)
+        s['acow'] = round(per_region.get(s['region'], 0) / total, 5)
         s['cost'] = weighted_cost(s['acow'], s.pop('lost') / most)
     skills.sort(key=lambda s: -s['cost'])
 
@@ -264,7 +276,7 @@ def build(data, geo):
     view = [math.floor(min(xs)) - 4, math.floor(min(ys)) - 4, math.ceil(max(xs) - min(xs)) + 8, math.ceil(max(ys) - min(ys)) + 8]
     pack = {'id': 'us-vegetation', 'title': 'US Vegetation', 'subject': 'GeoGuessr', 'schemaVersion': 1,
             'contentRevision': revision(), 'scheduler': 'sprint', 'gradingPolicy': 'recognition', 'card': 'veg',
-            'gameSettings': GAME_SETTINGS, 'initialSkillIds': [], 'imageBase': IMAGE_BASE,
+            'gameSettings': GAME_SETTINGS, 'cellCoverage': CELL_MIN, 'initialSkillIds': [], 'imageBase': IMAGE_BASE,
             'answerAreaLabel': f"{len({loc['region'] for loc in kept})} US ecoregions, {len(kept)} panoramas, graded by the ecoregion you pin",
             'coverageSummary': f"Tree Atlas drive panoramas with coach giveaways (fieldwork-site/trees, {data.get('generated', '')}); EPA Level III ecoregions.",
             'skills': skills, 'locations': kept,

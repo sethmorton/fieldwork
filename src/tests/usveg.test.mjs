@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
 import {completedRound,recordRecognition,startPracticeGame} from '../session.mjs';
-import {planSprint} from '../sprint.mjs';
+import {planSprint,sprintStatus} from '../sprint.mjs';
 import {makeNextSet,validatePack} from '../next-set.mjs';
 import {albersUsa,cropWindow,clauses,km} from '../vegcard.mjs';
 // Synthetic us-vegetation pack: regions R0..R6 are 1-degree squares side by side (lng i..i+1, lat 0..1), three panoramas each.
@@ -104,4 +104,34 @@ test('gameSettings: validated, and Continue starts the game with exactly them',a
   // A game that came back with other settings (or for another map) is refused, never played as if ranked-like.
   for(const reply of [{token:'x',map:practice,...settings,timeLimit:600},{token:'x',map:practice,...settings,forbidMoving:false},{token:'x',map:mid,...settings},{map:practice,...settings}])
     await assert.rejects(startPracticeGame(withSettings,request(reply)),/settings/);
+});
+// One region whose pool falls in four state cells: A 50% (two panoramas), B 30%, C 15%, D 5% (below the 10% bar).
+const cellPack={...pack,cellCoverage:0.1,skills:[skills[0]],pools:[{...pack.pools[0],skillIds:[skills[0].id]}],locations:[['A1','A',0.5],['A2','A',0.5],['D1','D',0.05],['C1','C',0.15],['B1','B',0.3]]
+  .map(([id,state,cellShare])=>({id,panoId:'p'+id,lat:0.5,lng:0.5,skillIds:[skills[0].id],region:'R0',state,cellShare}))};
+const T0=Date.parse('2026-10-29T08:00:00Z'),H=3600e3;
+const shownAt=(locationRef,minutes,correct=true)=>({id:locationRef+minutes,skillId:skills[0].id,locationRef,correct,feedbackSource:'auto',occurredAt:new Date(T0+minutes*60e3).toISOString()});
+test('cell coverage: a region shows each state cell it has never shown first, largest ACoW share first, then rotates',()=>{
+  const order=[];let attempts=[];
+  for(let i=0;i<6;i++){const [id]=planSprint(cellPack,attempts,{size:1,now:T0}).locationIds;order.push(id);attempts=[...attempts,shownAt(id,i)];}
+  assert.deepEqual(order,['A1','B1','C1','D1','A2','A1'],'new cells by share (the small one too), then unused, then least recently used');
+  // Without the opt-in (sprint-acow), the pick is unchanged: unused panoramas in pack order.
+  const {cellCoverage,...plain}=cellPack;attempts=[];order.length=0;
+  for(let i=0;i<3;i++){const [id]=planSprint(plain,attempts,{size:1,now:T0}).locationIds;order.push(id);attempts=[...attempts,shownAt(id,i)];}
+  assert.deepEqual(order,['A1','A2','D1']);
+});
+test('cell coverage: a region cannot learn or retire until every cell with at least 10% of its pool was shown',()=>{
+  const status=(p,attempts)=>sprintStatus(p,attempts).get(skills[0].id).state;
+  const {cellCoverage,...plain}=cellPack;
+  // Two fresh spots (A, B) and a spot 12 hours later retire a region in a plain sprint pack...
+  const twoCells=[shownAt('A1',0),shownAt('B1',1),shownAt('A1',13*60)];
+  assert.equal(status(plain,twoCells),'retired');
+  // ...but not while cell C (15%) was never shown.
+  assert.equal(status(cellPack,twoCells),'learning');
+  // Showing C (a fresh spot) makes it learned; the check 12 hours later retires it. D (5%) never blocks.
+  const covered=[shownAt('A1',0),shownAt('B1',1),shownAt('C1',2),shownAt('B1',13*60)];
+  assert.equal(status(cellPack,covered),'retired');
+  // A miss on the covering cell still reactivates: learned only after a later fresh spot with every cell shown.
+  assert.equal(status(cellPack,[shownAt('A1',0),shownAt('B1',1),shownAt('C1',2,false),shownAt('A2',3),shownAt('A2',13*60)]),'retired');
+  assert.equal(status(cellPack,[shownAt('A1',0),shownAt('B1',1),shownAt('C1',2,false),shownAt('B1',13*60)]),'missed','a repeat spot after the miss is not fresh');
+  assert.throws(()=>validatePack({...cellPack,cellCoverage:0}),/Cell coverage/);assert.throws(()=>validatePack({...cellPack,scheduler:undefined}),/Cell coverage/);
 });

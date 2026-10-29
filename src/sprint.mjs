@@ -11,15 +11,23 @@ const GAP={missed:5,learning:20},CHECK_AFTER=12*3600e3,DUE_CAP=3,POLES_CAP=1;
 // Share of Seth's bad-round losses by clue type (win/ClueMix.md): landscape, duel, contrast 1; unlisted 1.
 const SUBJECT_WEIGHT={roads:0.8,poles:0.6,car:0.5,signs:0.2,architecture:0.2};
 const explicit=attempt=>attempt.feedbackSource!=='assumed-on-advance';
+// Opt-in cell coverage (pack.cellCoverage, a share; us-vegetation sets 0.1): a clue's locations carry a cell (`state`) and
+// that cell's share of the clue's ACoW pool (`cellShare`). A clue cannot become learned, so cannot retire, until every
+// cell holding at least cellCoverage of its pool has been shown once; smaller cells only rotate in. Picks prefer a cell
+// never shown, largest share first, then the least recently used panorama. Packs without the field are unchanged.
+const requiredCells=(pack,locations)=>new Set(pack.cellCoverage?locations.filter(location=>location.state&&location.cellShare>=pack.cellCoverage).map(location=>location.state):[]);
 
 // Internal state adds 'learned': awaiting its next-session check since `learnedAt`.
 function progress(pack,attempts) {
   const bySkill=Map.groupBy(attempts,attempt=>attempt.skillId),panos=Map.groupBy(pack.locations??[],location=>location.skillIds[0]);
+  const byId=new Map((pack.locations??[]).map(location=>[location.id,location]));
   return new Map(pack.skills.map(skill=>{
     const shown=bySkill.get(skill.id)??[],seen=new Set(),all=panos.get(skill.id)?.length??0;
+    const required=requiredCells(pack,panos.get(skill.id)??[]),cells=new Set();
     let state=shown.length?'learning':'new',spotted=0,knew=false,learnedAt=null;
     for(const attempt of shown){
       const fresh=!seen.has(attempt.locationRef)||seen.size>=all;seen.add(attempt.locationRef);
+      cells.add(byId.get(attempt.locationRef)?.state);
       if(!explicit(attempt))continue;
       if(attempt.correct===false){state='missed';learnedAt=null;continue;}
       if(attempt.correct!==true)continue;
@@ -28,7 +36,8 @@ function progress(pack,attempts) {
       if(learnedAt!==null){if(time-learnedAt>=CHECK_AFTER)state='retired';continue;}
       if(!fresh)continue;
       knew||=attempt.grade==='easy';
-      [state,learnedAt]=spotted>=2||knew?['learned',time]:['learning',null];
+      const covered=[...required].every(cell=>cells.has(cell));
+      [state,learnedAt]=(spotted>=2||knew)&&covered?['learned',time]:['learning',null];
     }
     return [skill.id,{state,shown:shown.length,spotted,learnedAt}];
   }));
@@ -81,10 +90,20 @@ export function planSprint(pack,attempts,{size=5,now=Date.now()}={}) {
   const counts=[['new',picks.filter(item=>item.state==='new')],['due',picks.filter(isDue)],
     ['early review',picks.filter(item=>item.dueAt>clock)],['refresher',picks.filter(item=>resting.includes(item))]]
     .filter(([,list])=>list.length).map(([label,list])=>`${list.length} ${label}`);
+  // Unused panoramas first (-1), otherwise the least recently used one. Ties keep pack order. With cellCoverage, a cell
+  // (state) this clue never showed comes first, largest cellShare first.
+  const byId=new Map(pack.locations.map(location=>[location.id,location])),shownCells=new Map();
+  if(pack.cellCoverage)for(const attempt of attempts){const cell=byId.get(attempt.locationRef)?.state;
+    if(cell)shownCells.set(attempt.skillId,(shownCells.get(attempt.skillId)??new Set()).add(cell));}
+  const lru=list=>list.reduce((best,location)=>(lastUse.get(location.id)??-1)<(lastUse.get(best.id)??-1)?location:best);
+  const pick=skill=>{
+    const list=locations.get(skill.id),unshown=pack.cellCoverage?list.filter(location=>location.state&&!shownCells.get(skill.id)?.has(location.state)):[];
+    if(!unshown.length)return lru(list);
+    const top=Math.max(...unshown.map(location=>location.cellShare??0));
+    return lru(unshown.filter(location=>(location.cellShare??0)===top));
+  };
   return {
-    // Unused panoramas first (-1), otherwise the least recently used one. Ties keep pack order.
-    locationIds:picks.map(({skill})=>locations.get(skill.id).reduce((best,location)=>
-      (lastUse.get(location.id)??-1)<(lastUse.get(best.id)??-1)?location:best).id),
+    locationIds:picks.map(({skill})=>pick(skill).id),
     reasons:[counts.join(', '),`${all.filter(item=>item.state==='retired').length} of ${pack.skills.length} clues retired`],
   };
 }
