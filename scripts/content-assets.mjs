@@ -31,7 +31,7 @@ export const userscriptHeader=(version,{local=true}={})=>`// ==UserScript==
 // @grant        unsafeWindow
 // @connect      sethmorton.github.io
 // @connect      learnablemeta.com
-${local?'// @connect      127.0.0.1\n':`// @downloadURL  ${publicScriptUrl}\n// @updateURL    ${publicScriptUrl}\n`}// @run-at       document-start
+${local?'// @connect      127.0.0.1\n// @downloadURL  http://127.0.0.1:8787/fieldwork.user.js\n// @updateURL    http://127.0.0.1:8787/fieldwork.user.js\n':`// @downloadURL  ${publicScriptUrl}\n// @updateURL    ${publicScriptUrl}\n`}// @run-at       document-start
 // @require      https://raw.githubusercontent.com/miraclewhips/geoguessr-event-framework/5e449d6b64c828fce5d2915772d61c7f95263e34/geoguessr-event-framework.js
 // ==/UserScript==`;
 // Bundle src/browser.mjs with the given catalog file in place of dist/practice-catalog.json.
