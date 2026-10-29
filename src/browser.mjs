@@ -6,6 +6,7 @@ import {makeNextSet} from './next-set.mjs';
 import {packForPage} from './packs.mjs';
 import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,startPracticeGame,quickCheckQueue,recordKnown,recordMissed} from './session.mjs';
 import {reviewPanel,startPanel,loadingPanel,bindPanel,quickCheckPanel} from './ui.mjs';
+import {cardImages} from './vegcard.mjs';
 import {fail,classified,retryDelay,canRetry,loadMessage,plainMessage,notice} from './load-errors.mjs';
 import {stateFromGameData} from './game-state.mjs';
 import {observeGameResponses} from './game-responses.mjs';
@@ -29,17 +30,34 @@ function fetchText(url,{timeout=20000}={}) {
 }
 // Card images from the content host (the local installer for us-vegetation), as object URLs: a GM blob request works
 // from https://www.geoguessr.com where a plain <img> of http://127.0.0.1 would be mixed content. One request per URL.
+// Continue prefetches a set's card images into IndexedDB (bytes and type, never GM storage), so its cards still render
+// if the installer stops mid-game; only the latest two sets' images are kept.
 // ponytail: object URLs live for the page (a set is ~30 images); revoke on pack switch if memory ever matters.
+const cache=indexedDbCache(globalThis.indexedDB??unsafeWindow.indexedDB),imageKey=url=>'fieldwork:image:'+url;
+const fetchBlob=url=>typeof GM_xmlhttpRequest!=='function'?fetch(url).then(response=>response.ok?response.blob():Promise.reject(fail('http',{status:response.status})))
+  :new Promise((resolve,reject)=>GM_xmlhttpRequest({url,method:'GET',anonymous:true,responseType:'blob',timeout:20000,onerror:reject,ontimeout:reject,onabort:reject,
+    onload:response=>response.status>=200&&response.status<300?resolve(response.response):reject(fail('http',{status:response.status}))}));
 const images=new Map();
 const loadImage=url=>{
-  if(!images.has(url))images.set(url,typeof GM_xmlhttpRequest!=='function'?fetch(url).then(response=>response.ok?response.blob():Promise.reject(fail('http',{status:response.status}))).then(URL.createObjectURL)
-    :new Promise((resolve,reject)=>GM_xmlhttpRequest({url,method:'GET',anonymous:true,responseType:'blob',timeout:20000,onerror:reject,ontimeout:reject,onabort:reject,
-      onload:response=>response.status>=200&&response.status<300?resolve(URL.createObjectURL(response.response)):reject(fail('http',{status:response.status}))})));
+  if(!images.has(url))images.set(url,cache.get(imageKey(url)).catch(()=>null)
+    .then(saved=>saved?new Blob([saved.bytes],{type:saved.type}):fetchBlob(url)).then(blob=>URL.createObjectURL(blob)));
   const pending=images.get(url);pending.catch(()=>images.delete(url));return pending;
 };
+async function prefetchImages(chosen,set){
+  if(chosen.card!=='veg'||!chosen.imageBase)return;
+  const listKey=`fieldwork:${chosen.id}:image-sets`,kept=GM_getValue(listKey,[]),have=new Set(kept.flat());
+  const urls=[...new Set(set.selectedLocations.flatMap(location=>cardImages(chosen,location)).map(file=>chosen.imageBase+file))],saved=[];
+  for(let i=0;i<urls.length;i+=4)await Promise.all(urls.slice(i,i+4).map(async url=>{
+    if(!have.has(url)){const blob=await fetchBlob(url);await cache.set(imageKey(url),{type:blob.type,bytes:await blob.arrayBuffer()});}
+    saved.push(url);
+  }).map(job=>job.catch(()=>{})));
+  const lists=[...kept,saved].slice(-2),keep=new Set(lists.flat());
+  GM_setValue(listKey,lists);
+  for(const url of kept.flat())if(!keep.has(url))await cache.remove(imageKey(url)).catch(()=>{});
+}
 // Storage or configuration can make the store fail before anything else runs. Then only a recovery panel is shown.
 let store,startupError=null;
-try{store=createContentStore({get:GM_getValue,set:GM_setValue,list:GM_listValues,remove:GM_deleteValue,cache:indexedDbCache(globalThis.indexedDB??unsafeWindow.indexedDB),catalog,fetchText})}
+try{store=createContentStore({get:GM_getValue,set:GM_setValue,list:GM_listValues,remove:GM_deleteValue,cache,catalog,fetchText})}
 catch(error){startupError=error}
 const packs=store?.catalog??[];
 let pack=null,context='',stateQueue=Promise.resolve();
@@ -121,6 +139,7 @@ async function preparePractice() {
   await publishPracticeSet(chosen,set,request,draft=>{if(!GM_getValue(chosenKey('pending-backup'),null))GM_setValue(chosenKey('pending-backup'),draft)});
   GM_setValue(chosenKey('previous-draft'),GM_getValue(chosenKey('pending-backup'),null));GM_setValue(chosenKey('pending-backup'),null);
   store.pinSet(chosen.id,set,chosen);
+  prefetchImages(chosen,set).catch(error=>console.warn('Fieldwork could not prefetch card images.',error));
   GM_setValue(chosenKey('launch-request'),{mapId:chosen.practiceMapId,requestedAt:Date.now()});
   // Opening the finished game's summary meanwhile is still this request; another page is the learner's choice.
   if(location.pathname!==route&&!(routeGame&&gameId()===routeGame))return;

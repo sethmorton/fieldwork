@@ -38,7 +38,8 @@ installation or successful live publication based on a build passing.
    Continue practice replaces/publishes its five locations and starts a game.
    Ensure the user understands this map is dedicated to that purpose.
 6. Leave round 1 ready. Never guess or submit learner feedback for testing.
-   Bookmark the user's `/maps/<id>` URL. Local server can then stop.
+   Bookmark the user's `/maps/<id>` URL. Local server can then stop, except for
+   US Vegetation: its card images come from the installer, so keep `npm run serve` running.
 
 ## Code and data boundaries
 

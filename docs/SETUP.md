@@ -35,7 +35,8 @@ post-guess source card. Running both may show two cards.
 7. Continue practice writes/publishes five actual locations, opens the map and
    invokes GeoGuessr's Play control. Leave the first round for the learner.
 8. Bookmark `https://www.geoguessr.com/maps/<YOUR_MAP_ID>`. Use that URL and
-   **Continue practice** next time. Ctrl+C can stop the installer server now.
+   **Continue practice** next time. Ctrl+C can stop the installer server now, except
+   for US Vegetation, whose card images need `npm run serve` running.
 
 ## Add the Philippines or another pack
 

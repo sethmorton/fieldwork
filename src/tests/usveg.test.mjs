@@ -4,7 +4,7 @@ import {readFileSync,existsSync} from 'node:fs';
 import {completedRound,recordRecognition,startPracticeGame} from '../session.mjs';
 import {planSprint,sprintStatus} from '../sprint.mjs';
 import {makeNextSet,validatePack} from '../next-set.mjs';
-import {albersUsa,cropWindow,clauses,km} from '../vegcard.mjs';
+import {albersUsa,cropWindow,clauses,km,cardImages} from '../vegcard.mjs';
 // Synthetic us-vegetation pack: regions R0..R6 are 1-degree squares side by side (lng i..i+1, lat 0..1), three panoramas each.
 const mid='0123456789abcdef01234567',practice='76543210fedcba9876543210';
 const square=i=>({type:'Feature',properties:{name:'R'+i},geometry:{type:'Polygon',coordinates:[[[i,0],[i+1,0],[i+1,1],[i,1],[i,0]]]}});
@@ -134,4 +134,10 @@ test('cell coverage: a region cannot learn or retire until every cell with at le
   assert.equal(status(cellPack,[shownAt('A1',0),shownAt('B1',1),shownAt('C1',2,false),shownAt('A2',3),shownAt('A2',13*60)]),'retired');
   assert.equal(status(cellPack,[shownAt('A1',0),shownAt('B1',1),shownAt('C1',2,false),shownAt('B1',13*60)]),'missed','a repeat spot after the miss is not fresh');
   assert.throws(()=>validatePack({...cellPack,cellCoverage:0}),/Cell coverage/);assert.throws(()=>validatePack({...cellPack,scheduler:undefined}),/Cell coverage/);
+});
+test('cardImages lists exactly what the card shows: the still, species photos, up to 3 recurrence thumbnails',()=>{
+  const features=[{id:'oak',name:'Oak',kind:'species',species:'oak',ref:'sp-oak.jpg'},{id:'hill',name:'Hills',kind:'landform'}];
+  const region={...pack,skills:[{...skills[0],features}],locations:[0,1,2,3,4].map(k=>({id:'L'+k,panoId:'p'+k,lat:0.5,lng:0.5,skillIds:[skills[0].id],region:'R0',img:`drive-${k}.jpg`,
+    giveaways:[{feature:k===4?'hill':'oak',text:'x',box:[0,0,0.1+k/100,0.1]},{feature:null,text:'y',box:[0,0,0.1,0.1]}]}))};
+  assert.deepEqual(cardImages(region,region.locations[0]),['drive-0.jpg','sp-oak.jpg','t/drive-3.jpg','t/drive-2.jpg','t/drive-1.jpg']);
 });

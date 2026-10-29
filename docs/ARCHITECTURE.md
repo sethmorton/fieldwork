@@ -90,6 +90,10 @@ For custom packs, the local installer serves separate content files for the
 first cache fill; leave it running until the pack appears, or manually import
 `dist/practice-pack.json`. A manually imported pack is locally managed and will
 not be replaced by public content. Existing cached custom packs migrate too.
+US Vegetation is the exception: its card images are served by the installer
+(`/usveg-img/`), so keep it running while practising. Continue prefetches each set's
+card images into IndexedDB (the latest two sets), so cards survive the installer
+stopping mid-game; otherwise a card says the installer is needed.
 Serving more countries does not increase the userscript's data payload.
 
 The static installer binds only to loopback. Public content requests are

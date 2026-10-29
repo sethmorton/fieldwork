@@ -6,6 +6,7 @@ const COLS=['#22d3ee','#fb923c','#facc15','#c084fc','#4ade80','#f472b6'],W=1600,
 const CSS=`
 .veg{display:grid;gap:10px}.veg figure{margin:0}.veg .img{background:#c9d8de center/cover no-repeat;border-radius:6px;position:relative;cursor:zoom-in;overflow:hidden}
 .vtop{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:4px 0 0;font:700 21px/1.2 'Trebuchet MS',Arial,sans-serif}.vtop.ok{color:#276b50}.vtop.bad{color:#b4471a}
+.verr{margin:0;padding:6px 10px;border-radius:6px;background:#fbeee4;color:#7d3410;font:600 13px/1.3 Arial}
 .vtop .st{font-weight:400;color:#496b79}.vtop small{font:600 14px/1.3 Arial,sans-serif;text-transform:none;letter-spacing:0;color:#7d3410}
 .vrow{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:10px;align-items:start}
 .vstill{aspect-ratio:1.6}.vbox{position:absolute;border:2.5px solid var(--c);border-radius:3px;box-shadow:0 0 0 1px #0008,inset 0 0 0 1px #0006;pointer-events:none}
@@ -70,11 +71,32 @@ function regionMap(parent,pack,fill,{region,pin,focus}={}){
   if(at)svgEl(svg,'circle',{class:'pin',cx:at[0].toFixed(1),cy:at[1].toFixed(1),r:(vw/45).toFixed(1)});
   return svg;
 }
+// One number per feature (repeats share it), one-off cues their own; colours by the feature's index in the region.
+function groupsOf(skill,loc){
+  const feats=skill.features??[],featureOf=id=>{const index=feats.findIndex(f=>f.id===id);return index<0?{col:'#ffffff'}:{...feats[index],col:COLS[index%COLS.length]}};
+  return {featureOf,groups:Object.values(Object.groupBy(loc.giveaways??[],(g,i)=>g.feature??`one-off ${i}`)).map(gs=>({gs,F:featureOf(gs[0].feature)}))};
+}
+// The same feature in up to 3 other panoramas of this region, clearest (largest box) first.
+function recurrence(pack,skill,loc,groups){
+  const ids=groups.map(({gs})=>gs[0].feature).filter(Boolean),area=b=>b[2]*b[3];
+  return pack.locations.filter(other=>other.skillIds[0]===skill.id&&other.id!==loc.id).map(other=>{
+    const g=other.giveaways.filter(g=>ids.includes(g.feature)).sort((a,b)=>ids.indexOf(a.feature)-ids.indexOf(b.feature)||area(b.box)-area(a.box))[0];
+    return g&&{other,g};
+  }).filter(Boolean).sort((a,b)=>ids.indexOf(a.g.feature)-ids.indexOf(b.g.feature)||area(b.g.box)-area(a.g.box)).slice(0,3);
+}
+/** Image files (relative to pack.imageBase) a location's card shows: the still, species photos, recurrence thumbnails.
+ *  Continue prefetches them, so a card still renders if the installer stops mid-game. */
+export function cardImages(pack,loc){
+  const skill=pack.skills.find(item=>item.id===loc.skillIds[0]),{groups}=groupsOf(skill,loc);
+  return [loc.img,...groups.slice(0,4).map(({F})=>F.species&&F.ref).filter(Boolean),...recurrence(pack,skill,loc,groups).map(({other})=>`t/${other.img}`)];
+}
+export const IMAGES_OFFLINE='Images need the Fieldwork installer: run npm run serve in ~/Desktop/code/fieldwork, then reload';
 export function vegCard(card,skill,round,pack,{loadImage,zoom}){
   el(card,'style',null,CSS);
-  const veg=el(card,'div','veg'),loc=round.location,base=pack.imageBase,feats=skill.features??[];
-  const featureOf=id=>{const index=feats.findIndex(f=>f.id===id);return index<0?{col:'#ffffff'}:{...feats[index],col:COLS[index%COLS.length]}};
-  const image=(node,file,full=file)=>{loadImage(base+file).then(url=>{node.style.backgroundImage=`url("${url}")`},()=>{});
+  const veg=el(card,'div','veg'),loc=round.location,base=pack.imageBase;
+  // One line, once, when any image cannot load (not prefetched and the installer is not running).
+  let offline=null;
+  const image=(node,file,full=file)=>{loadImage(base+file).then(url=>{node.style.backgroundImage=`url("${url}")`},()=>{offline??=el(null,'p','verr',IMAGES_OFFLINE);top.after(offline)});
     node.onclick=()=>zoom(loadImage(base+full));node.setAttribute('role','img');return node};
   const boxed=(node,[x,y,w,h],col,label,[x0,y0,cw,ch]=[0,0,1,1])=>{const b=el(node,'i','vbox');b.style.cssText=`--c:${col};left:${pct((x-x0)/cw)};top:${pct((y-y0)/ch)};width:${pct(w/cw)};height:${pct(h/ch)}`;if(label)el(b,'b',null,label)};
   // Top line: geography decides it; 1/2/3 still grade recognition below.
@@ -82,8 +104,7 @@ export function vegCard(card,skill,round,pack,{loadImage,zoom}){
   el(top,'span',null,`${round.correct?'✓':'✗'} ${skill.title}`);if(loc.state)el(top,'span','st',loc.state);
   if(!round.correct&&round.guess){const guessed=pack.skills.find(item=>item.region===round.guessedRegion)?.title;
     el(top,'small',null,`you pinned ${guessed??'outside the US regions'}, ${km(round.guess,loc).toLocaleString('en-US')} km`)}
-  // One number per feature (repeats share it), one-off cues their own.
-  const groups=Object.values(Object.groupBy(loc.giveaways??[],(g,i)=>g.feature??`one-off ${i}`)).map(gs=>({gs,F:featureOf(gs[0].feature)}));
+  const {featureOf,groups}=groupsOf(skill,loc);
   const row=el(veg,'div','vrow'),still=image(el(row,'figure','img vstill'),loc.img);still.setAttribute('aria-label',`${skill.title}: this round's view`);
   groups.forEach(({gs,F},i)=>gs.forEach(g=>boxed(still,g.box,F.col,String(i+1))));
   const so=el(row,'div','vso');el(so,'p',null,'So:');el(so,'strong',null,skill.title);
@@ -105,12 +126,7 @@ export function vegCard(card,skill,round,pack,{loadImage,zoom}){
       el(sp,'small',null,`${name} · in ${range.size} regions`);
     }
   });
-  // The same feature in up to 3 other panoramas of this region, clearest (largest box) first.
-  const ids=groups.map(({gs})=>gs[0].feature).filter(Boolean),area=b=>b[2]*b[3];
-  const more=pack.locations.filter(other=>other.skillIds[0]===skill.id&&other.id!==loc.id).map(other=>{
-    const g=other.giveaways.filter(g=>ids.includes(g.feature)).sort((a,b)=>ids.indexOf(a.feature)-ids.indexOf(b.feature)||area(b.box)-area(a.box))[0];
-    return g&&{other,g};
-  }).filter(Boolean).sort((a,b)=>ids.indexOf(a.g.feature)-ids.indexOf(b.g.feature)||area(b.g.box)-area(a.g.box)).slice(0,3);
+  const more=recurrence(pack,skill,loc,groups);
   if(more.length){
     const strip=el(veg,'div','vmore');el(strip,'p',null,`More ${skill.title}`);
     for(const {other,g} of more){const F=featureOf(g.feature),thumb=image(el(strip,'figure','img'),`t/${other.img}`,other.img);

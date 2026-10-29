@@ -20,5 +20,6 @@ export function indexedDbCache(indexedDB,name='fieldwork-content',{openMs=10000}
     const transaction=database.transaction('content',mode),request=operation(transaction.objectStore('content'));
     transaction.oncomplete=()=>resolve(request.result);transaction.onerror=transaction.onabort=()=>reject(storageError(transaction.error));
   }).catch(error=>{throw storageError(error)}));
-  return {get:key=>run('readonly',store=>store.get(key)),set:(key,value)=>run('readwrite',store=>store.put(value,key))};
+  return {get:key=>run('readonly',store=>store.get(key)),set:(key,value)=>run('readwrite',store=>store.put(value,key)),
+    remove:key=>run('readwrite',store=>store.delete(key))};
 }

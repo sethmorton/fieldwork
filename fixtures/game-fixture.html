@@ -1,6 +1,7 @@
 <!doctype html><meta charset="utf-8"><title>Fieldwork runtime test</title><body style="font-family:Arial;background:#d6e4e9;padding:30px"><p>LOCAL TEST · no GeoGuessr account access · synthetic event</p><button id="finish">Simulate completed round</button><button id="last">Simulate completed final round</button><button id="native-next">Next</button><button id="repeat">Repeat event</button><button id="next">Simulate next round</button><p id="saved-count">0 saved attempts</p><script type="module">
 const params=new URL(location.href).searchParams;
 // mode=veg / veg-wrong: the real us-vegetation card from the built pack (dist/catalog.json), graded by completedRound.
+// offline: every image fails, as with the installer stopped and nothing prefetched.
 // region=<code> picks the round's region (default Coast Range); veg-wrong pins the nearest pano of another region.
 if(params.get('mode')?.startsWith('veg')){
 const {reviewPanel,completedRound}=await import('/dist/preview-ui.js');
@@ -13,7 +14,7 @@ const guess=params.get('mode')==='veg-wrong'?{lat:near.lat,lng:near.lng}:{lat:lo
 const round=completedRound(veg,{map:{id:veg.practiceMapId},current_game_id:'fixture',current_round:Number(params.get('round')??3),round_in_progress:false,
   rounds:Array.from({length:5},()=>({location:{panoId:loc.panoId},player_guess:guess}))});
 document.title=`veg ${round.correct}`;
-reviewPanel(veg,round,{onSave:()=>[],onNext:()=>{throw Error('Fixture only. No map was changed.')},loadImage:url=>fetch(url).then(response=>response.blob()).then(URL.createObjectURL)});
+reviewPanel(veg,round,{onSave:()=>[],onNext:()=>{throw Error('Fixture only. No map was changed.')},loadImage:params.has('offline')?()=>Promise.reject(Error('installer offline')):url=>fetch(url).then(response=>response.blob()).then(URL.createObjectURL)});
 }else{
 const pack=await (await fetch('/dist/practice-pack.json')).json();
 const mode=new URL(location.href).searchParams.get('mode');
