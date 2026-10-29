@@ -129,13 +129,18 @@ export async function publishPracticeSet(pack,set,request,backup) {
   await request(url+'/publish',{method:'PUT',body:'{}'});
 }
 
-/** Packs with `gameSettings` start their game themselves: the POST GeoGuessr's Play makes, with exactly these settings,
+/** What Continue leaves for the practice-map page to launch: the map, the time, and the prepared content's gameSettings.
+ *  The settings travel with the request, so the launch uses the content the set was prepared from (just upgraded, say),
+ *  never whatever pack the page had loaded earlier. */
+export const launchRequest=(pack,now=Date.now())=>({mapId:pack.practiceMapId,requestedAt:now,...(pack.gameSettings?{gameSettings:pack.gameSettings}:{})});
+
+/** A launch with `gameSettings` starts its game itself: the POST GeoGuessr's Play makes, with exactly these settings,
  *  instead of the learner's last-used ones. The created game must report them back; returns its token. */
-export async function startPracticeGame(pack,request) {
-  const {timeLimit,forbidMoving,forbidZooming,forbidRotating}=pack.gameSettings;
-  const game=await request('/api/v3/games',{method:'POST',body:JSON.stringify({map:pack.practiceMapId,type:'standard',rounds:5,
+export async function startPracticeGame({mapId,gameSettings},request) {
+  const {timeLimit,forbidMoving,forbidZooming,forbidRotating}=gameSettings;
+  const game=await request('/api/v3/games',{method:'POST',body:JSON.stringify({map:mapId,type:'standard',rounds:5,
     timeLimit,forbidMoving,forbidZooming,forbidRotating})});
-  if(typeof game?.token!=='string'||!/^\w+$/.test(game.token)||game.map!==pack.practiceMapId||game.timeLimit!==timeLimit
+  if(typeof game?.token!=='string'||!/^\w+$/.test(game.token)||game.map!==mapId||game.timeLimit!==timeLimit
     ||game.forbidMoving!==forbidMoving||game.forbidZooming!==forbidZooming||game.forbidRotating!==forbidRotating)
     throw notice('GeoGuessr did not start the game with this pack\'s settings. Choose Continue practice again.');
   return game.token;

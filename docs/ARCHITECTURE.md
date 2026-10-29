@@ -67,7 +67,8 @@ native Play control is clicked as soon as it renders; an ignored click is retrie
 until a game page opens. A pack with `gameSettings` (validated: `forbidMoving`, `forbidZooming`,
 `forbidRotating`, `timeLimit` 0 to 3600 s) instead starts its game with exactly those settings:
 one `POST /api/v3/games` (the request GeoGuessr's Play makes, sent from the signed-in page) and
-the router to `/game/<token>`. This is preferred to driving the Play settings UI, which is
+the router to `/game/<token>`. The settings travel in the launch request from the content the set was
+prepared from, so a pack upgraded at that Continue starts its game with the new settings. This is preferred to driving the Play settings UI, which is
 unlabelled and changes often. The created game must report the same settings and map, or
 the start panel says so; the POST is never retried, because each one creates a game. Concurrent Continue clicks join one publication. DOM
 changes are reconciled at most once per animation frame; a completed round whose
@@ -232,8 +233,8 @@ recently used, ordered to rotate states and seasons. The post-round card (`src/v
 local installer through GM blob requests as object URLs; the pack body stays in IndexedDB like every other pack.
 Its `gameSettings` are NoMove with a 90 s limit: Seth's ranked ACoW is NoMove, and 90 s leaves room to read the
 vegetation under time pressure. Each `npm run usveg` writes a higher `contentRevision` than the last build.
-The pack opts into sprint cell coverage (`cellCoverage: 0.1`, validated, sprint packs only). Each location carries its
-`state` cell and `cellShare`, that state's share of the region's points in the ACoW proxy pool. A region shows the cells
-it has never shown first, largest share first, then its least recently used panorama. It cannot become learned (so
-cannot retire) until every cell with at least 10% of its pool has been shown once; smaller cells still rotate in but
-never block it. Packs without the field, such as `sprint-acow`, keep the plain rule.
+The pack opts into sprint cell coverage (`cellCoverage: true`, validated, sprint packs only): every ecoregion in every
+state. Each location carries its `state` cell and `cellShare`, that state's share of the region's points in the ACoW
+proxy pool. A region shows the cells it has never shown first, largest share first, then its least recently used
+panorama. It cannot become learned (so cannot retire) until every state cell it has a panorama in has been shown once.
+Packs without the field, such as `sprint-acow`, keep the plain rule.

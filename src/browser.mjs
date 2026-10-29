@@ -4,7 +4,7 @@ import {indexedDbCache} from './content-cache.mjs';
 import {sourceNote} from './source-note.mjs';
 import {makeNextSet} from './next-set.mjs';
 import {packForPage} from './packs.mjs';
-import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,startPracticeGame,quickCheckQueue,recordKnown,recordMissed} from './session.mjs';
+import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,launchRequest,startPracticeGame,quickCheckQueue,recordKnown,recordMissed} from './session.mjs';
 import {reviewPanel,startPanel,loadingPanel,bindPanel,quickCheckPanel} from './ui.mjs';
 import {cardImages} from './vegcard.mjs';
 import {fail,classified,retryDelay,canRetry,loadMessage,plainMessage,notice} from './load-errors.mjs';
@@ -104,19 +104,20 @@ async function request(url,options={}) {
   if(!response.ok)throw notice(`GeoGuessr returned ${response.status}. Your feedback is still saved. Retry from the practice map.`);
   const body=await response.text();return body?JSON.parse(body):null;
 }
-// Packs without `gameSettings`: the native Play control, so GeoGuessr keeps the learner's own game settings; it can
-// ignore an early click while the map page settles, so retry until a game opens. Packs with `gameSettings` (us-vegetation:
-// NoMove, 90 s): one POST /api/v3/games with exactly those settings, the request GeoGuessr's own Play makes, then its
-// router to /game/<token>. Never retried: each POST creates a game. The request survives a full page load either way.
+// Launches without `gameSettings`: the native Play control, so GeoGuessr keeps the learner's own game settings; it can
+// ignore an early click while the map page settles, so retry until a game opens. Launches with `gameSettings`
+// (us-vegetation: NoMove, 90 s): one POST /api/v3/games with exactly those settings, the request GeoGuessr's own Play
+// makes, then its router to /game/<token>. Never retried: each POST creates a game. The settings come from the launch
+// request (the prepared content), not the page's loaded pack. The request survives a full page load either way.
 function startPreparedGame() {
   const pending=GM_getValue(key('launch-request'),null);
   if(!pending)return false;
   if(pending.mapId!==pack.practiceMapId||Date.now()-pending.requestedAt>30000){GM_setValue(key('launch-request'),null);return false}
-  if(pack.gameSettings){
+  if(pending.gameSettings){
     if(pending.clickedAt)return true;
     GM_setValue(key('launch-request'),{...pending,clickedAt:Date.now()});
     const launched=pack;
-    startPracticeGame(launched,request).then(token=>go(`/game/${token}`),error=>{
+    startPracticeGame(pending,request).then(token=>go(`/game/${token}`),error=>{
       GM_setValue(key('launch-request',launched.id),null);launchError=plainMessage(error);
       if(pack===launched&&mounted==='launch'){remove();render()}
     });
@@ -139,8 +140,10 @@ async function preparePractice() {
   await publishPracticeSet(chosen,set,request,draft=>{if(!GM_getValue(chosenKey('pending-backup'),null))GM_setValue(chosenKey('pending-backup'),draft)});
   GM_setValue(chosenKey('previous-draft'),GM_getValue(chosenKey('pending-backup'),null));GM_setValue(chosenKey('pending-backup'),null);
   store.pinSet(chosen.id,set,chosen);
+  // On the practice map the page keeps showing this content (a game page keeps its own pinned version).
+  if(!routeGame&&chosen.id===pack.id)pack=chosen;
   prefetchImages(chosen,set).catch(error=>console.warn('Fieldwork could not prefetch card images.',error));
-  GM_setValue(chosenKey('launch-request'),{mapId:chosen.practiceMapId,requestedAt:Date.now()});
+  GM_setValue(chosenKey('launch-request'),launchRequest(chosen));
   // Opening the finished game's summary meanwhile is still this request; another page is the learner's choice.
   if(location.pathname!==route&&!(routeGame&&gameId()===routeGame))return;
   const mapPath=`/maps/${chosen.practiceMapId}`;

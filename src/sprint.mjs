@@ -11,11 +11,11 @@ const GAP={missed:5,learning:20},CHECK_AFTER=12*3600e3,DUE_CAP=3,POLES_CAP=1;
 // Share of Seth's bad-round losses by clue type (win/ClueMix.md): landscape, duel, contrast 1; unlisted 1.
 const SUBJECT_WEIGHT={roads:0.8,poles:0.6,car:0.5,signs:0.2,architecture:0.2};
 const explicit=attempt=>attempt.feedbackSource!=='assumed-on-advance';
-// Opt-in cell coverage (pack.cellCoverage, a share; us-vegetation sets 0.1): a clue's locations carry a cell (`state`) and
-// that cell's share of the clue's ACoW pool (`cellShare`). A clue cannot become learned, so cannot retire, until every
-// cell holding at least cellCoverage of its pool has been shown once; smaller cells only rotate in. Picks prefer a cell
-// never shown, largest share first, then the least recently used panorama. Packs without the field are unchanged.
-const requiredCells=(pack,locations)=>new Set(pack.cellCoverage?locations.filter(location=>location.state&&location.cellShare>=pack.cellCoverage).map(location=>location.state):[]);
+// Opt-in cell coverage (pack.cellCoverage: true; us-vegetation): a clue's locations carry a cell (`state`) and that cell's
+// share of the clue's ACoW pool (`cellShare`). A clue cannot become learned, so cannot retire, until every cell it has a
+// panorama in has been shown once. Picks prefer a cell never shown, largest share first, then the least recently used
+// panorama. Packs without the field are unchanged.
+const requiredCells=(pack,locations)=>new Set(pack.cellCoverage?locations.filter(location=>location.state).map(location=>location.state):[]);
 
 // Internal state adds 'learned': awaiting its next-session check since `learnedAt`.
 function progress(pack,attempts) {

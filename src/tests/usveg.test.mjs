@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
-import {completedRound,recordRecognition,startPracticeGame} from '../session.mjs';
+import {completedRound,recordRecognition,startPracticeGame,launchRequest} from '../session.mjs';
 import {planSprint,sprintStatus} from '../sprint.mjs';
 import {makeNextSet,validatePack} from '../next-set.mjs';
 import {albersUsa,cropWindow,clauses,km,cardImages} from '../vegcard.mjs';
@@ -98,15 +98,15 @@ test('gameSettings: validated, and Continue starts the game with exactly them',a
     assert.throws(()=>validatePack({...pack,gameSettings:bad}),/Game settings/);
   const sent=[];
   const request=reply=>async(url,options)=>{sent.push([url,options.method,JSON.parse(options.body)]);return reply};
-  const token=await startPracticeGame(withSettings,request({token:'AbC123',map:practice,...settings}));
+  const token=await startPracticeGame(launchRequest(withSettings),request({token:'AbC123',map:practice,...settings}));
   assert.equal(token,'AbC123');
   assert.deepEqual(sent[0],['/api/v3/games','POST',{map:practice,type:'standard',rounds:5,timeLimit:90,forbidMoving:true,forbidZooming:false,forbidRotating:false}]);
   // A game that came back with other settings (or for another map) is refused, never played as if ranked-like.
   for(const reply of [{token:'x',map:practice,...settings,timeLimit:600},{token:'x',map:practice,...settings,forbidMoving:false},{token:'x',map:mid,...settings},{map:practice,...settings}])
-    await assert.rejects(startPracticeGame(withSettings,request(reply)),/settings/);
+    await assert.rejects(startPracticeGame(launchRequest(withSettings),request(reply)),/settings/);
 });
-// One region whose pool falls in four state cells: A 50% (two panoramas), B 30%, C 15%, D 5% (below the 10% bar).
-const cellPack={...pack,cellCoverage:0.1,skills:[skills[0]],pools:[{...pack.pools[0],skillIds:[skills[0].id]}],locations:[['A1','A',0.5],['A2','A',0.5],['D1','D',0.05],['C1','C',0.15],['B1','B',0.3]]
+// One region whose pool falls in four state cells: A 50% (two panoramas), B 30%, C 15%, D 5%.
+const cellPack={...pack,cellCoverage:true,skills:[skills[0]],pools:[{...pack.pools[0],skillIds:[skills[0].id]}],locations:[['A1','A',0.5],['A2','A',0.5],['D1','D',0.05],['C1','C',0.15],['B1','B',0.3]]
   .map(([id,state,cellShare])=>({id,panoId:'p'+id,lat:0.5,lng:0.5,skillIds:[skills[0].id],region:'R0',state,cellShare}))};
 const T0=Date.parse('2026-10-29T08:00:00Z'),H=3600e3;
 const shownAt=(locationRef,minutes,correct=true)=>({id:locationRef+minutes,skillId:skills[0].id,locationRef,correct,feedbackSource:'auto',occurredAt:new Date(T0+minutes*60e3).toISOString()});
@@ -119,7 +119,7 @@ test('cell coverage: a region shows each state cell it has never shown first, la
   for(let i=0;i<3;i++){const [id]=planSprint(plain,attempts,{size:1,now:T0}).locationIds;order.push(id);attempts=[...attempts,shownAt(id,i)];}
   assert.deepEqual(order,['A1','A2','D1']);
 });
-test('cell coverage: a region cannot learn or retire until every cell with at least 10% of its pool was shown',()=>{
+test('cell coverage: a region cannot learn or retire until every state cell with a panorama was shown',()=>{
   const status=(p,attempts)=>sprintStatus(p,attempts).get(skills[0].id).state;
   const {cellCoverage,...plain}=cellPack;
   // Two fresh spots (A, B) and a spot 12 hours later retire a region in a plain sprint pack...
@@ -127,17 +127,28 @@ test('cell coverage: a region cannot learn or retire until every cell with at le
   assert.equal(status(plain,twoCells),'retired');
   // ...but not while cell C (15%) was never shown.
   assert.equal(status(cellPack,twoCells),'learning');
-  // Showing C (a fresh spot) makes it learned; the check 12 hours later retires it. D (5%) never blocks.
-  const covered=[shownAt('A1',0),shownAt('B1',1),shownAt('C1',2),shownAt('B1',13*60)];
+  // C (15%) shown but D (5%) not: still learning. Every cell has a panorama, so even the smallest blocks retirement.
+  assert.equal(status(cellPack,[shownAt('A1',0),shownAt('B1',1),shownAt('C1',2),shownAt('B1',13*60)]),'learning');
+  // Showing D too (a fresh spot) makes it learned; the check 12 hours later retires it.
+  const covered=[shownAt('A1',0),shownAt('B1',1),shownAt('C1',2),shownAt('D1',3),shownAt('B1',13*60)];
   assert.equal(status(cellPack,covered),'retired');
-  // A miss on the covering cell still reactivates: learned only after a later fresh spot with every cell shown.
-  assert.equal(status(cellPack,[shownAt('A1',0),shownAt('B1',1),shownAt('C1',2,false),shownAt('A2',3),shownAt('A2',13*60)]),'retired');
-  assert.equal(status(cellPack,[shownAt('A1',0),shownAt('B1',1),shownAt('C1',2,false),shownAt('B1',13*60)]),'missed','a repeat spot after the miss is not fresh');
-  assert.throws(()=>validatePack({...cellPack,cellCoverage:0}),/Cell coverage/);assert.throws(()=>validatePack({...cellPack,scheduler:undefined}),/Cell coverage/);
+  // A miss on a covering cell still reactivates: learned only after a later fresh spot with every cell shown.
+  assert.equal(status(cellPack,[shownAt('A1',0),shownAt('B1',1),shownAt('C1',2),shownAt('D1',3,false),shownAt('A2',4),shownAt('A2',13*60)]),'retired');
+  assert.equal(status(cellPack,[shownAt('A1',0),shownAt('B1',1),shownAt('C1',2),shownAt('D1',3,false),shownAt('B1',13*60)]),'missed','a repeat spot after the miss is not fresh');
+  assert.throws(()=>validatePack({...cellPack,cellCoverage:0.1}),/Cell coverage/);assert.throws(()=>validatePack({...cellPack,scheduler:undefined}),/Cell coverage/);
 });
 test('cardImages lists exactly what the card shows: the still, species photos, up to 3 recurrence thumbnails',()=>{
   const features=[{id:'oak',name:'Oak',kind:'species',species:'oak',ref:'sp-oak.jpg'},{id:'hill',name:'Hills',kind:'landform'}];
   const region={...pack,skills:[{...skills[0],features}],locations:[0,1,2,3,4].map(k=>({id:'L'+k,panoId:'p'+k,lat:0.5,lng:0.5,skillIds:[skills[0].id],region:'R0',img:`drive-${k}.jpg`,
     giveaways:[{feature:k===4?'hill':'oak',text:'x',box:[0,0,0.1+k/100,0.1]},{feature:null,text:'y',box:[0,0,0.1,0.1]}]}))};
   assert.deepEqual(cardImages(region,region.locations[0]),['drive-0.jpg','sp-oak.jpg','t/drive-3.jpg','t/drive-2.jpg','t/drive-1.jpg']);
+});
+test('a pack upgraded mid-session launches its next game with the new content\'s gameSettings',async()=>{
+  // The page had loaded the old us-vegetation (no gameSettings); Continue prepared the set from the upgraded content.
+  const old={...pack},upgraded={...pack,contentRevision:2,gameSettings:{forbidMoving:true,forbidZooming:false,forbidRotating:false,timeLimit:90}};
+  assert.deepEqual(launchRequest(old,1),{mapId:practice,requestedAt:1},'old content: native Play keeps the learner\'s settings');
+  const pending=launchRequest(upgraded,1);
+  assert.deepEqual(pending.gameSettings,upgraded.gameSettings);
+  let body;await startPracticeGame(pending,async(url,options)=>{body=JSON.parse(options.body);return {token:'t1',map:practice,...upgraded.gameSettings}});
+  assert.deepEqual([body.map,body.timeLimit,body.forbidMoving],[practice,90,true]);
 });

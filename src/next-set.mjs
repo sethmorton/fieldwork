@@ -14,7 +14,7 @@ export function validatePack(pack) {
   if(pack.maxLocationsPerCountry!==undefined&&(!Number.isInteger(pack.maxLocationsPerCountry)||pack.maxLocationsPerCountry<1))throw Error('Country limit must be a positive integer.');
   if(pack.gradingPolicy!==undefined&&pack.gradingPolicy!=='recognition')throw Error('Unknown grading policy.');
   if(pack.scheduler!==undefined&&pack.scheduler!=='sprint')throw Error('Unknown scheduler.');
-  if(pack.cellCoverage!==undefined&&(pack.scheduler!=='sprint'||typeof pack.cellCoverage!=='number'||!(pack.cellCoverage>0&&pack.cellCoverage<=1)))throw Error('Cell coverage is a sprint share above 0 and at most 1.');
+  if(pack.cellCoverage!==undefined&&(pack.scheduler!=='sprint'||pack.cellCoverage!==true))throw Error('Cell coverage is true, and only for sprint packs.');
   // Game settings the pack's games start with (us-vegetation: NoMove, 90 s): exactly these four, 0 = no time limit.
   if(pack.gameSettings!==undefined){
     const settings=pack.gameSettings,keys=['forbidMoving','forbidRotating','forbidZooming','timeLimit'];
