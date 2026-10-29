@@ -135,7 +135,8 @@ test('cell coverage: a region cannot learn or retire until every state cell with
   // A miss on a covering cell still reactivates: learned only after a later fresh spot with every cell shown.
   assert.equal(status(cellPack,[shownAt('A1',0),shownAt('B1',1),shownAt('C1',2),shownAt('D1',3,false),shownAt('A2',4),shownAt('A2',13*60)]),'retired');
   assert.equal(status(cellPack,[shownAt('A1',0),shownAt('B1',1),shownAt('C1',2),shownAt('D1',3,false),shownAt('B1',13*60)]),'missed','a repeat spot after the miss is not fresh');
-  assert.throws(()=>validatePack({...cellPack,cellCoverage:0.1}),/Cell coverage/);assert.throws(()=>validatePack({...cellPack,scheduler:undefined}),/Cell coverage/);
+  assert.throws(()=>validatePack({...cellPack,cellCoverage:0}),/Cell coverage/);
+  assert.equal(status({...cellPack,cellCoverage:0.1},covered.slice(0,2)),'learning','a cached 0.1 build loads and follows the every-cell rule');assert.throws(()=>validatePack({...cellPack,scheduler:undefined}),/Cell coverage/);
 });
 test('cardImages lists exactly what the card shows: the still, species photos, up to 3 recurrence thumbnails',()=>{
   const features=[{id:'oak',name:'Oak',kind:'species',species:'oak',ref:'sp-oak.jpg'},{id:'hill',name:'Hills',kind:'landform'}];
