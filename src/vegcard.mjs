@@ -90,13 +90,19 @@ export function cardImages(pack,loc){
   const skill=pack.skills.find(item=>item.id===loc.skillIds[0]),{groups}=groupsOf(skill,loc);
   return [loc.img,...groups.slice(0,4).map(({F})=>F.species&&F.ref).filter(Boolean),...recurrence(pack,skill,loc,groups).map(({other})=>`t/${other.img}`)];
 }
-export const IMAGES_OFFLINE='Images need the Fieldwork installer: run npm run serve in ~/Desktop/code/fieldwork, then reload';
+// Never "reload": a reload on a GeoGuessr results page can resume the next round (AGENTS.md). Retry re-asks loadImage,
+// which forgets failed requests, so starting the installer and pressing Retry fills the card in place.
+export const IMAGES_OFFLINE='Images need the Fieldwork installer: run npm run serve in ~/Desktop/code/fieldwork, then press Retry';
 export function vegCard(card,skill,round,pack,{loadImage,zoom}){
   el(card,'style',null,CSS);
   const veg=el(card,'div','veg'),loc=round.location,base=pack.imageBase;
-  // One line, once, when any image cannot load (not prefetched and the installer is not running).
-  let offline=null;
-  const image=(node,file,full=file)=>{loadImage(base+file).then(url=>{node.style.backgroundImage=`url("${url}")`},()=>{offline??=el(null,'p','verr',IMAGES_OFFLINE);top.after(offline)});
+  // One line, once, when any image cannot load (not prefetched and the installer is not running), with one Retry for all.
+  let offline=null;const failed=[];
+  const show=(node,file)=>loadImage(base+file).then(url=>{node.style.backgroundImage=`url("${url}")`},()=>{failed.push([node,file]);
+    if(offline)return;offline=el(null,'p','verr',IMAGES_OFFLINE+' ');top.after(offline);
+    const retry=el(offline,'button',null,'Retry');retry.type='button';
+    retry.onclick=()=>{offline.remove();offline=null;failed.splice(0).forEach(([n,f])=>show(n,f))}});
+  const image=(node,file,full=file)=>{show(node,file);
     node.onclick=()=>zoom(loadImage(base+full));node.setAttribute('role','img');return node};
   const boxed=(node,[x,y,w,h],col,label,[x0,y0,cw,ch]=[0,0,1,1])=>{const b=el(node,'i','vbox');b.style.cssText=`--c:${col};left:${pct((x-x0)/cw)};top:${pct((y-y0)/ch)};width:${pct(w/cw)};height:${pct(h/ch)}`;if(label)el(b,'b',null,label)};
   // Top line: geography decides it; 1/2/3 still grade recognition below.
