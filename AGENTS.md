@@ -17,6 +17,8 @@ Use Node 24.12+; package-lock.json pins dependencies.
 - Build public content only: `npm run content:build` (every `content/*.json` is published; adding a pack is adding a file)
 - Verify engine size/assets after build: `node scripts/verify-build.mjs`
 - Installer: `npm run serve` → http://127.0.0.1:8787
+- US Vegetation pack (Tree Atlas → `local/usveg-pack.json`): `npm run usveg`, then `npm run build`. Its card images are
+  served read-only from `usvegImages` in `.fieldwork.local.json` under `/usveg-img/` while the installer runs.
 
 Read docs/SETUP.md before guiding first-run setup. Do not claim browser
 installation or successful live publication based on a build passing.
@@ -110,6 +112,9 @@ game started. No account or real learner state is used. Other modes include
 while emitting completed `GEFFetchEvents` responses. Verify the round-2 clue
 recovers, Next hides it and saves only round 2, and round 3 shows its own card.
 Do not reload a learner's results to test: GeoGuessr can resume the next round.
+
+`fixtures/game-fixture.html?mode=veg` (or `mode=veg-wrong`, optional `region=<code>&pano=<id>`) renders the real
+us-vegetation card from the built pack, graded by `completedRound`, with the installer serving images.
 
 `browser-recovery.test.mjs` fuzzes 150 seeded orderings of framework/native
 responses, reveals, stale responses and Next clicks; every round must show its own

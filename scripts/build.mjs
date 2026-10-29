@@ -16,7 +16,7 @@ export async function buildFieldwork(){
   // The atlas outlines ship with the separately loaded sprint pack, never inside the size-limited userscript.
   const geometry=JSON.parse(await readFile('src/world-geometry.json','utf8'));
   const attempts=config.sprintAttemptsPath?JSON.parse(await readFile(config.sprintAttemptsPath,'utf8')):[];
-  for(const item of packs.filter(entry=>entry.scheduler==='sprint')){item.atlas={...item.atlas,geometry};await buildAtlasPage(item,'dist/atlas',attempts)}
+  for(const item of packs.filter(entry=>entry.scheduler==='sprint'&&entry.atlas)){item.atlas={...item.atlas,geometry};await buildAtlasPage(item,'dist/atlas',attempts)}
   const publicPacks=await readPublicPacks();
   await writeContentAssets(packs,'dist');
   await buildPublicContent();

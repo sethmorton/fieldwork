@@ -39,8 +39,9 @@ function coverage(skills,status){
 const coverageClass=item=>`${item.total&&item.retired===item.total?'done':item.shown?'some':'none'}${item.missed?' missed':''}`;
 function totals(pack,status){
   const all=coverage(pack.skills,status),touched=new Set(pack.skills.filter(skill=>status.get(skill.id)?.shown>0).map(skill=>skill.country));
-  const countries=pack.atlas.countries.filter(country=>touched.has(country.code)).length;
-  return `${countries}/${pack.atlas.countries.length} countries touched · ${all.retired}/${all.total} clues retired · ${all.missed} missed`;
+  // Packs without an atlas (us-vegetation: one clue per region) count clues only.
+  const countries=pack.atlas?`${pack.atlas.countries.filter(country=>touched.has(country.code)).length}/${pack.atlas.countries.length} countries touched · `:'';
+  return `${countries}${all.retired}/${all.total} clues retired · ${all.missed} missed`;
 }
 export const sprintSummary=(pack,attempts)=>totals(pack,sprintStatus(pack,attempts));
 

@@ -1,6 +1,6 @@
 {
   "name": "fieldwork-geoguessr",
-  "version": "0.14.21",
+  "version": "0.14.22",
   "private": true,
   "type": "module",
   "description": "Adaptive GeoGuessr practice with curated locations and local learning feedback",
@@ -16,10 +16,15 @@
     "check": "npm test && npm run typecheck",
     "content:refresh": "node scripts/refresh-notes.mjs",
     "refresh": "bash tools/world-pack/refresh.sh",
-    "content:build": "node scripts/content-assets.mjs"
+    "content:build": "node scripts/content-assets.mjs",
+    "usveg": "python3 tools/world-pack/usveg.py"
   },
   "devDependencies": {
     "esbuild": "0.28.2",
     "typescript": "5.9.3"
+  },
+  "dependencies": {
+    "puppeteer-core": "^25.16.0",
+    "sharp": "^0.35.5"
   }
 }

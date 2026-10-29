@@ -27,6 +27,16 @@ function fetchText(url,{timeout=20000}={}) {
     catch{network()}
   });
 }
+// Card images from the content host (the local installer for us-vegetation), as object URLs: a GM blob request works
+// from https://www.geoguessr.com where a plain <img> of http://127.0.0.1 would be mixed content. One request per URL.
+// ponytail: object URLs live for the page (a set is ~30 images); revoke on pack switch if memory ever matters.
+const images=new Map();
+const loadImage=url=>{
+  if(!images.has(url))images.set(url,typeof GM_xmlhttpRequest!=='function'?fetch(url).then(response=>response.ok?response.blob():Promise.reject(fail('http',{status:response.status}))).then(URL.createObjectURL)
+    :new Promise((resolve,reject)=>GM_xmlhttpRequest({url,method:'GET',anonymous:true,responseType:'blob',timeout:20000,onerror:reject,ontimeout:reject,onabort:reject,
+      onload:response=>response.status>=200&&response.status<300?resolve(URL.createObjectURL(response.response)):reject(fail('http',{status:response.status}))})));
+  const pending=images.get(url);pending.catch(()=>images.delete(url));return pending;
+};
 // Storage or configuration can make the store fail before anything else runs. Then only a recovery panel is shown.
 let store,startupError=null;
 try{store=createContentStore({get:GM_getValue,set:GM_setValue,list:GM_listValues,remove:GM_deleteValue,cache:indexedDbCache(globalThis.indexedDB??unsafeWindow.indexedDB),catalog,fetchText})}
@@ -215,13 +225,13 @@ function render() {
   if(mounted===round.id)return;
   const seen=exposures();const familiar=seen.some(item=>item.locationRef===round.location.id&&item.id!==round.id);
   if(!seen.some(item=>item.id===round.id))GM_setValue(key('exposures'),[...seen,{id:round.id,locationRef:round.location.id}]);
-  // Sprint: the guessed country grades the round at once (feedbackSource 'auto'); 1/2/3 still override it.
+  // Sprint: the guessed country (or, in region packs, the guessed region) grades the round at once (feedbackSource 'auto'); 1/2/3 still override it.
   if(pack.scheduler==='sprint'&&typeof round.correct==='boolean'&&!history().some(item=>item.id===round.id))
     GM_setValue(key('attempts'),recordRecognition(pack,history(),round,{recognized:round.correct,familiar,auto:true}));
   if(!history().some(item=>item.id===round.id))GM_setValue(key('pending-review'),{round,familiar,correct:round.correct});
   reviewPanel(pack,round,{familiar,attempts:history(),getAttempts:history,saved:history().some(item=>item.id===round.id&&item.feedbackSource==='explicit'),
     onChange:response=>{const pending=GM_getValue(key('pending-review'),null);if(pending?.round.id===round.id)GM_setValue(key('pending-review'),{...pending,...response})},
-    loadNote:skill=>atlasNote(skill,round.location),atlasNote,
+    loadNote:skill=>atlasNote(skill,round.location),atlasNote,loadImage,
     onSave:response=>{const updated=recordRecognition(pack,history(),round,response);GM_setValue(key('attempts'),updated);GM_setValue(key('pending-review'),null);return updated},onNext:prepare});mounted=lastShown=round.id;
 }
 const atlasNote=(skill,location)=>sourceNote(skill,location,{fetchText,get:GM_getValue,set:GM_setValue,revision:pack.contentRevision});

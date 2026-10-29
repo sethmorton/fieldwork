@@ -4,17 +4,21 @@ import {curriculumProgress} from './lib/adaptive.ts';
 import {plainMessage} from './load-errors.mjs';
 import {renderAtlas,sprintSummary,richNote} from './atlas.mjs';
 import {GRADES,gradeOf,cardStatus,setRecap,sessionBar,drillKey} from './drill.mjs';
+import {vegCard} from './vegcard.mjs';
+export {completedRound} from './session.mjs'; // fixtures grade through dist/preview-ui.js
 const notSaved='This change could not be saved. Try again.';
 // Compact post-guess UI. Source HTML is converted to text, never executed.
 // Panel size: compact by default, expanded (wide, full images and text) when the learner asks; remembered per browser.
-const isWide=()=>localStorage.getItem('fieldwork:wide')==='1';
+// A card can default to wide under its own key (section.dataset.sizeKey / sizeDefault), so other packs keep theirs.
+const sizeKey=section=>section.dataset?.sizeKey??'fieldwork:wide';
+const isWide=section=>(localStorage.getItem(sizeKey(section))??section.dataset?.sizeDefault??'0')==='1';
 function applySize(section,treeOpen=false){
-  const host=section.getRootNode().host,wide=isWide();
+  const host=section.getRootNode().host,wide=isWide(section);
   host.style.width=`min(${treeOpen?850:wide?760:340}px, calc(100vw - 36px))`;section.style.maxHeight=treeOpen||wide?'85vh':'65vh';
   section.classList.toggle('wide',wide);
   const toggle=section.querySelector('.size');if(toggle){toggle.textContent=wide?'⤡':'⤢';toggle.setAttribute('aria-label',wide?'Shrink panel':'Expand panel')}
 }
-const toggleWide=section=>{localStorage.setItem('fieldwork:wide',isWide()?'0':'1');applySize(section,!!section.querySelector('details.tree[open]'))};
+const toggleWide=section=>{localStorage.setItem(sizeKey(section),isWide(section)?'0':'1');applySize(section,!!section.querySelector('details.tree[open]'))};
 // Every Fieldwork surface is a shadow-root host sharing one stylesheet.
 function shadowHost(tag,id){
   document.getElementById(id)?.remove();
@@ -41,7 +45,7 @@ function shadowHost(tag,id){
     .card img.hero{max-height:260px;margin-bottom:12px}.lead p{margin:6px 0}.lead .label{margin:12px 0 2px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#496b79}
     .session{margin:6px 0 0;font-size:11px;color:#496b79}.rest{margin:8px 0;padding:8px 12px;border:1px solid #e3b48f;border-radius:8px;background:#fbeee4;color:#7d3410;font-size:13px;font-weight:600}
     .auto{margin:8px 0 0;font-weight:700;font-size:15px}.auto.right{color:#276b50}.auto.wrong{color:#c0571a}
-    section.drill{max-height:85vh!important}.footer{position:sticky;bottom:-16px;margin:12px -16px -16px;padding:10px 16px 14px;background:#eff6f8;border-top:1px solid #dbe7eb}.footer .actions{margin-top:0}.footer p:empty{display:none}
+    section.drill{max-height:85vh!important}section.drill.tall{max-height:calc(100vh - 36px)!important}.footer{position:sticky;bottom:-16px;margin:12px -16px -16px;padding:10px 16px 14px;background:#eff6f8;border-top:1px solid #dbe7eb}.footer .actions{margin-top:0}.footer p:empty{display:none}
     button.continue{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px}
     .grades button{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 6px}.grades button:disabled{cursor:default}button.chosen{background:#d2e8f0;border:2px solid #176b86;font-weight:600}button.chosen:disabled{opacity:1}
     kbd{font:11px/1 ui-monospace,monospace;padding:2px 4px;border:1px solid currentColor;border-radius:3px;opacity:.65}
@@ -123,8 +127,7 @@ function sprintCard(card,skill,round,attempts,pack){
   if(skill.stakes)text(card,'p',skill.stakes,'stakes');
   const url=exampleImage(skill);
   if(url){const img=document.createElement('img');img.className='hero';img.src=url;img.alt=`${skill.title}: source example`;img.title='Click for full screen';card.append(img);
-    img.onclick=()=>{const dialog=document.createElement('dialog');dialog.className='fullscreen';dialog.append(img.cloneNode());card.getRootNode().append(dialog);
-      dialog.onclick=()=>dialog.close();dialog.onclose=()=>dialog.remove();dialog.showModal();};}
+    img.onclick=()=>fullscreen(card,url);}
   const lead=document.createElement('div');lead.className='lead';card.append(lead);
   if(skill.subject==='duel'||skill.subject==='contrast'){
     // Duels: the 'Coach' read (3 lines), the 'Seen in this round' and 'Points to X instead' blocks. Contrasts: the pair under the title, minus the tell's line.
@@ -146,18 +149,27 @@ function sprintCard(card,skill,round,attempts,pack){
   sourceDetails(details,skill,pack.notesSourceUrl);card.append(details);
   const status=text(card,'span',cardStatus(pack,attempts,round),'status');if(skill.relevance)status.title=skill.relevance;
 }
+// Full screen, one image (a URL or a promise of one); a click or Escape closes it.
+function fullscreen(anchor,src){
+  const dialog=document.createElement('dialog'),img=document.createElement('img');dialog.className='fullscreen';dialog.append(img);
+  Promise.resolve(src).then(url=>{img.src=url},()=>dialog.close());
+  anchor.getRootNode().append(dialog);dialog.onclick=()=>dialog.close();dialog.onclose=()=>dialog.remove();dialog.showModal();
+}
 // After a 25-minute block: a banner on the start and review panels (win/LearnSeth.md: first-look accuracy halves after ~30 min).
 const sessionLine=(section,pack,attempts)=>{const bar=sessionBar(pack,attempts);text(section,'p',bar.text,'session');
   if(bar.rest)text(section,'p','25 minutes done: take 5 minutes off screen, then ranked.','rest').setAttribute('role','status');};
-function sprintReview(pack,round,{familiar=false,saved=false,attempts=[],getAttempts=()=>attempts,onSave,onNext,loadNote}){
-  const {host,section}=panel();section.classList.add('drill');header(section,`Fieldwork · round ${round.round}/5`);sessionLine(section,pack,attempts);
+function sprintReview(pack,round,{familiar=false,saved=false,attempts=[],getAttempts=()=>attempts,onSave,onNext,loadNote,loadImage=url=>Promise.resolve(url)}){
+  const {host,section}=panel();section.classList.add('drill');
+  const veg=pack.card==='veg';if(veg){Object.assign(section.dataset,{sizeKey:'fieldwork:wide:veg',sizeDefault:'1'});section.classList.add('tall')}
+  header(section,`Fieldwork · round ${round.round}/5`);sessionLine(section,pack,attempts);
   const skill=pack.skills.find(item=>item.id===round.location.skillIds[0]),card=document.createElement('div');card.className='card';
-  // The guessed country graded this round already (feedbackSource 'auto'); 1/2/3 override it.
+  // The guessed country graded this round already (feedbackSource 'auto'); 1/2/3 override it. The veg card states its own result.
   if(round.guessedCountry)text(section,'p',round.correct?'Right country':round.guessedCountry===skill.country?'Right country, wrong region'
     :`Wrong country: you guessed ${pack.atlas.geometry[round.guessedCountry]?.name??round.guessedCountry}`,`auto ${round.correct?'right':'wrong'}`);
   section.append(card);
-  sprintCard(card,skill,round,attempts,pack);
-  if(loadNote&&!skill.sourceNoteHtml&&skill.noteOrigin!=='fieldwork-authored')
+  if(veg)vegCard(card,skill,round,pack,{loadImage,zoom:src=>fullscreen(card,src)});
+  else sprintCard(card,skill,round,attempts,pack);
+  if(!veg&&loadNote&&!skill.sourceNoteHtml&&skill.noteOrigin!=='fieldwork-authored')
     loadNote(skill).then(loaded=>{if(card.isConnected){card.replaceChildren();sprintCard(card,loaded,round,attempts,pack)}}).catch(()=>{});
   // The grade buttons (and Continue) stay pinned to the panel's bottom edge, so a tall card never hides them.
   const footer=document.createElement('div');footer.className='footer';section.append(footer);
@@ -244,7 +256,7 @@ export function startPanel(pack,{onNext,onQuickCheck,onExport,onImport,onCoverag
   const status=text(section,'p',sprint?`${pack.answerAreaLabel}.`:`${pack.answerAreaLabel??pack.title}. At most two clues per family. New clues adapt to recent practice.`,'muted');status.setAttribute('role','status');
   const actions=document.createElement('div');actions.className='actions';section.append(actions);
   button(actions,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=plainMessage(error);this.disabled=false}},'primary');
-  if(sprint)atlasButton(actions,pack,getAttempts,atlasNote);
+  if(sprint){if(pack.atlas)atlasButton(actions,pack,getAttempts,atlasNote);}
   else{
     if(onQuickCheck)button(actions,'Quick check',onQuickCheck);
     if(onLearn){const label=document.createElement('label');const box=document.createElement('input');box.type='checkbox';box.checked=learn;

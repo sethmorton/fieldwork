@@ -20,13 +20,16 @@ export function completedRound(pack,state) {
   if(!round?.location?.panoId || !Number.isFinite(round.player_guess?.lat) || !Number.isFinite(round.player_guess?.lng)) return null;
   const location=pack.locations.find(location=>location.panoId===round.location.panoId);
   if(!location) return null;
-  const guessedRegion=regionAt(round.player_guess.lat,round.player_guess.lng,pack.regionFeatures??[]);
-  const inRegion=guessedRegion&&location.region?guessedRegion===location.region:null;
+  const {lat,lng}=round.player_guess,guessedRegion=regionAt(lat,lng,pack.regionFeatures??[]);
+  // A sprint pack whose locations carry regions (us-vegetation) tiles its whole answer area, so a guess off every region
+  // is wrong; elsewhere an off-region guess stays unknown. The card shows the guessed region and the guess itself.
+  const regioned=pack.scheduler==='sprint'&&!!location.region&&!!pack.regionFeatures?.length;
+  const inRegion=guessedRegion&&location.region?guessedRegion===location.region:regioned?false:null;
   // Sprint packs carry the atlas outlines: the guess's country against the card's (ISO2). Off every outline stays unknown.
   const country=pack.atlas?.geometry&&pack.skills.find(skill=>skill.id===location.skillIds[0])?.country;
-  const guessedCountry=country?countryAt(round.player_guess.lat,round.player_guess.lng,pack.atlas.geometry):null;
+  const guessedCountry=country?countryAt(lat,lng,pack.atlas.geometry):null;
   return {id:`${pack.id}:${state.current_game_id}:${state.current_round}`,location,
-    round:state.current_round,gameId:state.current_game_id,
+    round:state.current_round,gameId:state.current_game_id,...(regioned?{guess:{lat,lng},guessedRegion}:{}),
     ...(guessedCountry?{guessedCountry,correct:guessedCountry===country&&inRegion!==false}:{correct:inRegion})};
 }
 
@@ -52,7 +55,7 @@ export function recordRecognition(pack,history,round,{recognized,knew=false,fami
       :round.location.assessmentEligible===false?'Source teaching example; practice only, not unseen assessment evidence.'
       :skill.recognitionOnly?'Explicit visual-feature recognition; geographic result recorded separately. Country discrimination was not tested.'
         :'Region result plus self-reported clue recognition after reveal. Confidence was not measured (neutral default).')
-      +(recognized&&knew?' Learner marked it known cold (confidence 3, Easy).':'')+(auto?' Graded automatically from the guessed country.':'')};
+      +(recognized&&knew?' Learner marked it known cold (confidence 3, Easy).':'')+(auto?` Graded automatically from the guessed ${'guessedRegion' in round?'region':'country'}.`:'')};
   // Duplicate framework events and reloads cannot create extra evidence.
   return prior?history.map(item=>item.id===attempt.id?attempt:item):[...history,attempt];
 }

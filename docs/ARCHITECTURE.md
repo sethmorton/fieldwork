@@ -208,3 +208,13 @@ panorama clearly shows the cue; small source pools cannot establish broad
 unseen transfer; there is no progress cloud sync or progress-import UI; and
 each learner needs a separate writable practice map. Test fixtures contain
 synthetic observations, never real learner exports.
+
+## US Vegetation (local sprint pack)
+
+`tools/world-pack/usveg.py` (`npm run usveg`) builds `us-vegetation` from the Tree Atlas: one sprint clue per EPA
+Level III ecoregion, one location per drive panorama with its coach giveaways, simplified region polygons, and Albers
+USA SVG paths for the card's maps. A round is graded automatically from the guessed point's ecoregion against the
+panorama's (`feedbackSource: 'auto'`); in this pack a guess off every region is wrong, not unknown. The 1/2/3 keys
+override. Each region is one clue, so a set holds five regions; a region's unseen panoramas come first, then its least
+recently used, ordered to rotate states and seasons. The post-round card (`src/vegcard.mjs`) loads images from the
+local installer through GM blob requests as object URLs; the pack body stays in IndexedDB like every other pack.

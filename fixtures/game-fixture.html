@@ -1,4 +1,20 @@
 <!doctype html><meta charset="utf-8"><title>Fieldwork runtime test</title><body style="font-family:Arial;background:#d6e4e9;padding:30px"><p>LOCAL TEST · no GeoGuessr account access · synthetic event</p><button id="finish">Simulate completed round</button><button id="last">Simulate completed final round</button><button id="native-next">Next</button><button id="repeat">Repeat event</button><button id="next">Simulate next round</button><p id="saved-count">0 saved attempts</p><script type="module">
+const params=new URL(location.href).searchParams;
+// mode=veg / veg-wrong: the real us-vegetation card from the built pack (dist/catalog.json), graded by completedRound.
+// region=<code> picks the round's region (default Coast Range); veg-wrong pins the nearest pano of another region.
+if(params.get('mode')?.startsWith('veg')){
+const {reviewPanel,completedRound}=await import('/dist/preview-ui.js');
+const entry=(await (await fetch('/catalog.json')).json()).packs.find(item=>item.id==='us-vegetation');
+const veg={...await (await fetch('/'+entry.url)).json(),practiceMapId:'000000000000000000000001'};
+const loc=veg.locations.find(item=>item.region===(params.get('region')??'7.1.8')&&(!params.get('pano')||item.panoId===params.get('pano')));
+const d=item=>(item.lat-loc.lat)**2+((item.lng-loc.lng)*Math.cos(loc.lat*Math.PI/180))**2;
+const near=veg.locations.filter(item=>item.region!==loc.region).sort((a,b)=>d(a)-d(b))[0];
+const guess=params.get('mode')==='veg-wrong'?{lat:near.lat,lng:near.lng}:{lat:loc.lat+0.05,lng:loc.lng+0.05};
+const round=completedRound(veg,{map:{id:veg.practiceMapId},current_game_id:'fixture',current_round:Number(params.get('round')??3),round_in_progress:false,
+  rounds:Array.from({length:5},()=>({location:{panoId:loc.panoId},player_guess:guess}))});
+document.title=`veg ${round.correct}`;
+reviewPanel(veg,round,{onSave:()=>[],onNext:()=>{throw Error('Fixture only. No map was changed.')},loadImage:url=>fetch(url).then(response=>response.blob()).then(URL.createObjectURL)});
+}else{
 const pack=await (await fetch('/dist/practice-pack.json')).json();
 const mode=new URL(location.href).searchParams.get('mode');
 const skillId=new URL(location.href).searchParams.get('skill')??'au:lm:283';
@@ -19,4 +35,5 @@ document.querySelector('#native-next').onclick=()=>{if((mode==='missed-start'?re
 document.querySelector('#repeat').onclick=()=>events.dispatchEvent(new CustomEvent('round_end',{detail:state}));
 document.querySelector('#next').onclick=()=>{document.querySelector('[data-qa="result-view-top"]')?.remove();if(mode==='missed-start'){responseRound++;response(false);return;}state.current_round++;state.round_in_progress=true;events.dispatchEvent(new CustomEvent('round_start',{detail:state}))};
 const script=document.createElement('script');script.src='/dist/fieldwork.user.js';document.body.append(script);
+}
 </script>
