@@ -25,7 +25,7 @@ You need a GeoGuessr account that can create maps (Map Maker) and a desktop brow
 2. **Install Fieldwork:** open <https://sethmorton.github.io/fieldwork/fieldwork.user.js> and confirm in Tampermonkey.
 3. **Make a practice map and bind it.** In [Map Maker](https://www.geoguessr.com/map-maker), create a new map whose name starts with `Fieldwork` (for example `Fieldwork - World practice`), add any location and save. Open a fresh tab on that map's Map Maker page. The panel asks **Use this map for practice?** Pick the pack this map is for, then press **Continue practice**.
 
-Fieldwork replaces the map's locations with each new set, so never use a map you want to keep. Bookmark `https://www.geoguessr.com/maps/<your map ID>` and press **Continue practice** there next time. Want a second pack? Make a second `Fieldwork` map and bind it to that pack.
+Fieldwork replaces the map's locations with each new set, so never use a map you want to keep. Bookmark `https://www.geoguessr.com/maps/<your map ID>` and press **Continue practice** there next time. Want a second pack? Make a second `Fieldwork` map and bind it to that pack. Deleted a practice map? Make a new `Fieldwork` map and pick the pack there (**move here**). Your progress stays.
 
 If the panel does not appear: check that the script is enabled, that the map name starts with `Fieldwork`, that you are signed in as its owner, and open a new tab. More in [setup and troubleshooting](docs/SETUP.md#troubleshooting).
 
