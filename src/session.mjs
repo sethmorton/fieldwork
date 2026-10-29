@@ -54,6 +54,8 @@ export function recordRecognition(pack,history,round,{recognized,knew=false,fami
   const attempt={id:round.id,skillId:round.location.skillIds[0],occurredAt:now.toISOString(),
     correct:recognitionDecides?recognized:correct,regionCorrect:correct,evidenceValid:recognized,confidence:recognized&&knew?3:2,unfamiliar:!familiar&&!wasSeen,
     ...(recognized&&knew?{grade:'easy'}:{}),
+    // Region packs: the pinned region (rule checks pair it with the true one), the rule check this round was, a warm-up close pin.
+    ...(round.guessedRegion?{guessedRegion:round.guessedRegion}:{}),...(round.ruleCheck?{ruleCheck:round.ruleCheck}:{}),...(round.close?{close:true}:{}),
     locationRef:round.location.id,mode:assumed||round.location.assessmentEligible===false||(!skill.recognitionOnly&&correct===null)?'practice':'assessment',feedbackSource:assumed?'assumed-on-advance':auto?'auto':'explicit',
     reason:(assumed?'Recognition assumed on advance by learner preference; not verified mastery evidence.'
       :round.location.assessmentEligible===false?'Source teaching example; practice only, not unseen assessment evidence.'

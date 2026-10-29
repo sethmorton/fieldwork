@@ -1,4 +1,4 @@
-import {sprintStatus} from './sprint.mjs';
+import {sprintStatus,modeLabel} from './sprint.mjs';
 
 // Pure logic behind the sprint review card: grades, the card's status chip, the round-5 recap order, the session bar
 // and the drill keys. DOM lives in ui.mjs.
@@ -35,14 +35,22 @@ export function sessionBar(pack,attempts,{now=Date.now(),store=localStorage}={})
   const scored=rounds.filter(graded),spotted=scored.filter(attempt=>gradeOf(attempt)!=='missed').length;
   const seconds=Math.floor((now-start)/1000),clock=`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;
   const retired=[...sprintStatus(pack,attempts).values()].filter(item=>item.state==='retired').length;
-  return {text:[`Today ${rounds.length} round${rounds.length===1?'':'s'}${scored.length?`, ${Math.round(100*spotted/scored.length)}% spotted`:''}`,`Block ${clock}`,`Retired ${retired}/${pack.skills.length}`].join(' · '),
+  return {text:[`Today ${rounds.length} round${rounds.length===1?'':'s'}${scored.length?`, ${Math.round(100*spotted/scored.length)}% spotted`:''}`,`Block ${clock}`,`Retired ${retired}/${pack.skills.length}`,
+    modeLabel(pack,attempts)].filter(Boolean).join(' · '),
     rest:now-start>=BLOCK};
 }
+/** The n skills with the most graded misses, most first (ties: latest miss first). */
+export function mostMissed(pack,attempts,n=3) {
+  const misses=new Map();attempts.forEach((attempt,index)=>{if(gradeOf(attempt)==='missed')misses.set(attempt.skillId,[(misses.get(attempt.skillId)?.[0]??0)+1,index])});
+  return [...misses].sort(([,a],[,b])=>b[0]-a[0]||b[1]-a[1]).slice(0,n).map(([id])=>pack.skills.find(skill=>skill.id===id)).filter(Boolean);
+}
 
-/** Drill keys: 1/2/3 grade; at round 5, C or Enter continues. Typing in a field and modified keys are never drill keys. */
+/** Drill keys: 1/2/3 grade; M opens or closes a card's More; at round 5, C or Enter continues. Typing in a field and
+ *  modified keys are never drill keys. */
 export function drillKey(event,round) {
   const target=event.composedPath?.()[0]??event.target;
   if(event.ctrlKey||event.metaKey||event.altKey||/^(INPUT|TEXTAREA|SELECT)$/.test(target?.tagName??'')||target?.isContentEditable)return null;
   if(['1','2','3'].includes(event.key))return GRADES[Number(event.key)-1][0];
+  if(event.key.toLowerCase()==='m')return 'more';
   return round===5&&(event.key==='Enter'||event.key.toLowerCase()==='c')?'continue':null;
 }

@@ -3,7 +3,8 @@ import {practiceFeedback} from './session.mjs';
 import {curriculumProgress} from './lib/adaptive.ts';
 import {plainMessage} from './load-errors.mjs';
 import {renderAtlas,sprintSummary,richNote} from './atlas.mjs';
-import {GRADES,gradeOf,cardStatus,setRecap,sessionBar,drillKey} from './drill.mjs';
+import {GRADES,gradeOf,cardStatus,setRecap,sessionBar,drillKey,mostMissed} from './drill.mjs';
+import {dayChecks} from './sprint.mjs';
 import {vegCard} from './vegcard.mjs';
 export {completedRound} from './session.mjs'; // fixtures grade through dist/preview-ui.js
 const notSaved='This change could not be saved. Try again.';
@@ -76,6 +77,17 @@ function openAtlas(pack,attempts,opener,loadNote){
   document.body.append(host);dialog.showModal();
 }
 const atlasButton=(parent,pack,getAttempts,loadNote)=>button(parent,'Open atlas',function(){openAtlas(pack,getAttempts(),this,loadNote)});
+// The session routine (packs with a warm-up): cold sets, study the most-missed regions in the atlas, practice, checks.
+const ATLAS_PAGE='http://127.0.0.1:8790/trees/#';
+function routine(section,pack,attempts){
+  const list=text(section,'ol','','routine muted'),study=mostMissed(pack,attempts);
+  text(list,'li','Cold: 2 sets');
+  const item=text(list,'li',study.length?'Study: ':'Study: your 3 most-missed regions, once you have misses');
+  study.forEach((skill,index)=>{const link=text(item,'a',skill.title);link.href=ATLAS_PAGE+skill.region;link.target='_blank';link.rel='noopener';
+    if(index<study.length-1)item.append(', ')});
+  text(list,'li','Practice: 2 sets');
+  text(list,'li',dayChecks(pack,attempts,Date.now()).length?'Checks: due now, your first set re-checks past misses':'Checks: next day and +7 days');
+}
 function header(section,label) {
   const head=document.createElement('header');section.append(head);text(head,'small',label);
   button(head,'⤢',()=>toggleWide(section),'close size');
@@ -194,7 +206,8 @@ function sprintReview(pack,round,{familiar=false,saved=false,attempts=[],getAtte
   }
   // Rounds 1-4 leave Space and Enter to GeoGuessr's own Next. The listener lives exactly as long as this panel.
   const onKey=event=>{
-    const action=drillKey(event,round.round),target=action==='continue'?next:buttons[GRADES.findIndex(([grade])=>grade===action)];
+    const action=drillKey(event,round.round);
+    const target=action==='continue'?next:action==='more'?card.querySelector('details.vfold>summary'):buttons[GRADES.findIndex(([grade])=>grade===action)];
     if(!target||target.disabled)return;
     event.preventDefault();event.stopPropagation();target.click();
   };
@@ -254,6 +267,7 @@ export function startPanel(pack,{onNext,onQuickCheck,onExport,onImport,onCoverag
   if(sprint)sessionLine(section,pack,attempts);
   text(section,'p',sprint?sprintSummary(pack,attempts):curriculumProgress(pack,attempts).message,'muted');
   const status=text(section,'p',message??(sprint?`${pack.answerAreaLabel}.`:`${pack.answerAreaLabel??pack.title}. At most two clues per family. New clues adapt to recent practice.`),'muted');status.setAttribute('role','status');
+  if(pack.warmup)routine(section,pack,attempts);
   const actions=document.createElement('div');actions.className='actions';section.append(actions);
   button(actions,'Continue practice',async function(){this.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=plainMessage(error);this.disabled=false}},'primary');
   if(sprint){if(pack.atlas)atlasButton(actions,pack,getAttempts,atlasNote);}

@@ -238,3 +238,13 @@ state. Each location carries its `state` cell and `cellShare`, that state's shar
 proxy pool. A region shows the cells it has never shown first, largest share first, then its least recently used
 panorama. It cannot become learned (so cannot retire) until every state cell it has a panorama in has been shown once.
 Packs without the field, such as `sprint-acow`, keep the plain rule.
+
+It also opts into coaching (`src/sprint.mjs`; both fields absent elsewhere, so other packs plan as before).
+`warmup` lists eight visually distinct regions. While under 30% of the last 20 graded rounds were spots, sets come only
+from them, and a pin in the true region's L2 family grades as a spot (`close`, shown as "≈ right area"); at 60% the full
+map returns. The mode is replayed from attempts and shown in the session line. `contrasts` holds one rule of at most 16
+words per region pair (duel confusions, key neighbours, five look-alikes per region), written offline by gpt-6-astra
+from the two regions' facts and cached in `local/usveg-contrasts.json`. A miss pinned in another region leads the card
+with that rule (else both vibe lines) and only the boxes it names; the comparison, other cues, trees and more panoramas
+sit behind More (M). The next set opens with an unseen panorama of the true region (else the pinned one), and the attempt
+records `ruleCheck` with the pair. The first set of a later day re-checks regions missed the day before or a week before.

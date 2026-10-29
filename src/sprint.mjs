@@ -17,6 +17,62 @@ const explicit=attempt=>attempt.feedbackSource!=='assumed-on-advance';
 // panorama. Packs without the field are unchanged.
 const requiredCells=(pack,locations)=>new Set(pack.cellCoverage?locations.filter(location=>location.state).map(location=>location.state):[]);
 
+// Opt-in coaching (us-vegetation). pack.warmup (region codes): while under 30% of the last 20 graded rounds were spots, picks
+// stay in those visually distinct regions, and a pin in the right L2 family counts as close; at 60% the full map returns.
+// The mode is replayed from attempts, never stored. pack.contrasts: after a miss pinned in another region (A true, B pinned),
+// the next set opens with a panorama of A (else B) the learner has not seen, a rule check; the first set of a later day
+// re-checks regions missed the day before or a week before, on unseen panoramas.
+const WARMUP_IN=0.3,WARMUP_OUT=0.6,WINDOW=20,RULE_CHECKS=2,RULE_WINDOW=10,DAY=864e5;
+const graded=attempts=>attempts.filter(attempt=>explicit(attempt)&&typeof attempt.correct==='boolean');
+export function warmupOn(pack,attempts){
+  if(!pack.warmup?.length)return false;
+  const list=graded(attempts);let on=false;
+  for(let end=WINDOW;end<=list.length;end++){
+    const rate=list.slice(end-WINDOW,end).filter(attempt=>attempt.correct).length/WINDOW;
+    on=on?rate<WARMUP_OUT:rate<WARMUP_IN;
+  }
+  return on;
+}
+/** The muted status line's mode: 'Warm-up: 8 regions' or 'Full map'. Null for packs without pack.warmup. */
+export const modeLabel=(pack,attempts)=>!pack.warmup?.length?null:warmupOn(pack,attempts)?`Warm-up: ${pack.warmup.length} regions`:'Full map';
+export const pairKey=(a,b)=>[a,b].sort().join('|');
+/** Pending rule checks, newest miss first: {pair, regions: [true, pinned]} for misses in the last RULE_WINDOW attempts that
+ *  pinned another pack region, with no later attempt on either region. */
+export function pendingRuleChecks(pack,attempts){
+  if(!pack.contrasts)return [];
+  const regionOf=new Map(pack.skills.map(skill=>[skill.id,skill.region])),regions=new Set(regionOf.values()),out=[];
+  attempts.slice(-RULE_WINDOW).forEach((attempt,index,recent)=>{
+    const a=regionOf.get(attempt.skillId),b=attempt.guessedRegion;
+    if(attempt.correct!==false||!explicit(attempt)||!regions.has(b)||a===b)return;
+    if(recent.slice(index+1).some(later=>[a,b].includes(regionOf.get(later.skillId))))return;
+    out.unshift({pair:pairKey(a,b),regions:[a,b]});
+  });
+  return out;
+}
+/** The pair a location checks, when it is an unseen panorama of a region in a pending rule check. */
+export function ruleCheckFor(pack,attempts,location){
+  if(attempts.some(attempt=>attempt.locationRef===location.id))return null;
+  return pendingRuleChecks(pack,attempts).find(check=>check.regions.includes(location.region))?.pair??null;
+}
+/** Close: while warming up, a wrong pin in the true region's L2 family. */
+export function closeCall(pack,attempts,round){
+  if(round.correct!==false||!warmupOn(pack,attempts))return false;
+  const l2=region=>pack.skills.find(skill=>skill.region===region)?.l2;
+  return !!l2(round.location.region)&&l2(round.guessedRegion)===l2(round.location.region);
+}
+const dayOf=time=>{const date=new Date(time);date.setHours(0,0,0,0);return date.getTime()};
+/** Skill ids due a day check (first set of a day only): missed on an earlier day, then not tried since, or tried but not
+ *  yet a week after that miss once the week has passed. Latest miss first. */
+export function dayChecks(pack,attempts,now){
+  const today=dayOf(now);
+  if(!pack.contrasts||attempts.some(attempt=>dayOf(attempt.occurredAt)===today))return [];
+  return [...Map.groupBy(attempts.filter(explicit),attempt=>attempt.skillId)].map(([id,list])=>{
+    const missed=Math.max(...list.filter(attempt=>attempt.correct===false).map(attempt=>dayOf(attempt.occurredAt)));
+    const after=list.map(attempt=>dayOf(attempt.occurredAt)).filter(day=>day>missed);
+    const due=missed>-Infinity&&(!after.length||(today-missed>=7*DAY&&!after.some(day=>day-missed>=7*DAY)));
+    return due&&{id,missed};
+  }).filter(Boolean).sort((a,b)=>b.missed-a.missed).map(({id})=>id);
+}
 // Internal state adds 'learned': awaiting its next-session check since `learnedAt`.
 function progress(pack,attempts) {
   const bySkill=Map.groupBy(attempts,attempt=>attempt.skillId),panos=Map.groupBy(pack.locations??[],location=>location.skillIds[0]);
@@ -60,13 +116,24 @@ export function planSprint(pack,attempts,{size=5,now=Date.now()}={}) {
     return {skill,state,dueAt};
   });
   if(all.every(item=>item.state==='retired')) throw notice('Sprint complete: every clue spotted twice.');
-  const isDue=item=>item.dueAt!==null&&item.dueAt<=clock;
-  const fresh=all.filter(item=>item.state==='new');
-  const seen=all.filter(item=>item.dueAt!==null).sort((a,b)=>a.dueAt-b.dueAt);
+  const isDue=item=>item.dueAt!==null&&item.dueAt<=clock,warm=warmupOn(pack,attempts);
+  const pool=warm?all.filter(item=>pack.warmup.includes(item.skill.region)):all;
+  const fresh=pool.filter(item=>item.state==='new');
+  const seen=pool.filter(item=>item.dueAt!==null).sort((a,b)=>a.dueAt-b.dueAt);
   const due=seen.filter(isDue);
   // Endgame: retired clues and learned ones awaiting their check, least recently shown first, keep the set full.
-  const resting=all.filter(item=>item.state!=='new'&&item.dueAt===null).sort((a,b)=>lastRound.get(a.skill.id)-lastRound.get(b.skill.id));
+  const resting=pool.filter(item=>item.state!=='new'&&item.dueAt===null).sort((a,b)=>lastRound.get(a.skill.id)-lastRound.get(b.skill.id));
   const picks=[],countries=new Set(),cap=fresh.length?DUE_CAP:size,poles=item=>item.skill.subject==='poles';
+  // Coaching first (any region, warm-up or not): rule checks of the latest misses, then a new day's checks. A region
+  // qualifies only with a panorama the learner has not seen, which pick() then takes (unused first).
+  // ponytail: a set is published whole, so a miss in round 1 is checked 5 to 9 rounds later; round 5 misses within 1 to 3.
+  const shown=new Set(attempts.map(attempt=>attempt.locationRef)),bySkill=new Map(all.map(item=>[item.skill.id,item]));
+  const unseen=item=>item&&locations.get(item.skill.id).some(location=>!shown.has(location.id));
+  const ofRegion=region=>all.find(item=>item.skill.region===region);
+  const checks=pendingRuleChecks(pack,attempts).map(({regions:[a,b]})=>unseen(ofRegion(a))?ofRegion(a):unseen(ofRegion(b))?ofRegion(b):null)
+    .filter(Boolean).slice(0,RULE_CHECKS);
+  const coached=[...checks,...dayChecks(pack,attempts,nowMs).map(id=>bySkill.get(id)).filter(unseen)];
+  for(const item of coached)if(picks.length<size&&!picks.includes(item)){picks.push(item);countries.add(item.skill.country??item.skill.id);}
   const take=(list,{perCountry=true,capped=true}={})=>{
     for(const item of list){
       if(picks.length>=size) return;
@@ -87,8 +154,9 @@ export function planSprint(pack,attempts,{size=5,now=Date.now()}={}) {
   take([...seen,...fresh],{perCountry:false});
   take([...seen,...fresh],{perCountry:false,capped:false});
   take(resting,{perCountry:false});
-  const counts=[['new',picks.filter(item=>item.state==='new')],['due',picks.filter(isDue)],
-    ['early review',picks.filter(item=>item.dueAt>clock)],['refresher',picks.filter(item=>resting.includes(item))]]
+  const plain=picks.filter(item=>!coached.includes(item));
+  const counts=[['rule check',checks],['day check',coached.filter(item=>!checks.includes(item))],['new',plain.filter(item=>item.state==='new')],
+    ['due',plain.filter(isDue)],['early review',plain.filter(item=>item.dueAt>clock)],['refresher',plain.filter(item=>resting.includes(item))]]
     .filter(([,list])=>list.length).map(([label,list])=>`${list.length} ${label}`);
   // Unused panoramas first (-1), otherwise the least recently used one. Ties keep pack order. With cellCoverage, a cell
   // (state) this clue never showed comes first, largest cellShare first.

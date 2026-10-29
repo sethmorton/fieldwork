@@ -11,6 +11,10 @@
     its own region with src/geo.mjs's even-odd, first-match rule, else that region is re-simplified finer, else dropped
   - vegMap: Albers USA (d3.geoAlbersUsa constants, Alaska/Hawaii insets) SVG path per region, and per species the
     regions where it is a key tree or >= 3% of biomass (coach.js rangeOf), for the card's small maps
+  - warmup: WARMUP, eight visually distinct regions the sprint scheduler narrows to while the learner is struggling
+  - contrasts: {'A|B' (sorted codes): {rule, features: {code: [feature ids]}}}, one conditional rule of at most 16 words
+    per pair the learner can confuse (duel confusions, key neighbours, top SIMILAR look-alikes per region), written by
+    CONTRAST_MODEL from the two regions' facts only and cached in local/usveg-contrasts.json (rebuilds reuse it)
 Images are not copied: scripts/serve.mjs serves trees/img read-only under /usveg-img/ (config `usvegImages`).
 Env: TREES (default ~/Desktop/code/fieldwork-site/trees), WORLD_PACK_DATA (duels/rounds.json; optional).
 Self-check: python3 tools/world-pack/usveg.py check
@@ -37,6 +41,10 @@ GRADE_TOL, MAP_TOL = 0.02, 1.2  # degrees (~2 km) for grading; SVG px (960-wide 
 GAME_SETTINGS = {'forbidMoving': True, 'forbidZooming': False, 'forbidRotating': False, 'timeLimit': 90}
 RECENT_HOURS = 24
 SEASONS = ('leaf-on', 'green', 'leaf-off', 'dormant')
+# Desert, Pacific conifer, Great Plains grass, southern pine, northern hardwoods, Florida subtropics, Rockies, California oak.
+WARMUP = ('10.2.1', '7.1.8', '9.3.3', '8.3.5', '5.3.1', '15.4.1', '6.2.10', '11.1.1')
+CONTRAST_MODEL, SIMILAR, RULE_WORDS = 'gpt-6-astra', 5, 16
+CONTRASTS = REPO / 'local/usveg-contrasts.json'
 
 
 # ---- geometry (stdlib only)
@@ -235,7 +243,7 @@ def build(data, geo):
                  for f in r.get('features', [])]
         key = r.get('key') or {}
         skills.append({'id': f'usveg:{code}', 'title': r['name'], 'phase': 'Vegetation', 'practiceFamily': f"usveg:{r.get('l1', '')}",
-                       'prerequisites': [], 'availability': 'available', 'subject': 'vegetation', 'region': code, 'l1': r.get('l1'),
+                       'prerequisites': [], 'availability': 'available', 'subject': 'vegetation', 'region': code, 'l1': r.get('l1'), 'l2': r.get('l2'),
                        'why': key.get('vibe') or r.get('group') or '', 'lost': (r.get('rounds') or {}).get('ptsLost', 0),
                        **({'recent': True} if code in recent else {}), 'features': feats,
                        'trees': [{'species': s, 'name': (sp(s) or {}).get('common', s.replace('-', ' ')), **({'ref': ref(s)} if ref(s) else {}),
@@ -291,7 +299,8 @@ def build(data, geo):
     view = [math.floor(min(xs)) - 4, math.floor(min(ys)) - 4, math.ceil(max(xs) - min(xs)) + 8, math.ceil(max(ys) - min(ys)) + 8]
     pack = {'id': 'us-vegetation', 'title': 'US Vegetation', 'subject': 'GeoGuessr', 'schemaVersion': 1,
             'contentRevision': revision(), 'scheduler': 'sprint', 'gradingPolicy': 'recognition', 'card': 'veg',
-            'gameSettings': GAME_SETTINGS, 'cellCoverage': True, 'initialSkillIds': [], 'imageBase': IMAGE_BASE,
+            'gameSettings': GAME_SETTINGS, 'cellCoverage': True, 'warmup': [c for c in WARMUP if c in {loc['region'] for loc in kept}],
+            'contrasts': contrasts(eco, {loc['region'] for loc in kept}, order), 'initialSkillIds': [], 'imageBase': IMAGE_BASE,
             'answerAreaLabel': f"{len({loc['region'] for loc in kept})} US ecoregions, {len(kept)} panoramas, graded by the ecoregion you pin",
             'coverageSummary': f"Tree Atlas drive panoramas with coach giveaways (fieldwork-site/trees, {data.get('generated', '')}); EPA Level III ecoregions.",
             'skills': skills, 'locations': kept,
@@ -300,6 +309,76 @@ def build(data, geo):
             'vegMap': {'viewBox': view, 'regions': paths,
                        'species': {s: range_of(eco, s) for s in sorted(used)}}}
     return pack, dropped
+
+
+def similarity(a, b):
+    """Look-alike score: shared forest (forest-type shares x forest share, plus the open share) and shared feature ids."""
+    def mix(r):
+        ab = r.get('abundance') or {}
+        f = ab.get('forestShare', 0)
+        return {'open': 1 - f, **{t['group']: f * t['share'] for t in ab.get('forestTypes', [])}}
+    ma, mb = mix(a), mix(b)
+    fa, fb = {f['id'] for f in a.get('features', [])}, {f['id'] for f in b.get('features', [])}
+    return sum(min(v, mb.get(k, 0)) for k, v in ma.items()) + 0.5 * len(fa & fb) / (len(fa | fb) or 1)
+
+
+def confused_pairs():
+    """(true, pinned) region pairs from Seth's US duel rounds where his guess landed in another region."""
+    path = WORLD / 'duels/rounds.json'
+    if not path.exists():
+        return []
+    return [r for r in json.loads(path.read_text()) if r.get('countryCode') == 'US' and (r.get('myGuess') or {}).get('lat') is not None]
+
+
+def contrast_pairs(eco, playable, duels=()):
+    """Sorted code pairs with a playable side: duel confusions, key neighbours, each region's SIMILAR closest look-alikes."""
+    pairs = set()
+    for r in duels:
+        pairs.add(tuple(sorted((r[0], r[1]))))
+    for code in playable:
+        pairs |= {tuple(sorted((code, n['code']))) for n in (eco[code].get('key') or {}).get('neighbours') or [] if n['code'] in eco}
+        near = sorted((c for c in eco if c != code), key=lambda c: -similarity(eco[code], eco[c]))[:SIMILAR]
+        pairs |= {tuple(sorted((code, c))) for c in near}
+    return sorted(p for p in pairs if p[0] != p[1])
+
+
+def facts(code, r):
+    key, ab = r.get('key') or {}, r.get('abundance') or {}
+    return {'code': code, 'name': r['name'], 'family': [r.get('l1'), r.get('l2')], 'vibe': key.get('vibe'), 'tells': key.get('tells', []),
+            'keyTrees': key.get('trees', []), 'features': {f['id']: f['name'] for f in r.get('features', [])},
+            'forestShare': ab.get('forestShare'), 'forestTypes': ab.get('forestTypes', []), 'landCover': ab.get('landCover')}
+
+
+def rule_ok(answer, a, b, eco):
+    """A cached answer as a pack entry, its feature ids kept only where the region has them; None past RULE_WORDS words."""
+    rule = ' '.join(answer.get('rule', '').split())
+    if not rule or len(rule.split()) > RULE_WORDS:
+        return None
+    ids = lambda code, got: [i for i in got if i in {f['id'] for f in eco[code].get('features', [])}][:2]
+    return {'rule': rule, 'features': {a: ids(a, answer.get('featuresA', [])), b: ids(b, answer.get('featuresB', []))}}
+
+
+def contrasts(eco, playable, features):
+    """The pack's contrasts map. CONTRAST_MODEL (one codex call per pair, curate.ask_cached) answers only pairs missing from
+    the CONTRASTS cache. Without a rule for a pair the card falls back to the two vibe lines."""
+    import curate
+    duels = [(region_at(r['view']['lat'], r['view']['lng'], features), region_at(r['myGuess']['lat'], r['myGuess']['lng'], features))
+             for r in confused_pairs()]
+    pairs = contrast_pairs(eco, playable, [d for d in duels if None not in d and d[0] != d[1]])
+    prompts = {(a, b): (
+        'Two US ecoregions a GeoGuessr player confuses from a Street View panorama. Using ONLY the facts below, write ONE '
+        f'conditional rule of at most {RULE_WORDS} words that tells them apart by what is visible from a road, in the form '
+        "'<visible cue> = <short name A>. <visible cue> = <short name B>.' If the facts give no visible separator, say the "
+        'view cannot separate them and name the shared look. Then list the feature ids (from each region\'s features) the '
+        'rule relies on, at most two per region.\n'
+        f'A: {json.dumps(facts(a, eco[a]))}\nB: {json.dumps(facts(b, eco[b]))}') for a, b in pairs}
+    schema = {'type': 'object', 'additionalProperties': False, 'required': ['rule', 'featuresA', 'featuresB'],
+              'properties': {'rule': {'type': 'string'}, 'featuresA': {'type': 'array', 'items': {'type': 'string'}},
+                             'featuresB': {'type': 'array', 'items': {'type': 'string'}}}}
+    answers = curate.ask_cached(CONTRASTS, prompts, schema, CONTRAST_MODEL)
+    out = {f'{a}|{b}': entry for (a, b), answer in answers.items() if (entry := rule_ok(answer, a, b, eco))}
+    print(f'contrasts: {len(out)} of {len(pairs)} pairs have a rule', file=sys.stderr)
+    return out
 
 
 def check():
@@ -316,6 +395,11 @@ def check():
     assert weighted_cost(0.03, 0) > weighted_cost(0.01, 1), 'a duel loss lifts a region but cannot outrank 3x its share'
     assert look({'silhouette': 'A tall deciduous tree. More.', 'features': ['Leaves big.', 'Bark is grey and smooth.']}) == 'A tall deciduous tree. Bark is grey and smooth'
     assert len(look({'silhouette': ' '.join(['w'] * 30)}).split()) == 16
+    eco = {'A': {'features': [{'id': 'oak'}]}, 'B': {'features': [{'id': 'pine'}], 'key': {'neighbours': [{'code': 'A'}]}}}
+    assert rule_ok({'rule': 'Oaks = A. Pines = B.', 'featuresA': ['oak', 'nope'], 'featuresB': ['pine']}, 'A', 'B', eco) == \
+        {'rule': 'Oaks = A. Pines = B.', 'features': {'A': ['oak'], 'B': ['pine']}}
+    assert rule_ok({'rule': ' '.join(['w'] * 17)}, 'A', 'B', eco) is None, 'a rule past 16 words falls back to the vibes'
+    assert contrast_pairs(eco, {'B'}) == [('A', 'B')]
     print('ok')
 
 

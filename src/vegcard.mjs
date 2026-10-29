@@ -1,13 +1,18 @@
 // US Vegetation card (pack.card 'veg', tools/world-pack/usveg.py): the Tree Atlas reveal, compact. Top line, the still with
 // numbered boxes beside the "So" map, one tile per cue (crop of its box, first clause big, species range and photo),
 // then the same feature in other panoramas of the region. Images come through loadImage (object URLs; on GeoGuessr a
-// GM blob request to the local installer), so nothing here fetches cross-origin itself.
+// GM blob request to the local installer), so nothing here fetches cross-origin itself. A miss leads with one contrast rule
+// (pack.contrasts, else both vibe lines) and only the boxes it names; the rest sits behind More (M).
+import {pairKey} from './sprint.mjs';
 const COLS=['#22d3ee','#fb923c','#facc15','#c084fc','#4ade80','#f472b6'],W=1600,H=1000,MAX_ZOOM=1.25,TILE=1.9;
 const CSS=`
 .veg{display:grid;gap:10px}.veg figure{margin:0}.veg .img{background:#c9d8de center/cover no-repeat;border-radius:6px;position:relative;cursor:zoom-in;overflow:hidden}
 .vtop{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:4px 0 0;font:700 21px/1.2 'Trebuchet MS',Arial,sans-serif}.vtop.ok{color:#276b50}.vtop.bad{color:#b4471a}
 .verr{margin:0;padding:6px 10px;border-radius:6px;background:#fbeee4;color:#7d3410;font:600 13px/1.3 Arial}
 .vtop .st{font-weight:400;color:#496b79}.vtop small{font:600 14px/1.3 Arial,sans-serif;text-transform:none;letter-spacing:0;color:#7d3410}
+.vrule{margin:0;font:700 24px/1.25 'Trebuchet MS',Arial,sans-serif;color:#0f2c37}.vrule.two{font-size:17px;font-weight:600}
+.vcheck{margin:0;font:600 13px/1.3 Arial;color:#496b79;text-transform:uppercase;letter-spacing:.05em}
+.vfold>summary{cursor:pointer;font:600 13px/1.3 Arial;color:#496b79;padding:2px 0}.vfold>summary kbd{margin-left:4px;padding:0 5px;border:1px solid #9fb3bb;border-radius:3px;font:600 11px Arial}.vfold[open]{display:grid;gap:10px}
 .vrow{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:10px;align-items:start}
 .vstill{aspect-ratio:1.6}.vbox{position:absolute;border:2.5px solid var(--c);border-radius:3px;box-shadow:0 0 0 1px #0008,inset 0 0 0 1px #0006;pointer-events:none}
 .vbox b{position:absolute;left:0;top:0;min-width:18px;padding:0 4px;background:var(--c);color:#0b1d24;font:700 12px/16px Arial;text-align:center;border-radius:0 0 3px 0}
@@ -171,19 +176,28 @@ export function vegCard(card,skill,round,pack,{loadImage,seen=new Set()}){
       if(tree.ref)image(el(chip,'div','img'),tree.ref,{caption:tree.name});else el(chip,'span','img none');
       const words=el(chip,'div');el(words,'b',null,tree.name);if(lines&&tree.line)el(words,'small',null,tree.line);}
     return list};
-  // Top line: geography decides it; 1/2/3 still grade recognition below.
-  const top=el(veg,'p',`vtop ${round.correct?'ok':'bad'}`),pinned=!round.correct&&pack.skills.find(item=>item.region===round.guessedRegion);
-  el(top,'span',null,`${round.correct?'✓':'✗'} ${skill.title}`);if(loc.state)el(top,'span','st',loc.state);
-  if(!round.correct&&round.guess)el(top,'small',null,`you pinned ${pinned?.title??'outside the US regions'}, ${km(round.guess,loc).toLocaleString('en-US')} km`);
+  // Top line: geography decides it; 1/2/3 still grade recognition below. A warm-up close pin (right L2 family) reads ≈.
+  const wrong=!round.correct,top=el(veg,'p',`vtop ${wrong&&!round.close?'bad':'ok'}`),pinned=wrong&&pack.skills.find(item=>item.region===round.guessedRegion);
+  el(top,'span',null,`${!wrong?'✓':round.close?'≈ right area:':'✗'} ${skill.title}`);if(loc.state)el(top,'span','st',loc.state);
+  if(wrong&&round.guess)el(top,'small',null,`you pinned ${pinned?.title??'outside the US regions'}, ${km(round.guess,loc).toLocaleString('en-US')} km`);
+  if(round.ruleCheck)el(veg,'p','vcheck',`Rule check: ${round.ruleCheck.split('|').map(code=>pack.skills.find(item=>item.region===code)?.title??code).join(' vs ')}`);
   const {featureOf,groups}=groupsOf(skill,loc);
+  // A miss leads with one contrast rule and only the boxes it names (else the view's top two); everything else waits in More.
+  const takeaway=wrong&&(pinned?contrast(pack,skill,pinned):{lines:[skill.why].filter(Boolean),features:[]});
+  if(takeaway)takeaway.lines.forEach(line=>el(veg,'p',takeaway.lines.length>1?'vrule two':'vrule',line));
+  const named=takeaway&&groups.map((group,i)=>i).filter(i=>takeaway.features.includes(groups[i].gs[0].feature)).slice(0,2);
+  const boxedGroups=!takeaway?groups.map((group,i)=>i):named.length?named:[0,1].filter(i=>i<groups.length);
   const row=el(veg,'div','vrow'),still=image(el(row,'figure','img vstill'),loc.img,{location:loc});still.setAttribute('aria-label',`${skill.title}: this round's view`);
-  allBoxes(still,loc);
+  for(const i of boxedGroups)groups[i].gs.forEach(g=>boxed(still,g.box,groups[i].F.col,String(i+1)));
   const so=el(row,'div','vso');el(so,'p',null,'So:');el(so,'strong',null,skill.title);
-  regionMap(so,pack,code=>code===skill.region?'#0b5d3b':!round.correct&&code===round.guessedRegion?'#efb08c':'#d5dcd8',{pin:round.correct?null:round.guess,focus:skill.region});
-  if(skill.why)el(so,'p','vibe',skill.why);
-  // Wrong pin inside a region: that region beside this one, from the pack's own panoramas and key trees.
+  regionMap(so,pack,code=>code===skill.region?'#0b5d3b':wrong&&code===round.guessedRegion?'#efb08c':'#d5dcd8',{pin:wrong?round.guess:null,focus:skill.region});
+  if(!wrong&&skill.why)el(so,'p','vibe',skill.why);
+  // Right pins keep the first three cue tiles in view. More (M) holds the rest: the wrong-pin comparison, other cues,
+  // key trees and the same feature in other panoramas of this region.
+  if(!wrong)cueTiles(veg,groups.slice(0,3).map((group,i)=>i));
+  const fold=el(veg,'details','vfold'),summary=el(fold,'summary',null,'More ');el(summary,'kbd',null,'M');
   if(pinned){
-    const compare=el(veg,'div','vcmp');
+    const compare=el(fold,'div','vcmp');
     for(const [owner,label,cls] of [[pinned,'You pinned','pin'],[skill,'It was','was']]){
       const column=el(compare,'div',cls),head=el(column,'p','vlab');el(head,'span',null,`${label}: `);el(head,'b',null,owner.title);
       if(owner.why)el(column,'p','vvibe',owner.why);
@@ -192,32 +206,43 @@ export function vegCard(card,skill,round,pack,{loadImage,seen=new Set()}){
       trees(column,owner,true);
     }
   }
-  const cues=el(veg,'div','vcues');
-  groups.slice(0,4).forEach(({gs,F},i)=>{
-    const tile=el(cues,'div','vcue');tile.style.setProperty('--c',F.col);
-    const window=cropWindow(gs[0].box,180,TILE),crop=image(el(tile,'div','img'),loc.img,{location:loc}),[x0,y0,cw,ch]=window;
-    crop.style.backgroundSize=`${100/cw}% ${100/ch}%`;crop.style.backgroundPosition=`${cw<1?x0/(1-cw)*100:0}% ${ch<1?y0/(1-ch)*100:0}%`;
-    boxed(crop,gs[0].box,F.col,'',window);
-    const [big,rest]=clauses(gs[0].text),line=el(tile,'div','big');el(line,'i',null,String(i+1));line.append(big);
-    if(rest)el(tile,'div','vrest',rest);
-    if(F.species){
-      // The species photo beside its range (regions where it is a key tree or >= 3% of biomass), this region outlined.
-      const sp=el(tile,'div','vsp'),range=new Set(pack.vegMap.species?.[F.species]??[]),name=skill.trees?.find(t=>t.species===F.species)?.name??F.name;
-      if(F.ref)image(el(sp,'div','img'),F.ref,{caption:name});else el(sp,'span');
-      regionMap(sp,pack,code=>range.has(code)?F.col:'#e3e9ec',{region:skill.region});
-      // Only the panorama's own labels (its species list or per-tree labels) say what this tree is; a feature's species is
-      // what is common in the region, not a claim about this view.
-      const named=loc.species?.includes(F.species)||loc.trees?.some(tree=>tree.species===F.species);
-      const caption=el(sp,'small',named?'named':'common',named?`This is ${name}`:`Common here: ${name}`);caption.title=`${name}: key tree or at least 3% of biomass in ${range.size} regions`;
-    }
-  });
-  // Right pins: this region's key trees. Wrong pins carry both regions' trees in the comparison above, and its "It was"
-  // panoramas stand in for the recurrence strip, which keeps the card short.
-  if(!pinned&&skill.trees?.length){const strip=el(veg,'div','vhere');el(strip,'p',null,'Trees here');trees(strip,skill,true);}
-  const more=pinned?[]:recurrence(pack,skill,loc,groups);
+  if(wrong)cueTiles(fold,groups.slice(0,4).map((group,i)=>i).filter(i=>!boxedGroups.includes(i)));
+  if(!pinned&&skill.trees?.length){const strip=el(fold,'div','vhere');el(strip,'p',null,'Trees here');trees(strip,skill,true);}
+  const more=recurrence(pack,skill,loc,groups);
   if(more.length){
-    const strip=el(veg,'div','vmore');el(strip,'p',null,`More ${skill.title}`);
+    const strip=el(fold,'div','vmore');el(strip,'p',null,`More ${skill.title}`);
     for(const {other,g} of more){const F=featureOf(g.feature),thumb=image(el(strip,'figure','img'),`t/${other.img}`,{full:other.img,location:other});
       thumb.title=`${other.state??''} ${other.season??''}`.trim();boxed(thumb,g.box,F.col,String(groups.findIndex(({gs})=>gs[0].feature===g.feature)+1))}
   }
+  if(!fold.children[1])fold.remove();
+  // One tile per cue (by group index): crop of its box, first clause big, species range and photo.
+  function cueTiles(parent,indexes){
+    if(!indexes.length)return;
+    const cues=el(parent,'div','vcues');
+    for(const i of indexes){const {gs,F}=groups[i];
+      const tile=el(cues,'div','vcue');tile.style.setProperty('--c',F.col);
+      const window=cropWindow(gs[0].box,180,TILE),crop=image(el(tile,'div','img'),loc.img,{location:loc}),[x0,y0,cw,ch]=window;
+      crop.style.backgroundSize=`${100/cw}% ${100/ch}%`;crop.style.backgroundPosition=`${cw<1?x0/(1-cw)*100:0}% ${ch<1?y0/(1-ch)*100:0}%`;
+      boxed(crop,gs[0].box,F.col,'',window);
+      const [big,rest]=clauses(gs[0].text),line=el(tile,'div','big');el(line,'i',null,String(i+1));line.append(big);
+      if(rest)el(tile,'div','vrest',rest);
+      if(F.species){
+        // The species photo beside its range (regions where it is a key tree or >= 3% of biomass), this region outlined.
+        const sp=el(tile,'div','vsp'),range=new Set(pack.vegMap.species?.[F.species]??[]),name=skill.trees?.find(t=>t.species===F.species)?.name??F.name;
+        if(F.ref)image(el(sp,'div','img'),F.ref,{caption:name});else el(sp,'span');
+        regionMap(sp,pack,code=>range.has(code)?F.col:'#e3e9ec',{region:skill.region});
+        // Only the panorama's own labels (its species list or per-tree labels) say what this tree is; a feature's species is
+        // what is common in the region, not a claim about this view.
+        const isNamed=loc.species?.includes(F.species)||loc.trees?.some(tree=>tree.species===F.species);
+        const caption=el(sp,'small',isNamed?'named':'common',isNamed?`This is ${name}`:`Common here: ${name}`);caption.title=`${name}: key tree or at least 3% of biomass in ${range.size} regions`;
+      }
+    }
+  }
+}
+/** The miss's takeaway for (true skill, pinned skill): the pack's contrast rule and the true region's feature ids it names,
+ *  or, with no rule for the pair, the two regions' vibe lines. */
+export function contrast(pack,skill,pinned){
+  const entry=pack.contrasts?.[pairKey(skill.region,pinned.region)];
+  return entry?{lines:[entry.rule],features:entry.features?.[skill.region]??[]}
+    :{lines:[`${skill.title}: ${skill.why}`,`${pinned.title}: ${pinned.why}`],features:[]};
 }
