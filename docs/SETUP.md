@@ -204,6 +204,7 @@ the current UI imports packs, not progress backups. Do not commit exports.
 | Publication/version error | Feedback remains local. Return to the map and retry; do not launch a stale set as if publication succeeded |
 | Port 8787 already in use | Stop the previous installer server; routine practice does not need it running |
 | Need a different map binding | Re-run setup for that map, rebuild, then import `dist/practice-pack.json` through **Content & progress** and update the userscript |
+| Deleted or replaced a public-install practice map | Create a new map whose name starts with `Fieldwork`, open its Map Maker page in a fresh tab and pick the pack (**move here**). Progress stays with the pack. A damaged stored binding is dropped at startup, so the pack is offered there too |
 
 ## Engine and content updates
 

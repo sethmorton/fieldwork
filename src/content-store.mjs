@@ -12,6 +12,7 @@ const REFRESH_MS=15*60000;
 const BODY_MS=120000;
 const parse=body=>{try{return JSON.parse(body)}catch{throw fail('format')}};
 const object=value=>typeof value==='object'&&value!==null;
+const ownedMap=id=>typeof id==='string'&&/^[a-f\d]{24}$/i.test(id)&&!/^0+$/.test(id);
 
 // GM storage (get/set/list/remove) holds learner state and small content pointers; it is loaded into every page.
 // Pack bodies live in `cache` (IndexedDB in the browser). Attempts, exposures, reviews and backups are never migrated.
@@ -32,10 +33,10 @@ export function createContentStore({get:gmGet,set:gmSet,list:gmList,remove:gmRem
   const entries=[...registered.values()];
   const maps=new Set();
   // Public installs ship unbound packs; the learner binds each to their own Fieldwork map in Map Maker.
+  // A damaged or shared binding (e.g. hand-edited storage) is dropped, never fatal: Map Maker offers that pack again.
   for(const entry of entries){
     if(entry.practiceMapId==null)continue;
-    if(!/^[a-f\d]{24}$/i.test(entry.practiceMapId)||/^0+$/.test(entry.practiceMapId)||maps.has(entry.practiceMapId))throw notice('Each pack needs a different dedicated owned practice map.');
-    maps.add(entry.practiceMapId);
+    if(ownedMap(entry.practiceMapId)&&!maps.has(entry.practiceMapId))maps.add(entry.practiceMapId);else delete entry.practiceMapId;
   }
   if(JSON.stringify(get('fieldwork:catalog',[]))!==JSON.stringify(entries))set('fieldwork:catalog',entries);
   // Copy into the cache before deleting from GM storage: an interrupted migration simply runs again.
@@ -150,11 +151,12 @@ export function createContentStore({get:gmGet,set:gmSet,list:gmList,remove:gmRem
     if(old)entries[entries.indexOf(old)]=entry;else entries.push(entry);
     set(headKey(pack.id),{key,revision:pack.contentRevision??0,auditKey:key+':audit',legacy:true,localOnly:true});set('fieldwork:catalog',entries);
   }
+  // Binding an already bound pack moves it, e.g. after its map was deleted. Progress is keyed by pack, not map.
   function bind(id,mapId){
     const entry=entryFor(id);
-    if(entry.practiceMapId)throw notice('This pack already has a practice map.');
-    if(!/^[a-f\d]{24}$/i.test(mapId)||/^0+$/.test(mapId)||entries.some(item=>item.practiceMapId===mapId))throw notice('Each pack needs a different dedicated owned practice map.');
+    if(!ownedMap(mapId)||entries.some(item=>item.practiceMapId===mapId))throw notice('Each pack needs a different dedicated owned practice map.');
     entry.practiceMapId=mapId;set('fieldwork:catalog',entries);
+    memory.clear();// cached packs carry the old map ID
   }
   return {catalog:entries,load,refresh,pinSet,pinGame,audit,add,bind};
 }

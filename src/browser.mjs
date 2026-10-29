@@ -107,14 +107,15 @@ async function preparePractice() {
 }
 let mounted='',lastShown='',revealRound='',revealChecks=0,lastState=null;
 const owned=new Map();
-// Public installs: offer unbound packs on the learner's own map-maker page when its saved name starts with "Fieldwork" (the check publishing repeats).
+// Public installs: on the learner's own unbound map-maker page whose saved name starts with "Fieldwork" (the check publishing
+// repeats), offer every pack: unbound ones first, then bound ones to move here (their old map may have been deleted).
 function offerBinding() {
-  const mapId=/^\/map-maker\/([a-f\d]{24})\/?$/i.exec(location.pathname)?.[1],unbound=packs.filter(item=>!item.practiceMapId);
-  if(!mapId||!unbound.length)return false;
+  const mapId=/^\/map-maker\/([a-f\d]{24})\/?$/i.exec(location.pathname)?.[1],choices=[...packs.filter(item=>!item.practiceMapId),...packs.filter(item=>item.practiceMapId)];
+  if(!mapId||!choices.length)return false;
   if(!owned.has(mapId))owned.set(mapId,request(`/api/v4/user-maps/drafts/${mapId}`).then(draft=>typeof draft?.name==='string'&&draft.name.startsWith('Fieldwork'),()=>false).then(ok=>{owned.set(mapId,ok);render()}));
   const ok=owned.get(mapId);
   if(ok===false)return false;
-  if(ok===true&&mounted!=='bind:'+mapId){bindPanel(unbound,{onBind:id=>{store.bind(id,mapId);remove();render()}});mounted='bind:'+mapId}
+  if(ok===true&&mounted!=='bind:'+mapId){bindPanel(choices,{onBind:id=>{store.bind(id,mapId);context='';remove();render()}});mounted='bind:'+mapId}
   return true;
 }
 const remove=()=>{for(const id of ['fieldwork-practice','fieldwork-atlas'])document.getElementById(id)?.remove();mounted=''};
