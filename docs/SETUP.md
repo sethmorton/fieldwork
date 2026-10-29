@@ -205,6 +205,7 @@ the current UI imports packs, not progress backups. Do not commit exports.
 | Port 8787 already in use | Stop the previous installer server; routine practice does not need it running |
 | Need a different map binding | Re-run setup for that map, rebuild, then import `dist/practice-pack.json` through **Content & progress** and update the userscript |
 | Deleted or replaced a public-install practice map | Create a new map whose name starts with `Fieldwork`, open its Map Maker page in a fresh tab and pick the pack (**move here**). Progress stays with the pack. A damaged stored binding is dropped at startup, so the pack is offered there too |
+| Games use random spots, not the published five | The map was created as **Polygonal regions** (draft `mode: "regions"`). GeoGuessr accepts the coordinate update with 200 OK but keeps playing its polygons, and a map's type cannot change. Fieldwork now refuses such maps. Create a **Handpicked locations** map named `Fieldwork …` and move the pack there |
 
 ## Engine and content updates
 
