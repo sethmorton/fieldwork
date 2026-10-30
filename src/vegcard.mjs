@@ -15,7 +15,7 @@ const CSS=`
 .vfold>summary{cursor:pointer;font:600 13px/1.3 Arial;color:#496b79;padding:2px 0}.vfold>summary kbd{margin-left:4px;padding:0 5px;border:1px solid #9fb3bb;border-radius:3px;font:600 11px Arial}.vfold[open]{display:grid;gap:10px}
 .vrow{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:10px;align-items:start}
 .vstill{aspect-ratio:1.6}.vbox{position:absolute;border:2.5px solid var(--c);border-radius:3px;box-shadow:0 0 0 1px #0008,inset 0 0 0 1px #0006;pointer-events:none}
-.vbox b{position:absolute;left:0;top:0;min-width:18px;padding:0 4px;background:var(--c);color:#0b1d24;font:700 12px/16px Arial;text-align:center;border-radius:0 0 3px 0}
+.vbox b{position:absolute;left:0;top:0;white-space:nowrap;min-width:18px;padding:0 4px;background:var(--c);color:#0b1d24;font:700 12px/16px Arial;text-align:center;border-radius:0 0 3px 0}
 .vso p{margin:0;font:600 12px/1.3 Arial;color:#496b79;text-transform:uppercase;letter-spacing:.05em}.vso strong{display:block;font:700 17px/1.2 'Trebuchet MS',Arial;color:#0b5d3b;text-transform:none;letter-spacing:0;margin:1px 0 4px}
 .vso .vibe{margin-top:6px;font:13px/1.35 Arial;color:#153946;text-transform:none;letter-spacing:0}
 .vmap{display:block;width:100%;height:auto}.vmap path{stroke:#fff;stroke-width:.6}.vmap .pin{fill:#e4572e;stroke:#fff;stroke-width:2.5}
@@ -180,15 +180,20 @@ export function vegCard(card,skill,round,pack,{loadImage,seen=new Set()}){
   const wrong=!round.correct,top=el(veg,'p',`vtop ${wrong&&!round.close?'bad':'ok'}`),pinned=wrong&&pack.skills.find(item=>item.region===round.guessedRegion);
   el(top,'span',null,`${!wrong?'✓':round.close?'≈ right area:':'✗'} ${skill.title}`);if(loc.state)el(top,'span','st',loc.state);
   if(wrong&&round.guess)el(top,'small',null,`you pinned ${pinned?.title??'outside the US regions'}, ${km(round.guess,loc).toLocaleString('en-US')} km`);
+  // ruleCheck is 'true|pinned' of the miss that set this check (sprint.mjs ruleCheckFor), named in that order.
   if(round.ruleCheck)el(veg,'p','vcheck',`Rule check: ${round.ruleCheck.split('|').map(code=>pack.skills.find(item=>item.region===code)?.title??code).join(' vs ')}`);
   const {featureOf,groups}=groupsOf(skill,loc);
-  // A miss leads with one contrast rule and only the boxes it names (else the view's top two); everything else waits in More.
-  const takeaway=wrong&&(pinned?contrast(pack,skill,pinned):{lines:[skill.why].filter(Boolean),features:[]});
-  if(takeaway)takeaway.lines.forEach(line=>el(veg,'p',takeaway.lines.length>1?'vrule two':'vrule',line));
-  const named=takeaway&&groups.map((group,i)=>i).filter(i=>takeaway.features.includes(groups[i].gs[0].feature)).slice(0,2);
+  // A miss leads with this panorama's giveaway that best separates the true region from the pinned one, with only its box
+  // (labelled); with none above HEADLINE_MIN, the pair's contrast rule and the boxes it names (else the view's top two).
+  // Everything else waits in More.
+  const lead=wrong&&pinned&&round.guess?headline(skill,pinned,loc,round.guess):null;
+  const takeaway=lead??(wrong&&(pinned?contrast(pack,skill,pinned):{lines:[skill.why].filter(Boolean),features:[]}));
+  if(takeaway)takeaway.lines.forEach((line,i)=>el(veg,'p',takeaway.lines.length===1||lead&&!i?'vrule':'vrule two',line));
+  const named=lead?[lead.index]:takeaway&&groups.map((group,i)=>i).filter(i=>takeaway.features.includes(groups[i].gs[0].feature)).slice(0,2);
   const boxedGroups=!takeaway?groups.map((group,i)=>i):named.length?named:[0,1].filter(i=>i<groups.length);
   const row=el(veg,'div','vrow'),still=image(el(row,'figure','img vstill'),loc.img,{location:loc});still.setAttribute('aria-label',`${skill.title}: this round's view`);
-  for(const i of boxedGroups)groups[i].gs.forEach(g=>boxed(still,g.box,groups[i].F.col,String(i+1)));
+  if(lead)boxed(still,groups[lead.index].gs[0].box,groups[lead.index].F.col,lead.label);
+  else for(const i of boxedGroups)groups[i].gs.forEach(g=>boxed(still,g.box,groups[i].F.col,String(i+1)));
   const so=el(row,'div','vso');el(so,'p',null,'So:');el(so,'strong',null,skill.title);
   regionMap(so,pack,code=>code===skill.region?'#0b5d3b':wrong&&code===round.guessedRegion?'#efb08c':'#d5dcd8',{pin:wrong?round.guess:null,focus:skill.region});
   if(!wrong&&skill.why)el(so,'p','vibe',skill.why);
@@ -245,4 +250,37 @@ export function contrast(pack,skill,pinned){
   const entry=pack.contrasts?.[pairKey(skill.region,pinned.region)];
   return entry?{lines:[entry.rule],features:entry.features?.[skill.region]??[]}
     :{lines:[`${skill.title}: ${skill.why}`,`${pinned.title}: ${pinned.why}`],features:[]};
+}
+// Miss headline (usveg.py precomputes skill.mix, feature.signal, skill.states, skill.coastal).
+const HEADLINE_MIN=0.25,VEG=new Set(['vegetation','species']),share=(owner,keys)=>keys.reduce((sum,key)=>sum+(owner.mix?.[key]??0),0);
+/** How well feature F separates the true region from the pinned one, 0 to 1: the part of its signal's area share the
+ *  pinned region lacks; with no signal, 0.5 unless the pinned region lists a feature of that id or name. */
+export function separation(skill,pinned,F){
+  if(!F.signal?.length)return pinned.features?.some(f=>f.id===F.id||f.name===F.name)?0:0.5;
+  const a=share(skill,F.signal);
+  return a>0?Math.max(0,(a-share(pinned,F.signal))/a):0;
+}
+/** Where to move from the guess: 'push northeast toward the coast (ME / NH / VT / NY)'. */
+export function direction(skill,pinned,guess,loc){
+  const rad=Math.PI/180,dl=(loc.lng-guess.lng)*rad,y=Math.sin(dl)*Math.cos(loc.lat*rad),
+    x=Math.cos(guess.lat*rad)*Math.sin(loc.lat*rad)-Math.sin(guess.lat*rad)*Math.cos(loc.lat*rad)*Math.cos(dl);
+  const way=['north','northeast','east','southeast','south','southwest','west','northwest'][Math.round((Math.atan2(y,x)/rad+360)%360/45)%8];
+  const coast=skill.coastal&&!pinned?.coastal?' toward the coast':!skill.coastal&&pinned?.coastal?' inland':'';
+  return `push ${way}${coast}${skill.states?.length?` (${skill.states.join(' / ')})`:''}`;
+}
+// What the pinned region has instead, in the terms of the signal: its main forest type, land cover or key trees.
+function instead(pinned,signal=[]){
+  const top=prefix=>Object.entries(pinned.mix??{}).filter(([key])=>key.startsWith(prefix)).sort((a,b)=>b[1]-a[1]),kind=signal[0]?.slice(0,3);
+  const ft=top('ft:'),wood=ft.reduce((sum,[,v])=>sum+v,0),lc=top('lc:').slice(0,2);
+  if(kind==='ft:'&&wood)return `${pinned.title} woods are mostly ${ft[0][0].slice(3)} (${Math.round(100*ft[0][1]/wood)}%).`;
+  if(kind==='lc:'&&lc.length)return `${pinned.title} is ${lc.map(([key,v])=>`${Math.round(100*v)}% ${key.slice(3)}`).join(', ')}.`;
+  return pinned.trees?.length?`${pinned.title} key trees: ${pinned.trees.map(tree=>tree.name).join(', ')}.`:`${pinned.title}: ${pinned.why}`;
+}
+/** A miss's lead from this panorama's own giveaways: the feature that best separates the true region from the pinned one
+ *  (vegetation first on ties), as {index (its group), label, lines}; null when none reaches HEADLINE_MIN. */
+export function headline(skill,pinned,loc,guess){
+  const best=groupsOf(skill,loc).groups.map(({F},index)=>({index,F,score:Math.round(100*separation(skill,pinned,F))/100}))
+    .filter(item=>item.F.id).sort((a,b)=>b.score-a.score||VEG.has(b.F.kind)-VEG.has(a.F.kind))[0];
+  return best&&best.score>=HEADLINE_MIN?{index:best.index,label:best.F.name,
+    lines:[`${best.F.name} → ${direction(skill,pinned,guess,loc)}.`,instead(pinned,best.F.signal)]}:null;
 }

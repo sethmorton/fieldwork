@@ -3,14 +3,14 @@ const params=new URL(location.href).searchParams;
 // mode=veg / veg-wrong: the real us-vegetation card from the built pack (dist/catalog.json), graded by completedRound.
 // offline: every image fails, as with the installer stopped and nothing prefetched. trees=1 gives the round two sample
 // per-tree labels (the pilot's schema); open=<n> opens the viewer on the card's n-th image (0 = the still).
-// region=<code> picks the round's region (default Coast Range); veg-wrong pins the nearest pano of another region.
+// region=<code> picks the round's region (default Coast Range); veg-wrong pins the nearest pano of another region (pin=<code>: of that one).
 if(params.get('mode')?.startsWith('veg')){
 const {reviewPanel,completedRound}=await import('/dist/preview-ui.js');
 const entry=(await (await fetch('/catalog.json')).json()).packs.find(item=>item.id==='us-vegetation');
 const veg={...await (await fetch('/'+entry.url)).json(),practiceMapId:'000000000000000000000001'};
 const loc=veg.locations.find(item=>item.region===(params.get('region')??'7.1.8')&&(!params.get('pano')||item.panoId===params.get('pano')));
 const d=item=>(item.lat-loc.lat)**2+((item.lng-loc.lng)*Math.cos(loc.lat*Math.PI/180))**2;
-const near=veg.locations.filter(item=>item.region!==loc.region).sort((a,b)=>d(a)-d(b))[0];
+const near=veg.locations.filter(item=>item.region!==loc.region&&(!params.get('pin')||item.region===params.get('pin'))).sort((a,b)=>d(a)-d(b))[0];
 if(params.has('trees'))Object.assign(loc,{species:[],trees:[{species:null,label:'Unidentified conifer',box:[0.25,0.28,0.12,0.32],confidence:'high'},{species:null,label:'Broadleaf, maybe alder',box:[0.72,0.22,0.27,0.45],confidence:'medium'}]});
 const guess=params.get('mode')==='veg-wrong'?{lat:near.lat,lng:near.lng}:{lat:loc.lat+0.05,lng:loc.lng+0.05};
 const round=completedRound(veg,{map:{id:veg.practiceMapId},current_game_id:'fixture',current_round:Number(params.get('round')??3),round_in_progress:false,

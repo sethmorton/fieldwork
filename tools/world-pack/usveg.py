@@ -23,8 +23,10 @@ import datetime as dt
 import json
 import math
 import os
+import re
 import sys
 import time
+from collections import Counter
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -194,6 +196,37 @@ def range_of(eco, species):
             or any(t.get('species') == species and t.get('share', 0) >= 0.03 for t in (r.get('abundance') or {}).get('topSpecies', []))]
 
 
+# Headline scoring (vegcard.mjs headline): each region's `mix` of area shares ('ft:' forest-type group x forest share, 'sp:'
+# species biomass share, a key tree at least 0.03, 'lc:' NLCD land cover); each feature's `signal`, the mix keys it shows.
+CONIFERS = ('spruce', 'fir', 'pine', 'hemlock', 'conifer', 'redwood', 'larch', 'juniper', 'cedar', 'cypress')
+LAND = {'crop': ('field', 'crop', 'farm', 'pasture', 'hay', 'corn', 'soybean'), 'grass': ('grass', 'prairie', 'range', 'meadow'),
+        'shrub': ('shrub', 'sage', 'scrub', 'chaparral', 'brush', 'desert'), 'wetland': ('marsh', 'wet', 'swamp', 'bog'),
+        'developed': ('town', 'urban', 'suburb', 'house'), 'forest': ('forest', 'wood', 'tree')}
+
+
+def mix(r):
+    key, ab = r.get('key') or {}, r.get('abundance') or {}
+    f = ab.get('forestShare') or 0
+    out = {f"ft:{t['group']}": round(f * t['share'], 4) for t in ab.get('forestTypes', [])}
+    out |= {f"sp:{t['species']}": t['share'] for t in ab.get('topSpecies', [])}
+    out |= {f'sp:{s}': max(out.get(f'sp:{s}', 0), 0.03) for s in key.get('trees', [])}
+    return out | {f'lc:{k}': v for k, v in (ab.get('landCover') or {}).items()}
+
+
+def signal(feature, groups):
+    """Mix keys a feature shows: its species; else forest-type groups sharing a tree word with its name (any conifer
+    group for 'conifer'/'evergreen'); else the first land-cover class its name names; else none (scored by presence)."""
+    if feature.get('species'):
+        return [f"sp:{feature['species']}"]
+    words = set(re.findall(r'[a-z]+', feature['name'].lower()))
+    conifer = bool(words & {'conifer', 'conifers', 'evergreen', 'evergreens'})
+    trees = [g for g in groups if words & set(re.findall(r'[a-z]+', g.lower())) - {'other', 'western', 'mountain', 'mixed', 'california', 'hardwoods', 'exotic', 'tropical'}
+             or conifer and any(w in g.lower() for w in CONIFERS)]
+    if trees:
+        return [f'ft:{g}' for g in sorted(trees)]
+    return next(([f'lc:{k}'] for k, stems in LAND.items() if any(w.startswith(s) for w in words for s in stems)), [])
+
+
 def weighted_cost(acow, loss):
     """1000 x pool share plus DUEL_BONUS x (points lost there / most lost anywhere); ZERO_COST without share."""
     return round(1000 * acow + DUEL_BONUS * loss, 3) if acow > 0 else ZERO_COST
@@ -237,15 +270,18 @@ def build(data, geo):
     features = {c: {'type': 'Feature', 'properties': {'name': c}, 'geometry': simplify(shapes[c], GRADE_TOL)} for c in codes}
 
     skills, locations, dropped = [], [], []
+    groups = sorted({t['group'] for r in eco.values() for t in (r.get('abundance') or {}).get('forestTypes', [])})
     for code in codes:
         r = eco[code]
         feats = [{k: f[k] for k in ('id', 'name', 'kind', 'species') if f.get(k)} | ({'ref': ref(f['species'])} if f.get('species') and ref(f['species']) else {})
-                 for f in r.get('features', [])]
+                 | ({'signal': s} if (s := signal(f, groups)) else {}) for f in r.get('features', [])]
         key = r.get('key') or {}
         skills.append({'id': f'usveg:{code}', 'title': r['name'], 'phase': 'Vegetation', 'practiceFamily': f"usveg:{r.get('l1', '')}",
                        'prerequisites': [], 'availability': 'available', 'subject': 'vegetation', 'region': code, 'l1': r.get('l1'), 'l2': r.get('l2'),
                        'why': key.get('vibe') or r.get('group') or '', 'lost': (r.get('rounds') or {}).get('ptsLost', 0),
-                       **({'recent': True} if code in recent else {}), 'features': feats,
+                       **({'recent': True} if code in recent else {}), 'features': feats, 'mix': mix(r),
+                       # ponytail: 'coast' in the name marks a coastal region; a shoreline test if inland/coast phrasing misfires.
+                       **({'coastal': True} if 'coast' in r['name'].lower() else {}),
                        'trees': [{'species': s, 'name': (sp(s) or {}).get('common', s.replace('-', ' ')), **({'ref': ref(s)} if ref(s) else {}),
                                   **({'line': look(sp(s))} if sp(s) else {})} for s in key.get('trees', [])]})
         for p in ordered([p for p in r.get('panos', []) if p.get('drive')]):
@@ -290,6 +326,8 @@ def build(data, geo):
     for s in skills:
         s['acow'] = round(per_region.get(s['region'], 0) / total, 5)
         s['cost'] = weighted_cost(s['acow'], s.pop('lost') / most)
+        # The states the region has panoramas in, most first (at most 4): the miss headline's "(ME / NH / VT / NY)".
+        s['states'] = [st for st, _ in Counter(loc['state'] for loc in kept if loc['region'] == s['region'] and loc['state']).most_common(4)]
     skills.sort(key=lambda s: -s['cost'])
 
     used = {f['species'] for s in skills for f in s['features'] if f.get('species')} | {t['species'] for s in skills for t in s['trees']}
@@ -400,6 +438,11 @@ def check():
         {'rule': 'Oaks = A. Pines = B.', 'features': {'A': ['oak'], 'B': ['pine']}}
     assert rule_ok({'rule': ' '.join(['w'] * 17)}, 'A', 'B', eco) is None, 'a rule past 16 words falls back to the vibes'
     assert contrast_pairs(eco, {'B'}) == [('A', 'B')]
+    groups = ['Douglas-fir', 'Maple/Beech/Birch', 'Spruce/Fir', 'White/Red/Jack Pine']
+    assert signal({'name': 'Dark spruce-fir among hardwoods'}, groups) == ['ft:Douglas-fir', 'ft:Spruce/Fir']
+    assert signal({'name': 'Dark conifers in the hollows'}, groups) == ['ft:Douglas-fir', 'ft:Spruce/Fir', 'ft:White/Red/Jack Pine']
+    assert signal({'name': 'Narrow road walled by forest'}, groups) == ['lc:forest']
+    assert signal({'name': 'Plateau back road'}, groups) == [] and signal({'name': 'x', 'species': 'oak'}, groups) == ['sp:oak']
     print('ok')
 
 

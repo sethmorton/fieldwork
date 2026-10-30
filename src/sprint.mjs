@@ -49,10 +49,15 @@ export function pendingRuleChecks(pack,attempts){
   });
   return out;
 }
-/** The pair a location checks, when it is an unseen panorama of a region in a pending rule check. */
+/** The pair a location checks, 'true|pinned' of the miss that set it: an unseen panorama of that miss's true region, or of
+ *  its pinned region only when the true region has no unseen panorama left (as planSprint places checks). A check whose
+ *  pinned side merely matches this region is not this round's pair (the stale 'Coast Range' header on a NE Highlands pano). */
 export function ruleCheckFor(pack,attempts,location){
-  if(attempts.some(attempt=>attempt.locationRef===location.id))return null;
-  return pendingRuleChecks(pack,attempts).find(check=>check.regions.includes(location.region))?.pair??null;
+  const shown=new Set(attempts.map(attempt=>attempt.locationRef));
+  if(shown.has(location.id))return null;
+  const unseen=region=>pack.locations.some(other=>other.region===region&&!shown.has(other.id));
+  const check=pendingRuleChecks(pack,attempts).find(({regions:[a,b]})=>a===location.region||b===location.region&&!unseen(a));
+  return check?check.regions.join('|'):null;
 }
 /** Close: while warming up, a wrong pin in the true region's L2 family. */
 export function closeCall(pack,attempts,round){

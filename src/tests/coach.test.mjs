@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {planSprint,warmupOn,modeLabel,ruleCheckFor,closeCall,dayChecks} from '../sprint.mjs';
-import {contrast} from '../vegcard.mjs';
+import {contrast,headline,direction} from '../vegcard.mjs';
 import {mostMissed} from '../drill.mjs';
 // Ten regions (R0-R9), three panoramas each; R0 and R1 share an L2 family. Warm-up: R0-R5.
 const skills=[...Array(10).keys()].map(i=>({id:'S'+i,title:'Region '+i,region:'R'+i,l2:i<2?'L0':'L'+i,why:'Vibe '+i,country:'US'+i}));
@@ -72,4 +72,35 @@ test('packs without warm-up or contrasts plan exactly as before',()=>{
   assert.equal(modeLabel(base,plain),null);
   assert.deepEqual(dayChecks(base,plain,Date.parse(T8)),[]);
   assert.equal(warmupOn(base,misses(20)),false);
+});
+
+test('a rule check names its own miss, true region first, never a pair that only shares the pinned side',()=>{
+  // Miss: true R1 (Coast Range-like), pinned R0. An unseen R0 panorama is no check while R1 still has unseen panoramas.
+  const history=[at('S1',false,{loc:'S1-0',guessedRegion:'R0'})];
+  assert.equal(ruleCheckFor(coached,history,coached.locations[1]),null,'R0 pano: the pair belongs to R1');
+  assert.equal(ruleCheckFor(coached,history,coached.locations[4]),'R1|R0','R1 pano: true region first');
+  const spent=[...history,...['S1-1','S1-2'].map(loc=>at('S9',true,{loc}))];
+  assert.equal(ruleCheckFor(coached,spent,coached.locations[1]),'R1|R0','R1 exhausted: the pinned region checks');
+});
+
+test('a miss headline leads with the giveaway that separates the regions: spruce/fir beats the road (5.3.1 vs 8.1.3)',()=>{
+  const ne={region:'5.3.1',title:'Northeastern Highlands',states:['ME','NH','VT','NY'],
+    mix:{'ft:Spruce/Fir':0.11,'ft:Maple/Beech/Birch':0.68,'sp:sugar-maple':0.148,'lc:forest':0.777},
+    features:[{id:'con',name:'Dark spruce-fir among hardwoods',kind:'vegetation',signal:['ft:Spruce/Fir']},
+      {id:'hw',name:'Northern hardwoods',kind:'vegetation',species:'sugar-maple',signal:['sp:sugar-maple']},
+      {id:'road',name:'Narrow road walled by forest',kind:'road',signal:['lc:forest']}]};
+  const nap={region:'8.1.3',title:'Northern Allegheny Plateau',mix:{'ft:Maple/Beech/Birch':0.566,'ft:Oak/Hickory':0.04,'sp:sugar-maple':0.14,'lc:forest':0.599},features:[]};
+  const loc={lat:47.35,lng:-69.28,giveaways:[{feature:'road',box:[0,0,1,1]},{feature:'con',box:[0,0,1,1]},{feature:'hw',box:[0,0,1,1]}]};
+  const lead=headline(ne,nap,loc,{lat:42,lng:-77});
+  assert.equal(lead.label,'Dark spruce-fir among hardwoods');
+  assert.deepEqual(lead.lines,['Dark spruce-fir among hardwoods → push northeast (ME / NH / VT / NY).','Northern Allegheny Plateau woods are mostly Maple/Beech/Birch (93%).']);
+  assert.equal(headline(ne,{...nap,mix:ne.mix},{...loc,giveaways:loc.giveaways.slice(0,1)},{lat:42,lng:-77}),null,'nothing separates: the pair rule');
+});
+
+test('the direction phrase: compass, coast and the true states',()=>{
+  const at0={lat:40,lng:-100};
+  assert.equal(direction({states:['OR']},{},at0,{lat:45,lng:-100}),'push north (OR)');
+  assert.equal(direction({},{},at0,{lat:40,lng:-90}),'push east');
+  assert.equal(direction({coastal:true},{},at0,{lat:35,lng:-100}),'push south toward the coast');
+  assert.equal(direction({},{coastal:true},at0,{lat:40,lng:-110}),'push west inland');
 });
