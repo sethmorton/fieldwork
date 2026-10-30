@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
 import {completedRound,recordRecognition,startPracticeGame,launchRequest} from '../session.mjs';
-import {planSprint,sprintStatus} from '../sprint.mjs';
+import {planSprint,sprintStatus,pendingRuleChecks} from '../sprint.mjs';
 import {makeNextSet,validatePack} from '../next-set.mjs';
 import {albersUsa,cropWindow,clauses,km,cardImages,regionThumbs,spotTree,fitCrop} from '../vegcard.mjs';
 // Synthetic us-vegetation pack: regions R0..R6 are 1-degree squares side by side (lng i..i+1, lat 0..1), three panoramas each.
@@ -23,6 +23,7 @@ test('a veg round is graded by the guessed point\'s ecoregion; a guess off every
   assert.deepEqual([wrong.correct,wrong.guessedRegion],[false,'R3']);
   const off=completedRound(pack,state(5,5));
   assert.deepEqual([off.correct,off.guessedRegion],[false,null]);
+  assert.deepEqual(pendingRuleChecks({...pack,contrasts:{}},[{id:'off',skillId:'usveg:R1',locationRef:'R1-0',correct:false,feedbackSource:'auto'}]),[],'off-map pins never schedule rule checks');
   // Other packs keep their rules: a non-sprint region pack leaves an off-region guess unknown and adds no guess fields.
   const other=completedRound({...pack,scheduler:undefined},state(5,5));
   assert.equal(other.correct,null);assert.equal('guess' in other,false);
@@ -182,7 +183,7 @@ test('the card leads with the panorama\'s high-confidence deck tree, the most ra
   const [x0,y0,cw,ch]=fitCrop([0.4,0.05,0.1,0.9],0.75);
   assert.ok(Math.abs(cw*1600/(ch*1000)-0.75)<1e-9&&x0<=0.4&&x0+cw>=0.5&&y0>=0&&y0+ch<=1,'example crops fill a 3:4 tile, tree inside, within the image');
 });
-test('every set holds one tree round, in the middle, on a panorama no region round uses; warm-up keeps trees near',()=>{
+test('tree rounds pause during warm-up',()=>{
   let attempts=[],n=0;
   for(let set=0;set<5;set++){
     const {locationIds,reasons}=planSprint(treed,attempts,{size:5,now:Date.parse('2026-10-29T08:00:00Z')+set*60e3});
@@ -193,8 +194,7 @@ test('every set holds one tree round, in the middle, on a panorama no region rou
       occurredAt:new Date(Date.parse('2026-10-29T08:00:00Z')+n*1000).toISOString()});
   }
   const misses=Array.from({length:20},(_,i)=>({id:'m'+i,skillId:'usveg:R5',locationRef:'R5-0',correct:false,feedbackSource:'auto',occurredAt:new Date(Date.parse('2026-10-29T08:00:00Z')+i*1000).toISOString()}));
-  const warm={...treed,warmup:['R1','R2'],skills:treed.skills.map(skill=>skill.id==='usveg:tree:T1'?{...skill,range:['R5'],cost:99}:skill)};
+  const warm={...treed,warmup:['R1','R2']};
   const picked=planSprint(warm,misses,{now:Date.parse('2026-10-29T09:00:00Z')}).locationIds.map(id=>warm.locations.find(location=>location.id===id));
-  assert.ok(picked.filter(location=>!location.tree).every(location=>['R1','R2'].includes(location.region)),'regions stay in the warm-up');
-  assert.equal(picked.find(location=>location.tree).skillIds[0],'usveg:tree:T0','the costlier T1 is out of the warm-up range');
+  assert.ok(picked.every(location=>!location.tree&&['R1','R2'].includes(location.region)),'trees pause and all regions stay in warm-up');
 });

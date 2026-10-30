@@ -17,47 +17,51 @@ const explicit=attempt=>attempt.feedbackSource!=='assumed-on-advance';
 // panorama. Packs without the field are unchanged.
 const requiredCells=(pack,locations)=>new Set(pack.cellCoverage?locations.filter(location=>location.state).map(location=>location.state):[]);
 
-// Opt-in coaching (us-vegetation). pack.warmup (region codes): while under 30% of the last 20 graded rounds were spots, picks
-// stay in those visually distinct regions, and a pin in the right L2 family counts as close; at 60% the full map returns.
-// The mode is replayed from attempts, never stored. pack.contrasts: after a miss pinned in another region (A true, B pinned),
-// the next set opens with a panorama of A (else B) the learner has not seen, a rule check; the first set of a later day
-// re-checks regions missed the day before or a week before, on unseen panoramas.
-const WARMUP_IN=0.3,WARMUP_OUT=0.6,WINDOW=20,RULE_CHECKS=2,RULE_WINDOW=10,DAY=864e5;
+// Opt-in coaching (us-vegetation). pack.warmup (six region codes): after fewer than 30% spots in the
+// last 20 graded rounds, picks stay in those distinct regions. It ends after three warm-up sets when those
+// regions are at least 50% over their last 15 rounds. The mode is replayed from attempts, never stored.
+// pack.contrasts turns a real miss pinned in another pack region into at most two spaced rule checks.
+const WARMUP_IN=0.3,WARMUP_OUT=0.5,WINDOW=20,WARMUP_ROUNDS=15,RULE_CHECKS=1,DAY=864e5;
 const graded=attempts=>attempts.filter(attempt=>explicit(attempt)&&typeof attempt.correct==='boolean');
 export function warmupOn(pack,attempts){
   if(!pack.warmup?.length)return false;
   const list=graded(attempts);let on=false;
   for(let end=WINDOW;end<=list.length;end++){
-    const rate=list.slice(end-WINDOW,end).filter(attempt=>attempt.correct).length/WINDOW;
-    on=on?rate<WARMUP_OUT:rate<WARMUP_IN;
+    if(!on){
+      on=list.slice(end-WINDOW,end).filter(attempt=>attempt.correct).length/WINDOW<WARMUP_IN;
+      continue;
+    }
+    const recent=list.slice(Math.max(0,end-WARMUP_ROUNDS),end),warm=recent.filter(attempt=>pack.warmup.includes(pack.skills.find(skill=>skill.id===attempt.skillId)?.region));
+    on=recent.length<WARMUP_ROUNDS||warm.length<WARMUP_ROUNDS||warm.filter(attempt=>attempt.correct).length/WARMUP_ROUNDS<WARMUP_OUT;
   }
   return on;
 }
-/** The muted status line's mode: 'Warm-up: 8 regions' or 'Full map'. Null for packs without pack.warmup. */
+/** The muted status line's mode: 'Warm-up: 6 regions' or 'Full map'. Null for packs without pack.warmup. */
 export const modeLabel=(pack,attempts)=>!pack.warmup?.length?null:warmupOn(pack,attempts)?`Warm-up: ${pack.warmup.length} regions`:'Full map';
 export const pairKey=(a,b)=>[a,b].sort().join('|');
-/** Pending rule checks, newest miss first: {pair, regions: [true, pinned]} for misses in the last RULE_WINDOW attempts that
- *  pinned another pack region, with no later attempt on either region. */
+/** Pending rule checks, newest real miss first. A pair gets two checks, never in consecutive sets; a real miss resets
+ * that allowance. Check misses are evidence only and never enqueue another check. */
 export function pendingRuleChecks(pack,attempts){
   if(!pack.contrasts)return [];
   const regionOf=new Map(pack.skills.map(skill=>[skill.id,skill.region])),regions=new Set(regionOf.values()),out=[];
-  attempts.slice(-RULE_WINDOW).forEach((attempt,index,recent)=>{
-    const a=regionOf.get(attempt.skillId),b=attempt.guessedRegion;
-    if(!a||attempt.correct!==false||!explicit(attempt)||!regions.has(b)||a===b)return;
-    if(recent.slice(index+1).some(later=>[a,b].includes(regionOf.get(later.skillId))))return;
-    out.unshift({pair:pairKey(a,b),regions:[a,b]});
-  });
+  for(let index=attempts.length-1;index>=0;index--){
+    const attempt=attempts[index],a=regionOf.get(attempt.skillId),b=attempt.guessedRegion;
+    if(!a||attempt.correct!==false||!explicit(attempt)||attempt.ruleCheck||!regions.has(b)||a===b)continue;
+    const pair=pairKey(a,b),later=attempts.slice(index+1),checks=later.filter(item=>item.ruleCheck&&pairKey(...item.ruleCheck.split('|'))===pair);
+    if(checks.length>=2||attempts.slice(-5).some(item=>item.ruleCheck&&pairKey(...item.ruleCheck.split('|'))===pair))continue;
+    if(!out.some(item=>item.pair===pair))out.push({pair,regions:[a,b]});
+  }
   return out;
 }
-/** The pair a location checks, 'true|pinned' of the miss that set it: an unseen panorama of that miss's true region, or of
- *  its pinned region only when the true region has no unseen panorama left (as planSprint places checks). A check whose
- *  pinned side merely matches this region is not this round's pair (the stale 'Coast Range' header on a NE Highlands pano). */
+/** The single eligible rule check's pair, or null. */
 export function ruleCheckFor(pack,attempts,location){
   const shown=new Set(attempts.map(attempt=>attempt.locationRef));
   if(shown.has(location.id)||location.tree)return null;
   const unseen=region=>pack.locations.some(other=>other.region===region&&!other.tree&&!shown.has(other.id));
-  const check=pendingRuleChecks(pack,attempts).find(({regions:[a,b]})=>a===location.region||b===location.region&&!unseen(a));
-  return check?check.regions.join('|'):null;
+  const check=pendingRuleChecks(pack,attempts)[0];
+  if(!check)return null;
+  const [a,b]=check.regions;
+  return a===location.region||b===location.region&&!unseen(a)?check.regions.join('|'):null;
 }
 /** Close: while warming up, a wrong pin in the true region's L2 family. */
 export function closeCall(pack,attempts,round){
@@ -110,14 +114,12 @@ export function sprintStatus(pack,attempts) {
     [id,{state:state==='learned'?'learning':state,shown,spotted}]));
 }
 
-// Tree deck (us-vegetation subject 'tree'): one round per set is a tree, the rest regions, each planned as its own sprint
-// (cost, due, retirement as usual). While warming up, trees whose range touches a warm-up region, if any. The tree takes
-// the middle slot; the region picks avoid its panorama (a tree location copies a region panorama).
+// Tree deck (us-vegetation subject 'tree'): one round per full-map set is a tree, the rest regions. Tree rounds pause
+// during warm-up so the learner sees one of the six anchor regions in every slot.
 export function planSprint(pack,attempts,options={}){
   const size=options.size??5,trees=pack.skills.filter(skill=>skill.subject==='tree'),regionPack={...pack,skills:pack.skills.filter(skill=>skill.subject!=='tree')};
-  if(!trees.length||size<2)return planSet(pack,attempts,options);
-  const near=warmupOn(pack,attempts)?trees.filter(tree=>tree.range?.some(code=>pack.warmup.includes(code))):[];
-  let tree;try{tree=planSet({...pack,warmup:undefined,skills:near.length?near:trees},attempts,{...options,size:1})}
+  if(!trees.length||size<2||warmupOn(pack,attempts))return planSet(regionPack,attempts,options);
+  let tree;try{tree=planSet({...pack,warmup:undefined,skills:trees},attempts,{...options,size:1})}
   catch(error){if(!/^Sprint complete/.test(error.message))throw error;return planSet(regionPack,attempts,options)}  // every tree retired
   const byId=new Map(pack.locations.map(location=>[location.id,location])),pano=byId.get(tree.locationIds[0]).panoId;
   const regions=planSet(regionPack,attempts,{...options,size:size-1,avoid:pano});
@@ -152,8 +154,8 @@ function planSet(pack,attempts,{size=5,now=Date.now(),avoid=null}={}) {
   const unseen=item=>item&&locations.get(item.skill.id).some(location=>!shown.has(location.id));
   const ofRegion=region=>all.find(item=>item.skill.region===region);
   const checks=pendingRuleChecks(pack,attempts).map(({regions:[a,b]})=>unseen(ofRegion(a))?ofRegion(a):unseen(ofRegion(b))?ofRegion(b):null)
-    .filter(Boolean).slice(0,RULE_CHECKS);
-  const coached=[...checks,...dayChecks(pack,attempts,nowMs).map(id=>bySkill.get(id)).filter(unseen)];
+    .filter(item=>item&&(!warm||pack.warmup.includes(item.skill.region))).slice(0,RULE_CHECKS);
+  const coached=[...checks,...dayChecks(pack,attempts,nowMs).map(id=>bySkill.get(id)).filter(item=>unseen(item)&&(!warm||pack.warmup.includes(item.skill.region)))];
   for(const item of coached)if(picks.length<size&&!picks.includes(item)){picks.push(item);countries.add(item.skill.country??item.skill.id);}
   const take=(list,{perCountry=true,capped=true}={})=>{
     for(const item of list){

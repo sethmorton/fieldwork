@@ -47,8 +47,9 @@ GRADE_TOL, MAP_TOL = 0.02, 1.2  # degrees (~2 km) for grading; SVG px (960-wide 
 GAME_SETTINGS = {'forbidMoving': True, 'forbidZooming': False, 'forbidRotating': False, 'timeLimit': 90}
 RECENT_HOURS = 24
 SEASONS = ('leaf-on', 'green', 'leaf-off', 'dormant')
-# Desert, Pacific conifer, Great Plains grass, southern pine, northern hardwoods, Florida subtropics, Rockies, California oak.
-WARMUP = ('10.2.1', '7.1.8', '9.3.3', '8.3.5', '5.3.1', '15.4.1', '6.2.10', '11.1.1')
+# Desert, Pacific conifer, Great Plains grass, southern pine, northern hardwoods, Florida subtropics.
+# These are the highest-panorama concrete anchors selected from the source inventory for those six distinct regions.
+WARMUP = ('10.2.1', '7.1.8', '9.3.3', '8.3.5', '5.3.1', '15.4.1')
 CONTRAST_MODEL, SIMILAR, RULE_WORDS = 'gpt-6-astra', 5, 16
 CONTRASTS = REPO / 'local/usveg-contrasts.json'
 

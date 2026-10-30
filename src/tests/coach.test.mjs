@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {planSprint,warmupOn,modeLabel,ruleCheckFor,closeCall,dayChecks} from '../sprint.mjs';
+import {planSprint,warmupOn,modeLabel,ruleCheckFor,closeCall,dayChecks,pendingRuleChecks} from '../sprint.mjs';
 import {contrast,headline,direction} from '../vegcard.mjs';
 import {mostMissed} from '../drill.mjs';
 // Ten regions (R0-R9), three panoramas each; R0 and R1 share an L2 family. Warm-up: R0-R5.
@@ -14,12 +14,13 @@ const at=(skill,correct,{loc=skill+'-0',time=T0,...extra}={})=>({id:'a'+n++,skil
 const misses=k=>[...Array(k)].map((_,i)=>at('S'+(6+i%4),false,{loc:`S${6+i%4}-${i%3}`}));
 const spots=k=>[...Array(k)].map(()=>at('S9',true,{loc:'S9-0'}));
 
-test('warm-up starts under 30% of the last 20 graded rounds and fades at 60%',()=>{
+test('warm-up starts under 30% of the last 20 graded rounds and exits after three successful warm-up sets',()=>{
   assert.equal(warmupOn(coached,misses(19)),false,'fewer than 20 rounds never narrows');
   assert.equal(warmupOn(coached,misses(20)),true);
   assert.equal(warmupOn(coached,[...misses(14),...spots(6)]),false,'30% is not under 30%');
-  assert.equal(warmupOn(coached,[...misses(20),...spots(11)]),true,'55% stays in warm-up');
-  assert.equal(warmupOn(coached,[...misses(20),...spots(12)]),false,'60% widens back');
+  const warmSpots=Array.from({length:15},(_,i)=>at('S'+i%6,true,{loc:`S${i%6}-${i%3}`}));
+  assert.equal(warmupOn(coached,[...misses(20),...warmSpots.slice(0,14)]),true,'three full warm-up sets are required');
+  assert.equal(warmupOn(coached,[...misses(20),...warmSpots]),false,'15 warm-up rounds at 50% exits');
   assert.equal(modeLabel(coached,misses(20)),'Warm-up: 6 regions');
   assert.equal(modeLabel(coached,[]),'Full map');
   const regions=planSprint({...coached,contrasts:undefined},misses(20),{now:T0}).locationIds.map(id=>id.split('-')[0]);
@@ -34,16 +35,19 @@ test('a close pin needs warm-up and the true L2 family',()=>{
   assert.equal(closeCall(coached,misses(20),round('R0',true)),false);
 });
 
-test('a miss on (A, B) is rule-checked on a different, unseen panorama within 3 rounds',()=>{
-  const history=[...['S5','S6','S7','S8'].map(id=>at(id,true,{loc:id+'-0'})),at('S0',false,{loc:'S0-0',guessedRegion:'R1'})];
-  const ids=planSprint(coached,history,{now:T0}).locationIds,index=ids.findIndex(id=>/^S[01]-/.test(id));
-  assert.ok(index>=0&&index<3,ids.join());
-  assert.notEqual(ids[index],'S0-0');
-  const location=coached.locations.find(item=>item.id===ids[index]);
-  assert.equal(ruleCheckFor(coached,history,location),'R0|R1');
-  assert.equal(ruleCheckFor(coached,history,coached.locations[0]),null,'the missed panorama is no check');
-  assert.equal(ruleCheckFor(coached,[...history,at('S1',true,{loc:'S1-1'})],coached.locations[1]),null,'one check clears the pair');
-  assert.equal(ruleCheckFor(base,history,location),null,'packs without contrasts never rule-check');
+test('rule checks cap at one per set, never cascade, and stop after two until another real miss',()=>{
+  const history=[at('S0',false,{loc:'S0-0',guessedRegion:'R1'})];
+  const ids=planSprint(coached,history,{now:T0}).locationIds,checked=coached.locations.find(item=>item.id===ids.find(id=>ruleCheckFor(coached,history,coached.locations.find(location=>location.id===id))));
+  assert.ok(checked);assert.equal(ids.filter(id=>ruleCheckFor(coached,history,coached.locations.find(location=>location.id===id))).length,1);
+  const first={...at(checked.skillIds[0],false,{loc:checked.id}),ruleCheck:'R0|R1'};
+  assert.deepEqual(pendingRuleChecks(coached,[...history,first]),[],'a missed check creates no new check and cannot repeat next set');
+  const gap=skills.slice(2,7).map((skill,i)=>at(skill.id,true,{loc:`${skill.id}-${i%3}`}));
+  const secondSet=planSprint(coached,[...history,first,...gap],{now:T0}).locationIds;
+  assert.equal(secondSet.filter(id=>ruleCheckFor(coached,[...history,first,...gap],coached.locations.find(location=>location.id===id))).length,1);
+  const second={...at('S0',true,{loc:'S0-2'}),ruleCheck:'R0|R1'};
+  assert.deepEqual(pendingRuleChecks(coached,[...history,first,...gap,second]),[],'two checks exhaust the pair');
+  const remiss=at('S0',false,{loc:'S0-2',guessedRegion:'R1'});
+  assert.equal(pendingRuleChecks(coached,[...history,first,...gap,second,...gap,remiss]).length,1,'a later real miss resets it');
 });
 
 test('a missed pair without a cached rule falls back to both vibe lines',()=>{

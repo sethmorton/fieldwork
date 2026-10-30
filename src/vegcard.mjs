@@ -202,8 +202,9 @@ export function vegCard(card,skill,round,pack,{loadImage,seen=new Set()}){
     return list};
   // Top line: geography decides it; 1/2/3 still grade recognition below. A warm-up close pin (right L2 family) reads ≈.
   const wrong=!round.correct,top=el(veg,'p',`vtop ${wrong&&!round.close?'bad':'ok'}`),pinned=wrong&&pack.skills.find(item=>item.region===round.guessedRegion);
-  el(top,'span',null,`${!wrong?'✓':round.close?'≈ right area:':'✗'} ${skill.title}`);if(loc.state)el(top,'span','st',loc.state);
-  if(wrong&&round.guess)el(top,'small',null,`you pinned ${pinned?.title??'outside the US regions'}, ${km(round.guess,loc).toLocaleString('en-US')} km`);
+  if(wrong&&!pinned)el(top,'span',null,`Your pin is outside the US. Aim for ${skill.title}${skill.states?.length?`, ${skill.states.join(' / ')}`:''}`);
+  else {el(top,'span',null,`${!wrong?'✓':round.close?'≈ right area:':'✗'} ${skill.title}`);if(loc.state)el(top,'span','st',loc.state);}
+  if(wrong&&round.guess&&pinned)el(top,'small',null,`you pinned ${pinned.title}, ${km(round.guess,loc).toLocaleString('en-US')} km`);
   // ruleCheck is 'true|pinned' of the miss that set this check (sprint.mjs ruleCheckFor), named in that order.
   if(round.ruleCheck)el(veg,'p','vcheck',`Rule check: ${round.ruleCheck.split('|').map(code=>pack.skills.find(item=>item.region===code)?.title??code).join(' vs ')}`);
   // Plonk-It style: a named tree leads, ahead of any region rule. "See the western hemlock? → Pacific Northwest coast".
@@ -224,7 +225,7 @@ export function vegCard(card,skill,round,pack,{loadImage,seen=new Set()}){
   // (labelled); with none above HEADLINE_MIN, the pair's contrast rule and the boxes it names (else the view's top two).
   // Everything else waits in More.
   const lead=wrong&&pinned&&round.guess?headline(skill,pinned,loc,round.guess):null;
-  const takeaway=lead??(wrong&&(pinned?contrast(pack,skill,pinned):{lines:[skill.why].filter(Boolean),features:[]}));
+  const takeaway=lead??(wrong&&(pinned?contrast(pack,skill,pinned):{lines:[groups[0]?.gs[0]?.text??skill.why].filter(Boolean),features:[]}));
   if(takeaway)takeaway.lines.forEach((line,i)=>el(veg,'p',!spot&&(takeaway.lines.length===1||lead&&!i)?'vrule':'vrule two',line));
   const named=lead?[lead.index]:takeaway&&groups.map((group,i)=>i).filter(i=>takeaway.features.includes(groups[i].gs[0].feature)).slice(0,2);
   const boxedGroups=!takeaway?groups.map((group,i)=>i):named.length?named:[0,1].filter(i=>i<groups.length);
