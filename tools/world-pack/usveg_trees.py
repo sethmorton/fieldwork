@@ -20,7 +20,7 @@ import json
 import sys
 from pathlib import Path
 
-MODEL, SPOT_WORDS, AREA_WORDS, PAD, EXAMPLES = 'gpt-6-astra', 10, 10, 0.15, 6
+MODEL, SPOT_WORDS, AREA_WORDS, PAD, EXAMPLES, STAND = 'gpt-6-astra', 10, 10, 0.15, 6, 0.4
 CACHE = Path(__file__).resolve().parents[2] / 'local/usveg-trees.json'
 # card id (its first species' card is the text source): [species ids it covers], title when merged
 DECK = {
@@ -110,8 +110,10 @@ def deck(data, kept, acow, counts, range_of):
         if not card:
             print(f'tree deck: no species card for {ids[0]}', file=sys.stderr)
             continue
+        # High confidence first, then single trees (a box under STAND of the frame) before whole-stand boxes, largest first.
+        area = lambda box: box[2] * box[3]
         labels = sorted(((loc, t) for loc in kept for t in loc.get('trees', []) if t.get('species') in ids),
-                        key=lambda lt: (lt[1].get('confidence') != 'high', -lt[1]['box'][2] * lt[1]['box'][3]))
+                        key=lambda lt: (lt[1].get('confidence') != 'high', area(lt[1]['box']) > STAND, -area(lt[1]['box'])))
         high, best = [], set()
         for loc, t in labels:
             if t.get('confidence') == 'high' and loc['panoId'] not in best:
