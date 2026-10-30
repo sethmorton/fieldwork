@@ -2,9 +2,11 @@
 // numbered boxes beside the "So" map, one tile per cue (crop of its box, first clause big, species range and photo),
 // then the same feature in other panoramas of the region. Images come through loadImage (object URLs; on GeoGuessr a
 // GM blob request to the local installer), so nothing here fetches cross-origin itself. A miss leads with one contrast rule
-// (pack.contrasts, else both vibe lines) and only the boxes it names; the rest sits behind More (M).
+// (pack.contrasts, else both vibe lines) and only the boxes it names; the rest sits behind More (M). A tree deck round, or
+// a panorama labelling a deck tree at high confidence, leads Plonk-It style: "See the <tree>? → <area>", that tree boxed,
+// crops of it from other panoramas, its spot-it bullets and range (spotTree).
 import {pairKey} from './sprint.mjs';
-const COLS=['#22d3ee','#fb923c','#facc15','#c084fc','#4ade80','#f472b6'],W=1600,H=1000,MAX_ZOOM=1.25,TILE=1.9;
+const COLS=['#22d3ee','#fb923c','#facc15','#c084fc','#4ade80','#f472b6'],W=1600,H=1000,MAX_ZOOM=1.25,TILE=1.9,EX=0.75;
 const CSS=`
 .veg{display:grid;gap:10px}.veg figure{margin:0}.veg .img{background:#c9d8de center/cover no-repeat;border-radius:6px;position:relative;cursor:zoom-in;overflow:hidden}
 .vtop{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:4px 0 0;font:700 21px/1.2 'Trebuchet MS',Arial,sans-serif}.vtop.ok{color:#276b50}.vtop.bad{color:#b4471a}
@@ -41,6 +43,9 @@ dialog.vview{width:100vw;height:100vh;max-width:none;max-height:none;margin:0;pa
 .vtoggle{display:flex;gap:6px;align-items:center}.vtoggle button{padding:5px 12px;border-radius:6px;border:1px solid #6d8c97;background:none;color:#e8f1f4;cursor:pointer;font:600 13px Arial}.vtoggle button.on{background:#e8f1f4;color:#0b1d24}.vtoggle kbd{color:#9fbac4}
 .vlist li.tree{display:block;font:14px/1.3 Arial}
 .vlist{list-style:none;margin:0;padding:0;display:grid;gap:10px}.vlist li{display:grid;grid-template-columns:26px 1fr;gap:8px;font:14px/1.4 Arial}.vlist i{font:700 14px/24px Arial;font-style:normal;text-align:center;background:var(--c);color:#0b1d24;border-radius:4px;height:24px}.vlist b{display:block;color:#fff}
+.vdeck{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:10px;align-items:start}.vex{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px}.vex .img{aspect-ratio:${EX}}.vtreebox b{top:auto;bottom:0;border-radius:0 3px 0 0}
+.vspot>p{margin:0;font:600 12px/1.3 Arial;color:#496b79;text-transform:uppercase;letter-spacing:.05em}.vspot ul{margin:4px 0 6px;padding-left:18px;display:grid;gap:2px;font:600 14px/1.3 Arial;color:#0f2c37}
+.vspot .vmap{max-height:120px;width:auto;max-width:100%}
 `;
 const el=(parent,tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text!=null)node.textContent=text;parent?.append(node);return node};
 const svgEl=(parent,tag,attrs)=>{const node=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v] of Object.entries(attrs))node.setAttribute(k,v);parent.append(node);return node};
@@ -70,6 +75,13 @@ export function clauses(text){
 export function cropWindow([x,y,w,h],tileWidth,aspect=1.6){
   let cw=Math.max(1.36*w,tileWidth/(MAX_ZOOM*W)),ch=Math.max(1.36*h,cw*W/aspect/H);
   cw=Math.max(cw,ch*H*aspect/W);
+  const s=Math.min(1,1/cw,1/ch);cw*=s;ch*=s;
+  const start=(mid,len)=>Math.min(1-len,Math.max(0,mid-len/2));
+  return [start(x+w/2,cw),start(y+h/2,ch),cw,ch];
+}
+/** A tree example's crop (usveg_trees.py: its box + 15% a side) widened or heightened to `aspect`, kept in the image. */
+export function fitCrop([x,y,w,h],aspect){
+  let cw=Math.max(w,h*H*aspect/W),ch=Math.max(h,cw*W/aspect/H);
   const s=Math.min(1,1/cw,1/ch);cw*=s;ch*=s;
   const start=(mid,len)=>Math.min(1-len,Math.max(0,mid-len/2));
   return [start(x+w/2,cw),start(y+h/2,ch),cw,ch];
@@ -108,9 +120,21 @@ function recurrence(pack,skill,loc,groups){
  *  Continue prefetches them, so a card still renders if the installer stops mid-game. */
 export function cardImages(pack,loc){
   const skill=pack.skills.find(item=>item.id===loc.skillIds[0]),{groups}=groupsOf(skill,loc);
+  const lead=spotTree(pack,skill,loc);
   return [loc.img,...groups.slice(0,4).map(({F})=>F.species&&F.ref).filter(Boolean),...recurrence(pack,skill,loc,groups).map(({other})=>`t/${other.img}`),
-    ...(skill.trees??[]).slice(0,3).map(tree=>tree.ref).filter(Boolean)];
+    ...(skill.trees??[]).slice(0,3).map(tree=>tree.ref).filter(Boolean),...(lead?examples(lead.tree,loc).map(example=>example.img):[])];
 }
+/** The deck tree a card leads with: a tree round's own, else the most range-restricted deck tree this panorama labels at
+ *  high confidence (its per-tree labels); {tree (the tree skill), box}, or null. */
+export function spotTree(pack,skill,loc){
+  if(skill.subject==='tree')return {tree:skill,box:loc.tree?.box};
+  const deck=pack.skills.filter(item=>item.subject==='tree');
+  return (loc.trees??[]).filter(label=>label.species&&label.confidence==='high')
+    .map(label=>({tree:deck.find(item=>item.species?.includes(label.species)),box:label.box})).filter(item=>item.tree)
+    .sort((a,b)=>a.tree.range.length-b.tree.range.length)[0]??null;
+}
+// Up to 4 example crops of the tree from other panoramas.
+const examples=(tree,loc)=>(tree.examples??[]).filter(example=>example.img!==loc.img).slice(0,4);
 // Never "reload": a reload on a GeoGuessr results page can resume the next round (AGENTS.md). Retry re-asks loadImage,
 // which forgets failed requests, so starting the installer and pressing Retry fills the card in place.
 export const IMAGES_OFFLINE='Images need the Fieldwork installer: run npm run serve in ~/Desktop/code/fieldwork, then press Retry';
@@ -182,21 +206,36 @@ export function vegCard(card,skill,round,pack,{loadImage,seen=new Set()}){
   if(wrong&&round.guess)el(top,'small',null,`you pinned ${pinned?.title??'outside the US regions'}, ${km(round.guess,loc).toLocaleString('en-US')} km`);
   // ruleCheck is 'true|pinned' of the miss that set this check (sprint.mjs ruleCheckFor), named in that order.
   if(round.ruleCheck)el(veg,'p','vcheck',`Rule check: ${round.ruleCheck.split('|').map(code=>pack.skills.find(item=>item.region===code)?.title??code).join(' vs ')}`);
+  // Plonk-It style: a named tree leads, ahead of any region rule. "See the western hemlock? → Pacific Northwest coast".
+  const spot=spotTree(pack,skill,loc);
+  if(spot)el(veg,'p','vrule',`See the ${spot.tree.name??spot.tree.title}? → ${spot.tree.area}`);
+  if(skill.subject==='tree'){
+    const row=el(veg,'div','vrow'),still=image(el(row,'figure','img vstill'),loc.img,{location:loc});
+    if(spot.box){boxed(still,spot.box,'#ffffff',skill.title);still.lastChild.classList.add('vtreebox')}
+    const so=el(row,'div','vso');el(so,'p',null,'Lives in:');el(so,'p','vibe',(skill.states??[]).join(' · '));
+    const range=new Set(skill.range);
+    regionMap(so,pack,code=>range.has(code)?'#0b5d3b':wrong&&code===round.guessedRegion?'#efb08c':'#d5dcd8',{pin:wrong?round.guess:null});
+    el(so,'p','vibe',`This panorama: ${pack.skills.find(item=>item.region===loc.region)?.title??loc.region}`);
+    deckStrip(veg,skill,false);
+    return;
+  }
   const {featureOf,groups}=groupsOf(skill,loc);
   // A miss leads with this panorama's giveaway that best separates the true region from the pinned one, with only its box
   // (labelled); with none above HEADLINE_MIN, the pair's contrast rule and the boxes it names (else the view's top two).
   // Everything else waits in More.
   const lead=wrong&&pinned&&round.guess?headline(skill,pinned,loc,round.guess):null;
   const takeaway=lead??(wrong&&(pinned?contrast(pack,skill,pinned):{lines:[skill.why].filter(Boolean),features:[]}));
-  if(takeaway)takeaway.lines.forEach((line,i)=>el(veg,'p',takeaway.lines.length===1||lead&&!i?'vrule':'vrule two',line));
+  if(takeaway)takeaway.lines.forEach((line,i)=>el(veg,'p',!spot&&(takeaway.lines.length===1||lead&&!i)?'vrule':'vrule two',line));
   const named=lead?[lead.index]:takeaway&&groups.map((group,i)=>i).filter(i=>takeaway.features.includes(groups[i].gs[0].feature)).slice(0,2);
   const boxedGroups=!takeaway?groups.map((group,i)=>i):named.length?named:[0,1].filter(i=>i<groups.length);
   const row=el(veg,'div','vrow'),still=image(el(row,'figure','img vstill'),loc.img,{location:loc});still.setAttribute('aria-label',`${skill.title}: this round's view`);
   if(lead)boxed(still,groups[lead.index].gs[0].box,groups[lead.index].F.col,lead.label);
   else for(const i of boxedGroups)groups[i].gs.forEach(g=>boxed(still,g.box,groups[i].F.col,String(i+1)));
+  if(spot?.box){boxed(still,spot.box,'#ffffff',spot.tree.title);still.lastChild.classList.add('vtreebox')}
   const so=el(row,'div','vso');el(so,'p',null,'So:');el(so,'strong',null,skill.title);
   regionMap(so,pack,code=>code===skill.region?'#0b5d3b':wrong&&code===round.guessedRegion?'#efb08c':'#d5dcd8',{pin:wrong?round.guess:null,focus:skill.region});
   if(!wrong&&skill.why)el(so,'p','vibe',skill.why);
+  if(spot)deckStrip(veg,spot.tree,true);
   // Right pins keep the first three cue tiles in view. More (M) holds the rest: the wrong-pin comparison, other cues,
   // key trees and the same feature in other panoramas of this region.
   if(!wrong)cueTiles(veg,groups.slice(0,3).map((group,i)=>i));
@@ -220,6 +259,15 @@ export function vegCard(card,skill,round,pack,{loadImage,seen=new Set()}){
       thumb.title=`${other.state??''} ${other.season??''}`.trim();boxed(thumb,g.box,F.col,String(groups.findIndex(({gs})=>gs[0].feature===g.feature)+1))}
   }
   if(!fold.children[1])fold.remove();
+  // The tree's deck card: up to 4 crops of it from other panoramas, the spot-it bullets and (region rounds) its range.
+  function deckStrip(parent,tree,withMap){
+    const strip=el(parent,'div','vdeck'),shots=el(strip,'div','vex');
+    for(const example of examples(tree,loc)){const [x0,y0,cw,ch]=fitCrop(example.crop,EX),shot=image(el(shots,'figure','img'),example.img,{caption:`${tree.title}${example.state?`, ${example.state}`:''}`});
+      shot.style.backgroundSize=`${100/cw}% ${100/ch}%`;shot.style.backgroundPosition=`${cw<1?x0/(1-cw)*100:0}% ${ch<1?y0/(1-ch)*100:0}%`;}
+    const side=el(strip,'div','vspot');el(side,'p',null,'Spot it from the car');
+    const list=el(side,'ul');for(const line of tree.spot??[])el(list,'li',null,line);
+    if(withMap){const range=new Set(tree.range);regionMap(side,pack,code=>range.has(code)?'#0b5d3b':'#d5dcd8',{region:loc.region});}
+  }
   // One tile per cue (by group index): crop of its box, first clause big, species range and photo.
   function cueTiles(parent,indexes){
     if(!indexes.length)return;

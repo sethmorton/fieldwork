@@ -4,17 +4,18 @@ const params=new URL(location.href).searchParams;
 // offline: every image fails, as with the installer stopped and nothing prefetched. trees=1 gives the round two sample
 // per-tree labels (the pilot's schema); open=<n> opens the viewer on the card's n-th image (0 = the still).
 // region=<code> picks the round's region (default Coast Range); veg-wrong pins the nearest pano of another region (pin=<code>: of that one).
+// tree=<card> (e.g. ponderosa-pine) plays that tree deck clue's first panorama instead (pano=<id> to choose).
 if(params.get('mode')?.startsWith('veg')){
 const {reviewPanel,completedRound}=await import('/dist/preview-ui.js');
 const entry=(await (await fetch('/catalog.json')).json()).packs.find(item=>item.id==='us-vegetation');
 const veg={...await (await fetch('/'+entry.url)).json(),practiceMapId:'000000000000000000000001'};
-const loc=veg.locations.find(item=>item.region===(params.get('region')??'7.1.8')&&(!params.get('pano')||item.panoId===params.get('pano')));
+const tree=params.get('tree'),loc=veg.locations.find(item=>(tree?item.skillIds[0]==='usveg:tree:'+tree:item.region===(params.get('region')??'7.1.8')&&!item.tree)&&(!params.get('pano')||item.panoId===params.get('pano')));
 const d=item=>(item.lat-loc.lat)**2+((item.lng-loc.lng)*Math.cos(loc.lat*Math.PI/180))**2;
 const near=veg.locations.filter(item=>item.region!==loc.region&&(!params.get('pin')||item.region===params.get('pin'))).sort((a,b)=>d(a)-d(b))[0];
 if(params.has('trees'))Object.assign(loc,{species:[],trees:[{species:null,label:'Unidentified conifer',box:[0.25,0.28,0.12,0.32],confidence:'high'},{species:null,label:'Broadleaf, maybe alder',box:[0.72,0.22,0.27,0.45],confidence:'medium'}]});
 const guess=params.get('mode')==='veg-wrong'?{lat:near.lat,lng:near.lng}:{lat:loc.lat+0.05,lng:loc.lng+0.05};
 const round=completedRound(veg,{map:{id:veg.practiceMapId},current_game_id:'fixture',current_round:Number(params.get('round')??3),round_in_progress:false,
-  rounds:Array.from({length:5},()=>({location:{panoId:loc.panoId},player_guess:guess}))});
+  rounds:Array.from({length:5},()=>({location:{panoId:loc.panoId},player_guess:guess}))},[loc.id]);
 document.title=`veg ${round.correct}`;
 reviewPanel(veg,round,{onSave:()=>[],onNext:()=>{throw Error('Fixture only. No map was changed.')},loadImage:params.has('offline')?()=>Promise.reject(Error('installer offline')):url=>fetch(url).then(response=>response.blob()).then(URL.createObjectURL)});
 if(params.has('open'))setTimeout(()=>[...document.querySelector('#fieldwork-practice').shadowRoot.querySelectorAll('.veg [role=img]')][Number(params.get('open'))].click(),800);

@@ -252,7 +252,7 @@ function render() {
       onImport:importPack,onCoverage:async()=>download(await store.audit(pack.id),`fieldwork-sources-${pack.id}.json`),atlasNote,
     });mounted='start';launchError=null;return;
   }
-  const round=completedRound(pack,state);
+  const round=completedRound(pack,state,GM_getValue(key('active-set'),null)?.locationIds);
   const routeId=location.pathname.split('/').filter(Boolean).at(-1);
   // The result view can be revealed by a class change, which the DOM observer does not report: re-check for up to 5 s.
   if(round&&routeId===round.gameId&&!resultsVisible&&round.id!==lastShown){

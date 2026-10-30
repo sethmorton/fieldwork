@@ -17,6 +17,8 @@
     CONTRAST_MODEL from the two regions' facts only and cached in local/usveg-contrasts.json (rebuilds reuse it)
 Images are not copied: scripts/serve.mjs serves trees/img read-only under /usveg-img/ (config `usvegImages`).
 Env: TREES (default ~/Desktop/code/fieldwork-site/trees), WORLD_PACK_DATA (duels/rounds.json; optional).
+  - tree deck (usveg_trees.py): one skill per roadside tree (subject 'tree', graded by its range), its own locations,
+    spot-it bullets, examples and area; also written to TREES/deck.json for the atlas's Tree deck page
 Self-check: python3 tools/world-pack/usveg.py check
 """
 import datetime as dt
@@ -28,6 +30,8 @@ import sys
 import time
 from collections import Counter
 from pathlib import Path
+
+import usveg_trees
 
 REPO = Path(__file__).resolve().parents[2]
 TREES = Path(os.environ.get('TREES', Path.home() / 'Desktop/code/fieldwork-site/trees'))
@@ -331,6 +335,7 @@ def build(data, geo):
     skills.sort(key=lambda s: -s['cost'])
 
     used = {f['species'] for s in skills for f in s['features'] if f.get('species')} | {t['species'] for s in skills for t in s['trees']}
+    trees, tree_locs = usveg_trees.deck(data, kept, {s['region']: s['acow'] for s in skills}, counts, range_of)
     paths = {c: svg_path(shapes[c]) for c in codes}
     xs = [float(v) for d in paths.values() for seg in d.replace('M', 'L').replace('Z', '').split('L') if seg for v in seg.split()[0::2]]
     ys = [float(v) for d in paths.values() for seg in d.replace('M', 'L').replace('Z', '').split('L') if seg for v in seg.split()[1::2]]
@@ -341,8 +346,8 @@ def build(data, geo):
             'contrasts': contrasts(eco, {loc['region'] for loc in kept}, order), 'initialSkillIds': [], 'imageBase': IMAGE_BASE,
             'answerAreaLabel': f"{len({loc['region'] for loc in kept})} US ecoregions, {len(kept)} panoramas, graded by the ecoregion you pin",
             'coverageSummary': f"Tree Atlas drive panoramas with coach giveaways (fieldwork-site/trees, {data.get('generated', '')}); EPA Level III ecoregions.",
-            'skills': skills, 'locations': kept,
-            'pools': [{'id': 'us-vegetation', 'title': 'US ecoregions', 'skillIds': [s['id'] for s in skills], 'mapUrl': SOURCE_MAP}],
+            'skills': skills + trees, 'locations': kept + tree_locs,
+            'pools': [{'id': 'us-vegetation', 'title': 'US ecoregions', 'skillIds': [s['id'] for s in skills + trees], 'mapUrl': SOURCE_MAP}],
             'regionFeatures': order,
             'vegMap': {'viewBox': view, 'regions': paths,
                        'species': {s: range_of(eco, s) for s in sorted(used)}}}
@@ -443,6 +448,7 @@ def check():
     assert signal({'name': 'Dark conifers in the hollows'}, groups) == ['ft:Douglas-fir', 'ft:Spruce/Fir', 'ft:White/Red/Jack Pine']
     assert signal({'name': 'Narrow road walled by forest'}, groups) == ['lc:forest']
     assert signal({'name': 'Plateau back road'}, groups) == [] and signal({'name': 'x', 'species': 'oak'}, groups) == ['sp:oak']
+    usveg_trees.check()
     print('ok')
 
 
@@ -456,8 +462,15 @@ def main():
         print(f"dropped {loc['img']}: not inside {loc['region']} ({loc['lat']}, {loc['lng']})", file=sys.stderr)
     OUT.parent.mkdir(exist_ok=True)
     OUT.write_text(json.dumps(pack, separators=(',', ':')))
-    print(f"{OUT.relative_to(REPO)}: {len(pack['skills'])} regions, {len(pack['locations'])} panoramas, "
-          f"{len({loc['region'] for loc in pack['locations']})} regions playable, {OUT.stat().st_size // 1024} KB")
+    # The atlas's Tree deck page (fieldwork-site trees/#deck) reads the same cards and map.
+    trees = [s for s in pack['skills'] if s['subject'] == 'tree']
+    (TREES / 'deck.json').write_text(json.dumps({'viewBox': pack['vegMap']['viewBox'], 'regions': pack['vegMap']['regions'],
+                                                 'names': {c: r['name'] for c, r in data['ecoregions'].items()}, 'cards': trees},
+                                                separators=(',', ':')))
+    regions = [loc for loc in pack['locations'] if not loc['id'].startswith('usveg:tree:')]
+    print(f"{OUT.relative_to(REPO)}: {len(pack['skills']) - len(trees)} regions, {len(regions)} panoramas, "
+          f"{len({loc['region'] for loc in regions})} regions playable; {len(trees)} trees, "
+          f"{sum(1 for s in trees if any(loc['skillIds'] == [s['id']] for loc in pack['locations']))} playable; {OUT.stat().st_size // 1024} KB")
 
 
 if __name__ == '__main__':

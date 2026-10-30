@@ -43,7 +43,7 @@ export function pendingRuleChecks(pack,attempts){
   const regionOf=new Map(pack.skills.map(skill=>[skill.id,skill.region])),regions=new Set(regionOf.values()),out=[];
   attempts.slice(-RULE_WINDOW).forEach((attempt,index,recent)=>{
     const a=regionOf.get(attempt.skillId),b=attempt.guessedRegion;
-    if(attempt.correct!==false||!explicit(attempt)||!regions.has(b)||a===b)return;
+    if(!a||attempt.correct!==false||!explicit(attempt)||!regions.has(b)||a===b)return;
     if(recent.slice(index+1).some(later=>[a,b].includes(regionOf.get(later.skillId))))return;
     out.unshift({pair:pairKey(a,b),regions:[a,b]});
   });
@@ -54,8 +54,8 @@ export function pendingRuleChecks(pack,attempts){
  *  pinned side merely matches this region is not this round's pair (the stale 'Coast Range' header on a NE Highlands pano). */
 export function ruleCheckFor(pack,attempts,location){
   const shown=new Set(attempts.map(attempt=>attempt.locationRef));
-  if(shown.has(location.id))return null;
-  const unseen=region=>pack.locations.some(other=>other.region===region&&!shown.has(other.id));
+  if(shown.has(location.id)||location.tree)return null;
+  const unseen=region=>pack.locations.some(other=>other.region===region&&!other.tree&&!shown.has(other.id));
   const check=pendingRuleChecks(pack,attempts).find(({regions:[a,b]})=>a===location.region||b===location.region&&!unseen(a));
   return check?check.regions.join('|'):null;
 }
@@ -84,7 +84,8 @@ function progress(pack,attempts) {
   const byId=new Map((pack.locations??[]).map(location=>[location.id,location]));
   return new Map(pack.skills.map(skill=>{
     const shown=bySkill.get(skill.id)??[],seen=new Set(),all=panos.get(skill.id)?.length??0;
-    const required=requiredCells(pack,panos.get(skill.id)??[]),cells=new Set();
+    // A tree clue retires on spots alone: its panoramas span many states, none of them its point.
+    const required=skill.subject==='tree'?new Set():requiredCells(pack,panos.get(skill.id)??[]),cells=new Set();
     let state=shown.length?'learning':'new',spotted=0,knew=false,learnedAt=null;
     for(const attempt of shown){
       const fresh=!seen.has(attempt.locationRef)||seen.size>=all;seen.add(attempt.locationRef);
@@ -109,7 +110,22 @@ export function sprintStatus(pack,attempts) {
     [id,{state:state==='learned'?'learning':state,shown,spotted}]));
 }
 
-export function planSprint(pack,attempts,{size=5,now=Date.now()}={}) {
+// Tree deck (us-vegetation subject 'tree'): one round per set is a tree, the rest regions, each planned as its own sprint
+// (cost, due, retirement as usual). While warming up, trees whose range touches a warm-up region, if any. The tree takes
+// the middle slot; the region picks avoid its panorama (a tree location copies a region panorama).
+export function planSprint(pack,attempts,options={}){
+  const size=options.size??5,trees=pack.skills.filter(skill=>skill.subject==='tree'),regionPack={...pack,skills:pack.skills.filter(skill=>skill.subject!=='tree')};
+  if(!trees.length||size<2)return planSet(pack,attempts,options);
+  const near=warmupOn(pack,attempts)?trees.filter(tree=>tree.range?.some(code=>pack.warmup.includes(code))):[];
+  let tree;try{tree=planSet({...pack,warmup:undefined,skills:near.length?near:trees},attempts,{...options,size:1})}
+  catch(error){if(!/^Sprint complete/.test(error.message))throw error;return planSet(regionPack,attempts,options)}  // every tree retired
+  const byId=new Map(pack.locations.map(location=>[location.id,location])),pano=byId.get(tree.locationIds[0]).panoId;
+  const regions=planSet(regionPack,attempts,{...options,size:size-1,avoid:pano});
+  if(regions.locationIds.some(id=>byId.get(id).panoId===pano))return planSet(regionPack,attempts,options);
+  const ids=[...regions.locationIds];ids.splice(Math.min(2,ids.length),0,tree.locationIds[0]);
+  return {locationIds:ids,reasons:[`${regions.reasons[0]}, 1 tree (${tree.reasons[0]})`,regions.reasons[1]]};
+}
+function planSet(pack,attempts,{size=5,now=Date.now(),avoid=null}={}) {
   const status=progress(pack,attempts),clock=attempts.length,nowMs=new Date(now).getTime();
   const lastRound=new Map(),lastUse=new Map();
   attempts.forEach((attempt,index)=>{lastRound.set(attempt.skillId,index+1);lastUse.set(attempt.locationRef,index);});
@@ -170,7 +186,8 @@ export function planSprint(pack,attempts,{size=5,now=Date.now()}={}) {
     if(cell)shownCells.set(attempt.skillId,(shownCells.get(attempt.skillId)??new Set()).add(cell));}
   const lru=list=>list.reduce((best,location)=>(lastUse.get(location.id)??-1)<(lastUse.get(best.id)??-1)?location:best);
   const pick=skill=>{
-    const list=locations.get(skill.id),unshown=pack.cellCoverage?list.filter(location=>location.state&&!shownCells.get(skill.id)?.has(location.state)):[];
+    const all=locations.get(skill.id),free=all.filter(location=>location.panoId!==avoid),list=free.length?free:all;
+    const unshown=pack.cellCoverage?list.filter(location=>location.state&&!shownCells.get(skill.id)?.has(location.state)):[];
     if(!unshown.length)return lru(list);
     const top=Math.max(...unshown.map(location=>location.cellShare??0));
     return lru(unshown.filter(location=>(location.cellShare??0)===top));

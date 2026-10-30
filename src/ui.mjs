@@ -83,8 +83,9 @@ function routine(section,pack,attempts){
   const list=text(section,'ol','','routine muted'),study=mostMissed(pack,attempts);
   text(list,'li','Cold: 2 sets');
   const item=text(list,'li',study.length?'Study: ':'Study: your 3 most-missed regions, once you have misses');
-  study.forEach((skill,index)=>{const link=text(item,'a',skill.title);link.href=ATLAS_PAGE+skill.region;link.target='_blank';link.rel='noopener';
+  study.forEach((skill,index)=>{const link=text(item,'a',skill.title);link.href=ATLAS_PAGE+(skill.subject==='tree'?'deck/'+skill.id.split(':').pop():'eco/'+skill.region);link.target='_blank';link.rel='noopener';
     if(index<study.length-1)item.append(', ')});
+  if(pack.skills.some(skill=>skill.subject==='tree')){item.append(study.length?'; ':'. ');const deck=text(item,'a','Tree deck');deck.href=ATLAS_PAGE+'deck';deck.target='_blank';deck.rel='noopener'}
   text(list,'li','Practice: 2 sets');
   text(list,'li',dayChecks(pack,attempts,Date.now()).length?'Checks: due now, your first set re-checks past misses':'Checks: next day and +7 days');
 }

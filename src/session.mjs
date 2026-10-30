@@ -17,18 +17,23 @@ export function practiceFeedback(history,round,now=Date.now()) {
     :latest.correct===false||latest.evidenceValid===false?'Review: you missed this last time':'Review';
 }
 
-export function completedRound(pack,state) {
+/** `active`: the in-flight set's location ids. A panorama can back two clues (its region and, in us-vegetation, a tree it
+ *  shows), so the set's own location wins; else the first by pack order. */
+export function completedRound(pack,state,active=[]) {
   if(!state || state.map?.id!==pack.practiceMapId || state.round_in_progress!==false
     || !Number.isInteger(state.current_round) || state.current_round<1 || !state.current_game_id) return null;
   const round=state.rounds?.[state.current_round-1];
   if(!round?.location?.panoId || !Number.isFinite(round.player_guess?.lat) || !Number.isFinite(round.player_guess?.lng)) return null;
-  const location=pack.locations.find(location=>location.panoId===round.location.panoId);
+  const matches=pack.locations.filter(location=>location.panoId===round.location.panoId);
+  const location=matches.find(location=>active.includes(location.id))??matches[0];
   if(!location) return null;
   const {lat,lng}=round.player_guess,guessedRegion=regionAt(lat,lng,pack.regionFeatures??[]);
   // A sprint pack whose locations carry regions (us-vegetation) tiles its whole answer area, so a guess off every region
   // is wrong; elsewhere an off-region guess stays unknown. The card shows the guessed region and the guess itself.
   const regioned=pack.scheduler==='sprint'&&!!location.region&&!!pack.regionFeatures?.length;
-  const inRegion=guessedRegion&&location.region?guessedRegion===location.region:regioned?false:null;
+  // A tree clue (us-vegetation subject 'tree') is right anywhere in its range: any region where it is a key tree.
+  const range=pack.skills?.find(skill=>skill.id===location.skillIds[0])?.range;
+  const inRegion=guessedRegion&&location.region?(range?range.includes(guessedRegion):guessedRegion===location.region):regioned?false:null;
   // Sprint packs carry the atlas outlines: the guess's country against the card's (ISO2). Off every outline stays unknown.
   const country=pack.atlas?.geometry&&pack.skills.find(skill=>skill.id===location.skillIds[0])?.country;
   const guessedCountry=country?countryAt(lat,lng,pack.atlas.geometry):null;

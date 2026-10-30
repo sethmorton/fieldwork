@@ -4,7 +4,7 @@ import {readFileSync,existsSync} from 'node:fs';
 import {completedRound,recordRecognition,startPracticeGame,launchRequest} from '../session.mjs';
 import {planSprint,sprintStatus} from '../sprint.mjs';
 import {makeNextSet,validatePack} from '../next-set.mjs';
-import {albersUsa,cropWindow,clauses,km,cardImages,regionThumbs} from '../vegcard.mjs';
+import {albersUsa,cropWindow,clauses,km,cardImages,regionThumbs,spotTree,fitCrop} from '../vegcard.mjs';
 // Synthetic us-vegetation pack: regions R0..R6 are 1-degree squares side by side (lng i..i+1, lat 0..1), three panoramas each.
 const mid='0123456789abcdef01234567',practice='76543210fedcba9876543210';
 const square=i=>({type:'Feature',properties:{name:'R'+i},geometry:{type:'Polygon',coordinates:[[[i,0],[i+1,0],[i+1,1],[i,1],[i,0]]]}});
@@ -86,10 +86,11 @@ test('built us-vegetation pack: every location grades as its own region',{skip:!
   const veg={...JSON.parse(readFileSync(built,'utf8')),practiceMapId:practice};
   for(const location of veg.locations){
     const round=completedRound(veg,{map:{id:practice},current_game_id:'g',current_round:1,round_in_progress:false,
-      rounds:[{location:{panoId:location.panoId},player_guess:{lat:location.lat,lng:location.lng}}]});
-    assert.equal(round.guessedRegion,location.region,location.id);assert.equal(round.correct,true);
+      rounds:[{location:{panoId:location.panoId},player_guess:{lat:location.lat,lng:location.lng}}]},[location.id]);
+    assert.equal(round.location.id,location.id);assert.equal(round.guessedRegion,location.region,location.id);assert.equal(round.correct,true);
   }
-  assert.ok(veg.skills.every(skill=>veg.vegMap.regions[skill.region]),'every region has a map path');
+  assert.ok(veg.skills.every(skill=>skill.subject==='tree'||veg.vegMap.regions[skill.region]),'every region has a map path');
+  assert.ok(veg.skills.filter(skill=>skill.subject==='tree').every(skill=>skill.spot.length===3&&skill.spot.every(line=>line.split(' ').length<=10)&&skill.range.length),'tree cards: 3 short bullets and a range');
 });
 test('gameSettings: validated, and Continue starts the game with exactly them',async()=>{
   const settings={forbidMoving:true,forbidZooming:false,forbidRotating:false,timeLimit:90},withSettings={...pack,gameSettings:settings};
@@ -160,4 +161,40 @@ test('wrong-pin comparison thumbnails: this round\'s season first, then unseen p
   assert.deepEqual(ids({season:'leaf-on',seen:new Set(['b'])}),['c','d']);
   assert.deepEqual(ids({season:'leaf-on',exclude:'c',seen:new Set(['b'])}),['d','b']);
   assert.deepEqual(ids({season:'dormant'}),['a','b'],'no same-season panorama: unseen in pack order');
+});
+// Tree deck: T0 lives in R1-R2 (two panoramas), T1 in every region (two). Tree locations copy region panoramas.
+const trees=[['T0',['R1','R2'],['R1-0','R2-0']],['T1',skills.map(s=>s.region),['R3-1','R4-1']]].map(([id,range,from])=>({id:'usveg:tree:'+id,title:'Tree '+id,
+  subject:'tree',practiceFamily:'trees',phase:'Vegetation',prerequisites:[],species:[id.toLowerCase()],range,area:'somewhere',spot:['a','b','c'],examples:[],from}));
+const treed={...pack,skills:[...skills,...trees],locations:[...pack.locations,...trees.flatMap(tree=>tree.from.map(ref=>{
+  const base=pack.locations.find(location=>location.id===ref);return {...base,id:`${tree.id}:${base.panoId}`,skillIds:[tree.id],tree:{label:tree.title,box:[0,0,1,1]}}}))]};
+test('a tree round is right anywhere in its range; the in-flight set decides which clue a shared panorama is',()=>{
+  const active=['usveg:tree:T0:pR1-0'];
+  assert.deepEqual([completedRound(treed,state(0.5,2.5),active).correct,completedRound(treed,state(0.5,2.5),active).location.id],[true,active[0]]);
+  assert.equal(completedRound(treed,state(0.5,3.5),active).correct,false,'outside the range');
+  assert.deepEqual([completedRound(treed,state(0.5,2.5)).correct,completedRound(treed,state(0.5,2.5)).location.id],[false,'R1-0'],'no set: the region clue');
+});
+test('the card leads with the panorama\'s high-confidence deck tree, the most range-restricted one',()=>{
+  const loc={...pack.locations[0],trees:[{species:'t1',confidence:'high',box:[0,0,.1,.1]},{species:'t0',confidence:'high',box:[.5,0,.1,.1]},{species:null,confidence:'high',box:[0,0,1,1]}]};
+  assert.equal(spotTree(treed,skills[0],loc).tree.id,'usveg:tree:T0');
+  assert.deepEqual(spotTree(treed,skills[0],loc).box,[.5,0,.1,.1]);
+  assert.equal(spotTree(treed,skills[0],{...loc,trees:[{species:'t0',confidence:'medium',box:[0,0,1,1]},{species:'oak',confidence:'high',box:[0,0,1,1]}]}),null,'medium or off-deck: no lead');
+  assert.equal(spotTree(treed,trees[1],treed.locations.at(-1)).tree.id,'usveg:tree:T1','a tree round leads with its own tree');
+  const [x0,y0,cw,ch]=fitCrop([0.4,0.05,0.1,0.9],0.75);
+  assert.ok(Math.abs(cw*1600/(ch*1000)-0.75)<1e-9&&x0<=0.4&&x0+cw>=0.5&&y0>=0&&y0+ch<=1,'example crops fill a 3:4 tile, tree inside, within the image');
+});
+test('every set holds one tree round, in the middle, on a panorama no region round uses; warm-up keeps trees near',()=>{
+  let attempts=[],n=0;
+  for(let set=0;set<5;set++){
+    const {locationIds,reasons}=planSprint(treed,attempts,{size:5,now:Date.parse('2026-10-29T08:00:00Z')+set*60e3});
+    const chosen=locationIds.map(id=>treed.locations.find(location=>location.id===id));
+    assert.equal(chosen.length,5);assert.deepEqual(chosen.map(location=>!!location.tree),[false,false,true,false,false],locationIds.join());
+    assert.equal(new Set(chosen.map(location=>location.panoId)).size,5);assert.match(reasons[0],/1 tree/);
+    for(const location of chosen)attempts.push({id:'a'+n++,skillId:location.skillIds[0],locationRef:location.id,correct:true,feedbackSource:'auto',
+      occurredAt:new Date(Date.parse('2026-10-29T08:00:00Z')+n*1000).toISOString()});
+  }
+  const misses=Array.from({length:20},(_,i)=>({id:'m'+i,skillId:'usveg:R5',locationRef:'R5-0',correct:false,feedbackSource:'auto',occurredAt:new Date(Date.parse('2026-10-29T08:00:00Z')+i*1000).toISOString()}));
+  const warm={...treed,warmup:['R1','R2'],skills:treed.skills.map(skill=>skill.id==='usveg:tree:T1'?{...skill,range:['R5'],cost:99}:skill)};
+  const picked=planSprint(warm,misses,{now:Date.parse('2026-10-29T09:00:00Z')}).locationIds.map(id=>warm.locations.find(location=>location.id===id));
+  assert.ok(picked.filter(location=>!location.tree).every(location=>['R1','R2'].includes(location.region)),'regions stay in the warm-up');
+  assert.equal(picked.find(location=>location.tree).skillIds[0],'usveg:tree:T0','the costlier T1 is out of the warm-up range');
 });

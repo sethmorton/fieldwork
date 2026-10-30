@@ -114,8 +114,9 @@ while emitting completed `GEFFetchEvents` responses. Verify the round-2 clue
 recovers, Next hides it and saves only round 2, and round 3 shows its own card.
 Do not reload a learner's results to test: GeoGuessr can resume the next round.
 
-`fixtures/game-fixture.html?mode=veg` (or `mode=veg-wrong`, optional `region=<code>&pano=<id>`) renders the real
-us-vegetation card from the built pack, graded by `completedRound`, with the installer serving images.
+`fixtures/game-fixture.html?mode=veg` (or `mode=veg-wrong`, optional `region=<code>&pano=<id>`, or `tree=<card>` for a
+tree deck round) renders the real us-vegetation card from the built pack, graded by `completedRound`, with the installer
+serving images.
 
 `browser-recovery.test.mjs` fuzzes 150 seeded orderings of framework/native
 responses, reveals, stale responses and Next clicks; every round must show its own
