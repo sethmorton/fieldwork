@@ -4,6 +4,9 @@ export type Attempt = {
   skillId: string;
   occurredAt: string;
   correct: boolean | null;
+  /** Exact geography (pinned region === the location's), separate from `correct` when a shared clue's range credits a
+   *  neighbouring region or recognition decides the grade; null when unknown. Absent on records saved before it existed. */
+  regionCorrect?: boolean | null;
   evidenceValid: boolean;
   confidence: number;
   unfamiliar: boolean;
@@ -25,6 +28,9 @@ export type SkillStatus = {
   firstEvidenceAt: string | null;
   lastEvidenceAt: string | null;
   masteredAt: string | null;
+  /** Practice-only packs: learned = two explicit spots on distinct panoramas since the latest miss, the second at least
+   *  20 h after the clue's previous record; retained = a further explicit spot after a 21-day gap. Both latch until a miss. */
+  memory: 'learned' | 'retained' | null;
   /** FSRS-6 schedule from all outcomes; the planner and tree share this one notion of due. */
   reviewDueAt: string | null;
   due: boolean;
@@ -32,7 +38,7 @@ export type SkillStatus = {
   overconfidentErrors: number;
   reason: string;
 };
-const DELAY = 20 * 60 * 60 * 1000;
+const DELAY = 20 * 60 * 60 * 1000, RETAIN = 21 * 24 * 60 * 60 * 1000;
 const passed = (attempt: Attempt) => attempt.correct === true && attempt.evidenceValid;
 const time = (value: Clock) => new Date(value).getTime();
 const iso = (value: number) => new Date(value).toISOString();
@@ -51,6 +57,23 @@ function qualifyingPrefixes(attempts: Attempt[]) {
   return qualifies;
 }
 
+/** Learned/retained latches over time-sorted records. Quick-check, assumed and auto successes neither promote nor reset. */
+function memoryLatch(records: Attempt[]): SkillStatus['memory'] {
+  let state: SkillStatus['memory'] = null, previous: number | null = null;
+  const panoramas = new Set<string>();
+  for (const attempt of records) {
+    const at = time(attempt.occurredAt), gap = previous === null ? 0 : at - previous;
+    if (attempt.correct === false || !attempt.evidenceValid) { state = null; panoramas.clear(); }
+    else if (attempt.correct === true && attempt.feedbackSource === 'explicit' && attempt.locationRef?.trim()) {
+      panoramas.add(attempt.locationRef.trim());
+      if (!state && panoramas.size >= 2 && gap >= DELAY) state = 'learned';
+      else if (state === 'learned' && gap >= RETAIN) state = 'retained';
+    }
+    previous = at;
+  }
+  return state;
+}
+
 export function skillStatus(skillId: string, attempts: Attempt[], now: Clock = Date.now(), kind?: 'orientation'): SkillStatus {
   const nowMs = time(now);
   if (!Number.isFinite(nowMs)) throw new Error('Invalid current date.');
@@ -62,7 +85,7 @@ export function skillStatus(skillId: string, attempts: Attempt[], now: Clock = D
     return {
       skillId, state: oriented ? 'oriented' : records.length ? 'learning' : 'new',
       eligibleCount: 0, accuracy: null, recentAccuracy: null, firstEvidenceAt: null,
-      lastEvidenceAt: null, masteredAt: null, reviewDueAt: null, due: false, retrievability: null, overconfidentErrors: 0,
+      lastEvidenceAt: null, masteredAt: null, memory: null, reviewDueAt: null, due: false, retrievability: null, overconfidentErrors: 0,
       reason: oriented ? 'Orientation completed through source recall. This does not establish panorama mastery.'
         : 'Complete the guided source-recall exercise to finish this orientation.',
     };
@@ -106,7 +129,7 @@ export function skillStatus(skillId: string, attempts: Attempt[], now: Clock = D
   return {
     skillId, state, eligibleCount: window.length, accuracy, recentAccuracy,
     firstEvidenceAt: window[0]?.occurredAt ?? null, lastEvidenceAt: latest?.occurredAt ?? null,
-    masteredAt, reviewDueAt: memory && iso(memory.due), due: !!memory && memory.due <= nowMs,
+    masteredAt, memory: memoryLatch(records), reviewDueAt: memory && iso(memory.due), due: !!memory && memory.due <= nowMs,
     retrievability: memory && retrievability(memory, nowMs),
     overconfidentErrors: window.filter(attempt => !passed(attempt) && attempt.confidence === 3).length,
     reason,

@@ -248,7 +248,15 @@ power-provider plates or individual Brazilian area codes. Source-country
 metadata and generalized geometry are not evidence of political boundaries
 or clue exclusivity. Regional distinctions remain recognition practice;
 country scoring alone cannot establish them. Every current Worldwide
-location is a source teaching example, excluded from unseen mastery credit.
+location is a source teaching example, excluded from unseen mastery credit,
+so the progress tree shows learned and retained instead of provisional and
+mastered (see docs/SETUP.md).
+
+A `range` lists every country where one clue looks the same. A pin in any of
+them grades the clue as right. The exact pin is kept as `regionCorrect`, and
+country readiness reads that. Only `world:lm:60` and `world:lm:61` (Czechia
+and Slovakia bollards) carry one, because Plonkit says that design is shared.
+Add a range only for a hand-checked identical clue, never by matching names.
 
 ## Curriculum scope (`curriculum` field)
 

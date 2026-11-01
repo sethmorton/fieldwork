@@ -25,9 +25,12 @@ export function completedRound(pack,state) {
   const location=pack.locations.find(location=>location.panoId===round.location.panoId);
   if(!location) return null;
   const guessedRegion=regionAt(round.player_guess.lat,round.player_guess.lng,pack.regionFeatures??[]);
+  // A clue whose tell appears in several countries (skill `range`, its answer set) is right anywhere in it. The exact
+  // pin rides along so a range hit on another country stays a wrong pin for country readiness and the card.
+  const range=pack.skills?.find(skill=>skill.id===location.skillIds[0])?.range,known=!!guessedRegion&&!!location.region;
   return {id:`${pack.id}:${state.current_game_id}:${state.current_round}`,location,
-    round:state.current_round,gameId:state.current_game_id,
-    correct:guessedRegion&&location.region?guessedRegion===location.region:null};
+    round:state.current_round,gameId:state.current_game_id,...(known?{guessedRegion,regionCorrect:guessedRegion===location.region}:{}),
+    correct:known?(range?range.includes(guessedRegion):guessedRegion===location.region):null};
 }
 
 export function recordRecognition(pack,history,round,{recognized,knew=false,familiar=false,correct=round.correct,assumed=false},now=new Date()) {
@@ -44,7 +47,7 @@ export function recordRecognition(pack,history,round,{recognized,knew=false,fami
   if(prior && (assumed || prior.feedbackSource!=='assumed-on-advance'))return history;
   const wasSeen=history.some(attempt=>attempt.id!==round.id&&attempt.locationRef===round.location.id);
   const attempt={id:round.id,skillId:round.location.skillIds[0],occurredAt:now.toISOString(),
-    correct:recognitionDecides?recognized:correct,regionCorrect:correct,evidenceValid:recognized,confidence:recognized&&knew?3:2,unfamiliar:!familiar&&!wasSeen,
+    correct:recognitionDecides?recognized:correct,regionCorrect:'regionCorrect' in round?round.regionCorrect:correct,evidenceValid:recognized,confidence:recognized&&knew?3:2,unfamiliar:!familiar&&!wasSeen,
     ...(recognized&&knew?{grade:'easy'}:{}),
     locationRef:round.location.id,mode:assumed||round.location.assessmentEligible===false||(!skill.recognitionOnly&&correct===null)?'practice':'assessment',feedbackSource:assumed?'assumed-on-advance':'explicit',
     reason:(assumed?'Recognition assumed on advance by learner preference; not verified mastery evidence.'

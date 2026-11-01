@@ -47,7 +47,9 @@ Each set mixes due reviews with new clues, and holds at most two clues from the 
 
 **What FSRS does, in plain words.** Every answer updates an estimate of how well you remember each clue. Fieldwork brings a clue back around the time you would start to forget it. A clue you keep spotting returns after a couple of days, then about a week and a half, then over a month. A clue marked **Knew it** returns in about a week, then about a month later. A miss starts it over.
 
-Open **Content & progress** on the start panel (or **Your progress tree** on a card) to see every clue family and where you stand.
+Open **Content & progress** on the start panel (or **Your progress tree** on a card) to see every clue family and where you stand. In the World packs a clue becomes **Learned** once you get it right on two different spots a day apart, and **Retained** when you get it right again after three weeks away. A miss starts it over.
+
+In packs scored by country, a wrong country counts as a miss whichever button you press, and the card says so. The exception is a clue that looks the same in several countries, like the Czechia and Slovakia bollard: a pin in any of those countries counts as knowing the clue.
 
 ## Packs
 
