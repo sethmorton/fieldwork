@@ -155,7 +155,7 @@ test('an explicit miss can be recorded even when geography is unknown',()=>{
  const round=completedRound({...pack,regionFeatures:[]},state);const saved=recordRecognition(pack,[],round,{recognized:false});assert.equal(saved[0].correct,null);assert.equal(saved[0].evidenceValid,false);assert.equal(saved[0].mode,'practice');
 });
 test('feature recognition is scored separately from state accuracy and country discrimination',()=>{
- const p={...pack,skills:[{id:'clue',recognitionOnly:true}]},round={...completedRound(pack,state),correct:false};
+ const p={...pack,skills:[{id:'clue',recognitionOnly:true}]},round={...completedRound(pack,state),correct:false,regionCorrect:false};
  const saved=recordRecognition(p,[],round,{recognized:true});assert.equal(saved[0].correct,true);assert.equal(saved[0].regionCorrect,false);assert.match(saved[0].reason,/Country discrimination was not tested/);
 });
 test('an explicit correction can replace an assumed record without adding another attempt',()=>{

@@ -31,14 +31,16 @@ export function completedRound(pack,state,active=[]) {
   // A sprint pack whose locations carry regions (us-vegetation) tiles its whole answer area, so a guess off every region
   // is wrong; elsewhere an off-region guess stays unknown. The card shows the guessed region and the guess itself.
   const regioned=pack.scheduler==='sprint'&&!!location.region&&!!pack.regionFeatures?.length;
-  // A tree clue (us-vegetation subject 'tree') is right anywhere in its range: any region where it is a key tree.
+  // A tree clue (us-vegetation subject 'tree') or a clue shared by neighbours (worldwide CZ/SK bollard) is right anywhere in its range.
   const range=pack.skills?.find(skill=>skill.id===location.skillIds[0])?.range;
   const inRegion=guessedRegion&&location.region?(range?range.includes(guessedRegion):guessedRegion===location.region):regioned?false:null;
+  // Exact geography rides along so a range hit on the neighbour stays a wrong pin for country readiness and the card.
+  const exact=guessedRegion&&location.region?{guessedRegion,regionCorrect:guessedRegion===location.region}:{};
   // Sprint packs carry the atlas outlines: the guess's country against the card's (ISO2). Off every outline stays unknown.
   const country=pack.atlas?.geometry&&pack.skills.find(skill=>skill.id===location.skillIds[0])?.country;
   const guessedCountry=country?countryAt(lat,lng,pack.atlas.geometry):null;
   return {id:`${pack.id}:${state.current_game_id}:${state.current_round}`,location,
-    round:state.current_round,gameId:state.current_game_id,...(regioned?{guess:{lat,lng},guessedRegion}:{}),
+    round:state.current_round,gameId:state.current_game_id,...exact,...(regioned?{guess:{lat,lng},guessedRegion}:{}),
     ...(guessedCountry?{guessedCountry,correct:guessedCountry===country&&inRegion!==false}:{correct:inRegion})};
 }
 
@@ -57,7 +59,7 @@ export function recordRecognition(pack,history,round,{recognized,knew=false,fami
   if(prior && (assumed || auto || prior.feedbackSource==='explicit'))return history;
   const wasSeen=history.some(attempt=>attempt.id!==round.id&&attempt.locationRef===round.location.id);
   const attempt={id:round.id,skillId:round.location.skillIds[0],occurredAt:now.toISOString(),
-    correct:recognitionDecides?recognized:correct,regionCorrect:correct,evidenceValid:recognized,confidence:recognized&&knew?3:2,unfamiliar:!familiar&&!wasSeen,
+    correct:recognitionDecides?recognized:correct,regionCorrect:'regionCorrect' in round?round.regionCorrect:correct,evidenceValid:recognized,confidence:recognized&&knew?3:2,unfamiliar:!familiar&&!wasSeen,
     ...(recognized&&knew?{grade:'easy'}:{}),
     // Region packs: the pinned region (rule checks pair it with the true one), the rule check this round was, a warm-up close pin.
     ...(round.guessedRegion?{guessedRegion:round.guessedRegion}:{}),...(round.ruleCheck?{ruleCheck:round.ruleCheck}:{}),...(round.close?{close:true}:{}),

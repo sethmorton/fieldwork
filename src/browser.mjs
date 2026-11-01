@@ -265,7 +265,7 @@ function render() {
   if(!seen.some(item=>item.id===round.id))GM_setValue(key('exposures'),[...seen,{id:round.id,locationRef:round.location.id}]);
   // Region packs: whether this round checks a recent miss's rule, and (warming up) whether the pin is close, both from the
   // history before it, so every re-render agrees.
-  if(round.guessedRegion!==undefined){const prior=history().filter(item=>item.id!==round.id);
+  if(pack.scheduler==='sprint'&&round.guessedRegion!==undefined){const prior=history().filter(item=>item.id!==round.id);
     Object.assign(round,{ruleCheck:ruleCheckFor(pack,prior,round.location),close:closeCall(pack,prior,round)});}
   // Sprint: the guessed country (or, in region packs, the guessed region) grades the round at once (feedbackSource 'auto'); 1/2/3 still override it.
   // A close pin while warming up grades as a spot for scheduling.

@@ -184,7 +184,12 @@ assumed recognition and unfamiliar checks. The same tree is available under
 Untouched, practising, provisional and mastered are separate states; amber
 rings flag the latest missed check or a due review. Family fractions count
 targets practised, not mastery. Assumed recognition and source teaching
-examples cannot establish mastery. The tree is hidden during guessing and
+examples cannot establish mastery. Packs made only of teaching examples
+(Worldwide, World, Philippines) show learned and retained instead. Learned
+means two **Spotted it** or **Knew it** rounds on different panoramas, the
+second at least 20 hours after the clue's previous round. Retained means one
+more after a 21-day gap. Quick checks and moving on never count, and a miss
+starts the clue over. The tree is hidden during guessing and
 does not reveal the next set's targets.
 
 Progress lives in Tampermonkey's local storage, separate from GeoGuessr scores.
