@@ -1,8 +1,11 @@
 import {skillStatus} from './lib/mastery.ts';
 
-const labels={new:'Untouched',learning:'Practising',provisional:'Provisional',mastered:'Mastered',oriented:'Oriented'};
+const labels={new:'Untouched',learning:'Practising',provisional:'Provisional',mastered:'Mastered',oriented:'Oriented',learned:'Learned',retained:'Retained'};
+const DAY=86400000,top=state=>state==='mastered'||state==='retained';
 export function progressTree(pack,attempts,now=Date.now()) {
   const families=new Map(),bySkill=new Map(),nowMs=new Date(now).getTime();let deferred=0;
+  // No location can be unseen assessment evidence, so provisional/mastered are unreachable: show memory states instead.
+  const practiceOnly=!!pack.locations?.length&&pack.locations.every(location=>location.assessmentEligible===false);
   for(const item of attempts){
     const at=Date.parse(item.occurredAt);
     if(!Number.isFinite(at)||at>nowMs)continue;
@@ -12,15 +15,17 @@ export function progressTree(pack,attempts,now=Date.now()) {
     if(skill.availability&&skill.availability!=='available'){deferred++;continue;}
     const records=(bySkill.get(skill.id)??[]).sort((a,b)=>Date.parse(a.occurredAt)-Date.parse(b.occurredAt));
     const status=skillStatus(skill.id,records,now,skill.kind),last=records.at(-1);
+    const state=practiceOnly&&status.state!=='oriented'?status.memory??(records.length?'learning':'new'):status.state;
     const family=skill.practiceFamily??'other';
     if(!families.has(family))families.set(family,{id:family,title:family.replaceAll('-',' ').replace(/^./,letter=>letter.toUpperCase()),nodes:[]});
-    families.get(family).nodes.push({id:skill.id,title:skill.title,status,label:labels[status.state],reviews:records.length,
+    families.get(family).nodes.push({id:skill.id,title:skill.title,status,state,label:labels[state],reviews:records.length,
       assumed:records.filter(item=>item.feedbackSource==='assumed-on-advance').length,
       needsPractice:!!last&&last.feedbackSource!=='assumed-on-advance'&&(last.correct===false||last.evidenceValid===false)});
   }
   const nodes=[...families.values()].flatMap(family=>family.nodes);
-  return {title:pack.title,families:[...families.values()],deferred,total:nodes.length,
-    practised:nodes.filter(node=>node.reviews>0).length,mastered:nodes.filter(node=>node.status.state==='mastered').length};
+  return {title:pack.title,families:[...families.values()],deferred,total:nodes.length,practiceOnly,
+    practised:nodes.filter(node=>node.reviews>0).length,mastered:nodes.filter(node=>node.state==='mastered').length,
+    learned:nodes.filter(node=>node.state==='learned').length,retained:nodes.filter(node=>node.state==='retained').length};
 }
 
 const add=(parent,tag,value,cls)=>{const el=document.createElement(tag);if(value)el.textContent=value;if(cls)el.className=cls;parent.append(el);return el};
@@ -29,16 +34,17 @@ export function renderProgressTree(parent,pack,attempts,now=Date.now()) {
   const selected=parent.querySelector('.tree-node[aria-pressed=true]')?.dataset.skill;
   const tree=progressTree(pack,attempts,now);parent.replaceChildren();
   const root=add(parent,'div',null,'tree-root');add(root,'strong',tree.title);
-  add(root,'p',`${tree.practised}/${tree.total} targets practised · ${tree.mastered} mastered`,'muted');
+  add(root,'p',tree.practiceOnly?`${tree.practised}/${tree.total} practised, ${tree.learned} learned, ${tree.retained} retained`
+    :`${tree.practised}/${tree.total} targets practised · ${tree.mastered} mastered`,'muted');
   const legend=add(parent,'div',null,'tree-legend');
-  for(const state of ['new','learning','provisional','mastered']){const key=add(legend,'span',null,'tree-key');add(key,'i',state==='mastered'?'✓':'','tree-dot '+state);add(key,'span',labels[state]);}
+  for(const state of tree.practiceOnly?['new','learning','learned','retained']:['new','learning','provisional','mastered']){const key=add(legend,'span',null,'tree-key');add(key,'i',top(state)?'✓':'','tree-dot '+state);add(key,'span',labels[state]);}
   add(parent,'p','Amber ring: last check needs practice or a review is due. Counts show reviews, including assumed recognition.','muted');
   const branches=add(parent,'div',null,'tree-branches');
   for(const family of tree.families){
     const branch=add(branches,'details',null,'tree-branch');branch.dataset.family=family.id;branch.open=opened.has(family.id);const heading=add(branch,'summary',null,'tree-family');
     add(heading,'strong',family.title);add(heading,'span',`${family.nodes.filter(node=>node.reviews).length}/${family.nodes.length}`,'muted');
     const preview=add(heading,'span',null,'tree-preview');preview.setAttribute('aria-hidden','true');
-    for(const node of family.nodes)add(preview,'i',node.status.state==='mastered'?'✓':'',`tree-dot ${node.status.state}${node.needsPractice||node.status.due?' needs-review':''}`);
+    for(const node of family.nodes)add(preview,'i',top(node.state)?'✓':'',`tree-dot ${node.state}${node.needsPractice||node.status.due?' needs-review':''}`);
     const leaves=add(branch,'div',null,'tree-leaves');
     const inspect=add(branch,'div',null,'tree-inspect');inspect.setAttribute('aria-live','polite');
     add(inspect,'span','Select a target','muted');
@@ -46,7 +52,7 @@ export function renderProgressTree(parent,pack,attempts,now=Date.now()) {
       const needsReview=node.needsPractice||node.status.due;
       const leaf=add(leaves,'button',null,`tree-node${needsReview?' needs-review':''}`);
       leaf.dataset.skill=node.id;
-      add(leaf,'span',node.status.state==='mastered'?'✓':node.reviews?String(node.reviews):'·','tree-count '+node.status.state);
+      add(leaf,'span',top(node.state)?'✓':node.reviews?String(node.reviews):'·','tree-count '+node.state);
       add(leaf,'span',node.title,'tree-name');
       leaf.type='button';leaf.setAttribute('aria-pressed','false');
       const reviews=`${node.reviews} ${node.reviews===1?'review':'reviews'}`;
@@ -54,12 +60,15 @@ export function renderProgressTree(parent,pack,attempts,now=Date.now()) {
       leaf.onclick=()=>{
         for(const other of leaves.children)other.setAttribute('aria-pressed','false');leaf.setAttribute('aria-pressed','true');inspect.replaceChildren();
         add(inspect,'strong',node.title);add(inspect,'p',`${node.label}${node.status.due?' · Review due':node.needsPractice?' · Needs practice':''}`,'muted');
-        add(inspect,'p',`${reviews} · ${node.assumed} assumed · ${node.status.eligibleCount} unfamiliar checks`,'muted');
+        const days=node.status.reviewDueAt&&!node.status.due?Math.round((Date.parse(node.status.reviewDueAt)-new Date(now).getTime())/DAY):0;
+        add(inspect,'p',tree.practiceOnly?`${reviews}, ${node.assumed} assumed${days?`. Back in ${days} ${days===1?'day':'days'}`:''}`
+          :`${reviews} · ${node.assumed} assumed · ${node.status.eligibleCount} unfamiliar checks`,'muted');
       };
       if(selected===node.id)leaf.click();
     }
   }
   if(!tree.practised)add(parent,'p','Finish a round to grow your tree.','muted');
-  add(parent,'p','Practice grows the tree. Mastery requires explicit checks on unfamiliar locations, including a delayed check.','muted');
+  add(parent,'p',tree.practiceOnly?'Learned: right twice on different spots, a day apart. Retained: right again after three weeks away. A miss starts it over.'
+    :'Practice grows the tree. Mastery requires explicit checks on unfamiliar locations, including a delayed check.','muted');
   if(tree.deferred)add(parent,'p',`${tree.deferred} other targets are outside this practice pool or still need suitable locations.`,'muted');
 }

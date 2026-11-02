@@ -67,7 +67,11 @@ installation or successful live publication based on a build passing.
   plus 4/5 latest, opens the next supplied scope. Country foundations also require
   40 distinct practised skills (or all if fewer). Assignment without feedback does not count.
   Practice/assumptions can guide readiness. Teaching examples stay `assessmentEligible:false`.
-  Explicit misses override assumptions.
+  Explicit misses override assumptions. Country-identification readiness and the per-country gate read the exact pin
+  (`regionCorrect`; null is no evidence, absent falls back to `correct`), so a shared clue's `range` credit never
+  certifies telling those countries apart. Recognition-graded skills keep `correct`.
+  Practice-only packs (every location `assessmentEligible:false`) show learned/retained (`skillStatus().memory`) in
+  the tree instead of the unreachable provisional/mastered; assessment states and adaptive `ready()` are unchanged.
 - Worldwide regional/specialist introductions need country-specific foundation practice:
   at least three outcomes, 80% of the latest five successful, and the latest successful.
   Countries with no foundation lessons wait for 80% total foundation coverage.

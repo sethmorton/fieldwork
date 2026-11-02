@@ -4,6 +4,9 @@ import {readFile} from 'node:fs/promises';
 import {makeNextSet,validatePack} from '../next-set.mjs';
 import {progressTree} from '../progress.mjs';
 import {regionAt} from '../geo.mjs';
+import {completedRound,recordRecognition} from '../session.mjs';
+import {skillStatus} from '../lib/mastery.ts';
+import {curriculumProgress} from '../lib/adaptive.ts';
 const pack=JSON.parse(await readFile(new URL('../../content/worldwide.json',import.meta.url)));
 const now='2026-10-21T12:00:00Z';
 test('worldwide pack retains country-specific identities and accounts for all intermediate source labels',()=>{
@@ -75,4 +78,34 @@ test('worldwide country feedback uses the actual country polygons',()=>{
  assert.equal(regionAt(48.86,2.35,pack.regionFeatures),'France');
  assert.equal(regionAt(-23.55,-46.63,pack.regionFeatures),'Brazil');
  assert.equal(regionAt(0,-140,pack.regionFeatures),null);
+});
+test('the shared Czechia/Slovakia bollard: a pin in either country is a right clue, the exact pin is kept',()=>{
+ const at=new Date('2026-11-01T12:00:00Z'),slovak=pack.locations.find(l=>l.skillIds[0]==='world:lm:61');
+ const round=(lat,lng)=>completedRound(pack,{map:{id:pack.practiceMapId},current_game_id:'g',current_round:1,round_in_progress:false,
+  rounds:[{location:{panoId:slovak.panoId},player_guess:{lat,lng}}]});
+ const prague=round(50.08,14.44),warsaw=round(52.23,21.01),bratislava=round(48.15,17.11);
+ assert.deepEqual([prague.correct,prague.regionCorrect,prague.guessedRegion],[true,false,'Czechia']);
+ assert.deepEqual([bratislava.correct,bratislava.regionCorrect],[true,true]);
+ assert.deepEqual([warsaw.correct,warsaw.regionCorrect,warsaw.guessedRegion],[false,false,'Poland']);
+ const dueIn=records=>(Date.parse(skillStatus('world:lm:61',records,at).reviewDueAt)-at)/60000;
+ const knewShared=recordRecognition(pack,[],prague,{recognized:true,knew:true},at);
+ assert.deepEqual([knewShared[0].correct,knewShared[0].regionCorrect],[true,false]);
+ assert.ok(dueIn(knewShared)>=1440,'Knew it on the shared neighbour is Easy, not Again');
+ assert.equal(dueIn(recordRecognition(pack,[],prague,{recognized:false},at)),1,'Missed it still records a miss');
+ assert.equal(dueIn(recordRecognition(pack,[],warsaw,{recognized:true,knew:true},at)),1,'a pin outside the range stays Again');
+ // A multi-country answer set: the French clue counts in Belgium, not in Spain.
+ const french=pack.locations.find(l=>l.skillIds[0]==='world:lm:783103');
+ const frenchRound=(lat,lng)=>completedRound(pack,{map:{id:pack.practiceMapId},current_game_id:'g',current_round:1,round_in_progress:false,
+  rounds:[{location:{panoId:french.panoId},player_guess:{lat,lng}}]});
+ assert.deepEqual([frenchRound(50.85,4.35).correct,frenchRound(50.85,4.35).regionCorrect],[true,false]);
+ assert.equal(frenchRound(40.42,-3.70).correct,false);
+ // Country readiness reads the exact pin: shared-neighbour hits are country misses, unknown geography is no evidence.
+ const seq=(n,make)=>Array.from({length:n},(_,i)=>({...make(i),id:'r'+i,occurredAt:new Date(Date.parse(at)-(n-i)*60000).toISOString()}));
+ const foundations=pack.skills.filter(s=>(s.curriculum?.scope??'country-identification')==='country-identification').slice(0,20);
+ const base=i=>({skillId:foundations[i].id,correct:true,evidenceValid:true,confidence:2,unfamiliar:true,locationRef:'',mode:'practice',feedbackSource:'explicit'});
+ const readiness=records=>curriculumProgress(pack,records,at).readiness[0];
+ assert.equal(readiness(seq(20,i=>({...base(i),regionCorrect:false}))).successes,0);
+ assert.equal(readiness(seq(20,i=>({...base(i),regionCorrect:true}))).successes,20);
+ assert.equal(readiness(seq(20,i=>({...base(i),regionCorrect:null}))).count,0);
+ assert.equal(readiness(seq(20,base)).successes,20,'records saved before regionCorrect fall back to correct');
 });

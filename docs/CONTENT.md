@@ -248,7 +248,19 @@ power-provider plates or individual Brazilian area codes. Source-country
 metadata and generalized geometry are not evidence of political boundaries
 or clue exclusivity. Regional distinctions remain recognition practice;
 country scoring alone cannot establish them. Every current Worldwide
-location is a source teaching example, excluded from unseen mastery credit.
+location is a source teaching example, excluded from unseen mastery credit,
+so the progress tree shows learned and retained instead of provisional and
+mastered (see docs/SETUP.md).
+
+A `range` lists every country where one clue looks the same. A pin in any of
+them grades the clue as right. The exact pin is kept as `regionCorrect`, and
+country readiness reads that. `tools/world-pack/shared_clues.py` builds the
+ranges: gpt-6-astra reads each clue's own Plonk It and Learnable Meta texts and
+lists the countries where that tell appears, and each extra country needs a quote
+from those texts. Seth reviews the sheet, `CUTS` in the script records what he
+removed, and `shared_clues.py apply` writes the rest into the pack (65 clues
+as of contentRevision 3, e.g. French points to France, Belgium, Luxembourg,
+Monaco and Switzerland).
 
 ## Curriculum scope (`curriculum` field)
 

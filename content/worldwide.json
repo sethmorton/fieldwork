@@ -3,7 +3,7 @@
   "title": "World · foundations & intermediate",
   "subject": "GeoGuessr",
   "schemaVersion": 1,
-  "contentRevision": 1,
+  "contentRevision": 3,
   "practiceMapId": "000000000000000000000000",
   "answerAreaLabel": "Worldwide. Country accuracy; regional clue distinctions are tracked through recognition",
   "maxLocationsPerCountry": 1,
@@ -215,7 +215,11 @@
           "guideUpdatedAt": "2026-07-21T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Czechia",
+        "Slovakia"
+      ]
     },
     {
       "id": "world:lm:61",
@@ -256,7 +260,11 @@
           "guideUpdatedAt": "2026-07-21T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Slovakia",
+        "Czechia"
+      ]
     },
     {
       "id": "world:lm:67",
@@ -381,7 +389,12 @@
           "guideUpdatedAt": "2026-08-29T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Italy",
+        "Albania",
+        "San Marino"
+      ]
     },
     {
       "id": "world:lm:80",
@@ -717,7 +730,11 @@
           "guideUpdatedAt": "2025-12-27T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Hungary",
+        "Slovakia"
+      ]
     },
     {
       "id": "world:lm:140",
@@ -841,7 +858,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Source note only partly overlaps this guide tip."
         }
-      }
+      },
+      "range": [
+        "Poland",
+        "Ukraine"
+      ]
     },
     {
       "id": "world:lm:150",
@@ -1427,7 +1448,11 @@
           "guideUpdatedAt": "2026-07-16T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Bangladesh",
+        "India"
+      ]
     },
     {
       "id": "world:lm:390",
@@ -1806,7 +1831,11 @@
           "guideUpdatedAt": "2025-12-31T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Greece",
+        "Cyprus"
+      ]
     },
     {
       "id": "world:lm:8201",
@@ -1889,7 +1918,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Source note only partly overlaps this guide tip."
         }
-      }
+      },
+      "range": [
+        "France",
+        "Belgium"
+      ]
     },
     {
       "id": "world:lm:501458",
@@ -1974,7 +2007,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Source note only partly overlaps this guide tip."
         }
-      }
+      },
+      "range": [
+        "Netherlands",
+        "Belgium"
+      ]
     },
     {
       "id": "world:lm:783063",
@@ -2017,7 +2054,13 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.77), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Germany",
+        "Switzerland",
+        "Austria",
+        "Liechtenstein"
+      ]
     },
     {
       "id": "world:lm:783064",
@@ -2102,7 +2145,11 @@
           "guideUpdatedAt": "2025-12-31T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Greece",
+        "Cyprus"
+      ]
     },
     {
       "id": "world:lm:783066",
@@ -2564,7 +2611,12 @@
           "guideUpdatedAt": "2023-07-13T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Andorra",
+        "Spain",
+        "France"
+      ]
     },
     {
       "id": "world:lm:783077",
@@ -3255,7 +3307,13 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.82), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Austria",
+        "Switzerland",
+        "Germany",
+        "Liechtenstein"
+      ]
     },
     {
       "id": "world:lm:783100",
@@ -3425,7 +3483,14 @@
           "guideUpdatedAt": "2026-08-25T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "France",
+        "Belgium",
+        "Luxembourg",
+        "Monaco",
+        "Switzerland"
+      ]
     },
     {
       "id": "world:lm:783106",
@@ -3598,7 +3663,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Source note only partly overlaps this guide tip."
         }
-      }
+      },
+      "range": [
+        "Cyprus",
+        "Greece"
+      ]
     },
     {
       "id": "world:lm:783118",
@@ -3727,7 +3796,13 @@
           "mapping": "partial-topic-match",
           "caveat": "Hand-matched to this guide tip by topic; the source note is paraphrased."
         }
-      }
+      },
+      "range": [
+        "Albania",
+        "Kosovo",
+        "North Macedonia",
+        "Montenegro"
+      ]
     },
     {
       "id": "world:lm:783121",
@@ -4185,7 +4260,12 @@
           "mapping": "unresolved",
           "caveat": "No guide tip covers this target; scope authored from title, family and source note."
         }
-      }
+      },
+      "range": [
+        "United Kingdom",
+        "Ireland",
+        "Malta"
+      ]
     },
     {
       "id": "world:lm:28",
@@ -4354,7 +4434,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.52), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Thailand",
+        "Laos"
+      ]
     },
     {
       "id": "world:lm:133",
@@ -4852,7 +4936,11 @@
           "guideUpdatedAt": "2025-12-31T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Greece",
+        "Cyprus"
+      ]
     },
     {
       "id": "world:lm:323",
@@ -5020,7 +5108,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.66), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Mexico",
+        "Colombia"
+      ]
     },
     {
       "id": "world:lm:339",
@@ -5230,7 +5322,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Hand-matched to this guide tip by topic; the source note is paraphrased."
         }
-      }
+      },
+      "range": [
+        "Slovakia",
+        "Germany"
+      ]
     },
     {
       "id": "world:lm:2981",
@@ -5521,7 +5617,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.58), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Croatia",
+        "Bosnia and Herzegovina"
+      ]
     },
     {
       "id": "world:lm:2989",
@@ -5647,7 +5747,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.53), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Finland",
+        "Norway"
+      ]
     },
     {
       "id": "world:lm:2992",
@@ -5689,7 +5793,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.35), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Germany",
+        "Luxembourg"
+      ]
     },
     {
       "id": "world:lm:2993",
@@ -6103,7 +6211,13 @@
           "mapping": "partial-topic-match",
           "caveat": "Hand-matched to this guide tip by topic; the source note is paraphrased."
         }
-      }
+      },
+      "range": [
+        "Russia",
+        "Mongolia",
+        "Kazakhstan",
+        "Kyrgyzstan"
+      ]
     },
     {
       "id": "world:lm:3003",
@@ -6143,7 +6257,11 @@
           "mapping": "unresolved",
           "caveat": "No guide tip covers this target; scope authored from title, family and source note."
         }
-      }
+      },
+      "range": [
+        "Republic of Serbia",
+        "Slovenia"
+      ]
     },
     {
       "id": "world:lm:4022",
@@ -6184,7 +6302,12 @@
           "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Philippines",
+        "Bangladesh",
+        "Malaysia"
+      ]
     },
     {
       "id": "world:lm:4026",
@@ -6225,7 +6348,13 @@
           "guideUpdatedAt": "2026-05-03T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Spain",
+        "Belgium",
+        "Andorra",
+        "United Kingdom"
+      ]
     },
     {
       "id": "world:lm:7850",
@@ -6273,7 +6402,11 @@
           "guideUpdatedAt": "2026-05-03T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Spain",
+        "Andorra"
+      ]
     },
     {
       "id": "world:lm:7964",
@@ -6321,7 +6454,11 @@
           "guideUpdatedAt": "2026-06-01T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Sweden",
+        "Luxembourg"
+      ]
     },
     {
       "id": "world:lm:7966",
@@ -6363,7 +6500,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.70), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Spain",
+        "France"
+      ]
     },
     {
       "id": "world:lm:7967",
@@ -6405,7 +6546,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Hand-matched to this guide tip by topic; the source note is paraphrased."
         }
-      }
+      },
+      "range": [
+        "France",
+        "Spain"
+      ]
     },
     {
       "id": "world:lm:8337",
@@ -6489,7 +6634,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.72), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Cambodia",
+        "Vietnam"
+      ]
     },
     {
       "id": "world:lm:8815",
@@ -6872,7 +7021,11 @@
           "guideUpdatedAt": "2026-07-21T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Slovakia",
+        "Czechia"
+      ]
     },
     {
       "id": "world:lm:66751",
@@ -6913,7 +7066,14 @@
           "guideUpdatedAt": "2026-05-03T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Spain",
+        "Italy",
+        "Greece",
+        "Albania",
+        "France"
+      ]
     },
     {
       "id": "world:lm:66752",
@@ -6995,7 +7155,12 @@
           "guideUpdatedAt": "2026-04-30T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Ukraine",
+        "Russia",
+        "Estonia"
+      ]
     },
     {
       "id": "world:lm:66754",
@@ -7077,7 +7242,13 @@
           "guideUpdatedAt": "2026-07-05T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Albania",
+        "Italy",
+        "Greece",
+        "Spain"
+      ]
     },
     {
       "id": "world:lm:66756",
@@ -7118,7 +7289,11 @@
           "guideUpdatedAt": "2026-07-10T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Austria",
+        "Germany"
+      ]
     },
     {
       "id": "world:lm:66757",
@@ -7241,7 +7416,11 @@
           "guideUpdatedAt": "2026-07-21T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Czechia",
+        "Slovakia"
+      ]
     },
     {
       "id": "world:lm:66760",
@@ -7323,7 +7502,12 @@
           "guideUpdatedAt": "2026-04-10T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Estonia",
+        "Russia",
+        "Ukraine"
+      ]
     },
     {
       "id": "world:lm:66762",
@@ -7569,7 +7753,11 @@
           "guideUpdatedAt": "2026-03-27T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Ecuador",
+        "Colombia"
+      ]
     },
     {
       "id": "world:lm:66768",
@@ -7856,7 +8044,14 @@
           "guideUpdatedAt": "2026-02-03T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "South Africa",
+        "Botswana",
+        "eSwatini",
+        "Lesotho",
+        "Namibia"
+      ]
     },
     {
       "id": "world:lm:66775",
@@ -7897,7 +8092,11 @@
           "guideUpdatedAt": "2026-04-09T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Botswana",
+        "South Africa"
+      ]
     },
     {
       "id": "world:lm:66776",
@@ -8062,7 +8261,15 @@
           "mapping": "partial-topic-match",
           "caveat": "Guide tip covers more than this narrower target."
         }
-      }
+      },
+      "range": [
+        "Luxembourg",
+        "Iceland",
+        "Norway",
+        "Finland",
+        "Ireland",
+        "Portugal"
+      ]
     },
     {
       "id": "world:lm:66780",
@@ -8267,7 +8474,13 @@
           "guideUpdatedAt": "2026-08-04T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Republic of Serbia",
+        "Slovenia",
+        "Montenegro",
+        "North Macedonia"
+      ]
     },
     {
       "id": "world:lm:66786",
@@ -8349,7 +8562,11 @@
           "guideUpdatedAt": "2025-11-19T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Belgium",
+        "Netherlands"
+      ]
     },
     {
       "id": "world:lm:66789",
@@ -8390,7 +8607,13 @@
           "guideUpdatedAt": "2026-07-18T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Bulgaria",
+        "Romania",
+        "Turkey",
+        "North Macedonia"
+      ]
     },
     {
       "id": "world:lm:66790",
@@ -8513,7 +8736,13 @@
           "guideUpdatedAt": "2026-08-29T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Italy",
+        "Spain",
+        "Greece",
+        "Albania"
+      ]
     },
     {
       "id": "world:lm:66793",
@@ -8554,7 +8783,12 @@
           "guideUpdatedAt": "2026-04-10T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Latvia",
+        "Lithuania",
+        "Poland"
+      ]
     },
     {
       "id": "world:lm:66795",
@@ -9006,7 +9240,11 @@
           "mapping": "unresolved",
           "caveat": "No cached PlonkIt guide for Bosnia; scope authored from title and family."
         }
-      }
+      },
+      "range": [
+        "Bosnia and Herzegovina",
+        "Croatia"
+      ]
     },
     {
       "id": "world:lm:43",
@@ -9172,7 +9410,11 @@
           "guideUpdatedAt": "2026-05-02T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "United Kingdom",
+        "Ireland"
+      ]
     },
     {
       "id": "world:lm:119",
@@ -9548,7 +9790,14 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.84), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "South Africa",
+        "Botswana",
+        "eSwatini",
+        "Lesotho",
+        "Namibia"
+      ]
     },
     {
       "id": "world:lm:8335",
@@ -10830,7 +11079,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.42), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Russia",
+        "Kazakhstan"
+      ]
     },
     {
       "id": "world:lm:77",
@@ -10997,7 +11250,12 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.74), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Netherlands",
+        "Luxembourg",
+        "Denmark"
+      ]
     },
     {
       "id": "world:lm:103",
@@ -11080,7 +11338,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.45), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Israel",
+        "Palestine"
+      ]
     },
     {
       "id": "world:lm:116",
@@ -11331,7 +11593,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Source note only partly overlaps this guide tip."
         }
-      }
+      },
+      "range": [
+        "Uruguay",
+        "Bolivia"
+      ]
     },
     {
       "id": "world:lm:154",
@@ -11414,7 +11680,11 @@
           "guideUpdatedAt": "2026-08-09T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Australia",
+        "South Africa"
+      ]
     },
     {
       "id": "world:lm:157",
@@ -11624,7 +11894,11 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.37), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Brazil",
+        "Paraguay"
+      ]
     },
     {
       "id": "world:lm:175",
@@ -12575,7 +12849,11 @@
           "guideUpdatedAt": "2025-12-27T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Luxembourg",
+        "Netherlands"
+      ]
     },
     {
       "id": "world:lm:534969",
@@ -15499,7 +15777,12 @@
           "mapping": "partial-topic-match",
           "caveat": "Source note only partly overlaps this guide tip."
         }
-      }
+      },
+      "range": [
+        "Andorra",
+        "France",
+        "Spain"
+      ]
     },
     {
       "id": "world:lm:3390",
@@ -15864,7 +16147,14 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.52), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Mexico",
+        "United States of America",
+        "Guatemala",
+        "Dominican Republic",
+        "Philippines"
+      ]
     },
     {
       "id": "world:lm:55",
@@ -15988,7 +16278,11 @@
           "guideUpdatedAt": "2026-08-29T00:00:00.000Z",
           "mapping": "topic-match"
         }
-      }
+      },
+      "range": [
+        "Italy",
+        "San Marino"
+      ]
     },
     {
       "id": "world:lm:125",
@@ -16030,7 +16324,12 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.50), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Thailand",
+        "Philippines",
+        "Indonesia"
+      ]
     },
     {
       "id": "world:lm:127",
@@ -16238,7 +16537,12 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.56), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Philippines",
+        "Thailand",
+        "Indonesia"
+      ]
     },
     {
       "id": "world:lm:167",
@@ -16485,7 +16789,12 @@
           "mapping": "partial-topic-match",
           "caveat": "Paraphrased source note; matched by keyword overlap (0.60), not by quoted text."
         }
-      }
+      },
+      "range": [
+        "Bulgaria",
+        "Latvia",
+        "North Macedonia"
+      ]
     },
     {
       "id": "world:lm:319",

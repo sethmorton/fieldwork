@@ -54,6 +54,7 @@ export type PracticePack = {
   locations?: PracticeLocation[];
   initialSkillIds?: string[];
   maxLocationsPerCountry?: number;
+  gradingPolicy?: 'recognition';
 };
 type Clock = Date | string | number;
 type Plan = {
@@ -78,22 +79,25 @@ function introductionProgress(pack: PracticePack, records: Attempt[]) {
   const skills = pack.skills.filter(skill => playable.has(skill.id) && skill.kind !== 'orientation'
     && (!skill.availability || skill.availability === 'available'));
   const levels = new Map(skills.map(skill => [skill.id, scopeIndex(skill)]));
+  const countryHit = countryOutcome(pack);
   const windows: Attempt[][] = [[], [], []];
   for (const attempt of records) {
     const level = levels.get(attempt.skillId);
-    if (level !== undefined) windows[level].push(attempt);
+    // Country identification counts only rounds whose country result is known; the other scopes count every outcome.
+    if (level !== undefined && (level > 0 || countryHit(attempt) !== null)) windows[level].push(attempt);
   }
   const readiness = scopes.map((scope, level) => {
+    const hit = level === 0 ? (attempt: Attempt) => countryHit(attempt) === true : passed;
     const recent = windows[level].slice(-20);
     const totalSkills = skills.filter(skill => scopeIndex(skill) === level).length;
     const exposedSkills = new Set(recent.map(attempt => attempt.skillId)).size;
-    const introduced = new Set(windows[level].map(attempt => attempt.skillId)).size;
+    const introduced = new Set(records.filter(attempt => levels.get(attempt.skillId) === level).map(attempt => attempt.skillId)).size;
     const coverageRequired = level === 0 ? Math.min(40, totalSkills) : 0;
-    const successes = recent.filter(passed).length;
+    const successes = recent.filter(hit).length;
     const accuracy = recent.length ? successes / recent.length : null;
     return { scope, count: recent.length, successes, exposedSkills, accuracy, totalSkills, introduced, coverageRequired,
       ready: introduced >= coverageRequired && recent.length >= 20 && exposedSkills >= Math.min(8, totalSkills)
-        && accuracy! >= 0.85 && recent.slice(-5).filter(passed).length >= 4 };
+        && accuracy! >= 0.85 && recent.slice(-5).filter(hit).length >= 4 };
   });
   // A regional-only pack starts at regional foundations, not an absent country-identification gate.
   const base = skills.length ? Math.min(...skills.map(scopeIndex)) : 0;
@@ -117,6 +121,15 @@ function introductionProgress(pack: PracticePack, records: Attempt[]) {
         ? ` ${nextLabel} open after ${evidence.coverageRequired}, with strong recent answers.`
         : ` Keep practising. Aim for 17 correct in your last 20, including 4 of the last 5.`);
   return { base, open, newLimit, readiness, message };
+}
+
+/** Where the country decides the grade, readiness reads the exact pin, not a shared clue's range credit; recognition
+ *  grading keeps `correct`. Null (unknown, e.g. a quick check) is no evidence either way; records saved before
+ *  regionCorrect existed fall back to `correct`. */
+function countryOutcome(pack: PracticePack) {
+  const byRecognition = new Set(pack.skills.filter(skill => skill.recognitionOnly || pack.gradingPolicy === 'recognition').map(skill => skill.id));
+  return (attempt: Attempt): boolean | null => byRecognition.has(attempt.skillId) ? passed(attempt)
+    : !attempt.evidenceValid ? false : 'regionCorrect' in attempt ? attempt.regionCorrect ?? null : attempt.correct;
 }
 
 /** Practice-only success can open introductions; it never changes the mastery evidence rule. */
@@ -184,9 +197,9 @@ export function planPractice(
   }
   const foundationIds = new Set(available.filter(skill => scopeIndex(skill) === 0).map(skill => skill.id));
   const foundationCountries = new Set([...foundationIds].flatMap(id => [...(countriesBySkill.get(id) ?? [])]));
-  const countryRecords = new Map<string, Attempt[]>();
+  const countryRecords = new Map<string, Attempt[]>(), countryHit = countryOutcome(pack);
   for (const attempt of records) {
-    if (!foundationIds.has(attempt.skillId)) continue;
+    if (!foundationIds.has(attempt.skillId) || countryHit(attempt) === null) continue;
     const countries = countriesBySkill.get(attempt.skillId);
     const country = referenceKeys(attempt.locationRef).map(key => byReference.get(key)?.country).find(Boolean)
       ?? (countries?.size === 1 ? countries.values().next().value : undefined);
@@ -198,7 +211,7 @@ export function planPractice(
   const readyCountries = new Set<string>();
   for (const [country, history] of countryRecords) {
     const recent = history.slice(-5);
-    if (recent.length >= 3 && recent.filter(passed).length / recent.length >= 0.8 && passed(recent.at(-1)!)) {
+    if (recent.length >= 3 && recent.filter(attempt => countryHit(attempt)).length / recent.length >= 0.8 && countryHit(recent.at(-1)!)) {
       readyCountries.add(country);
     }
   }
