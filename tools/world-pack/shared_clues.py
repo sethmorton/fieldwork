@@ -9,9 +9,11 @@ clue right (skill `range`, src/session.mjs completedRound).
      country; `vague` when the texts point to unnamed places ('neighbouring countries'). One call per skill, cached in
      shared/cache.json by fingerprint. An extra country stays only when its quote is in the texts.
   3. shared/ranges.json: {skillId: [own country, extras...]} for skills with an extra country.
-  4. shared/review.html: those skills, then the vague or unquoted ones. Seth reviews it before any range goes into
-     content/worldwide.json.
-Usage: WORLD_PACK_DATA=<caches> WORLD_PACK_INPUTS=<inputs> python3 tools/world-pack/shared_clues.py   ('test': self-check)
+  4. shared/review.html: those skills, then the vague or unquoted ones. Seth reviews it; CUTS records what he removed
+     (a source condition such as rear plates only, old cars only or one region only, or a vibe rather than a tell).
+  5. 'apply': ranges.json minus CUTS becomes each skill's `range` in content/worldwide.json (every other range is
+     removed) and contentRevision goes up by one.
+Usage: WORLD_PACK_DATA=<caches> WORLD_PACK_INPUTS=<inputs> python3 tools/world-pack/shared_clues.py [apply | test]
 """
 import collections
 import concurrent.futures as cf
@@ -30,6 +32,11 @@ PACK = Path(__file__).resolve().parents[2] / 'content/worldwide.json'
 OUT = HERE / 'shared'
 CACHE = OUT / 'cache.json'
 MODEL, WORKERS = 'gpt-6-astra', 10
+# Seth's review, 2026-11-02: extras the source qualifies (rear only, pre-2009, commercial, one region) and vibe clues.
+CUTS = {'world:lm:501457': {'United Kingdom', 'France', 'Denmark'},  # Luxembourg yellow plates
+        'world:lm:783063': {'Italy', 'Belgium'}, 'world:lm:783099': {'Italy', 'Belgium'},  # German: one region each
+        'world:lm:783102': {'Romania', 'Slovakia'},  # Hungarian: minority regions
+        'world:lm:126': '*', 'world:lm:163': '*'}  # eSwatini / Botswana vibes
 PROMPT = """A GeoGuessr clue for {country}: "{title}". A player who spots this exact feature in Street View has to decide
 which countries it can be. From the texts below (and the attached guide image, if any), list every country where the
 texts say this same feature, design or language is found.
@@ -171,6 +178,28 @@ def main():
     print(len(shared), 'shared,', len(flagged), 'vague or unquoted,', len(failed), 'failed', failed)
 
 
+def reviewed(ranges):
+    """ranges.json minus CUTS ('*' drops every extra); sets left with only their own country are gone."""
+    out = {}
+    for sid, r in ranges.items():
+        cut = CUTS.get(sid, set())
+        kept = [r[0]] + ([] if cut == '*' else [c for c in r[1:] if c not in cut])
+        if len(kept) > 1:
+            out[sid] = kept
+    return out
+
+
+def apply():
+    pack, ranges = json.loads(PACK.read_text()), reviewed(json.loads((OUT / 'ranges.json').read_text()))
+    for skill in pack['skills']:
+        skill.pop('range', None)
+        if skill['id'] in ranges:
+            skill['range'] = ranges[skill['id']]
+    pack['contentRevision'] += 1
+    PACK.write_text(json.dumps(pack, indent=2, ensure_ascii=False) + '\n')
+    print(len(ranges), 'ranges written, contentRevision', pack['contentRevision'])
+
+
 def test():
     skill = {'country': 'Czechia', 'texts': [('t', 'NOTE: The only other country with the same design is Slovakia.')]}
     v = {'countries': ['Czechia', 'Slovakia', 'Austria'], 'evidence': [
@@ -178,8 +207,10 @@ def test():
         {'country': 'Austria', 'quote': 'Austria has the same design'}]}
     assert answer_set(skill, v) == (['Czechia', 'Slovakia'], ['Austria'])
     assert not quoted('', skill['texts'])
+    assert reviewed({'world:lm:783102': ['Hungary', 'Romania', 'Slovakia', 'Serbia'], 'world:lm:126': ['eSwatini', 'Lesotho'],
+                     'x': ['A', 'B']}) == {'world:lm:783102': ['Hungary', 'Serbia'], 'x': ['A', 'B']}
     print('ok')
 
 
 if __name__ == '__main__':
-    test() if sys.argv[1:] == ['test'] else main()
+    {'test': test, 'apply': apply}.get(sys.argv[1] if sys.argv[1:] else '', main)()

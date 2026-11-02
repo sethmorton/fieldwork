@@ -234,7 +234,7 @@ export function reviewPanel(pack,round,options) {
   // wrong pin is a miss whichever button is pressed. Recognition grading and unknown geography say nothing here.
   const area=round.location.country===round.location.region?'country':'region';
   if(round.guessedRegion&&!currentSkill.recognitionOnly&&pack.gradingPolicy!=='recognition'){
-    if(round.correct===true&&round.regionCorrect===false)text(section,'p',`${currentSkill.range.join(' and ')} share this ${(currentSkill.sourceMetaName??'clue').toLowerCase()}. You guessed ${round.guessedRegion}.`,'auto right');
+    if(round.correct===true&&round.regionCorrect===false)text(section,'p',`${round.guessedRegion} has this clue too, so the clue counts. This one was ${round.location.region}.`,'auto right');
     else if(round.correct===false)text(section,'p',`Wrong ${area}: you guessed ${round.guessedRegion}. This round counts as a miss whichever button you press.`,'auto wrong');
   }
   text(section,'p','Moving on saves “spotted it.” “Knew it” skips the short repeats and checks back later in a real round.','muted');

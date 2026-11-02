@@ -254,9 +254,13 @@ mastered (see docs/SETUP.md).
 
 A `range` lists every country where one clue looks the same. A pin in any of
 them grades the clue as right. The exact pin is kept as `regionCorrect`, and
-country readiness reads that. Only `world:lm:60` and `world:lm:61` (Czechia
-and Slovakia bollards) carry one, because Plonkit says that design is shared.
-Add a range only for a hand-checked identical clue, never by matching names.
+country readiness reads that. `tools/world-pack/shared_clues.py` builds the
+ranges: gpt-6-astra reads each clue's own Plonk It and Learnable Meta texts and
+lists the countries where that tell appears, and each extra country needs a quote
+from those texts. Seth reviews the sheet, `CUTS` in the script records what he
+removed, and `shared_clues.py apply` writes the rest into the pack (65 clues
+as of contentRevision 3, e.g. French points to France, Belgium, Luxembourg,
+Monaco and Switzerland).
 
 ## Curriculum scope (`curriculum` field)
 
