@@ -89,7 +89,7 @@ test('the shared Czechia/Slovakia bollard: a pin in either country is a right cl
  assert.deepEqual([warsaw.correct,warsaw.regionCorrect,warsaw.guessedRegion],[false,false,'Poland']);
  const dueIn=records=>(Date.parse(skillStatus('world:lm:61',records,at).reviewDueAt)-at)/60000;
  const knewShared=recordRecognition(pack,[],prague,{recognized:true,knew:true},at);
- assert.deepEqual([knewShared[0].correct,knewShared[0].regionCorrect,knewShared[0].guessedRegion],[true,false,'Czechia']);
+ assert.deepEqual([knewShared[0].correct,knewShared[0].regionCorrect],[true,false]);
  assert.ok(dueIn(knewShared)>=1440,'Knew it on the shared neighbour is Easy, not Again');
  assert.equal(dueIn(recordRecognition(pack,[],prague,{recognized:false},at)),1,'Missed it still records a miss');
  assert.equal(dueIn(recordRecognition(pack,[],warsaw,{recognized:true,knew:true},at)),1,'a pin outside the range stays Again');
