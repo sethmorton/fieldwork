@@ -69,6 +69,8 @@ def image_url(view):
 
 def pool_spots(limit, names, by_sub, weights):
     """Weighted allocation, round-robin within macro-regions, one country pool in RAM."""
+    from training import ROOT, attempts, excluded, load
+    reserved = excluded(attempts(), load(ROOT / '.fieldwork.local.json', {}))
     top = sorted(weights, key=lambda c: -weights[c])[:40]
     total = sum(weights[c] * (1.5 if c == 'US' else 1) for c in top)
     remaining = limit
@@ -83,7 +85,7 @@ def pool_spots(limit, names, by_sub, weights):
         groups = defaultdict(list)
         for loc in doc.get('customCoordinates', []) if isinstance(doc, dict) else doc:
             pano = official_id(loc.get('panoId'))
-            if not pano:
+            if not pano or pano in reserved:
                 continue
             loc = {**loc, 'panoId': pano}
             region, admin1 = assignment(cc, loc.get('extra', {}).get('tags', []), names, by_sub)

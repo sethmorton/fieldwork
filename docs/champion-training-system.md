@@ -1133,3 +1133,38 @@ No new app, scheduler upgrade or public personal-data pack. Read-only inspection
   first. Regions stop scheduling at four unique rural meta-bearing photos,
   allowing at most six after an in-flight batch. Final regional counts follow
   when that pass completes.
+
+### 2026-11-03, BuilderData, completed refill and thumbnail sweep
+
+- Pipeline hardening is pushed in `9758915`. Follow-up source hygiene adds the
+  historical Mexico City code alias, keeps known suburban photos out of adaptive
+  seed counts, and prevents the remaining pool label pass from spending on
+  panoramas reserved by other packs or exposure history.
+- Refill completed 27 bounded generation batches, preserving old pool IDs and
+  split hashes. The final post-rurality reconciliation required no extra Vali
+  generation. Every supported top-40 macro-region meets its 40/80 game target.
+  Papua is the sole remaining source shortage. Its absence is explicit in
+  `training/refill-report.json`, not papered over with a different region.
+- Cheap rurality classification completed 7,472 attempted views across the
+  initial pass and its refill-aware remainder, with 7,436 cached verdicts. It
+  stopped short of the 8,000 cap when available shortages exhausted. No further
+  cheap-model run is active.
+- Revision 193 checkpoint: 45,691 locations, 32,966 playable, top-40 min/median
+  0/151, nonempty minimum 42. All retained exact views have `thumbOk:true`.
+  The 470 bad views are omitted. There are 154 verified-meta locations and 91
+  precise footprints. Only the oil-palm tip's ID-KU boundary is unavailable in
+  Natural Earth. Mexico City now resolves via historical MX-DIF geometry.
+- The label failure ledger contains 82 unavailable-view records and six records
+  from one old empty-model-output batch. That old parse path is fixed. There
+  have been no new parse, format, timeout or rate-limit errors in the current
+  seed pass. Failure rows are per spot/attempt, not a 37% model failure rate.
+- `curate.ask` now removes its temporary schema even on model timeout. A mock
+  timeout checks cleanup without a paid call. Additional portable tests cover
+  reserved-pool exclusion and conservative suburban seed counting.
+- BuilderUI independently exercised revision 188: pack validation 23 ms, set
+  planning 36 ms, 83 countries across 200 cold-start sets. Those are BuilderUI's
+  reported measurements, not a new Data benchmark. It found no playable false
+  rural flags or retained bad thumbnails.
+- After these follow-up changes, both the portable and private data self-checks
+  passed. `npm run check` again passed 266 tests, one skipped, zero failures,
+  and TypeScript checks.

@@ -365,6 +365,19 @@ def test():
                 label.curate, 'ask', side_effect=[RuntimeError('429 rate limit'), {'results': []}]) as ask:
             assert label.ask('test', {}, [], 'model', ['key']) == {'results': []}
             assert ask.call_count == 2 and sleep.call_args.args == (15,)
+        schema_paths = []
+
+        def fail_model(command, **kwargs):
+            schema_paths.append(Path(command[command.index('--output-schema') + 1]))
+            raise TimeoutError('test deadline')
+
+        with patch.object(label.curate.subprocess, 'run', side_effect=fail_model):
+            try:
+                label.curate.ask('test', {})
+                assert False, 'Model timeout must propagate'
+            except TimeoutError:
+                pass
+        assert schema_paths and all(not p.exists() for p in schema_paths)
         import training_seen
         import training_seed
         import training as training_module
@@ -387,6 +400,14 @@ def test():
             result = list(label.spots(0, 1, True, 2))
             assert [r['panoId'] for r in result] == ['a' * 22, 'b' * 22]
             assert seen.call_args.args[3] is fake_admin1
+        (folder / 'gap/pools').mkdir(parents=True)
+        (folder / 'gap/pools/US-locations.json').write_text(json.dumps({'customCoordinates': [
+            {'panoId': c * 22, 'extra': {'tags': ['US-X']}} for c in 'ab']}))
+        with patch.object(label, 'HERE', folder), patch.object(
+                training_module, 'excluded', return_value={'a' * 22}), patch.object(
+                training_module, 'attempts', return_value=[]):
+            result = list(label.pool_spots(2, {'US': 'US'}, {'US-X': region}, {'US': 100}))
+            assert [s['panoId'] for s in result] == ['b' * 22]
         (folder / 'training').mkdir()
         (folder / 'training/region-features.json').write_text(json.dumps({'features': []}))
         photos = [{'panoId': c * 22, 'countryCode': 'US', 'country': 'US', 'region': region,
@@ -399,6 +420,10 @@ def test():
             jobs, counts, _, counted = training_seed.source_jobs(
                 SimpleNamespace(pool_limit=0), *fake_geo[:3], fake_admin1, {'cue': {}}, latest, {})
             assert not jobs and counts[region] == 4 and len(counted[region]) == 4
+            jobs, counts, _, _ = training_seed.source_jobs(
+                SimpleNamespace(pool_limit=0), *fake_geo[:3], fake_admin1, {'cue': {}}, latest,
+                {photos[0]['panoId']: 'suburban'})
+            assert counts[region] == 3 and all(s['panoId'] != photos[0]['panoId'] for s in jobs)
             jobs, counts, _, _ = training_seed.source_jobs(
                 SimpleNamespace(pool_limit=0), *fake_geo[:3], fake_admin1, {}, {}, {})
             assert len(jobs) == 6 and counts[region] == 0

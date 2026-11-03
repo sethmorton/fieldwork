@@ -33,7 +33,8 @@ def source_jobs(args, names, regions, by_sub, admin1, metas, latest, known):
             return
         record = latest.get(pano, {})
         setting = record.get('setting') or known.get(pano)
-        if record.get('indoor') or record.get('urbanFlag') or setting in ('urban', 'suburban') or known.get(pano) == 'urban':
+        if (record.get('indoor') or record.get('urbanFlag') or setting in ('urban', 'suburban')
+                or known.get(pano) in ('urban', 'suburban')):
             return
         used.add(pano)
         target[spot['region']].append({**spot, 'panoId': pano})

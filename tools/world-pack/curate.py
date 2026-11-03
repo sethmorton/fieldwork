@@ -50,10 +50,12 @@ def ask(prompt, schema, images=(), model=None):
     with tempfile.NamedTemporaryFile('w', suffix='.json', delete=False) as f:
         json.dump(schema, f)
     args = [a for path in images for a in ('-i', str(path))]
-    out = subprocess.run(['codex', 'exec', '--skip-git-repo-check', '--ignore-rules', '-s', 'read-only', '-m', model or MODEL,
-                          '--output-schema', f.name, *args, '--', prompt], capture_output=True, text=True, timeout=1200,
-                         cwd=tempfile.gettempdir())
-    Path(f.name).unlink(missing_ok=True)
+    try:
+        out = subprocess.run(['codex', 'exec', '--skip-git-repo-check', '--ignore-rules', '-s', 'read-only', '-m', model or MODEL,
+                              '--output-schema', f.name, *args, '--', prompt], capture_output=True, text=True, timeout=1200,
+                             cwd=tempfile.gettempdir())
+    finally:
+        Path(f.name).unlink(missing_ok=True)
     if out.returncode or not out.stdout.strip():
         raise RuntimeError(f'codex exited {out.returncode}: {out.stderr[-2000:]}')
     reply = out.stdout.strip()

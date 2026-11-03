@@ -42,8 +42,9 @@ GROUPS = {
 }
 MEMBERS = {f'{cc}-{sub}': group for cc, groups in GROUPS.items()
            for group, subs in groups.items() for sub in subs.split()}
-# Alternate subdivision codes still used by Vali's cache.
-ALIASES = {'ID-PP': 'ID-PA', 'IN-CT': 'IN-CG', 'IN-UK': 'IN-UT', 'IN-OR': 'IN-OD'}
+# Historical codes in Vali/Natural Earth, including the renamed Mexico City.
+ALIASES = {'ID-PP': 'ID-PA', 'IN-CT': 'IN-CG', 'IN-UK': 'IN-UT', 'IN-OR': 'IN-OD',
+           'MX-DIF': 'MX-CMX'}
 
 
 def catalogue():
