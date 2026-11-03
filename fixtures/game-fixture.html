@@ -20,8 +20,10 @@ const play=(location,pin,index,set,occurredAt)=>{
   attempts=ui.recordDeal(pack,attempts,round,{slot:set.slots?.[location.id]},new Date(occurredAt));
   return round;
 };
-const otherRegion=location=>pack.locations.find(item=>item.split==='study'&&item.country===location.country&&item.region!==location.region
-  &&(!params.get('pin')||regionOf(item.region)===params.get('pin')));
+// pin=<region> / region=<region> name sample-pack regions; on another pack they fall back to any other region / the set.
+const otherRegion=location=>{const all=pack.locations.filter(item=>item.region!==location.region),named=all.filter(item=>regionOf(item.region)===params.get('pin'));
+  const others=named.length?named:all;
+  return others.find(item=>item.split==='study'&&item.country===location.country)??others.find(item=>item.country===location.country)??others[0]};
 const playSet=(pattern,start)=>{
   const set=ui.makeNextSet(pack,attempts,{size:5,random,now:start});game++;
   return set.selectedLocations.map((location,index)=>play(location,pattern[index]?{lat:location.lat+0.02,lng:location.lng+0.02}:otherRegion(location),index,set,start+index*60000));
@@ -29,7 +31,7 @@ const playSet=(pattern,start)=>{
 document.body.style.background='#fff';
 if(view==='right'||view==='wrong'){
   const set=ui.makeNextSet(pack,[],{size:5,random,now});game++;
-  const location=params.get('region')?pack.locations.find(item=>item.split!=='study'&&regionOf(item.region)===params.get('region')):set.selectedLocations[0];
+  const location=pack.locations.find(item=>item.split!=='study'&&regionOf(item.region)===params.get('region'))??set.selectedLocations[0];
   if(!set.selectedLocations.includes(location))set.selectedLocations[0]=location;
   const round=play(location,view==='right'?{lat:location.lat+0.02,lng:location.lng+0.02}:otherRegion(location),0,set,now);
   document.title=`training ${view} ${round.correct} ${round.guessedRegion}`;

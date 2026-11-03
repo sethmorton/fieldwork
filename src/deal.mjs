@@ -209,6 +209,9 @@ export function planDeal(pack,attempts,{size=5,now=Date.now(),seenLocationRefs=[
   // 2. At least two spots showing due metas. 3. At least one focus-country spot. 4. At least two world spots.
   const count=test=>picks.filter(test).length;
   fill(dueRanked,'due',2-count(spot=>spot.due>0));
+  // Too few due-meta spots (unlabelled pools): due region retests fill the two due slots, best score first.
+  const dueRegions=new Set(open.filter(item=>item.due&&item.kind==='region').map(item=>item.key));
+  fill(ranked,'due',2-count(spot=>spot.due>0||dueRegions.has(spot.region)),spot=>dueRegions.has(spot.region));
   if(focus)fill(ranked,'focus',1-count(spot=>spot.country===focus),spot=>spot.country===focus);
   fill(ranked,'world',2-count(spot=>spot.country!==focus),spot=>spot.country!==focus);
   // 5. The rest by score; a short pool relaxes the per-country cap, never the never-repeat rule.

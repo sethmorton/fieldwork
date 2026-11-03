@@ -21,7 +21,7 @@ const CSS=`:host{all:initial}*{box-sizing:border-box}
 .km{position:absolute;top:16px;right:22px;z-index:6;text-align:right;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.65)}
 .km b{display:block;font:900 34px/1.1 'Playfair Display',Georgia,serif}.km span{font:600 15px 'Libre Franklin',Arial}.km i{font-style:normal;margin-right:8px}.km .ok{color:#7ee2a8}.km .no{color:#ff8a7a}
 .tell{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);z-index:6;max-width:min(70vw,900px);background:#fff;padding:10px 16px;font:600 16px/1.35 'Libre Franklin',Arial;box-shadow:0 2px 12px rgba(0,0,0,.35);text-align:center}
-.dots{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:6}.dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 3px rgba(0,0,0,.5)}.dots i.on{background:#fff}
+.dots{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:6}.dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 0 1px rgba(0,0,0,.35),0 0 3px rgba(0,0,0,.5)}.dots i.on{background:#fff;box-shadow:0 0 0 1px #121212}
 .pop{position:fixed;z-index:40;width:260px;background:#fff;color:#121212;box-shadow:0 6px 28px rgba(0,0,0,.4);padding:12px;display:none}.pop.on{display:block}
 .pop h3{font:700 19px/1.2 'Playfair Display',Georgia,serif;margin:0 0 6px}.pop img{display:block;width:100%;max-height:150px;object-fit:contain;background:#fff;margin:6px 0}
 .pop a{color:#326891;font-size:12px}.pop .rmap{margin-top:6px}.pop .keys{display:flex;gap:6px;margin-top:8px}.pop .keys button{flex:1}
@@ -116,9 +116,11 @@ export function studySpots(pack,region,{shown=new Set(),n=4,random=Math.random,e
     .map(location=>({location,key:(shown.has(location.id)?2:0)+((location.metas??[]).length?0:1)+random()}));
   return list.sort((a,b)=>a.key-b.key).slice(0,n).map(item=>item.location);
 }
-/** A 2x2 board of one region: four study photos, the country map in the centre with the region shaded, its name. */
+/** A board of one region: up to four study photos (2x2; fewer fill the screen in one row), the country map in the centre
+ *  with the region shaded, its name. A region with no study photos shows the map alone. */
 export function board(parent,pack,region,spots,{color='#c0392b',popover,muted=false}){
   const grid=node(parent,'div','grid');if(muted)grid.style.filter='saturate(.85)';
+  if(spots.length<4)Object.assign(grid.style,{gridTemplateColumns:`repeat(${Math.max(1,spots.length)},1fr)`,gridTemplateRows:'1fr'});
   const markers=spots.flatMap(location=>photo(grid,pack,location,popover).markers);
   const country=pack.regions?.[region]?.country??region;
   const map=node(parent,'div','ov');map.append(regionMap(pack,{countries:[country],shade:{[region]:color}}).node);
@@ -190,7 +192,7 @@ export function recapScreen(pack,rounds,{onNext,onClose}={}){
     const location=pack.locations.find(item=>item.id===round.locationRef);if(!location)continue;
     const fig=node(strip,'figure'),shot=node(fig,'div','shot'),img=node(shot,'img');img.src=photoUrl(pack,location,640);img.alt='';img.referrerPolicy='no-referrer';
     node(shot,'b',null,round.correct?'✓':'✗').style.color=round.correct?'#7ee2a8':'#ff8a7a';
-    const cap=node(fig,'figcaption');node(cap,'strong',null,shortRegion(round.region));
+    const cap=node(fig,'figcaption');node(cap,'strong',null,round.region);
     node(cap,'span',null,`${(round.km??0).toLocaleString('en-US')} km · ${(round.points??0).toLocaleString('en-US')} pts`);
     const metas=node(cap,'ul');for(const meta of round.metas??[])node(metas,'li',null,`${meta.used?'✓':'✗'} ${pack.metas?.[meta.metaId]?.title??meta.metaId}`);
   }

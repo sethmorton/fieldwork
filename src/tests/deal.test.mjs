@@ -152,6 +152,12 @@ test('composition: ≥1 focus spot, ≥2 world spots, ≤2 per country, one per 
     for(const location of picked)attempts=play(pack,attempts,location,{at:T0+set*600000,pinRegion:set%2?location.region:Object.keys(pack.regions).find(name=>name!==location.region&&pack.regions[name].country===location.country)});
   }
 });
+test('without labelled metas, due region retests fill the two due slots',()=>{
+  const base=world(),pack={...base,locations:base.locations.map(location=>({...location,metas:[]})),
+    duelLosses:[{id:'duel:1',occurredAt:new Date(T0-DAY).toISOString(),region:'B — R2'},{id:'duel:2',occurredAt:new Date(T0-DAY).toISOString(),region:'C — R1'}]};
+  const next=plan(pack,[]),locations=byId(pack);
+  assert.deepEqual(next.locationIds.filter(id=>next.slots[id].slot==='due').map(id=>locations.get(id).region).sort(),['B — R2','C — R1']);
+});
 test('fade: three fast right answers in a row make a region rarer; a slow or wrong one does not',()=>{
   const pack=world({acow:{A:1}}),spots=pack.locations.filter(location=>location.region==='A — R0'&&location.split==='drill');
   let attempts=[];for(const spot of spots.slice(0,3))attempts=play(pack,attempts,spot,{at:T0-3*DAY,seconds:6});

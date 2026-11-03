@@ -1,0 +1,65 @@
+<!doctype html><meta charset="utf-8"><title>Fieldwork training end-to-end</title>
+<body style="font-family:Arial;background:#d6e4e9;padding:30px;margin:0">
+<p>LOCAL TEST · the built userscript with the training pack · synthetic GeoGuessr API and game · no account access</p>
+<main><h1 id="page">Practice map</h1><button id="play">Play</button></main>
+<button id="right">Guess right</button><button id="wrong">Guess wrong</button><button id="native-next">Next</button>
+<pre id="log"></pre>
+<script type="module">
+// Runs dist/fieldwork.user.js against the training pack the local build serves (dist/catalog.json), with GM storage in
+// memory, GeoGuessr's router, draft/publish API and game creation stubbed, and a 5-round game driven by the buttons.
+// window.fixture exposes the published sets, started games and GM data for fixtures/training-e2e.mjs.
+const catalog=await (await fetch('/dist/practice-catalog.json')).json(),entry=catalog.find(item=>item.id==='training');
+const manifest=await (await fetch('/catalog.json')).json(),pack=await (await fetch('/'+manifest.packs.find(item=>item.id==='training').url)).json();
+const mapId=entry.practiceMapId,data={},log=line=>{document.querySelector('#log').textContent+=line+'\n'};
+const fixture=window.fixture={published:[],games:[],data,pack,errors:[]};
+window.addEventListener('error',event=>fixture.errors.push(String(event.message)));
+window.GM_getValue=(key,fallback)=>key in data?structuredClone(data[key]):fallback;window.GM_setValue=(key,value)=>{data[key]=structuredClone(value)};
+window.GM_listValues=()=>Object.keys(data);window.GM_deleteValue=key=>{delete data[key]};window.unsafeWindow=window;
+const events=new EventTarget(),state={map:{id:mapId},current_game_id:null,current_round:1,round_in_progress:true,rounds:[]};
+window.GeoGuessrEventFramework={events,state};
+// GeoGuessr's router: client-side navigation, no reload (the userscript keeps its state).
+window.next={router:{push:path=>{history.pushState(null,'',path);window.dispatchEvent(new PopStateEvent('popstate'));onRoute();return Promise.resolve(true)}}};
+let version=1,coordinates=[];
+const realFetch=window.fetch.bind(window);
+window.fetch=async(url,options={})=>{
+  const path=typeof url==='string'?url:url.url;
+  if(!path.startsWith('/api/'))return realFetch(url,options);
+  if(path===`/api/v4/user-maps/drafts/${mapId}`&&!options.method)return Response.json({name:'Fieldwork - Training',mode:'coordinates',version,customCoordinates:coordinates});
+  if(path===`/api/v4/user-maps/drafts/${mapId}`&&options.method==='PUT'){const body=JSON.parse(options.body);coordinates=body.customCoordinates;version=body.version;
+    fixture.published.push(coordinates.map(item=>item.panoId));log(`published set ${fixture.published.length}: ${coordinates.map(item=>item.panoId).join(' ')}`);return Response.json({})}
+  if(path===`/api/v4/user-maps/drafts/${mapId}/publish`)return Response.json({});
+  if(path==='/api/v3/games'&&options.method==='POST'){const body=JSON.parse(options.body),token='fxgame'+(fixture.games.length+1);
+    fixture.games.push({token,settings:body,coordinates:[...coordinates]});log(`game ${token}: ${JSON.stringify(body)}`);
+    return Response.json({token,map:body.map,timeLimit:body.timeLimit,forbidMoving:body.forbidMoving,forbidZooming:body.forbidZooming,forbidRotating:body.forbidRotating})}
+  throw Error('Unexpected fixture request '+path);
+};
+history.replaceState(null,'','/maps/'+mapId);
+function onRoute(){
+  const game=/^\/game\/(\w+)$/.exec(location.pathname)?.[1];
+  document.querySelector('#page').textContent=location.pathname;
+  if(game&&state.current_game_id!==game){Object.assign(state,{current_game_id:game,current_round:1,round_in_progress:true,rounds:[]});
+    setTimeout(()=>events.dispatchEvent(new CustomEvent('round_start',{detail:structuredClone(state)})),50)}
+}
+const current=()=>{const game=fixture.games.find(item=>item.token===state.current_game_id),spot=game.coordinates[state.current_round-1];
+  return pack.locations.find(location=>location.panoId===spot.panoId)};
+// A wrong pin: a spot of another region (same country first) that its own region polygon contains, so the pinned beat shows.
+const inRing=([x,y],ring)=>{let inside=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const [xi,yi]=ring[i],[xj,yj]=ring[j];if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)inside=!inside}return inside};
+const inRegion=(location,name)=>{const geometry=pack.regionFeatures.find(feature=>feature.properties.name===name)?.geometry;
+  return !!geometry&&(geometry.type==='Polygon'?[geometry.coordinates]:geometry.coordinates).some(rings=>inRing([location.lng,location.lat],rings[0]))};
+function guess(right){
+  const location=current(),others=pack.locations.filter(item=>item.region!==location.region).sort((a,b)=>(b.country===location.country)-(a.country===location.country));
+  const other=others.find(item=>inRegion(item,item.region));
+  const pin=right?{lat:location.lat+0.01,lng:location.lng+0.01}:{lat:other.lat,lng:other.lng};
+  state.rounds[state.current_round-1]={location:{panoId:location.panoId,lat:location.lat,lng:location.lng},player_guess:{...pin,time:right?9:31}};
+  state.round_in_progress=false;
+  const marker=document.createElement('div');marker.dataset.qa='result-view-top';marker.textContent=`ROUND ${state.current_round} / 5`;document.body.append(marker);
+  events.dispatchEvent(new CustomEvent('round_end',{detail:structuredClone(state)}));
+}
+document.querySelector('#right').onclick=()=>guess(true);document.querySelector('#wrong').onclick=()=>guess(false);
+document.querySelector('#native-next').onclick=()=>{
+  document.querySelector('[data-qa="result-view-top"]')?.remove();
+  if(state.current_round===5){window.next.router.push('/results/'+state.current_game_id);return}
+  state.current_round++;state.round_in_progress=true;events.dispatchEvent(new CustomEvent('round_start',{detail:structuredClone(state)}));
+};
+const script=document.createElement('script');script.src='/dist/fieldwork.user.js';document.body.append(script);
+</script>

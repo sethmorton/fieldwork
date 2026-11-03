@@ -104,6 +104,13 @@ installation or successful live publication based on a build passing.
   Check native Map Maker Export JSON first; never invent coordinates.
 - Source inventory != playable coverage != mastery. Deferred content stays
   inactive until real examples and claims are checked. Keep caveats.
+- Training pack (`scheduler: 'deal'`, src/deal.mjs, docs/champion-training-system.md): every set is 5 panoramas never
+  shown before (attempts + exposures); `split: 'study'` spots appear only on cards/boards and are never published. Sets
+  are ranked from attempts after every guess (Beta posteriors with recency, confusion pairs, retests, fade), never stored.
+  A set keeps the latest confusion as a contrast pair, ≥2 due-meta (else due-region) spots, ≥1 focus and ≥2 world spots,
+  ≤2 per country. Rounds are graded at once from the pinned macro-region (`regionFeatures`) with world-scale points.
+  Cards are full-viewport shadow-root overlays (src/training-ui.mjs, training-start.mjs) in the proto-v2 style;
+  keys stop at the overlay so GeoGuessr never sees Space or arrows while one is open.
 
 ## Verification
 
@@ -121,6 +128,12 @@ Do not reload a learner's results to test: GeoGuessr can resume the next round.
 `fixtures/game-fixture.html?mode=veg` (or `mode=veg-wrong`, optional `region=<code>&pano=<id>`, or `tree=<card>` for a
 tree deck round) renders the real us-vegetation card from the built pack, graded by `completedRound`, with the installer
 serving images.
+
+`fixtures/game-fixture.html?mode=training&screen=<right|wrong|recap|session|start|look|debug>` renders each training
+screen from the checked-in sample pack (`fixtures/training-sample-pack.json`, fake meta boxes) or `pack=/<built pack>`;
+`node fixtures/training-shots.mjs <dir>` screenshots all of them. `node fixtures/training-e2e.mjs <dir>` runs the built
+userscript with the configured training pack through `fixtures/training-fixture.html` (stubbed GeoGuessr API and game):
+start panel, Play, five rounds with a card each, recap, next set published ahead, second game, no panorama repeated.
 
 `browser-recovery.test.mjs` fuzzes 150 seeded orderings of framework/native
 responses, reveals, stale responses and Next clicks; every round must show its own
