@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createKeyGuard} from '../key-guard.mjs';
 import {boardSpots,boardHistory,recentlyShown} from '../boards.mjs';
 import {validatePack,makeNextSet} from '../next-set.mjs';
-import {gameInProgress,completedRound,readySet} from '../session.mjs';
+import {gameInProgress,completedRound,readySet,trainingResetKeys} from '../session.mjs';
 import {stateFromGameData} from '../game-state.mjs';
 import {recordDeal,retests,playableDueMetas} from '../deal.mjs';
 import {cropFocus,metaShading,firstSentence} from '../training-ui.mjs';
@@ -166,4 +166,16 @@ test('the magnifier popover line is one short sentence',()=>{
   assert.equal(firstSentence('Yellow centre lines. They are double on most rural roads, and the outer lines are white.'),'Yellow centre lines.');
   assert.equal(firstSentence('  '),null);assert.equal(firstSentence(undefined),null);
   const long=firstSentence('word '.repeat(60));assert.ok(long.length<=121&&long.endsWith('…'));
+});
+test('reset training history deletes only the training pack\'s learner state',()=>{
+  const keys=['fieldwork:training:attempts','fieldwork:training:exposures','fieldwork:training:board-shown','fieldwork:training:study-shown',
+    'fieldwork:training:session-check-at','fieldwork:training:pending-review',
+    // kept: binding/config, the placed set, content pins, launches, map backups, settings
+    'fieldwork:training:active-set','fieldwork:training:content-head','fieldwork:training:game:abc','fieldwork:training:launch-request',
+    'fieldwork:training:previous-draft','fieldwork:training:pending-backup','fieldwork:training:manual-metas','fieldwork:packs','fieldwork:catalog',
+    // other packs, and look-alike names
+    'fieldwork:sprint:attempts','fieldwork:us-vegetation:exposures','fieldwork:training-sample:attempts','fieldwork:training:attempts-backup'];
+  assert.deepEqual(trainingResetKeys(keys,'training'),['fieldwork:training:attempts','fieldwork:training:exposures','fieldwork:training:board-shown',
+    'fieldwork:training:study-shown','fieldwork:training:session-check-at','fieldwork:training:pending-review']);
+  assert.deepEqual(trainingResetKeys(keys,'sprint'),['fieldwork:sprint:attempts']);
 });

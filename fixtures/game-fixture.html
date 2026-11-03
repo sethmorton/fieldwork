@@ -49,7 +49,7 @@ if(view==='right'||view==='wrong'){
   // start / look / debug: the start panel after two played sets (one with a Mid-Atlantic → South Atlantic confusion).
   playSet([true,false,true,true,false],now-30*60000);playSet([true,true,false,true,true],now-20*60000);
   const start=ui.trainingStart(pack,{attempts,now,random,onPlay:()=>{document.title='training play'},onManual:value=>{document.title='training manual '+value},
-    debugPlan:()=>ui.planDeal(pack,attempts,{now,random:ui.seeded(7)})});
+    debugPlan:()=>ui.planDeal(pack,attempts,{now,random:ui.seeded(7)}),onReset:()=>{document.title='training reset'}});
   if(view==='look')window.dispatchEvent(new KeyboardEvent('keydown',{key:'l',bubbles:true}));
   if(view==='debug')start.toggleDebug();
 }

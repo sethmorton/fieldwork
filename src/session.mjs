@@ -122,6 +122,11 @@ export function advanceRecognition(pack,history,pending,nextState,now=new Date()
   return recordRecognition(pack,history,pending.round,{recognized:true,familiar:pending.familiar,correct:pending.correct,assumed:true},now);
 }
 
+/** "Reset training history" (training start panel, debug view): the pack's learner-state GM keys only. Rounds and
+ *  shown spots (attempts, exposures), board photo history, the session-check clock and a pending review go; the map
+ *  binding, the placed set, game content pins, launch requests, map backups and settings stay. Other packs untouched. */
+export const RESET_STATE=['attempts','exposures','board-shown','study-shown','session-check-at','pending-review'];
+export const trainingResetKeys=(keys,packId)=>keys.filter(key=>RESET_STATE.some(suffix=>key===`fieldwork:${packId}:${suffix}`));
 /** The active set (content-store pinSet: {locationIds, preparedAt}) is still the next set to play: five spots, placed
  *  under READY_HOURS ago, none of them played or shown since. A published but unplayed set is kept (Play only starts
  *  it); a stale one is replaced when the start panel next opens. */

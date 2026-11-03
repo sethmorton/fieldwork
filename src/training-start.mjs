@@ -12,14 +12,16 @@ const signed=(value,unit='')=>value>0?`+${value}${unit}`:`${value}${unit}`;
 export const PILL_ID='fieldwork-training-pill';
 
 /** options: attempts, onPlay() (prepares and launches the next set), manual + onManual(bool), packs + onChoosePack(id),
- *  onExport(), message, debugPlan() (the planDeal result for the debug view), now. */
+ *  onExport(), onReset() (debug view: erase the training history), message, debugPlan() (the planDeal result for the
+ *  debug view), now. */
 export function trainingStart(pack,options={}){
-  const {attempts=[],onPlay,manual=false,onManual,packs=[],onChoosePack,onExport,message=null,debugPlan,now=Date.now(),random=Math.random}=options;
+  const {attempts=[],onPlay,manual=false,onManual,packs=[],onChoosePack,onExport,onReset,message=null,debugPlan,now=Date.now(),random=Math.random}=options;
   document.getElementById(PILL_ID)?.remove();
   let debug=null;
   const {scr,close}=screen({onClose:()=>pill(pack,()=>trainingStart(pack,{...options,message:null})),onKey:event=>{
     if(/^(INPUT|SELECT)$/.test(event.composedPath()[0]?.tagName??''))return false;
     if(event.key==='d'||event.key==='D'){toggleDebug();return true}
+    if(debug&&(event.key==='r'||event.key==='R')){resetHistory();return true}
     if(event.key==='Enter'){play.click();return true}
     if(event.key==='l'||event.key==='L'){look.click();return true}
     return false;
@@ -76,15 +78,20 @@ export function trainingStart(pack,options={}){
     if(debug){debug.remove();debug=null;return}
     debug=node(scr,'div');Object.assign(debug.style,{position:'absolute',inset:'60px 40px 30px 76px',background:'#fff',border:'2px solid #121212',overflow:'auto',padding:'14px',zIndex:20,font:'12px/1.4 ui-monospace,monospace'});
     debug.dataset.debug='1';
+    // R or this button: erase the training history (onReset confirms first, then deletes and re-renders the panel).
+    if(onReset){const reset=node(debug,'button',null,'Reset training history');reset.type='button';node(reset,'kbd',null,'R');
+      Object.assign(reset.style,{float:'right',font:'12px Libre Franklin,Arial',padding:'4px 8px'});reset.onclick=resetHistory}
     const plan=debugPlan?.();
     if(!plan){node(debug,'p',null,'No plan available.');return}
     node(debug,'p',null,`Next set: ${plan.reasons.join(' · ')}`).style.fontWeight='700';
     const table=node(debug,'table');table.style.borderCollapse='collapse';
-    const head=node(table,'tr');for(const label of ['picked','region','score','acow','miss','confusion','novelty','fade','due','metaNovelty','rural'])node(head,'th',null,label).style.textAlign='left';
+    const columns=['acow','miss','confusion','novelty','fade','due','metaWeak','metaNovelty','rural'];
+    const head=node(table,'tr');for(const label of ['picked','region','score',...columns])node(head,'th',null,label).style.textAlign='left';
     for(const item of plan.candidates){const tr=node(table,'tr');if(item.picked)tr.style.background='#fbeee4';
-      const cells=[item.picked??'',item.region,item.score.toExponential(2),...['acow','miss','confusion','novelty','fade','due','metaNovelty','rural'].map(key=>Number(item.terms[key]).toFixed(3))];
+      const cells=[item.picked??'',item.region,item.score.toExponential(2),...columns.map(key=>Number(item.terms[key]).toFixed(3))];
       for(const value of cells){const td=node(tr,'td',null,value);td.style.padding='2px 10px 2px 0'}}
   }
+  function resetHistory(){if(onReset)onReset()}
   return {close,scr,toggleDebug};
 }
 // The region with the highest mean miss probability among regions played; the focus country's first region otherwise.

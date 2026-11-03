@@ -4,7 +4,7 @@ import {indexedDbCache} from './content-cache.mjs';
 import {sourceNote} from './source-note.mjs';
 import {makeNextSet} from './next-set.mjs';
 import {packForPage} from './packs.mjs';
-import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,launchRequest,startPracticeGame,quickCheckQueue,recordKnown,recordMissed,REGIONS_MAP,gameInProgress,readySet} from './session.mjs';
+import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,launchRequest,startPracticeGame,quickCheckQueue,recordKnown,recordMissed,REGIONS_MAP,gameInProgress,readySet,trainingResetKeys} from './session.mjs';
 import {reviewPanel,startPanel,loadingPanel,bindPanel,quickCheckPanel} from './ui.mjs';
 import {cardImages} from './vegcard.mjs';
 import {ruleCheckFor,closeCall} from './sprint.mjs';
@@ -202,6 +202,13 @@ function preloadSet(chosen,set){
   preload(set.selectedLocations.map(location=>photoUrl(chosen,location)));
   for(const location of set.selectedLocations)boardFor(chosen,location.region,location.id,ids);
 }
+// "Reset training history": after the learner confirms, only this pack's learner-state keys go (trainingResetKeys);
+// the panel then re-renders as a cold start. The map binding, the placed set and other packs are untouched.
+function resetTraining(subject){
+  if(!confirm('Erase all training rounds, stats and due items? Your other packs are untouched.'))return;
+  for(const name of trainingResetKeys(GM_listValues(),subject.id))GM_deleteValue(name);
+  boards.clear();remove();render();
+}
 function showTrainingCard(round){
   const cardPack=pack,inFlight=GM_getValue(key('active-set'),null)?.locationIds??[];
   if(round.round===5&&!ahead.has(round.id)){const job=publishAhead();ahead.set(round.id,job);job.catch(error=>console.warn('Fieldwork could not publish the next set ahead.',error))}
@@ -368,7 +375,9 @@ function render() {
       trainingStart(pack,{attempts:history(),onPlay:playTraining,manual:GM_getValue(key('manual-metas'),false),onManual:value=>GM_setValue(key('manual-metas'),value),
         packs:packs.filter(item=>item.practiceMapId),onChoosePack:choosePack,message:launchError,history:boardSeen(pack),
         onExport:()=>download({packId:pack.id,attempts:history(),exposures:exposures()},`fieldwork-progress-${pack.id}.json`),
-        debugPlan:()=>planDeal(pack,history(),{seenLocationRefs:exposures().map(item=>item.locationRef)})});
+        debugPlan:()=>planDeal(pack,history(),{seenLocationRefs:exposures().map(item=>item.locationRef)}),
+        // Debug view: erase this pack's training history (learner state only), then show the panel cold.
+        onReset:()=>resetTraining(pack)});
       primeTrainingSet(pack);
       mounted='start';launchError=null;return;
     }
