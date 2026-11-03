@@ -6,7 +6,7 @@ import {validatePack,makeNextSet} from '../next-set.mjs';
 import {gameInProgress,completedRound,readySet} from '../session.mjs';
 import {stateFromGameData} from '../game-state.mjs';
 import {recordDeal,retests} from '../deal.mjs';
-import {cropFocus} from '../training-ui.mjs';
+import {cropFocus,metaShading} from '../training-ui.mjs';
 import {geometryRings} from '../region-map.mjs';
 
 const key=(type,code)=>({type,code,key:code===' '?' ':code,stopped:false,prevented:false,
@@ -133,4 +133,10 @@ test('a placed but unplayed set stays the next set for 12 hours; a played, parti
   assert.equal(readySet(set(1),[],[{id:'training:g:1',locationRef:'pano:e'}],now),false,'a round of it was shown');
   assert.equal(readySet(set(1,ids.slice(0,4)),[],[],now),false);assert.equal(readySet(null,[],[],now),false);
   assert.equal(readySet({locationIds:ids},[],[],now),false,'no placement time');
+});
+test('meta map shading: the exact footprint, else the country outline when admin-1 is unresolved, else macro-regions',()=>{
+  const footprint={type:'Feature',geometry:{type:'MultiPolygon',coordinates:[]}};
+  assert.deepEqual(metaShading({footprint,appliesToAdmin1:['BR-CE','BR-RR'],appliesTo:['Brazil — North']}),{overlays:[{geometry:footprint}]});
+  assert.deepEqual(metaShading({footprint:null,appliesToAdmin1:['BR-CE'],appliesTo:['Brazil — North','Brazil — Northeast']}),{},'no invented range');
+  assert.deepEqual(metaShading({appliesToAdmin1:[],appliesTo:['Brazil — North']}),{shade:{'Brazil — North':'#c0392b'}});
 });

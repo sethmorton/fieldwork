@@ -84,10 +84,12 @@ export function photoUrl(pack,location,width=1280){
 const aspect=pack=>{const [w,h]=pack.thumbSize??[1600,1000];return w/h};
 
 // Where a meta applies, on its countries' map: its own footprint (metas[id].footprint, admin-1 union) when the pack has
-// one, else the macro-regions it lists (appliesTo).
+// one. A meta scoped to admin-1 codes without a resolved footprint shows the country outline only (never broader macro
+// regions); only a meta with no admin-1 scope falls back to the macro-regions it lists (appliesTo).
 const metaCountries=(pack,info)=>info?.countries?.length?info.countries:[...new Set((info?.appliesTo??[]).map(name=>pack.regions?.[name]?.country??name))];
-export const metaMap=(pack,info)=>regionMap(pack,{countries:metaCountries(pack,info),
-  ...(info?.footprint?{overlays:[{geometry:info.footprint}]}:{shade:Object.fromEntries((info?.appliesTo??[]).map(name=>[name,'#c0392b']))})});
+export const metaShading=info=>info?.footprint?{overlays:[{geometry:info.footprint}]}
+  :info?.appliesToAdmin1?.length?{}:{shade:Object.fromEntries((info?.appliesTo??[]).map(name=>[name,'#c0392b']))};
+export const metaMap=(pack,info)=>regionMap(pack,{countries:metaCountries(pack,info),...metaShading(info)});
 // The meta popover: title, the Plonk It / Learnable Meta image, a mini map of where it applies, the source link and, with
 // manual keys on, "Used it" / "Didn't notice".
 export function metaPopover(root,pack,{manual,grades,onGrade}){
