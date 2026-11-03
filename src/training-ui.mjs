@@ -41,8 +41,8 @@ button.go:hover,.keys button:hover,.page button:hover,button.go.ink{background:#
 .date,.kick{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#727272}.kick{margin:0 0 8px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border-top:1px solid #121212}.tile{padding:12px 14px 12px 0}
 .tile b{font:900 40px 'Playfair Display',Georgia,serif;display:block}.tile small{color:#727272;font-size:12px}.up{color:#2e7d4f;font:600 15px 'Libre Franklin'}.down{color:#c0392b;font:600 15px 'Libre Franklin'}
-.recap{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:22px}.recap figure{margin:0}.recap .shot{position:relative;aspect-ratio:1.6;overflow:hidden;background:#d9d6cf}
-.recap .shot img{width:100%;height:100%;object-fit:cover;display:block}.recap .shot b{position:absolute;top:6px;left:8px;font:900 30px Georgia,serif;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.7)}
+.recap{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:22px}.recap figure{margin:0}.recap .shot{position:relative;aspect-ratio:1.6;overflow:hidden;background:#fff}
+.recap .shot img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .2s}.recap .shot img.in{opacity:1}.recap .shot b{position:absolute;top:6px;left:8px;font:900 30px Georgia,serif;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.7)}
 .recap figcaption{font-size:13px;margin-top:6px}.recap figcaption strong{display:block;font-size:14px}.recap ul{margin:6px 0 0;padding:0;list-style:none;color:#727272;font-size:12px}
 .advice{font:900 52px/1.1 'Playfair Display',Georgia,serif;margin:26px 0 8px}.detail{font-size:18px;color:#727272;margin:0 0 22px}
 .actions{display:flex;gap:10px;margin-top:22px}kbd{font:11px/1 ui-monospace,monospace;padding:2px 4px;border:1px solid currentColor;border-radius:3px;opacity:.6;margin-left:6px}
@@ -246,7 +246,9 @@ export function recapScreen(pack,rounds,{onNext,onClose}={}){
   const strip=node(page,'div','recap');
   for(const round of rounds){
     const location=pack.locations.find(item=>item.id===round.locationRef);if(!location)continue;
-    const fig=node(strip,'figure'),shot=node(fig,'div','shot'),img=node(shot,'img');img.src=photoUrl(pack,location,640);img.alt='';img.referrerPolicy='no-referrer';
+    // The same URL as the round's result beat (preloaded at publication), so it comes from the cache; fades in when decoded.
+    const fig=node(strip,'figure'),shot=node(fig,'div','shot'),img=node(shot,'img');img.alt='';img.referrerPolicy='no-referrer';
+    img.onload=()=>img.classList.add('in');img.src=photoUrl(pack,location);if(img.complete&&img.naturalWidth)img.classList.add('in');
     node(shot,'b',null,round.correct?'✓':'✗').style.color=round.correct?'#7ee2a8':'#ff8a7a';
     const cap=node(fig,'figcaption');node(cap,'strong',null,round.region);
     node(cap,'span',null,`${round.timedOut?'timed out':`${(round.km??0).toLocaleString('en-US')} km`} · ${(round.points??0).toLocaleString('en-US')} world pts`);

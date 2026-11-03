@@ -212,6 +212,9 @@ function resetTraining(subject){
 function showTrainingCard(round){
   const cardPack=pack,inFlight=GM_getValue(key('active-set'),null)?.locationIds??[];
   if(round.round===5&&!ahead.has(round.id)){const job=publishAhead();ahead.set(round.id,job);job.catch(error=>console.warn('Fieldwork could not publish the next set ahead.',error))}
+  // The recap shows the game's five panoramas at the result-beat URL; warm them now (after a reload they are not cached).
+  if(round.round===5){const refs=new Set(history().filter(item=>item.id.startsWith(`${cardPack.id}:${round.gameId}:`)).map(item=>item.locationRef));
+    preload(cardPack.locations.filter(location=>refs.has(location.id)).map(location=>photoUrl(cardPack,location)))}
   trainingCard(cardPack,round,{attempt:history().find(item=>item.id===round.id),manual:GM_getValue(key('manual-metas'),false),
     boardFor:region=>boardFor(cardPack,region,round.location.id,inFlight),
     onGrade:(metaId,used)=>GM_setValue(key('attempts',cardPack.id),recordDeal(cardPack,history(cardPack.id),round,{metaGrades:{[metaId]:used}})),
