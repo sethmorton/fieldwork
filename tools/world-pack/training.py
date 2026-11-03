@@ -12,14 +12,16 @@ import hashlib
 import json
 import math
 import re
+import statistics
 from pathlib import Path
 
-from build import card_image
 from label import VERSION, image_url, rows
 from text import HERE
-from training_regions import assignment, answer_areas, catalogue
+from training_regions import assignment, answer_areas, catalogue, tip_footprints
 from training_tips import guide_codes, tips_catalogue
 from globe_geometry import inside
+from training_pano import official_id
+from rurality import settings_by_pano
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = HERE / 'training'
@@ -85,7 +87,7 @@ def excluded(tries, config):
         ref = e if isinstance(e, str) else e.get('locationRef', '')
         if ref.startswith('pano:'):
             seen.add(ref[5:])
-    return seen
+    return {pano for value in seen if (pano := official_id(value))}
 
 
 def focus(rounds, weights, names, tries=(), now=None):
@@ -117,20 +119,8 @@ def focus(rounds, weights, names, tries=(), now=None):
     return {'country': scores[0]['country'], 'scores': scores, 'computedAt': now.isoformat()}
 
 
-def rural_labels():
-    settings = {r['id']: r['setting'] for r in rows(HERE / 'rurality.jsonl')}
-    values = collections.defaultdict(set)
-    for name in ('candidates.jsonl', 'gap/candidates.jsonl', 'near/candidates.jsonl',
-                 'acow/candidates.jsonl', 'gap/rural-candidates.jsonl'):
-        for c in rows(HERE / name):
-            if c['id'] in settings:
-                values[c['view']['panoId']].add(settings[c['id']])
-    # Disagreement is not rural evidence. Non-rural labels win conservatively.
-    return {pano: 'urban' if 'urban' in s else 'suburban' if 'suburban' in s else 'rural'
-            for pano, s in values.items()}
-
-
 def feature_maps(regions, weights, names):
+    from build import card_image
     visual = load(HERE / 'labels/visual.json', {})
     codes = guide_codes()
     top = set(sorted(weights, key=lambda c: -weights[c])[:40])
@@ -151,15 +141,22 @@ def feature_maps(regions, weights, names):
     return features
 
 
+def annotations(label, sources, region):
+    if label.get('qualityVersion') != VERSION or label.get('view', {}).get('region') != region:
+        return []
+    return [m for m in label.get('metas', []) if not m['metaId'] or m['metaId'] in sources]
+
+
 def build():
-    names, regions, by_sub, countries, admin1 = catalogue()
+    names, regions, by_sub, countries, admin1, aliases = catalogue()
     weights = load(HERE / 'acow/weights.json')['countries']
     top = set(sorted(weights, key=lambda c: -weights[c])[:40])
     config = load(ROOT / '.fieldwork.local.json', {})
     tries = attempts()
     seen = excluded(tries, config)
-    settings = rural_labels()
-    labels = {r['panoId']: r for r in rows(OUT / 'labels.jsonl') if r.get('verified')}
+    settings = settings_by_pano()
+    labels = {official_id(r['panoId']): r for r in rows(OUT / 'labels.jsonl')
+              if r.get('verified') and official_id(r['panoId'])}
     sources, _ = tips_catalogue(names, regions, by_sub, admin1)
     areas = answer_areas(regions, by_sub, countries, admin1)
     area_by_name = {f['properties']['name']: f['geometry']['coordinates'] for f in areas}
@@ -170,7 +167,11 @@ def build():
             continue
         doc = load(path)
         for loc in doc.get('customCoordinates', []) if isinstance(doc, dict) else doc:
-            pano = loc.get('panoId')
+            pano = official_id(loc.get('panoId'))
+            if not pano:
+                skipped['nonOfficial'] += 1
+                continue
+            loc = {**loc, 'panoId': pano}
             if not pano or pano in seen or pano in used:
                 skipped['seenOrDuplicate'] += 1
                 continue
@@ -180,11 +181,11 @@ def build():
                 continue
             label = labels.get(pano, {})
             setting = label.get('setting') or settings.get(pano)
-            if settings.get(pano) in ('urban', 'suburban') or setting in ('urban', 'suburban'):
+            if label.get('indoor') or label.get('urbanFlag') or settings.get(pano) in ('urban', 'suburban') or setting in ('urban', 'suburban'):
                 skipped['nonRural'] += 1
                 continue
-            if cc in top and setting != 'rural':
-                skipped['top40Unlabelled'] += 1
+            if cc in top and setting != 'rural' and split(pano) == 'study':
+                skipped['top40UnlabelledStudy'] += 1
                 continue
             if split(pano) != 'study' and not inside(loc['lng'], loc['lat'], area_by_name[region]):
                 skipped['outsidePlayableGeometry'] += 1
@@ -192,21 +193,57 @@ def build():
             used.add(pano)
             view = label.get('view', loc)
             skill = skill_id(cc, region)
+            magnifiers = annotations(label, sources, region)
             locations.append({'id': 'pano:' + pano, 'panoId': pano, 'lat': loc['lat'], 'lng': loc['lng'],
                 'heading': view.get('heading') or 0, 'pitch': view.get('pitch') or 0, 'zoom': 0, 'fov': 90,
                 'skillIds': [skill], 'country': names[cc], 'region': region, 'admin1': sub, 'split': split(pano),
                 'rural': True if setting == 'rural' else None,
                 'ruralStatus': 'verified' if setting == 'rural' else 'unlabelled',
                 'assessmentEligible': True, 'image': label.get('image') or image_url(view),
-                'metas': [m for m in label.get('metas', []) if (not m['metaId'] or m['metaId'] in sources)
-                          and label.get('qualityVersion') == VERSION],
+                'metas': magnifiers, 'metaCount': len(magnifiers),
                 'vegetation': label.get('vegetation', ''), 'regionConsistency': label.get('regionConsistency', ''),
                 'verified': bool(label.get('verified'))})
+    from training_seen import seen_spots
+    seen_regions = {}
+    for spot in seen_spots(names, regions, by_sub, admin1, areas):
+        pano, region, cc = spot['panoId'], spot['region'], spot['countryCode']
+        seen_regions[pano] = region
+        if pano in used:
+            continue
+        used.add(pano)
+        if region not in regions:
+            regions[region] = {'country': names[cc], 'iso2': cc, 'parent': names[cc], 'studyOnly': True}
+        label = labels.get(pano, {})
+        view = label.get('view', spot)
+        setting = label.get('setting') or settings.get(pano)
+        if (label.get('indoor') or label.get('urbanFlag') or setting in ('urban', 'suburban')
+                or settings.get(pano) in ('urban', 'suburban')):
+            skipped['seenUrbanOrIndoor'] += 1
+            continue
+        magnifiers = annotations(label, sources, region)
+        locations.append({'id': 'pano:' + pano, 'panoId': pano, 'lat': spot['lat'], 'lng': spot['lng'],
+            'heading': view.get('heading') or 0, 'pitch': view.get('pitch') or 0, 'zoom': 0, 'fov': 90,
+            'country': names[cc], 'region': region, 'admin1': spot['admin1'], 'split': 'seen',
+            'skillIds': [skill_id(cc, region)], 'assessmentEligible': False,
+            'rural': setting == 'rural' if setting else None,
+            'ruralStatus': setting or 'unlabelled', 'seenSource': spot['seenSource'],
+            'regionAssignment': spot['regionAssignment'], 'image': label.get('image') or image_url(view),
+            'metas': magnifiers, 'metaCount': len(magnifiers),
+            'vegetation': label.get('vegetation', ''), 'regionConsistency': label.get('regionConsistency', ''),
+            'verified': bool(label.get('verified'))})
+    from training_images import states, view_key
+    thumb_states = states()
+    for loc in locations:
+        loc['thumbOk'] = thumb_states.get(view_key(loc), {}).get('ok')
+    skipped['badThumbnail'] = sum(l['thumbOk'] is False for l in locations)
+    locations = [l for l in locations if l['thumbOk'] is not False]
     active = {l['region'] for l in locations}
     studies = collections.Counter(l['region'] for l in locations if l['split'] == 'study')
     verified_studies = collections.Counter(l['region'] for l in locations if l['split'] == 'study' and l['verified'])
+    seen_studies = collections.Counter(l['region'] for l in locations if l['split'] in ('study', 'seen'))
+    playable = {l['region'] for l in locations if l['split'] in ('drill', 'probe')}
     for region in active:
-        if region != regions[region]['country'] and verified_studies[region] < 4:
+        if region != regions[region]['country'] and seen_studies[region] < 4:
             regions[region] = {**regions[region], 'studyFallbackCountry': regions[region]['country']}
     skills = [{'id': skill_id(info['iso2'], region), 'title': region, 'phase': 'Regions', 'prerequisites': [],
                'region': region, 'country': info['country'], 'practiceFamily': info['iso2'].lower()}
@@ -216,9 +253,12 @@ def build():
     for r in rounds:
         if not r.get('lost'):
             continue
-        cc, pano = r['countryCode'], r['view']['panoId']
+        cc, pano = r['countryCode'], official_id(r['view']['panoId'])
+        if not pano:
+            continue
         match = re.search(r'\(([A-Z]{2}-[^)]+)\)', r.get('subdivision') or '')
         region, _ = assignment(cc, [match.group(1)] if match else [], names, by_sub)
+        region = seen_regions.get(pano, region)
         label = labels.get(pano, {})
         losses.append({'id': r['id'], 'occurredAt': r['endTime'], 'panoId': pano,
                        'country': names.get(cc, r['country']), 'region': region,
@@ -229,13 +269,18 @@ def build():
     practice_map = config.get('trainingPracticeMapId') or binding
     if not practice_map or not re.fullmatch('[a-f0-9]{24}', practice_map):
         raise ValueError('Bind the dedicated Training map in .fieldwork.local.json additionalPacks first')
+    used_metas = {m['metaId'] for loc in locations for m in loc['metas'] if m['metaId'] in sources}
+    used_metas.update(i for loss in losses for i in loss['metaIds'])
+    footprints = tip_footprints(used_metas, sources, admin1, aliases)
+    meta_table = {i: {**{k: v for k, v in sources[i].items() if k not in ('text', 'subdivisions')},
+                      'appliesToAdmin1': sources[i].get('subdivisions') or [],
+                      'footprint': footprints.get(i)} for i in sorted(used_metas)}
     pack = {'id': 'training', 'title': 'Training', 'subject': 'GeoGuessr', 'schemaVersion': 1,
         'scheduler': 'deal', 'practiceMapId': practice_map, 'answerAreaLabel': 'Region', 'thumbSize': [640, 400],
         'gameSettings': {'forbidMoving': True, 'forbidRotating': False, 'forbidZooming': False, 'timeLimit': 60},
         'acow': {names[cc]: w / sum(weights.values()) for cc, w in weights.items() if cc in names},
         'focus': focus(rounds, weights, names, tries), 'regionFeatures': areas, 'regions': regions,
-        'skills': skills, 'metas': {i: {k: v for k, v in m.items() if k not in ('text', 'subdivisions')}
-                                    for i, m in sources.items()},
+        'skills': skills, 'metas': meta_table,
         'locations': locations, 'features': feature_maps(regions, weights, names), 'duelLosses': losses}
     path = OUT / 'pack.json'
     previous = load(path, {})
@@ -245,13 +290,33 @@ def build():
         before['focus'] = {**before['focus'], 'computedAt': pack['focus']['computedAt']}
     pack['contentRevision'] = previous.get('contentRevision', 0) + (before != pack)
     atomic(path, pack)
+    meta_bearing = collections.Counter(l['region'] for l in locations
+        if l['split'] in ('study', 'seen') and l['rural'] is True and l['verified'] and l['metaCount'])
+    top20 = set(sorted(weights, key=lambda c: -weights[c])[:20])
+    top20_counts = {r: meta_bearing[r] for r, info in regions.items()
+                    if info['iso2'] in top20 and not info.get('studyOnly')}
+    game_counts = collections.Counter(l['region'] for l in locations if l['split'] in ('drill', 'probe'))
+    top40_counts = {r: game_counts[r] for r, info in regions.items()
+                    if info['iso2'] in top and not info.get('studyOnly')}
     report = {'pack': str(path), 'locations': len(locations), 'splits': dict(collections.Counter(l['split'] for l in locations)),
         'countries': len({l['country'] for l in locations}), 'regions': len(active),
         'focus': pack['focus'], 'labelledLocations': sum(l['verified'] for l in locations),
         'verifiedLabelRecords': len(labels), 'labelledPerCountry': dict(collections.Counter(
             r['view']['country'] for r in labels.values())), 'unlabelledTail': sum(l['rural'] is None for l in locations),
+        'metaBearingStudySeenPerRegion': dict(meta_bearing), 'top20MetaBearingPerRegion': top20_counts,
+        'playablePerRegion': dict(game_counts), 'top40PlayablePerRegion': top40_counts,
+        'playableRegionMin': min(top40_counts.values(), default=0),
+        'playableRegionMedian': statistics.median(top40_counts.values()) if top40_counts else 0,
+        'verifiedMetaLocations': sum(bool(l['metaCount']) for l in locations),
+        'thumbOkFalse': skipped['badThumbnail'], 'thumbUnknown': sum(l['thumbOk'] is None for l in locations),
+        'metaFootprints': sum(bool(m.get('footprint')) for m in meta_table.values()),
+        'metaAdmin1WithoutFootprint': [mid for mid, m in meta_table.items()
+                                     if m.get('appliesToAdmin1') and not m.get('footprint')],
         'featureMaps': len(pack['features']), 'skipped': dict(skipped), 'contentRevision': pack['contentRevision'],
-        'studyPerRegion': dict(studies), 'verifiedStudyPerRegion': dict(verified_studies)}
+        'studyPerRegion': dict(studies), 'verifiedStudyPerRegion': dict(verified_studies),
+        'studySeenPerRegion': dict(seen_studies),
+        'regionsBelowFourStudySeen': {r: seen_studies[r] for r in sorted(playable) if seen_studies[r] < 4},
+        'seenCountryOnly': sum(l.get('regionAssignment') == 'country-only' for l in locations)}
     atomic(OUT / 'report.json', report)
     print(json.dumps({**report, 'focus': {**pack['focus'], 'scores': pack['focus']['scores'][:3]}},
                      ensure_ascii=False, indent=2))
@@ -300,17 +365,79 @@ def test():
                 label.curate, 'ask', side_effect=[RuntimeError('429 rate limit'), {'results': []}]) as ask:
             assert label.ask('test', {}, [], 'model', ['key']) == {'results': []}
             assert ask.call_count == 2 and sleep.call_args.args == (15,)
-    query = parse_qs(urlsplit(image_url({'panoId': 'p', 'heading': 15, 'pitch': 10})).query)
+        import training_seen
+        import training_seed
+        import training as training_module
+        from types import SimpleNamespace
+        region = 'US — Test'
+        fake_regions = {region: {'iso2': 'US', 'country': 'US'}}
+        fake_admin1 = {'US-X': ('Test', 'US', [])}
+        fake_geo = ({'US': 'US'}, fake_regions, {'US-X': region}, {}, fake_admin1, {})
+        (folder / 'acow').mkdir()
+        (folder / 'duels').mkdir()
+        (folder / 'acow/weights.json').write_text(json.dumps({'countries': {'US': 100}}))
+        (folder / 'duels/rounds.json').write_text(json.dumps([{
+            'view': {'panoId': ('a' * 22).encode().hex(), 'lat': 0, 'lng': 0},
+            'countryCode': 'US', 'country': 'US', 'subdivision': 'Test (US-X)',
+            'lost': True, 'theirScore': 5000, 'myScore': 0, 'id': 'test'}]))
+        (folder / 'region-features.json').write_text(json.dumps({'features': []}))
+        with patch.object(label, 'HERE', folder), patch.object(label, 'OUT', folder), patch.object(
+                label, 'catalogue', return_value=fake_geo), patch.object(label, 'pool_spots', return_value=iter(())), patch.object(
+                training_seen, 'seen_spots', return_value=iter([{'panoId': 'a' * 22}, {'panoId': 'b' * 22}])) as seen:
+            result = list(label.spots(0, 1, True, 2))
+            assert [r['panoId'] for r in result] == ['a' * 22, 'b' * 22]
+            assert seen.call_args.args[3] is fake_admin1
+        (folder / 'training').mkdir()
+        (folder / 'training/region-features.json').write_text(json.dumps({'features': []}))
+        photos = [{'panoId': c * 22, 'countryCode': 'US', 'country': 'US', 'region': region,
+                   'kind': 'seen', 'admin1': 'US-X'} for c in 'abcdef']
+        latest = {s['panoId']: {'metas': [{'metaId': 'cue'}], 'qualityVersion': 2, 'verified': True,
+                  'setting': 'rural', 'view': {'region': region, 'panoId': s['panoId']}} for s in photos[:4]}
+        with patch.object(training_seed, 'HERE', folder), patch.object(
+                training_seed, 'seen_spots', side_effect=lambda *a: iter(photos)), patch.object(
+                training_module, 'excluded', return_value=set()), patch.object(training_module, 'attempts', return_value=[]):
+            jobs, counts, _, counted = training_seed.source_jobs(
+                SimpleNamespace(pool_limit=0), *fake_geo[:3], fake_admin1, {'cue': {}}, latest, {})
+            assert not jobs and counts[region] == 4 and len(counted[region]) == 4
+            jobs, counts, _, _ = training_seed.source_jobs(
+                SimpleNamespace(pool_limit=0), *fake_geo[:3], fake_admin1, {}, {}, {})
+            assert len(jobs) == 6 and counts[region] == 0
+        assert training_seed.batch_limit(0, 8) == 6
+        assert training_seed.batch_limit(3, 8) == 3
+        assert training_seed.batch_limit(4, 8) == 0
+        with patch.object(label, 'CALLS', 2), patch.object(label, 'CALL_LIMIT', 2), patch.object(label.curate, 'ask') as ask:
+            try:
+                label.ask('test', {}, [], 'model', [])
+                assert False, 'Budget must stop before a model call'
+            except label.ModelBudgetExhausted:
+                assert not ask.called
+    view = {'panoId': 'a' * 22, 'heading': 0, 'pitch': 0, 'fov': 90}
+    assert label.cache_key(view, [], {}) == label.cache_key({**view, 'kind': 'seen'}, [], {})
+    assert label.cache_key(view, [], {}) != label.cache_key({**view, 'heading': 1}, [], {})
+    assert official_id('AF1Qip' + 'x' * 40) is None
+    assert official_id(('a' * 22).encode().hex()) == 'a' * 22
+    query = parse_qs(urlsplit(image_url({'panoId': 'a' * 22, 'heading': 15, 'pitch': 10})).query)
     assert query['pitch'] == ['-10.00'] and query['thumbfov'] == ['90']
+    assert 'yaw=0.00' in image_url({'panoId': 'a' * 22, 'heading': None, 'pitch': None})
     pack = load(OUT / 'pack.json')
     if pack:
         ids = {l['panoId'] for l in pack['locations']}
         assert len(ids) == len(pack['locations'])
-        assert not ids.intersection(excluded(attempts(), load(ROOT / '.fieldwork.local.json', {})))
-        assert all(l['split'] == split(l['panoId']) for l in pack['locations'])
-        assert all(l['rural'] in (True, None) for l in pack['locations'])
+        assert all(official_id(l['panoId']) == l['panoId'] for l in pack['locations'])
+        assert all(l['rural'] is True or l['rural'] is None for l in pack['locations'])
+        fresh = [l for l in pack['locations'] if l['split'] != 'seen']
+        assert not {l['panoId'] for l in fresh}.intersection(excluded(attempts(), load(ROOT / '.fieldwork.local.json', {})))
+        assert all(l['split'] == split(l['panoId']) for l in fresh)
+        assert all(l['rural'] in (True, None) for l in fresh)
+        assert all(not l['assessmentEligible'] for l in pack['locations'] if l['split'] == 'seen')
         assert all(not l['metas'] or l['verified'] for l in pack['locations'])
         assert all(box_ok(m['box']) for l in pack['locations'] for m in l['metas'])
+        assert all(l['metaCount'] == len(l['metas']) for l in pack['locations'])
+        assert all(l['thumbOk'] is not False for l in pack['locations'])
+        assert all(m['metaId'] is None or m['metaId'] in pack['metas']
+                   for l in pack['locations'] for m in l['metas'])
+        assert all(m['narrowsTo'] and m['vs'] and (m['kind'] != 'object' or m['box'][2] * m['box'][3] <= .2)
+                   for l in pack['locations'] for m in l['metas'])
         assert pack['features'][0]['id'] == 'plonkit:brazil:PvkL'
     print('training self-check passed: focus, splits, boxes, macro membership, safe refill, backoff, exact views, private pack')
 
@@ -333,4 +460,8 @@ if __name__ == '__main__':
             pool = gapfill.vali_pool(cc, args.count, append=True)
             print(json.dumps({'country': cc, 'locationsAfter': len(pool)}))
     else:
-        build()
+        import fcntl
+        OUT.mkdir(parents=True, exist_ok=True)
+        with (OUT / 'build.lock').open('w') as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            build()

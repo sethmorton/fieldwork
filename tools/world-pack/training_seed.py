@@ -1,0 +1,103 @@
+"""Bounded rural board seeding. Search study/seen spots, never consume fresh game spots."""
+import hashlib
+import json
+from collections import defaultdict
+
+from text import HERE
+from training_pano import official_id
+from training_regions import assignment
+from training_seen import seen_spots
+
+
+def batch_limit(found, available):
+    return min(available, 6 - found) if found < 4 else 0
+
+
+def source_jobs(args, names, regions, by_sub, admin1, metas, latest, known):
+    weights = json.loads((HERE / 'acow/weights.json').read_text())['countries']
+    top = set(sorted(weights, key=lambda cc: -weights[cc])[:20])
+    areas = json.loads((HERE / 'training/region-features.json').read_text())['features']
+    groups, pool_groups, used = defaultdict(list), defaultdict(list), set()
+    from training import ROOT, attempts, excluded, load
+    reserved = excluded(attempts(), load(ROOT / '.fieldwork.local.json', {}))
+    from training_images import states, view_key
+    images = states()
+
+    def add(spot, target):
+        pano, cc = official_id(spot.get('panoId')), spot['countryCode']
+        if not pano or pano in used or cc not in top or spot['region'] not in regions:
+            return
+        if spot['kind'] == 'pool' and pano in reserved:
+            return
+        if images.get(view_key(spot), {}).get('ok') is False:
+            return
+        record = latest.get(pano, {})
+        setting = record.get('setting') or known.get(pano)
+        if record.get('indoor') or record.get('urbanFlag') or setting in ('urban', 'suburban') or known.get(pano) == 'urban':
+            return
+        used.add(pano)
+        target[spot['region']].append({**spot, 'panoId': pano})
+
+    # Authored seen examples are richer than a random roadside frame, and already
+    # permitted on cards. Fresh study candidates remain in their immutable hash split.
+    for spot in seen_spots(names, regions, by_sub, admin1, areas):
+        add(spot, groups)
+    for cc in sorted(top, key=lambda c: -weights[c]):
+        path = HERE / 'gap/pools' / f'{cc}-locations.json'
+        if not path.exists():
+            continue
+        doc = json.loads(path.read_text())
+        for loc in doc.get('customCoordinates', []) if isinstance(doc, dict) else doc:
+            pano = official_id(loc.get('panoId'))
+            if not pano or int(hashlib.sha256(pano.encode()).hexdigest()[:8], 16) % 10 < 7:
+                continue
+            region, sub = assignment(cc, loc.get('extra', {}).get('tags', []), names, by_sub)
+            if region:
+                add({**loc, 'panoId': pano, 'countryCode': cc, 'country': names[cc], 'region': region,
+                     'admin1': sub, 'kind': 'pool'}, pool_groups)
+    order = sorted((r for r, info in regions.items() if info['iso2'] in top), key=lambda r: (
+        regions[r]['iso2'] != 'US', -weights[regions[r]['iso2']], r))
+    for region in pool_groups:
+        pool_groups[region].sort(key=lambda s: hashlib.sha256(s['panoId'].encode()).hexdigest())
+    pool_count = 0
+    while pool_groups and pool_count < args.pool_limit:
+        for region in order:
+            if region not in pool_groups:
+                continue
+            groups[region].append(pool_groups[region].pop())
+            pool_count += 1
+            if not pool_groups[region]:
+                del pool_groups[region]
+            if pool_count == args.pool_limit:
+                break
+    counts, counted = {}, {}
+    for region in order:
+        candidates = groups[region]
+        counted[region] = {s['panoId'] for s in candidates
+            if (r := latest.get(s['panoId'], {})).get('metas') and r.get('qualityVersion') == 2
+            and r.get('verified') and r.get('setting') == 'rural' and not r.get('indoor')
+            and r.get('view', {}).get('region') == region
+            and any(not m['metaId'] or m['metaId'] in metas for m in r['metas'])
+            and images.get(view_key(r['view']), {}).get('ok') is not False}
+        counts[region] = len(counted[region])
+
+        def priority(spot):
+            record = latest.get(spot['panoId'], {})
+            hinted = any(i in metas and metas[i]['subdivisions'] is not None for i in spot.get('hintMetaIds', []))
+            return (not hinted, (record.get('setting') or known.get(spot['panoId'])) != 'rural',
+                    spot['kind'] != 'seen', hashlib.sha256(spot['panoId'].encode()).hexdigest())
+        candidates.sort(key=priority)
+    jobs = []
+    indices = {r: 0 for r in order}
+    while True:
+        added = False
+        for region in order:
+            i = indices[region]
+            if counts[region] >= 4 or i >= len(groups[region]):
+                continue
+            jobs.append(groups[region][i])
+            indices[region] += 1
+            added = True
+        if not added:
+            break
+    return jobs, counts, {r: len(groups[r]) for r in order}, counted

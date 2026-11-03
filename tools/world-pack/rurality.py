@@ -10,20 +10,41 @@ Writes rurality.jsonl ({id: candidate id, setting}). Resumable.
 import concurrent.futures as cf
 import json
 import sys
+import time
 import curate
 import review
 from text import HERE
+from training_pano import official_id
 
 PER_CALL = 12
 OUT = HERE / 'rurality.jsonl'
 INSTRUCTIONS = ("Each numbered image is one Street View frame. Classify the setting of each: rural (countryside, farmland, "
                 "forest, open road, a few scattered houses), suburban (residential streets, edge of town, villages with "
-                "continuous houses) or urban (town or city centre, shops, dense buildings).")
+                "continuous houses) or urban (town or city centre, shops, dense buildings). "
+                "Building/shop interiors, black or unusable images must be urban, never rural.")
 SCHEMA = curate.schema({'n': {'type': 'integer'}, 'setting': {'type': 'string', 'enum': ['rural', 'suburban', 'urban']}})
 
 
 def labelled():
     return {r['id']: r['setting'] for r in map(json.loads, OUT.read_text().splitlines())} if OUT.exists() else {}
+
+
+def settings_by_pano():
+    """Conservative setting across cached frames, streamed without retaining candidate bodies."""
+    settings, out = labelled(), {}
+    rank = {'rural': 0, 'suburban': 1, 'urban': 2}
+    for name in ('candidates.jsonl', 'gap/candidates.jsonl', 'near/candidates.jsonl',
+                 'acow/candidates.jsonl', 'gap/rural-candidates.jsonl', 'training/rurality-candidates.jsonl'):
+        path = HERE / name
+        if not path.exists():
+            continue
+        with path.open() as f:
+            for line in f:
+                c = json.loads(line)
+                pano, setting = official_id(c['view']['panoId']), settings.get(c['id'])
+                if pano and setting and rank[setting] >= rank.get(out.get(pano), -1):
+                    out[pano] = setting
+    return out
 
 
 def candidates():
@@ -49,10 +70,15 @@ def label(items):
 
     def one(batch):
         prompt = INSTRUCTIONS + f"\n\nReturn exactly {len(batch)} results, n=1..{len(batch)} in image order."
-        try:
-            answer = {r['n']: r['setting'] for r in curate.ask(prompt, SCHEMA, [p for _, p in batch])['results']}
-        except Exception:
-            return []  # retried on the next run
+        for attempt in range(3):
+            try:
+                answer = {r['n']: r['setting'] for r in curate.ask(prompt, SCHEMA, [p for _, p in batch])['results']}
+                break
+            except Exception as e:
+                if attempt == 2 or not any(s in str(e).lower() for s in ('429', 'rate', 'timeout', 'overload')):
+                    print(f'rurality batch failed: {type(e).__name__}: {str(e)[:160]}', flush=True)
+                    return []
+                time.sleep(15 * 2 ** attempt)
         return [{'id': i, 'setting': answer[n]} for n, (i, _) in enumerate(batch, 1) if n in answer]
 
     with open(OUT, 'a') as f, cf.ThreadPoolExecutor(curate.WORKERS) as pool:

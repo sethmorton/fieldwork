@@ -1061,3 +1061,75 @@ No new app, scheduler upgrade or public personal-data pack. Read-only inspection
   pack and the real pack. `fixtures/training-e2e.mjs` runs the built userscript with the real pack through a stubbed
   GeoGuessr: start, Play (No Move, 60 s), 5 cards, recap, next set published ahead, game 2, 10 distinct panoramas,
   0 study spots played.
+
+### 2026-11-03, BuilderData, diagnostic re-pilot and seen material
+
+- The first pilot was visually accurate but failed the usefulness bar: its
+  magnifiers were mostly generic observations. It is not approval for scaling
+  that objective. Version-1 magnifiers are now excluded from every pack.
+- Re-ran the same 40 photos with a diagnostic-only objective. The labeler and
+  verifier must justify `narrowsTo` and `vs`, reject generic magnifiers, use
+  tight object boxes covering at most 20% of the frame, and allow honest none.
+  Added geographically scoped LM regional notes and capped candidate context
+  at 80 distinct tips, with regional sources first.
+- The revised pilot retained four diagnostic magnifiers on four spots, with
+  36 honest empty spots. BuilderData inspected all four new magnifiers against
+  the photos and sources. Found zero generic magnifiers and zero clearly wrong
+  retained claims. The two California pole-band details are small at 640x400,
+  so independent model agreement is not presented as measured human accuracy.
+- Current pilot sheet: private `training/qa-pilot.html`. Screenshot of all four
+  retained magnifiers: `training/qa-diagnostic-magnifiers.png`.
+- Imported unique duel and Sprint panoramas as `split:'seen'`, always card-only,
+  never assessment or game material. Region assignment uses the answer geometry
+  and admin1 fallback. Country-only unresolved assignments are marked explicitly.
+  Every playable region now has at least four study+seen spots except Belarus,
+  which has zero. Its entire cached pool has two panoramas, both game-hash,
+  and no duel/Sprint history. No repeated or invented photo fills that hole.
+- Preserved every source island and reduced geometric simplification tolerance.
+  Fresh game candidates outside their own answer polygon are excluded rather
+  than being misgraded. No overlap-causing border buffer was added.
+- Pack revision 4: 28,214 locations, including 12,896 drill, 2,235 probe,
+  7,127 study and 5,956 seen. Known urban seen spots were filtered (42 removed).
+  Panorama IDs are canonical 22-character Google IDs, decoding 44-character hex
+  aliases first. Long user-photosphere IDs are not training material.
+- Pipeline commit `18cfc72` pushed on `training-system`. Before that commit,
+  the data self-check and `npm run check` passed: 244 passed, one skipped,
+  zero failures, typecheck passed.
+
+### 2026-11-03 11:10 UTC, BuilderData, ingestion and supply checkpoint
+
+- Unknown rurality is now honestly playable (`rural:null`), below verified rural
+  in scheduler preference. Known urban, suburban and indoor photos are omitted
+  from all splits, including card-only seen material. Split hashes never change.
+- Cached network-only thumbnail sweep completed 45,350 views: 44,881 available,
+  469 invalid/black, zero network errors. Main's separately reported black view
+  was accepted as ground truth, cached false and not re-fetched to confirm it.
+  Exact-view checks and concurrent thumbnail cache writes are atomic.
+- Cheap Luna rurality pass used two workers and stopped at 6,606 attempted views
+  as its planned shortages exhausted, under the 8,000 cap. This is separate from
+  diagnostic labeling, which remains two independently checked models.
+- Revision 176 contains 45,588 locations: 28,257 drill, 4,702 probe, 7,282 study,
+  5,347 seen. Top-40 playable region min/median is 0/152. Only current supply
+  shortages are Indonesia Papua (0) and Canada Pacific (79 of 80). Refill is still
+  running. Papua lacks Vali subdivision files locally and in the upstream
+  country inventory, so no photosphere or neighbouring region is substituted.
+- There are 141 verified-meta locations and 81 precise admin1-union footprints.
+  Two precise source scopes lack geometry and stay null rather than shading
+  misleading macro-regions. BuilderUI added the corresponding country-outline
+  guard in `2428f4d`. Rebuild the local userscript to pick up that UI change.
+- New random 60-photo QA: `training/qa.html`, `training/qa-sample.json`, screenshots
+  `training/qa-random-1.png` through `qa-random-8.png`. Inspected all 60 photos,
+  all five retained magnifiers and their cited LM source text. Five diagnostic
+  claims, 55 honest empty lists, zero clearly false or generic retained claims.
+  Three landscape cues are regional source matches, not exclusive identifiers.
+  Rural/suburban/indoor classifications looked consistent. This is a small
+  visual inspection, not a measured human accuracy or recall estimate.
+- Portable no-private-data and private-pack self-checks passed. `npm run check`
+  passed 266 tests, one skipped, zero failures, including TypeScript checks.
+  An over-strict new registry assertion initially rejected contract-supported
+  `observed` annotations with null IDs. Corrected the assertion, not the data.
+- Adaptive board seeding remains capped at 5,000 study candidates and 1,600
+  model calls for this run. Country ordering uses ACoW weight times focus, US
+  first. Regions stop scheduling at four unique rural meta-bearing photos,
+  allowing at most six after an in-flight batch. Final regional counts follow
+  when that pass completes.

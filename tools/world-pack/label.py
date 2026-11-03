@@ -15,20 +15,28 @@ import random
 import re
 import threading
 import time
+import subprocess
+import sys
+from pathlib import Path
 from collections import defaultdict
 from urllib.parse import urlencode
 
-import collect
 import curate
 from training_tips import candidates, tips_catalogue
 from text import HERE
 from training_regions import assignment, catalogue
+from training_pano import official_id
+from rurality import settings_by_pano
 
 OUT = HERE / 'training'
 LABELER, VERIFIER = 'gpt-6.1-sol', 'gpt-6-astra'
 VERSION = 2
 LOCK = threading.Lock()
 CALLS, CALL_LIMIT = 0, 2000
+
+
+class ModelBudgetExhausted(Exception):
+    pass
 
 
 def rows(path):
@@ -49,9 +57,12 @@ def append(name, record):
 
 
 def image_url(view):
+    pano = official_id(view['panoId'])
+    if not pano:
+        raise ValueError('Not an official Street View panorama')
     return 'https://streetviewpixels-pa.googleapis.com/v1/thumbnail?' + urlencode({
-        'cb_client': 'maps_sv.share', 'panoid': view['panoId'], 'w': 640, 'h': 400,
-        'yaw': f"{view.get('heading', 0):.2f}", 'pitch': f"{-view.get('pitch', 0):.2f}", 'thumbfov': 90})
+        'cb_client': 'maps_sv.share', 'panoid': pano, 'w': 640, 'h': 400,
+        'yaw': f"{(view.get('heading') or 0):.2f}", 'pitch': f"{-(view.get('pitch') or 0):.2f}", 'thumbfov': 90})
 
 
 
@@ -71,6 +82,10 @@ def pool_spots(limit, names, by_sub, weights):
         doc = json.loads(path.read_text())
         groups = defaultdict(list)
         for loc in doc.get('customCoordinates', []) if isinstance(doc, dict) else doc:
+            pano = official_id(loc.get('panoId'))
+            if not pano:
+                continue
+            loc = {**loc, 'panoId': pano}
             region, admin1 = assignment(cc, loc.get('extra', {}).get('tags', []), names, by_sub)
             if region and loc.get('panoId'):
                 groups[region].append({**loc, 'countryCode': cc, 'country': names[cc],
@@ -89,31 +104,46 @@ def pool_spots(limit, names, by_sub, weights):
         yield from selected
 
 
-def spots(pool_limit, duel_limit, all_duels=False):
-    names, regions, by_sub, _, _ = catalogue()
+def spots(pool_limit, duel_limit, all_duels=False, seen_limit=0):
+    names, regions, by_sub, _, admin1, _ = catalogue()
     weights = json.loads((HERE / 'acow/weights.json').read_text())['countries']
     rounds = json.loads((HERE / 'duels/rounds.json').read_text())
     rounds = sorted((r for r in rounds if all_duels or r.get('lost')), key=lambda r: (
         r.get('countryCode') != 'US', not r.get('lost'), -max(0, r['theirScore'] - r['myScore'])))
     seen = set()
     for r in rounds[:duel_limit]:
-        v = r['view']
+        v = {**r['view'], 'panoId': official_id(r['view'].get('panoId'))}
         if not v.get('panoId') or v['panoId'] in seen:
             continue
         seen.add(v['panoId'])
         cc = r['countryCode']
         tag = re.search(r'\(([A-Z]{2}-[^)]+)\)', r.get('subdivision') or '')
-        region, admin1 = assignment(cc, [tag.group(1)] if tag else [], names, by_sub)
+        region, subdivision = assignment(cc, [tag.group(1)] if tag else [], names, by_sub)
         yield {**v, 'countryCode': cc, 'country': names.get(cc, r['country']),
-               'region': region, 'admin1': admin1, 'kind': 'duel', 'roundId': r['id']}
+               'region': region, 'admin1': subdivision, 'kind': 'duel', 'roundId': r['id']}
     for spot in pool_spots(pool_limit, names, by_sub, weights):
         if spot['panoId'] not in seen:
             seen.add(spot['panoId'])
             yield spot
+    if seen_limit:
+        from training_seen import seen_spots
+        cache = OUT / 'region-features.json'
+        if not cache.exists():
+            raise RuntimeError('Build the training pack geometry before labeling seen spots')
+        areas = json.loads(cache.read_text())['features']
+        remaining = seen_limit
+        for spot in seen_spots(names, regions, by_sub, admin1, areas):
+            if spot['panoId'] not in seen:
+                seen.add(spot['panoId'])
+                yield spot
+                remaining -= 1
+                if not remaining:
+                    break
 
 
 def pilot_spots():
     """Fixed composition: 15 fresh US pool spots, 10 losses, 15 other top-country spots."""
+    import collect
     saved = OUT / 'pilot-spots.json'
     if saved.exists():
         return json.loads(saved.read_text())
@@ -154,11 +184,12 @@ def schemas():
                 'narrowsTo': {'type': 'array', 'items': string}, 'vs': {'type': 'array', 'items': string},
                 'kind': {'type': 'string', 'enum': ['object', 'landscape']}}}
     label = curate.schema({'n': {'type': 'integer'}, 'setting': {'type': 'string',
-        'enum': ['rural', 'suburban', 'urban']}, 'vegetation': string, 'regionConsistency': string,
+        'enum': ['rural', 'suburban', 'urban']}, 'indoor': {'type': 'boolean'},
+        'vegetation': string, 'regionConsistency': string,
         'metas': {'type': 'array', 'items': meta}})
     verify = curate.schema({'n': {'type': 'integer'}, 'keep': {'type': 'array', 'items': {'type': 'integer'}},
         'settingAgrees': {'type': 'boolean'}, 'vegetationAgrees': {'type': 'boolean'},
-        'regionConsistencyAgrees': {'type': 'boolean'}})
+        'regionConsistencyAgrees': {'type': 'boolean'}, 'indoorAgrees': {'type': 'boolean'}})
     return label, verify
 
 
@@ -167,7 +198,7 @@ def ask(prompt, schema, images, model, keys):
     for attempt in range(3):
         with LOCK:
             if CALLS >= CALL_LIMIT:
-                raise RuntimeError('Per-run model-call budget exhausted')
+                raise ModelBudgetExhausted('Per-run model-call budget exhausted')
             CALLS += 1
         append('calls.jsonl', {'at': time.time(), 'model': model, 'keys': keys, 'attempt': attempt})
         try:
@@ -180,42 +211,96 @@ def ask(prompt, schema, images, model, keys):
             time.sleep(15 * 2 ** attempt)
 
 
+def cache_key(spot, tips, metas):
+    view = {k: spot.get(k) for k in ('panoId', 'heading', 'pitch', 'fov', 'countryCode', 'region', 'admin1')}
+    return hashlib.sha256(json.dumps([VERSION, view, {i: metas[i] for i in tips},
+                                     LABELER, VERIFIER], sort_keys=True).encode()).hexdigest()
+
+
 def run(args):
     global CALLS, CALL_LIMIT
     CALLS, CALL_LIMIT = 0, args.max_calls
+    import collect
     OUT.mkdir(parents=True, exist_ok=True)
-    names, regions, by_sub, _, admin1 = catalogue()
+    names, regions, by_sub, _, admin1, _ = catalogue()
     metas, by_country = tips_catalogue(names, regions, by_sub, admin1)
     done = {r['fingerprint'] for r in rows(OUT / 'labels.jsonl')}
     drafts = {r['fingerprint']: r for r in rows(OUT / 'drafts.jsonl')}
     failures = defaultdict(int)
     for r in rows(OUT / 'failures.jsonl'):
         failures[r['fingerprint']] += 1
+    known = settings_by_pano()
+    latest = {r['panoId']: r for r in rows(OUT / 'labels.jsonl')}
+    from training_images import check as check_image, states as image_states
+    thumbnails = image_states()
+    for record in latest.values():
+        if record.get('qualityVersion') != VERSION:
+            continue
+        spot = record['view']
+        tips = candidates(spot, metas, by_country)
+        original = hashlib.sha256(json.dumps([VERSION, spot, {i: metas[i] for i in tips},
+                                              LABELER, VERIFIER], sort_keys=True).encode()).hexdigest()
+        key = cache_key(spot, tips, metas)
+        if record['fingerprint'] in (original, key):
+            done.add(key)
     jobs = defaultdict(list)
     pending = 0
-    selected = pilot_spots() if args.pilot else spots(args.pool_limit, args.duel_limit, args.all_duels)
+    seed_counts, seed_candidates, seed_counted = {}, {}, {}
+    if args.command == 'seed':
+        from training_seed import batch_limit, source_jobs
+        selected, seed_counts, seed_candidates, seed_counted = source_jobs(
+            args, names, regions, by_sub, admin1, metas, latest, known)
+    else:
+        selected = pilot_spots() if args.pilot else spots(
+            args.pool_limit, args.duel_limit, args.all_duels, args.seen_limit)
     for spot in selected:
+        previous = latest.get(spot['panoId'], {})
+        setting = previous.get('setting') or known.get(spot['panoId'])
+        if not args.pilot and (previous.get('indoor') or previous.get('urbanFlag') or setting == 'urban'
+                              or ((spot['kind'] == 'pool' or args.command == 'seed') and setting == 'suburban')):
+            continue
         spot.update({'heading': spot.get('heading') or 0, 'pitch': spot.get('pitch') or 0, 'fov': 90})
         tips = candidates(spot, metas, by_country)
-        fingerprint = hashlib.sha256(json.dumps([VERSION, spot, {i: metas[i] for i in tips},
-                                                 LABELER, VERIFIER], sort_keys=True).encode()).hexdigest()
+        fingerprint = cache_key(spot, tips, metas)
         if fingerprint not in done and failures[fingerprint] < 3:
-            jobs[spot['countryCode']].append((fingerprint, spot, tips))
+            group = spot['region'] if args.command == 'seed' else spot['kind']
+            jobs[(spot['countryCode'], group)].append((fingerprint, spot, tips))
             pending += 1
             if pending >= args.new_limit:
                 break
     label_schema, verify_schema = schemas()
-    batches = [items[k:k + args.batch_size] for items in jobs.values() for k in range(0, len(items), args.batch_size)]
+    weights = json.loads((HERE / 'acow/weights.json').read_text())['countries']
+    focus_path = OUT / 'report.json'
+    focused = json.loads(focus_path.read_text()).get('focus', {}).get('scores', []) if focus_path.exists() else []
+    focus_scores = {row['country']: max(1, row['score']) for row in focused}
+    order = {'duel': 0, 'pool': 1, 'seen': 2}
+    queues = {key: iter([jobs[key][k:k + args.batch_size] for k in range(0, len(jobs[key]), args.batch_size)])
+              for key in sorted(jobs, key=lambda key: (
+                  key[0] != 'US', -weights.get(key[0], 0) * focus_scores.get(names.get(key[0]), 1),
+                  order.get(key[1], 0), key[1]))}
+    batches = []
+    while queues:
+        for key in list(queues):
+            try:
+                batches.append(next(queues[key]))
+            except StopIteration:
+                del queues[key]
+    region_locks = {region: threading.Lock() for region in seed_counts}
     print(json.dumps({'pending': sum(map(len, batches)), 'batches': len(batches), 'workers': args.workers,
                       'poolCap': args.pool_limit, 'duelCap': args.duel_limit}), flush=True)
 
     def one(batch):
         keys = [key for key, _, _ in batch]
-        if (OUT / 'PAUSE').exists():
+        if (OUT / 'PAUSE').exists() or CALLS >= CALL_LIMIT:
             return 0
         try:
             images, active = [], []
             for key, spot, tips in batch:
+                availability = check_image(spot, thumbnails)
+                if availability['ok'] is not True:
+                    append('failures.jsonl', {'fingerprint': key, 'panoId': spot['panoId'],
+                                              'error': availability['reason']})
+                    continue
                 image = collect.thumb(spot, 90)
                 if image:
                     images.append(image)
@@ -249,7 +334,8 @@ def run(args):
                     'the source establishes a regional diagnostic range. Boxes [x,y,width,height] '
                     'are image fractions. Check the actual subdivision against every regional claim. '
                     'Zero magnifiers is better than a generic one. Add one concise vegetation note, '
-                    'a cautious region-consistency note, and rural/suburban/urban setting.\\n' + context)
+                    'a cautious region-consistency note, and rural/suburban/urban setting. '
+                    'Set indoor:true for building/shop interiors, false for outdoor views.\n' + context)
                 result = ask(prompt, label_schema, images, LABELER, keys)
                 by_n = {r['n']: r for r in result['results']}
                 for n, (key, _, _) in enumerate(active, 1):
@@ -269,7 +355,8 @@ def run(args):
                 'boxes must be tight and <=20% of the frame, not huge boxes around half the road or '
                 'forest. At most one genuinely regional landscape cue. An empty keep list is valid. '
                 'Observed claims need a clearly readable geographic identifier, not assumed range. '
-                'Check setting, vegetation and consistency separately.\\n' + context + '\\nClaims:\\n' +
+                'Check setting, indoor (building/shop interior), vegetation and consistency separately.\n' +
+                context + '\nClaims:\n' +
                 json.dumps(claims, ensure_ascii=False))
             verified = {r['n']: r for r in ask(prompt, verify_schema, images, VERIFIER, keys)['results']}
             count = 0
@@ -299,22 +386,51 @@ def run(args):
                        'metas': accepted, 'vegetation': draft['vegetation'] if verdict['vegetationAgrees'] else '',
                        'regionConsistency': draft['regionConsistency'] if verdict['regionConsistencyAgrees'] else '',
                        'setting': draft['setting'] if verdict['settingAgrees'] else None,
+                       'indoor': bool(draft.get('indoor')), 'urbanFlag': draft['setting'] == 'urban',
+                       'indoorVerified': bool(verdict.get('indoorAgrees')),
                        'verified': True, 'qualityVersion': VERSION, 'labeler': LABELER,
                        'verifier': VERIFIER, 'at': time.time()}
                 append('labels.jsonl', rec)
+                if (args.command == 'seed' and accepted and rec['setting'] == 'rural' and not rec['indoor']
+                        and spot['panoId'] not in seed_counted[spot['region']]):
+                    seed_counted[spot['region']].add(spot['panoId'])
+                    seed_counts[spot['region']] += 1
                 count += 1
             return count
+        except ModelBudgetExhausted:
+            return 0  # Drafts remain resumable. This is not a bad-source verdict.
         except Exception as e:
             for key, spot, _ in batch:
                 append('failures.jsonl', {'fingerprint': key, 'panoId': spot['panoId'], 'error': str(e)[:300]})
             print('batch failed: ' + str(e)[:180], flush=True)
             return 0
+    def work(batch):
+        if args.command != 'seed':
+            return one(batch)
+        region = batch[0][1]['region']
+        with region_locks[region]:
+            size = batch_limit(seed_counts[region], len(batch))
+            return one(batch[:size]) if size else 0
+
     completed = 0
     with cf.ThreadPoolExecutor(args.workers) as executor:
-        for count in executor.map(one, batches):
+        for count in executor.map(work, batches):
             completed += count
             if count:
                 print(json.dumps({'newVerified': completed, 'at': time.time()}), flush=True)
+            if count and args.rebuild_every and completed // args.rebuild_every > (completed - count) // args.rebuild_every:
+                result = subprocess.run(['uv', 'run', '--with', 'shapely',
+                    str(Path(__file__).with_name('training.py')), 'build'],
+                                        capture_output=True, text=True)
+                if result.returncode:
+                    (OUT / 'PAUSE').write_text('Pack rebuild failed: ' + result.stderr[-500:])
+                    raise RuntimeError(result.stderr[-1000:])
+                append('build-updates.jsonl', json.loads(result.stdout))
+            if seed_counts:
+                report = {'counts': seed_counts, 'candidateCounts': seed_candidates,
+                          'belowFour': {r: n for r, n in seed_counts.items() if n < 4},
+                          'newVerified': completed, 'modelCalls': CALLS, 'at': time.time()}
+                (OUT / 'seed-report.json').write_text(json.dumps(report, ensure_ascii=False, indent=2))
 
 
 def qa(pilot=False):
@@ -334,7 +450,9 @@ def qa(pilot=False):
         cards.append('<article><h2>' + html.escape(r['view']['country'] + ': ' + str(r['view']['region'])) +
             '</h2><div class="photo"><img loading="lazy" src="' + html.escape(r['image']) + '">' + boxes +
             '</div><p>' + claims + '</p><p>' + html.escape(r['vegetation']) + '</p><p>' +
-            html.escape(r['regionConsistency']) + '</p><code>' + html.escape(r['panoId']) + '</code></article>')
+            html.escape(r['regionConsistency']) + '</p><p>Setting: ' + html.escape(str(r.get('setting'))) +
+            ', indoor: ' + html.escape(str(r.get('indoor'))) + '</p><code>' +
+            html.escape(r['panoId']) + '</code></article>')
     page = '<!doctype html><meta charset="utf-8"><title>Training label QA</title><style>' + (
         'body{font:15px system-ui;max-width:1400px;margin:30px auto;background:#fafafa}'
         'main{display:grid;grid-template-columns:1fr 1fr;gap:24px}article{background:white;padding:16px}'
@@ -349,26 +467,39 @@ def qa(pilot=False):
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('command', choices=['run', 'qa'])
+    ap.add_argument('command', choices=['run', 'seed', 'qa'])
     ap.add_argument('--pool-limit', type=int, default=3000)
     ap.add_argument('--duel-limit', type=int, default=3000)
+    ap.add_argument('--seen-limit', type=int, default=0)
+    ap.add_argument('--rebuild-every', type=int, default=0)
     ap.add_argument('--all-duels', action='store_true')
     ap.add_argument('--pilot', action='store_true')
+    ap.add_argument('--skip-if-running', action='store_true')
     ap.add_argument('--new-limit', type=int, default=6000)
     ap.add_argument('--max-calls', type=int, default=2000)
     ap.add_argument('--workers', type=int, choices=range(1, 5), default=2)
     ap.add_argument('--batch-size', type=int, choices=range(1, 9), default=6)
     args = ap.parse_args()
-    if not 0 <= args.pool_limit <= 3000 or not 0 <= args.duel_limit <= 3000:
-        ap.error('Each spot cap must be between 0 and 3000')
+    pool_cap = 5000 if args.command == 'seed' else 3000
+    if not 0 <= args.pool_limit <= pool_cap or not 0 <= args.duel_limit <= 3000:
+        ap.error(f'Pool cap must be 0..{pool_cap}, duel cap 0..3000')
     if not 1 <= args.new_limit <= 6000 or not 1 <= args.max_calls <= 2000:
         ap.error('New spots must be 1..6000 and model calls 1..2000')
-    if args.command == 'run':
+    if not 0 <= args.seen_limit <= 6000 or args.rebuild_every < 0:
+        ap.error('Seen cap must be 0..6000, rebuild interval nonnegative')
+    if args.command in ('run', 'seed') and not args.pilot:
+        approval = OUT / 'pilot-approved.json'
+        if not approval.exists() or json.loads(approval.read_text()).get('version') != VERSION:
+            ap.error('Inspect the diagnostic pilot and record pilot-approved.json before scaling')
+    if args.command in ('run', 'seed'):
         OUT.mkdir(parents=True, exist_ok=True)
         with (OUT / 'label.lock').open('w') as lock:
             try:
                 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError:
+                if args.skip_if_running:
+                    print(json.dumps({'skipped': 'another label run is active'}))
+                    sys.exit(0)
                 ap.error('A labeling run is already active')
             run(args)
     else:

@@ -3,7 +3,6 @@ import hashlib
 import json
 from collections import defaultdict
 
-from globe_data import geometry
 from globe_geometry import polygons, simplify_polys
 from text import HERE, WORK
 
@@ -48,7 +47,8 @@ ALIASES = {'ID-PP': 'ID-PA', 'IN-CT': 'IN-CG', 'IN-UK': 'IN-UT', 'IN-OR': 'IN-OD
 
 
 def catalogue():
-    countries, admin1, _, _ = geometry()
+    from globe_data import geometry
+    countries, admin1, _, aliases = geometry()
     names = {cc: name for cc, (name, _) in countries.items()}
     regions, by_sub = {}, {}
     for code, (name, cc, _) in admin1.items():
@@ -71,7 +71,7 @@ def catalogue():
     for cc, country in names.items():
         if cc not in GROUPS and cc != 'AU':
             regions[country] = {'country': country, 'iso2': cc, 'parent': country}
-    return names, regions, by_sub, countries, admin1
+    return names, regions, by_sub, countries, admin1, aliases
 
 
 def assignment(cc, tags, names, by_sub):
@@ -113,3 +113,44 @@ def answer_areas(regions, by_sub, countries, admin1):
     cache.parent.mkdir(parents=True, exist_ok=True)
     cache.write_text(json.dumps({'fingerprint': stamp, 'features': features}))
     return features
+
+
+def tip_footprints(meta_ids, sources, admin1, aliases):
+    """Precise admin1 unions, shared by identical scopes and cached between builds."""
+    cache = HERE / 'training/meta-footprints.json'
+    stamp = hashlib.sha256(json.dumps([1, (WORK / 'natural-earth-admin1.geojson').stat().st_mtime_ns,
+                                      aliases], sort_keys=True).encode()).hexdigest()
+    saved = json.loads(cache.read_text()) if cache.exists() else {}
+    geometries = saved.get('geometries', {}) if saved.get('fingerprint') == stamp else {}
+    out, changed = {}, saved.get('fingerprint') != stamp
+    for meta_id in sorted(meta_ids):
+        source = sources[meta_id]
+        codes = source.get('subdivisions') or []
+        resolved_groups = []
+        for original in codes:
+            alternatives = {original, ALIASES.get(original, original)}
+            alternatives.update(old for old, current in ALIASES.items() if current == original)
+            resolved_groups.append({code for item in alternatives
+                for code in ([item] if item in admin1 else aliases.get(item, []))})
+        if not resolved_groups or any(not group for group in resolved_groups):
+            continue
+        resolved = sorted(set().union(*resolved_groups))
+        key = '|'.join(resolved)
+        if key not in geometries:
+            from shapely.geometry import mapping, shape
+            from shapely.ops import unary_union
+            shapes = [shape({'type': 'MultiPolygon', 'coordinates': admin1[code][2]}) for code in resolved]
+            union = unary_union([s if s.is_valid else s.buffer(0) for s in shapes])
+            if union.is_empty:
+                continue
+            polys = [[list(ring) for ring in poly] for poly in polygons(mapping(union))]
+            geometries[key] = {'type': 'MultiPolygon', 'coordinates': [
+                piece for poly in polys for piece in simplify_polys([poly], .01, 5)]}
+            changed = True
+        out[meta_id] = {'type': 'Feature', 'properties': {
+            'name': source['title'], 'country': source['countries'][0]}, 'geometry': geometries[key]}
+    if changed:
+        tmp = cache.with_suffix('.tmp')
+        tmp.write_text(json.dumps({'fingerprint': stamp, 'geometries': geometries}))
+        tmp.replace(cache)
+    return out

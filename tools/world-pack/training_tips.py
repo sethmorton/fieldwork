@@ -3,7 +3,6 @@ import json
 import re
 from collections import defaultdict
 
-from build import card_image
 from text import HERE, WORK, fold, plain
 
 
@@ -17,6 +16,7 @@ def mentions(text, name):
 
 
 def tips_catalogue(names, regions, by_sub, admin1):
+    from build import card_image
     clues = json.loads((HERE / 'clues.json').read_text())
     scope = json.loads((HERE / 'gap/clue-regions.json').read_text())
     visual = json.loads((HERE / 'labels/visual.json').read_text())
@@ -86,7 +86,8 @@ def tips_catalogue(names, regions, by_sub, admin1):
 def candidates(spot, metas, by_country):
     eligible = [i for i in by_country.get(spot['countryCode'], [])
                 if metas[i]['subdivisions'] is None or spot['admin1'] in metas[i]['subdivisions']]
-    eligible.sort(key=lambda i: (metas[i]['subdivisions'] is None, metas[i]['source'] != 'plonkit', i))
+    eligible.sort(key=lambda i: (i not in spot.get('hintMetaIds', []),
+                                metas[i]['subdivisions'] is None, metas[i]['source'] != 'plonkit', i))
     unique, texts = [], set()
     for i in eligible:
         text = re.sub(r'\s+', ' ', metas[i]['text']).strip()

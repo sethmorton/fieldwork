@@ -75,7 +75,12 @@ def thumb(view, fov):
         q = urllib.parse.urlencode({'cb_client': 'maps_sv.share', 'panoid': view['panoId'], 'w': 640, 'h': 400,
                                     'yaw': f"{view.get('heading') or 0:.2f}", 'pitch': f'{pitch:.2f}', 'thumbfov': f'{fov:.0f}'})
         _, body = fetch('https://streetviewpixels-pa.googleapis.com/v1/thumbnail?' + q)
-        path.write_bytes(body)
+        tmp = path.with_name(f'{path.name}.{os.getpid()}.{threading.get_ident()}.tmp')
+        try:
+            tmp.write_bytes(body)
+            tmp.replace(path)
+        finally:
+            tmp.unlink(missing_ok=True)
     return path if path.stat().st_size > BLANK_BYTES else None
 
 

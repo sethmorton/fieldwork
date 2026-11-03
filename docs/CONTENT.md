@@ -333,36 +333,48 @@ From the repo root:
 
 ```sh
 export WORLD_PACK_DATA=/Users/sethmorton/Documents/Codex/2026-10-18/can-x20/work/world-map
-python3 tools/world-pack/label.py run --pilot
+uv run --with pillow --with shapely tools/world-pack/label.py run --pilot
 python3 tools/world-pack/label.py qa --pilot
-# Inspect training/qa-pilot.html before the capped full labeling run.
-python3 tools/world-pack/label.py run --pool-limit 3000 --duel-limit 3000 --workers 2
+# Inspect the pilot, then record version-2 approval in training/pilot-approved.json.
+uv run --with pillow --with shapely tools/world-pack/label.py seed --pool-limit 5000 --workers 2 --max-calls 1600 --rebuild-every 48
+uv run --with pillow --with shapely tools/world-pack/label.py run --pool-limit 0 --all-duels --duel-limit 3000 --workers 2 --max-calls 500
 python3 tools/world-pack/label.py qa
-uv run --with shapely tools/world-pack/training.py build
+uv run --with pillow --with shapely tools/world-pack/training.py build
 python3 tools/world-pack/training.py test
 npm run check
 npm run build
 ```
 
-Shapely is required only when dissolving changed geometry. Ordinary builds use
-the fingerprinted geometry cache and can run with plain `python3`. Country
-geometry and macro-region geometry are simplified with the existing globe
-helpers. Explicit admin1 memberships define US census divisions, Brazil's five
+Use `uv run --with pillow --with shapely` for image-checking and build commands.
+Pillow checks that the exact thumbnail is decodable and not solid black.
+Shapely dissolves changed regional or meta-footprint geometry. Builds with all
+geometry cached can run with plain `python3`. The portable self-check needs no
+private data. Explicit admin1 memberships define US census divisions, Brazil's five
 regions, Russia's current eight federal districts, Canadian province groups,
 Australian states, and Indian, Indonesian, Mexican and Argentine macro-regions.
 These training areas are not a statement about political boundaries.
 
-Pano IDs determine the stable probe 10%, drill 60%, study 30% split. A panorama
-never moves between study and games. All duel panoramas and all locations in
-other private/configured/public packs are excluded. Local attempt exports
-(`training/attempts.json`, `win/*attempts*.json`, `.scratch/*attempts*.json`, or
-`trainingAttemptsPath`) and `training/exposures.json` extend that exclusion ledger.
-The browser must still enforce its own current attempt/exposure ledger.
+Pano IDs determine the stable probe 10%, drill 60%, study 30% split. A fresh
+panorama never moves between study and games. Duel and Sprint panoramas can enter
+the separate `seen` split, which is card-only and never playable. All already-seen
+panoramas and every location in other private/configured/public packs are excluded
+from fresh splits. Local attempt exports (`training/attempts.json`,
+`win/*attempts*.json`, `.scratch/*attempts*.json`, or `trainingAttemptsPath`) and
+`training/exposures.json` extend the exclusion ledger. The browser still enforces
+its current attempt/exposure ledger.
 
-Known non-rural panoramas are filtered everywhere. Top-40 ACoW countries require
-a cached rural verdict. Unlabelled tail-country spots remain available with
-`rural:null` and `ruralStatus:'unlabelled'`, never a fabricated rural claim.
-Unlabeled locations have `verified:false` and no meta annotations.
+Only official 22-character Street View panorama IDs are eligible. Hex-encoded
+44-character game IDs are decoded first. User-uploaded photospheres, known
+urban/suburban/indoor scenes and cached bad thumbnails are dropped from every
+split. `thumbOk` is true for checked valid views, null for a transient/untried
+check. A false verdict is cached even though that location is omitted from the
+pack. Thumbnail verdicts are keyed by exact camera view, not just panorama ID.
+
+Rural evidence is explicit: `rural:true` is verified, `rural:null` is unknown,
+and false never enters the pack. Unknown drill/probe spots are playable so model
+labeling cannot block practice. The scheduler should prefer true over null.
+Top-40 fresh study spots still require a rural verdict. Unlabelled spots have
+`verified:false` and no magnifiers, never a fabricated rural or meta claim.
 
 The labeler receives applicable Plonk It tips, visual descriptions and scoped
 Learnable Meta notes. Named subdivisions in unmatched LM notes provide candidate
@@ -387,16 +399,39 @@ attempted spots, including image failures. The call ledger is `training/calls.js
 Create `training/PAUSE` to stop scheduling batches after those in flight finish.
 No pack-build command invokes a model.
 
+Board seeding prioritizes top-20 countries by ACoW weight and focus. It counts
+unique rural study/seen photos with verified diagnostic magnifiers per region,
+stops scheduling at four, and permits an in-flight batch to reach at most six.
+The approved extra study batch raises the pool cap to 5,000. Regional counts and
+honest shortages are in `training/seed-report.json` and `training/report.json`.
+`metaCount` is the number of accepted magnifiers on each location. A region with
+fewer than four study/seen photos declares `studyFallbackCountry` for an honestly
+labelled parent-country board.
+
+Every used meta has `appliesToAdmin1` and `footprint`. When source admin1 scope is
+available, the footprint is a simplified GeoJSON Feature containing the union of
+those areas. If precise geometry is unavailable, footprint is null and the UI
+must not promote that scope to whole macro-regions. Macro shading is a fallback
+only when `appliesToAdmin1` is empty.
+
 `npm run refresh` updates duels, labels only missing duel views (up to its explicit
 cap), and rebuilds focus/exclusions and the private pack before the normal build.
 It never automatically generates more Vali locations. Pool refill is separate:
 
 ```sh
-python3 tools/world-pack/training.py refill --countries US BR CA --count 1000
+uv run --with pillow --with shapely tools/world-pack/training_refill.py --minimum 40 --large-min 80 --passes 2 --max-new 400
+uv run --with pillow --with shapely tools/world-pack/training_images.py --workers 4 --rebuild-every 512
+CURATE_MODEL=gpt-6-luna uv run --with pillow --with shapely tools/world-pack/training_rural.py --limit 8000 --workers 2
 ```
 
-Refill generates into a temporary directory, merges new pano IDs with the original
-cache, and atomically replaces the pool only after successful generation.
+Regional refill generates into a temporary directory, merges new panorama IDs
+without changing existing split assignments, and atomically replaces the pool
+only after successful generation. It uses `Buildings200 eq 0 and Roads200 eq 1`,
+checks availability and region membership, and runs one local Vali process at a
+time with two .NET processors and a 6 GiB heap limit. Missing source subdivisions
+are recorded as unsupported, not silently substituted. The separate cheap rural
+pass uses `rurality.label`, two workers and an 8,000-view cap, ordered by ACoW
+weight times verified-rural shortage. All verdicts are cached.
 
 Focus uses the last 14 days of ACoW NoMoveDuels, including wins and zero deficits
 in the denominator. A country gets its ACoW share times its positive point deficit,

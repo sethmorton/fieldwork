@@ -13,8 +13,8 @@ after=$(count)
 PATH="$ROOT/.scratch/nocodex:$PATH" python3 sprint.py
 # Only missing duel labels incur model cost. Pool labeling/refill stays explicitly opt-in.
 if [[ -f "$WORLD_PACK_DATA/training/pack.json" ]]; then
-  python3 label.py run --pool-limit 0 --all-duels --duel-limit 3000 --workers 2
-  python3 training.py build
+  uv run --with pillow --with shapely label.py run --pool-limit 0 --all-duels --duel-limit 3000 --new-limit 200 --max-calls 100 --workers 2 --skip-if-running
+  uv run --with pillow --with shapely training.py build
 fi
 cd "$ROOT"
 npm run build
