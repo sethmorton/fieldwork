@@ -14,7 +14,7 @@ from text import HERE
 
 # Rural country and region maps whose mistakes transfer to ranked; city maps (NYC, London, Bay Area) do not.
 MAPS = {'A Competitive World', 'A Community World', 'An Arbitrary World', 'An Extra-Informed World', 'A Moving World',
-        'Europe', 'An Arbitrary Asia', 'A Fair & Balanced World'}
+        'Europe', 'An Arbitrary Asia', 'A Fair & Balanced World', 'Supersonic'}
 RECENT_HOURS, FAR_M = 24, 750_000
 ACOW = 'A Competitive World'
 TEACH = ('landscape-and-vegetation', 'infrastructure', 'agriculture')  # preference order
