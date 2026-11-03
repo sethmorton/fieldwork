@@ -53,6 +53,16 @@ test('a board always has four photos: study, then seen, then burned drill spots,
   // Fewer than four only when the whole country has fewer.
   assert.equal(boardSpots(pack({'X — A':['study'],'X — B':[],Y:['study','study','study','study']}),'X — A').spots.length,1);
 });
+test('within a region, verified photos with a magnifier come first, then verified with none, then unverified',()=>{
+  const p=pack({'X — A':['study','study','study','seen','seen','drill'],'X — B':['study'],Y:['study']});
+  const [plain1,plain2,noneStudy,magnifierSeen,noneSeen]=p.locations;
+  magnifierSeen.verified=true;magnifierSeen.metas=[{metaId:null,what:'pole bands',box:[0.1,0.1,0.2,0.3]}];
+  noneStudy.verified=true;noneSeen.verified=true;
+  const {spots,burned}=boardSpots(p,'X — A',{random:()=>0.5});
+  assert.deepEqual(spots.map(spot=>spot.id),[magnifierSeen.id,noneStudy.id,noneSeen.id,plain1.id],'labelled seen beats unlabelled study');
+  assert.equal(burned.length,0,'card material still comes before burning a drill spot');
+  assert.ok(!spots.includes(plain2));
+});
 test('seen spots are card material only: never dealt into a game',()=>{
   const p=pack({'X — A':['seen','seen','seen','drill','drill','drill'],'X — B':['seen','drill','drill'],Y:['seen','drill','drill','probe']});
   p.acow={X:0.6,Y:0.4};p.focus={country:'X'};
