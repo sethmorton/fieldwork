@@ -147,3 +147,6 @@ current card. Retain responses by game token even before the URL switches.
 For a real browser check, get consent for the dedicated map writes, preserve
 the current game, verify post-guess feedback only after a real guess, and
 never insert synthetic attempts into the user's userscript storage.
+Live checks drive a foreground tab (CDP `Page.bringToFront`). A hidden tab frozen mid-transition (agent browsers freeze idle
+tabs) keeps the previous round's panorama on screen, or black after a reload, until it is shown again: not a Fieldwork bug.
+Never `GET /api/v3/games/<token>` during a game: it starts the next round's clock and feeds Fieldwork a later round.
