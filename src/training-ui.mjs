@@ -32,6 +32,7 @@ const CSS=`:host{all:initial}*{box-sizing:border-box}
 .dots{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:6}.dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 0 1px rgba(0,0,0,.35),0 0 3px rgba(0,0,0,.5)}.dots i.on{background:#fff;box-shadow:0 0 0 1px #121212}
 .pop{position:fixed;z-index:40;width:260px;background:#fff;color:#121212;box-shadow:0 6px 28px rgba(0,0,0,.4);padding:12px;display:none}.pop.on{display:block}
 .pop h3{font:700 19px/1.2 'Playfair Display',Georgia,serif;margin:0 0 6px}.pop img{display:block;width:100%;max-height:150px;object-fit:contain;background:#fff;margin:6px 0}
+.pop .line{margin:0 0 6px;font:14px/1.35 'Libre Franklin',Arial;color:#333}
 .pop a{color:#326891;font-size:12px}.pop .rmap{margin-top:6px}.pop .keys{display:flex;gap:6px;margin-top:8px}.pop .keys button{flex:1}
 button.go,.keys button,.page button{font:700 15px 'Libre Franklin',Arial;padding:10px 14px;border:1px solid #121212;background:#fff;color:#121212;cursor:pointer}
 button.go:hover,.keys button:hover,.page button:hover,button.go.ink{background:#121212;color:#fff}.keys button.on{background:#121212;color:#fff}
@@ -90,6 +91,13 @@ const metaCountries=(pack,info)=>info?.countries?.length?info.countries:[...new 
 export const metaShading=info=>info?.footprint?{overlays:[{geometry:info.footprint}]}
   :info?.appliesToAdmin1?.length?{}:{shade:Object.fromEntries((info?.appliesTo??[]).map(name=>[name,'#c0392b']))};
 export const metaMap=(pack,info)=>regionMap(pack,{countries:metaCountries(pack,info),...metaShading(info)});
+/** The first sentence of a label, at most MAX_LINE characters (cut at a word, with an ellipsis); null when empty. */
+const MAX_LINE=120;
+export function firstSentence(text){
+  const clean=String(text??'').replace(/\s+/g,' ').trim();if(!clean)return null;
+  const sentence=clean.match(/^.+?[.!?](?=\s|$)/)?.[0]??clean;
+  return sentence.length<=MAX_LINE?sentence:sentence.slice(0,MAX_LINE).replace(/\s+\S*$/,'')+'…';
+}
 // The meta popover: title, the Plonk It / Learnable Meta image, a mini map of where it applies, the source link and, with
 // manual keys on, "Used it" / "Didn't notice".
 export function metaPopover(root,pack,{manual,grades,onGrade}){
@@ -98,8 +106,10 @@ export function metaPopover(root,pack,{manual,grades,onGrade}){
   const show=(marker,box,meta,label)=>{
     if(current?.marker===marker)return;hide();current={marker,box};marker.classList.add('open');box.classList.add('on');
     const info=pack.metas?.[meta.metaId];pop.replaceChildren();
-    node(pop,'h3',null,info?.title??meta.what??'Observed');
-    if(info?.title&&meta.what&&meta.what!==info.title)node(pop,'div','kick',meta.what);
+    // The meta's title, then one short diagnostic sentence from this photo's label (never a second long heading).
+    const title=info?.title??firstSentence(meta.what)??'Observed',line=firstSentence(meta.what);
+    node(pop,'h3',null,title);
+    if(line&&line!==title&&!title.toLowerCase().startsWith(line.toLowerCase()))node(pop,'p','line',line);
     if(info?.img){const img=node(pop,'img');img.src=info.img;img.alt='';img.referrerPolicy='no-referrer'}
     if(metaCountries(pack,info).length)pop.append(metaMap(pack,info).node);
     if(info?.url){const link=node(pop,'a',null,info.source==='learnablemeta'?'Learnable Meta ↗':'Plonk It ↗');link.href=info.url;link.target='_blank';link.rel='noreferrer'}
@@ -162,10 +172,10 @@ export function tellFor(pack,round){
   return separating.length?`${[...new Set(separating.map(info=>info.title))].slice(0,2).join(', ')}: ${shortRegion(round.location.region)}, not ${shortRegion(round.guessedRegion)}.`:null;
 }
 
-/** The card after a round. options: manual (meta keys), shown (study ids already shown), boardFor(region) (the board's
- *  photos; default: boardSpots, nothing burned), onGrade(metaId, used), onShown(ids), onDone() after the last beat
+/** The card after a round. options: manual (meta keys), boardFor(region) (the board's photos, chosen and remembered by
+ *  the caller; default: boardSpots with `shown`, nothing burned), onGrade(metaId, used), onDone() after the last beat
  *  (Space) or a close. A beat shows once its photos have decoded (at most BEAT_WAIT ms), so it never opens blank. */
-export function trainingCard(pack,round,{attempt=null,manual=false,shown=new Set(),boardFor=null,onGrade,onShown,onDone,random=Math.random}={}){
+export function trainingCard(pack,round,{attempt=null,manual=false,shown=new Set(),boardFor=null,onGrade,onDone,random=Math.random}={}){
   let beat=0,finished=false;
   const finish=()=>{if(finished)return;finished=true;onDone?.()};
   const grades=Object.fromEntries((attempt?.metas??[]).filter(item=>item.source==='manual').map(item=>[item.metaId,item.used]));
@@ -190,7 +200,8 @@ export function trainingCard(pack,round,{attempt=null,manual=false,shown=new Set
       points:[...(guess?[{lat:guess.lat,lng:guess.lng,color:'#121212'}]:[]),{lat:location.lat,lng:location.lng,color:'#2e7d4f'}],line:guess?[guess,location]:null}).node);
     const km=node(el,'div','km'),big=node(km,'b');node(big,'i',round.correct?'ok':'no',round.correct?'✓':'✗');
     big.append(guess?`${round.km.toLocaleString('en-US')} km`:'Timed out');
-    node(km,'span',null,`${round.points.toLocaleString('en-US')} pts`);
+    // World-scale points (the world map's formula), which differ from GeoGuessr's score on this practice map.
+    node(km,'span',null,`${round.points.toLocaleString('en-US')} world pts`);
     beats.push({el,markers});}
   const used=new Set([location.id]);
   const boardBeat=(region,name,color,muted)=>{
@@ -209,7 +220,6 @@ export function trainingCard(pack,round,{attempt=null,manual=false,shown=new Set
   // `beat` is the beat asked for; it shows when its photos are ready, unless another key moved on meanwhile.
   const go=index=>{beat=index;return decoded(beats[index].el).then(()=>{if(beat===index&&!finished)show(index)})};
   const opened=go(0);
-  onShown?.(beats.flatMap(item=>item.spots??[]).map(spot=>spot.id));
   return {close,go,opened,get beat(){return beat}};
 }
 export const BEAT_WAIT=1500;
@@ -232,14 +242,14 @@ export function recapScreen(pack,rounds,{onNext,onClose}={}){
   const {scr,close}=screen({onClose,settle:SETTLE_MS,onKey:event=>{if(event.code==='Space'||event.key==='Enter'){next.click();return true}return false}});
   const page=node(scr,'div','page');const mast=node(page,'div','mast');node(mast,'h1',null,'Set complete');
   const total=rounds.reduce((sum,round)=>sum+(round.points??0),0),hits=rounds.filter(round=>round.correct).length;
-  node(mast,'span','date',`${hits}/${rounds.length} regions · ${total.toLocaleString('en-US')} pts`);
+  node(mast,'span','date',`${hits}/${rounds.length} regions · ${total.toLocaleString('en-US')} world pts`);
   const strip=node(page,'div','recap');
   for(const round of rounds){
     const location=pack.locations.find(item=>item.id===round.locationRef);if(!location)continue;
     const fig=node(strip,'figure'),shot=node(fig,'div','shot'),img=node(shot,'img');img.src=photoUrl(pack,location,640);img.alt='';img.referrerPolicy='no-referrer';
     node(shot,'b',null,round.correct?'✓':'✗').style.color=round.correct?'#7ee2a8':'#ff8a7a';
     const cap=node(fig,'figcaption');node(cap,'strong',null,round.region);
-    node(cap,'span',null,`${round.timedOut?'timed out':`${(round.km??0).toLocaleString('en-US')} km`} · ${(round.points??0).toLocaleString('en-US')} pts`);
+    node(cap,'span',null,`${round.timedOut?'timed out':`${(round.km??0).toLocaleString('en-US')} km`} · ${(round.points??0).toLocaleString('en-US')} world pts`);
     const metas=node(cap,'ul');for(const meta of round.metas??[])node(metas,'li',null,`${meta.used?'✓':'✗'} ${pack.metas?.[meta.metaId]?.title??meta.metaId}`);
   }
   const actions=node(page,'div','actions'),next=node(actions,'button','go ink','Next set');next.type='button';node(next,'kbd',null,'Space');

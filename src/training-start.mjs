@@ -37,8 +37,10 @@ export function trainingStart(pack,options={}){
     [tiles.points?.toLocaleString('en-US')??'–',tiles.change&&signed(tiles.change.points),`points per round${tiles.pointsSe!==null?` · ±${tiles.pointsSe}`:''}`],
     [pct(tiles.fixRate),null,`fix rate · n=${tiles.fixN}`]]){
     const tile=node(row,'div','tile'),big=node(tile,'b',null,value+' ');if(change)node(big,'span',change.startsWith('-')?'down':'up',change);node(tile,'small',null,label)}
-  // Only real misses are due: Fieldwork misses (regions and metas) and metas seen in lost duel rounds.
-  const due=dueCounts(pack,attempts,now),parts=[[due.metas,'meta'],[due.regions,'region']].filter(([n])=>n).map(([n,label])=>`${n} ${label}${n===1?'':'s'}`);
+  // Only real misses are due (Fieldwork misses, metas seen in lost duel rounds), and a due meta only when some unplayed
+  // spot shows it.
+  const shownSoFar=[...(options.history?.played??[]),...(options.history?.burned??[])];
+  const due=dueCounts(pack,attempts,now,shownSoFar),parts=[[due.metas,'meta'],[due.regions,'region']].filter(([n])=>n).map(([n,label])=>`${n} ${label}${n===1?'':'s'}`);
   node(left,'p','kick',parts.length?`Due now · ${parts.join(' · ')}`:'New · nothing due yet').style.marginTop='22px';
   const actions=node(left,'div','actions'),play=node(actions,'button','go ink','Play');play.type='button';node(play,'kbd',null,'Enter');
   const look=node(actions,'button','go','Look board');look.type='button';node(look,'kbd',null,'L');

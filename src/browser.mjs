@@ -15,7 +15,7 @@ import {trainingCard,recapScreen,sessionScreen,HOST_ID as TRAINING_HOST} from '.
 import {trainingStart,PILL_ID} from './training-start.mjs';
 import {recordDeal,planDeal} from './deal.mjs';
 import {sessionCheck,checkDue} from './deal-stats.mjs';
-import {boardSpots,boardHistory} from './boards.mjs';
+import {boardSpots,boardHistory,recentlyShown} from './boards.mjs';
 import {preload,photoUrl} from './training-ui.mjs';
 import {syncUrl,syncPayload,createSync} from './training-sync.mjs';
 // Fire-and-forget POST to the local installer (GM request: the page is https, the installer http://127.0.0.1).
@@ -178,16 +178,20 @@ async function playTraining(progress){
   progress(placing);return prepare();
 }
 // Training pack (scheduler 'deal'): the card after every round, then the 15-minute session check when due, then (round 5)
-// the recap. Round 5 publishes the next set ahead while the card is up. Study photos shown on cards are remembered
-// (latest 3,000), so boards prefer ones not seen yet.
+// the recap. Round 5 publishes the next set ahead while the card is up. Board photos are remembered when chosen
+// ('board-shown': [id, ms], latest 3,000), so boards prefer photos not shown in the last week.
 const ahead=new Map(),boards=new Map();
 const boardSeen=cardPack=>boardHistory(history(cardPack.id),exposures(cardPack.id));
 // A round's board for one region: chosen once (at publication for the answer region, at the guess for the pinned one)
 // and preloaded. An unseen drill spot it had to use is burned into exposures, so it never appears in a game.
 function boardFor(cardPack,region,roundRef,exclude=[]){
   const id=`${roundRef}|${region}`;if(boards.has(id))return boards.get(id);
-  const {spots,burned}=boardSpots(cardPack,region,{shown:new Set(GM_getValue(key('study-shown',cardPack.id),[])),...boardSeen(cardPack),exclude:new Set([roundRef,...exclude])});
+  const shownKey=key('board-shown',cardPack.id),shownList=GM_getValue(shownKey,[]);
+  // The 0.15.x 'study-shown' list (ids without dates) is superseded; drop it so it no longer loads with every page.
+  if(GM_getValue(key('study-shown',cardPack.id),null))GM_deleteValue(key('study-shown',cardPack.id));
+  const {spots,burned}=boardSpots(cardPack,region,{shown:recentlyShown(shownList),...boardSeen(cardPack),exclude:new Set([roundRef,...exclude])});
   if(burned.length)GM_setValue(key('exposures',cardPack.id),[...exposures(cardPack.id),...burned.map(ref=>({id:`${cardPack.id}:board:${ref}`,locationRef:ref}))]);
+  const now=Date.now();GM_setValue(shownKey,[...shownList.filter(([ref])=>!spots.some(spot=>spot.id===ref)),...spots.map(spot=>[spot.id,now])].slice(-3000));
   boards.set(id,spots);preload(spots.map(spot=>photoUrl(cardPack,spot)));
   return spots;
 }
@@ -199,12 +203,11 @@ function preloadSet(chosen,set){
   for(const location of set.selectedLocations)boardFor(chosen,location.region,location.id,ids);
 }
 function showTrainingCard(round){
-  const shownIds=GM_getValue(key('study-shown'),[]),cardPack=pack,inFlight=GM_getValue(key('active-set'),null)?.locationIds??[];
+  const cardPack=pack,inFlight=GM_getValue(key('active-set'),null)?.locationIds??[];
   if(round.round===5&&!ahead.has(round.id)){const job=publishAhead();ahead.set(round.id,job);job.catch(error=>console.warn('Fieldwork could not publish the next set ahead.',error))}
-  trainingCard(cardPack,round,{attempt:history().find(item=>item.id===round.id),manual:GM_getValue(key('manual-metas'),false),shown:new Set(shownIds),
+  trainingCard(cardPack,round,{attempt:history().find(item=>item.id===round.id),manual:GM_getValue(key('manual-metas'),false),
     boardFor:region=>boardFor(cardPack,region,round.location.id,inFlight),
     onGrade:(metaId,used)=>GM_setValue(key('attempts',cardPack.id),recordDeal(cardPack,history(cardPack.id),round,{metaGrades:{[metaId]:used}})),
-    onShown:ids=>GM_setValue(key('study-shown',cardPack.id),[...shownIds,...ids].slice(-3000)),
     onDone:()=>afterCard(cardPack,round)});
 }
 function afterCard(cardPack,round){

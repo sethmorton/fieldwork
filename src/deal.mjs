@@ -183,6 +183,19 @@ function weighted(items,random){
   return items.at(-1);
 }
 
+/** Due metas that at least one unplayed drill/probe spot shows (verified labels). A due meta no fresh spot shows is not
+ *  advertised or planned for; its miss still counts as a region retest. */
+export function playableDueMetas(pack,attempts,{now=Date.now(),seenLocationRefs=[]}={}){
+  const due=new Set(retests(pack,attempts,now).filter(item=>item.due&&item.kind==='meta').map(item=>item.key));
+  if(!due.size)return new Set();
+  const seen=new Set(seenLocationRefs),covered=new Set();for(const attempt of attempts)if(attempt.locationRef)seen.add(attempt.locationRef);
+  for(const location of pack.locations){
+    if(!PLAYABLE.has(location.split)||location.rural===false||location.verified===false||seen.has(location.id))continue;
+    for(const meta of location.metas??[])if(due.has(meta.metaId))covered.add(meta.metaId);
+    if(covered.size===due.size)break;
+  }
+  return covered;
+}
 /** The next set: {locationIds, slots: {locationId: {slot: 'pair'|'due'|'focus'|'world'|'top', retest}}, reasons,
  *  candidates (the 20 best regions with their score terms, for the debug view)}. Linear in locations and attempts. */
 export function planDeal(pack,attempts,{size=5,now=Date.now(),seenLocationRefs=[],random=Math.random}={}){
@@ -210,11 +223,11 @@ export function planDeal(pack,attempts,{size=5,now=Date.now(),seenLocationRefs=[
       confusion:1+CONFUSION_BOOST*Math.min(2,model.confusions.get(region)??0),novelty:novel(model.regions,region)?NOVELTY:1,fade:fade.regions.has(region)?FADE_WEIGHT:1};
     const base=terms.acow*terms.miss*terms.confusion*terms.novelty*terms.fade;
     for(const location of list){
-      const metas=verifiedMetas(location),due=metas.filter(id=>dueMetas.has(id)).length,newMetas=metas.filter(id=>novel(model.metas,id)).length;
+      const metas=verifiedMetas(location),dueIds=metas.filter(id=>dueMetas.has(id)),due=dueIds.length,newMetas=metas.filter(id=>novel(model.metas,id)).length;
       // The spot's weakest known meta: posterior mean miss above 0.5 scales up to META_WEAK_BOOST.
       const weakest=Math.max(0.5,...metas.map(id=>meanMiss(model.metas.get(id))??0.5)),metaWeak=1+META_WEAK_BOOST*2*(weakest-0.5);
       const rural=location.rural===true?1:RURAL_UNKNOWN;
-      const spot={location,region,country,due,score:base*(1+DUE_BOOST*due)*metaWeak*(newMetas?NOVELTY:1)*rural,
+      const spot={location,region,country,due,dueIds,score:base*(1+DUE_BOOST*due)*metaWeak*(newMetas?NOVELTY:1)*rural,
         terms:{...terms,due:1+DUE_BOOST*due,metaWeak,metaNovelty:newMetas?NOVELTY:1,rural},
         retest:openRegions.has(region)};
       candidates.push(spot);
@@ -259,7 +272,9 @@ export function planDeal(pack,attempts,{size=5,now=Date.now(),seenLocationRefs=[
   const reasons=[['pair','contrast pair'],['due','due meta'],['focus','focus'],['world','world'],['top','top ranked']].filter(([label])=>by(label)).map(([label,text])=>`${by(label)} ${text}`).join(', ');
   // Debug view: the 20 best regions (their best spot's terms), each marked with the slot a pick from that region filled.
   const pickedRegion=new Map(picks.map(spot=>[spot.region,slots[spot.location.id].slot]));
-  return {locationIds:picks.map(spot=>spot.location.id),slots,reasons:[reasons,`${open.filter(item=>item.due).length} due, ${fade.regions.size} faded regions, ${fade.metas.size} faded metas`],
+  const coveredDue=new Set(candidates.flatMap(spot=>spot.dueIds)),dueRegionCount=open.filter(item=>item.due&&item.kind==='region').length;
+  return {locationIds:picks.map(spot=>spot.location.id),slots,
+    reasons:[reasons,`${coveredDue.size} due metas on fresh spots, ${dueRegionCount} due regions, ${fade.regions.size} faded regions, ${fade.metas.size} faded metas`],
     candidates:ranked.slice(0,20).map(spot=>({locationId:spot.location.id,region:spot.region,country:spot.country,score:spot.score,terms:spot.terms,
       picked:pickedRegion.get(spot.region)??null}))};
 }

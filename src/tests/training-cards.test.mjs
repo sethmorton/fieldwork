@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createKeyGuard} from '../key-guard.mjs';
-import {boardSpots,boardHistory} from '../boards.mjs';
+import {boardSpots,boardHistory,recentlyShown} from '../boards.mjs';
 import {validatePack,makeNextSet} from '../next-set.mjs';
 import {gameInProgress,completedRound,readySet} from '../session.mjs';
 import {stateFromGameData} from '../game-state.mjs';
-import {recordDeal,retests} from '../deal.mjs';
-import {cropFocus,metaShading} from '../training-ui.mjs';
+import {recordDeal,retests,playableDueMetas} from '../deal.mjs';
+import {cropFocus,metaShading,firstSentence} from '../training-ui.mjs';
+import {dueCounts} from '../deal-stats.mjs';
 import {geometryRings} from '../region-map.mjs';
 
 const key=(type,code)=>({type,code,key:code===' '?' ':code,stopped:false,prevented:false,
@@ -139,4 +140,30 @@ test('meta map shading: the exact footprint, else the country outline when admin
   assert.deepEqual(metaShading({footprint,appliesToAdmin1:['BR-CE','BR-RR'],appliesTo:['Brazil — North']}),{overlays:[{geometry:footprint}]});
   assert.deepEqual(metaShading({footprint:null,appliesToAdmin1:['BR-CE'],appliesTo:['Brazil — North','Brazil — Northeast']}),{},'no invented range');
   assert.deepEqual(metaShading({appliesToAdmin1:[],appliesTo:['Brazil — North']}),{shade:{'Brazil — North':'#c0392b'}});
+});
+test('a due meta is advertised only when an unplayed spot shows it',()=>{
+  const p=pack({'X — A':['drill','drill','study'],'X — B':['drill'],Y:['drill']});
+  p.metas={'m:shown':{title:'Shown'},'m:nowhere':{title:'Nowhere'}};
+  const [carrier]=p.locations;carrier.verified=true;carrier.metas=[{metaId:'m:shown',box:[0.1,0.1,0.1,0.1]}];
+  p.locations[2].metas=[{metaId:'m:nowhere',box:[0.1,0.1,0.1,0.1]}];   // a study spot: never played
+  p.duelLosses=[{id:'duel:1',occurredAt:new Date(Date.now()-3600e3).toISOString(),metaIds:['m:shown','m:nowhere']}];
+  assert.deepEqual([...playableDueMetas(p,[])],['m:shown']);assert.equal(dueCounts(p,[]).metas,1);
+  assert.equal(dueCounts(p,[],Date.now(),[carrier.id]).metas,0,'its only spot was shown');
+});
+test('boards prefer photos not shown in the last week, burning a fresh spot before repeating; repeats only when the region is exhausted',()=>{
+  const p=pack({'X — A':['study','study','drill','drill','seen'],'X — B':['study','study','study','study'],Y:['study']});
+  const [s1,s2,d1,d2,seen]=p.locations,now=Date.now();
+  const shown=recentlyShown([[s1.id,now-3600e3],[s2.id,now-2*864e5],[d1.id,now-8*864e5]],now);
+  assert.deepEqual([...shown].sort(),[s1.id,s2.id].sort(),'older than a week no longer counts');
+  const {spots,burned}=boardSpots(p,'X — A',{shown,random:()=>0.5});
+  assert.deepEqual(spots.map(spot=>spot.id),[d1.id,d2.id,seen.id,s1.id].slice(0,3).concat(spots[3].id));
+  assert.deepEqual(burned.sort(),[d1.id,d2.id].sort());assert.ok([s1.id,s2.id].includes(spots[3].id),'a repeat from the region, before the country');
+  // All of the region recently shown: repeats it, still before the country fallback.
+  const all=new Set(p.locations.filter(location=>location.region==='X — A').map(location=>location.id));
+  assert.ok(boardSpots(p,'X — A',{shown:all,burn:false,random:()=>0.5}).spots.slice(0,3).every(spot=>spot.region==='X — A'));
+});
+test('the magnifier popover line is one short sentence',()=>{
+  assert.equal(firstSentence('Yellow centre lines. They are double on most rural roads, and the outer lines are white.'),'Yellow centre lines.');
+  assert.equal(firstSentence('  '),null);assert.equal(firstSentence(undefined),null);
+  const long=firstSentence('word '.repeat(60));assert.ok(long.length<=121&&long.endsWith('…'));
 });

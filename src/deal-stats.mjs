@@ -1,6 +1,6 @@
 // Progress numbers for the training pack, from deal attempts only (every one is a panorama the learner had never seen):
 // tiles for the start panel and the 15-minute session check with its recommendation.
-import {isDealAttempt,retests,SESSION_GAP} from './deal.mjs';
+import {isDealAttempt,retests,playableDueMetas,SESSION_GAP} from './deal.mjs';
 
 const MIN=60000,DAY=864e5;
 // A gap this long ends a session; a gap this long counts as a break.
@@ -25,10 +25,11 @@ export function dealTiles(attempts,{now=Date.now(),days=3}={}){
   return {...now3,days,change:comparable?{countryRate:now3.countryRate-before.countryRate,points:now3.points-before.points}:null};
 }
 
-/** Start-panel counts: open retests due now, by kind. */
-export function dueCounts(pack,attempts,now=Date.now()){
-  const due=retests(pack,attempts,now).filter(item=>item.due);
-  return {metas:due.filter(item=>item.kind==='meta').length,regions:due.filter(item=>item.kind==='region').length};
+/** Start-panel counts: due region retests, and due metas that some unplayed spot shows (playableDueMetas). `seen`:
+ *  location ids shown so far (exposures, including board burns). */
+export function dueCounts(pack,attempts,now=Date.now(),seen=[]){
+  const regions=retests(pack,attempts,now).filter(item=>item.due&&item.kind==='region').length;
+  return {metas:playableDueMetas(pack,attempts,{now,seenLocationRefs:seen}).size,regions};
 }
 
 /** The current session: trailing deal rounds with no gap over SESSION_GAP. Active minutes add gaps up to BREAK_GAP;
