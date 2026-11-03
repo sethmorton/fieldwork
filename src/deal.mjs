@@ -32,16 +32,15 @@ export function distanceKm(a,b){
   const rad=Math.PI/180,h=Math.sin((b.lat-a.lat)*rad/2)**2+Math.cos(a.lat*rad)*Math.cos(b.lat*rad)*Math.sin((b.lng-a.lng)*rad/2)**2;
   return 12742*Math.asin(Math.min(1,Math.sqrt(h)));
 }
-// A pin within this distance of the answer that lands in no region (sea next to a coastal spot, a simplified border)
-// is graded as the answer region.
+// A pin within this distance of the answer counts as the answer region, wherever it lands: sea next to a coastal spot, or
+// the far side of a simplified border (the pack's polygons put ~2% of border spots in the neighbour).
 export const COAST_KM=25;
 
 /** Grades a completed deal round: region by regionFeatures (macro-region = region), country by the region's country,
  *  distance, world-scale points and the guess time when GeoGuessr sent one. */
 export function gradeDeal(pack,location,guess,seconds){
   const km=distanceKm(guess,location);
-  let guessedRegion=regionAt(guess.lat,guess.lng,pack.regionFeatures??[]);
-  if(!guessedRegion&&km<=COAST_KM)guessedRegion=location.region;
+  const guessedRegion=km<=COAST_KM?location.region:regionAt(guess.lat,guess.lng,pack.regionFeatures??[]);
   const guessedCountry=guessedRegion?pack.regions?.[guessedRegion]?.country??guessedRegion:null;
   return {guess:{lat:guess.lat,lng:guess.lng},guessedRegion,guessedCountry,regionCorrect:guessedRegion===location.region,
     countryCorrect:guessedCountry===location.country,correct:guessedRegion===location.region,km:Math.round(km),points:worldPoints(km),

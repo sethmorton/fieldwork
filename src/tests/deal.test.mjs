@@ -48,8 +48,11 @@ test('grading: the pinned macro-region, its country, world-scale points and the 
   const wrong=gradeDeal(pack,location,{lat:2.5,lng:0.5});
   assert.deepEqual([wrong.correct,wrong.countryCorrect,wrong.guessedRegion],[false,true,'A — R2']);
   const otherCountry=gradeDeal(pack,location,{lat:10.5,lng:0.5});assert.equal(otherCountry.countryCorrect,false);assert.equal(otherCountry.guessedCountry,'B');
-  // Sea next to a coastal answer counts as the answer region; far out at sea is a miss with no region.
+  // Within 25 km counts as the answer region wherever the pin lands: sea next to a coastal answer, or across a
+  // (simplified) region border. Far out at sea is a miss with no region.
   assert.equal(gradeDeal(pack,location,{lat:location.lat,lng:location.lng-0.1}).correct,true);
+  const edge=pack.locations.find(item=>item.region==='A — R1');
+  assert.equal(gradeDeal(pack,edge,{lat:0.98,lng:0.5}).correct,true,`${distanceKm({lat:0.98,lng:0.5},edge)} km into R0`);
   const sea=gradeDeal(pack,location,{lat:-40,lng:-40});assert.equal(sea.correct,false);assert.equal(sea.guessedRegion,null);
   // World formula: 0 km = 5000, 1,492 km ≈ 1,839, never inflated for small maps.
   assert.equal(worldPoints(0),5000);assert.equal(worldPoints(1491.6862),Math.round(5000/Math.E));
