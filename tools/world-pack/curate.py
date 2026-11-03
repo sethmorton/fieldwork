@@ -53,6 +53,9 @@ def ask(prompt, schema, images=(), model=None):
     out = subprocess.run(['codex', 'exec', '--skip-git-repo-check', '--ignore-rules', '-s', 'read-only', '-m', model or MODEL,
                           '--output-schema', f.name, *args, '--', prompt], capture_output=True, text=True, timeout=1200,
                          cwd=tempfile.gettempdir())
+    Path(f.name).unlink(missing_ok=True)
+    if out.returncode or not out.stdout.strip():
+        raise RuntimeError(f'codex exited {out.returncode}: {out.stderr[-2000:]}')
     reply = out.stdout.strip()
     try:  # the model sometimes pretty-prints the JSON over many lines
         return json.loads(reply)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Latest duels -> Sprint cards -> build -> patch bump -> commit+push. Offline (no model calls). `npm run refresh`.
+# Latest duels -> Sprint + private Training packs -> build -> patch bump -> commit+push.
 set -euo pipefail
 cd "$(dirname "$0")"
 ROOT=$(cd ../.. && pwd)
@@ -11,8 +11,14 @@ before=$(count)
 python3 duels.py fetch && python3 duels.py rounds
 after=$(count)
 PATH="$ROOT/.scratch/nocodex:$PATH" python3 sprint.py
+# Only missing duel labels incur model cost. Pool labeling/refill stays explicitly opt-in.
+if [[ -f "$WORLD_PACK_DATA/training/pack.json" ]]; then
+  python3 label.py run --pool-limit 0 --all-duels --duel-limit 3000 --workers 2
+  python3 training.py build
+fi
 cd "$ROOT"
 npm run build
+npm run check
 version=$(npm version patch --no-git-tag-version)
 git add package.json package-lock.json  # the pack itself lives in WORLD_PACK_DATA, outside the repo
 git commit -m 'refresh: duel cards from latest rounds'

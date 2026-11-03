@@ -15,6 +15,7 @@ import os
 import random
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import collect
@@ -32,21 +33,53 @@ ENV = {**os.environ, 'PATH': f"/opt/homebrew/opt/dotnet@8/bin:{Path.home()}/.dot
        'DOTNET_ROOT': '/opt/homebrew/opt/dotnet@8/libexec', 'VALI_DOWNLOAD_FOLDER': str(Path.home() / 'vali-data')}
 
 
-def vali_pool(cc, goal):
+def vali_pool(cc, goal, append=False):
+    """Read the cache, or opt in to generating `goal` additional candidates without replacing old spots."""
     out = GAP / 'pools' / f'{cc}-locations.json'
     out.parent.mkdir(parents=True, exist_ok=True)
-    if not out.exists():
-        spec = GAP / 'pools' / f'{cc}.json'
-        spec.write_text(json.dumps({'countryCodes': [cc], 'distributionStrategy': {
-            'key': 'FixedCountByMaxMinDistance', 'locationCountGoal': goal, 'minMinDistance': 300},
-            'output': {'panoVerificationStrategy': 'Newest', 'locationTags': ['SubdivisionCode']}}))
-        # Vali polls the console for a stop key, so it needs a pseudo-terminal.
-        subprocess.run(['script', '-q', '/dev/null', 'vali', 'generate', '--file', spec.name], cwd=spec.parent,
-                       env=ENV, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=3600)
+    if append and out.exists():
+        previous = json.loads(out.read_text())
+        old = previous['customCoordinates'] if isinstance(previous, dict) else previous
+        # Generate away from the live cache. A failure must leave the old pool intact.
+        with tempfile.TemporaryDirectory(prefix=f'{cc}-refill-', dir=out.parent) as tmp:
+            folder = Path(tmp)
+            fresh = generate_pool(cc, goal + len(old), folder)
+            seen = {l.get('panoId') for l in old}
+            added = []
+            for loc in fresh:
+                if loc.get('panoId') and loc['panoId'] not in seen:
+                    added.append(loc)
+                    seen.add(loc['panoId'])
+                    if len(added) == goal:
+                        break
+        merged = old + added
+        document = {**previous, 'customCoordinates': merged} if isinstance(previous, dict) else merged
+        staging = out.with_suffix('.tmp')
+        staging.write_text(json.dumps(document))
+        staging.replace(out)
+        print(json.dumps({'country': cc, 'before': len(old), 'added': len(added), 'requested': goal}), flush=True)
+    elif not out.exists():
+        generate_pool(cc, goal, out.parent)
     if not out.exists():
         return []
     doc = json.loads(out.read_text())
     return [l for l in (doc['customCoordinates'] if isinstance(doc, dict) else doc) if l.get('panoId')]
+
+
+def generate_pool(cc, goal, folder):
+    spec = folder / f'{cc}.json'
+    spec.write_text(json.dumps({'countryCodes': [cc], 'distributionStrategy': {
+        'key': 'FixedCountByMaxMinDistance', 'locationCountGoal': goal, 'minMinDistance': 300},
+        'output': {'panoVerificationStrategy': 'Newest', 'locationTags': ['SubdivisionCode']}}))
+    # Vali polls the console for a stop key, so it needs a pseudo-terminal.
+    subprocess.run(['script', '-q', '/dev/null', 'vali', 'generate', '--file', spec.name], cwd=folder,
+                   env=ENV, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                   stderr=subprocess.DEVNULL, timeout=3600, check=True)
+    out = folder / f'{cc}-locations.json'
+    if not out.exists():
+        raise RuntimeError(f'Vali did not produce {out}')
+    doc = json.loads(out.read_text())
+    return doc['customCoordinates'] if isinstance(doc, dict) else doc
 
 
 def eligible_subdivisions(region):

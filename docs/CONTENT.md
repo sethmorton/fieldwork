@@ -307,3 +307,104 @@ caveat. Targets with no matching tip stay `unresolved`. A new active skill
 without a match fails the script until it gets an authored scope. Fetch
 missing guides one page at a time: at most one request every 10 s, and stop
 on any 403/429.
+
+## Private adaptive training pack
+
+`tools/world-pack/training.py` writes `$WORLD_PACK_DATA/training/pack.json`.
+This is personal content, never a file under public `content/`. It combines Vali
+pool spots with ACoW country weights, independently verified visual labels and
+Natural Earth answer geometry. All practice is native GeoGuessr. The pack sets
+No Move and 60-second rounds, not a separate Fieldwork drill screen.
+
+Bind the dedicated training map in the untracked `.fieldwork.local.json`:
+
+```json
+{"additionalPacks":[
+  {"packPath":"/absolute/path/to/world-map/training/pack.json",
+   "practiceMapId":"6ae996c3e2700bdd18e5d352"}
+]}
+```
+
+Append that entry to the existing list, preserving every other binding.
+The builder reads this entry, or an explicit `trainingPracticeMapId` override.
+No map is created or published by the Python tools.
+
+From the repo root:
+
+```sh
+export WORLD_PACK_DATA=/Users/sethmorton/Documents/Codex/2026-10-18/can-x20/work/world-map
+python3 tools/world-pack/label.py run --pilot
+python3 tools/world-pack/label.py qa --pilot
+# Inspect training/qa-pilot.html before the capped full labeling run.
+python3 tools/world-pack/label.py run --pool-limit 3000 --duel-limit 3000 --workers 2
+python3 tools/world-pack/label.py qa
+uv run --with shapely tools/world-pack/training.py build
+python3 tools/world-pack/training.py test
+npm run check
+npm run build
+```
+
+Shapely is required only when dissolving changed geometry. Ordinary builds use
+the fingerprinted geometry cache and can run with plain `python3`. Country
+geometry and macro-region geometry are simplified with the existing globe
+helpers. Explicit admin1 memberships define US census divisions, Brazil's five
+regions, Russia's current eight federal districts, Canadian province groups,
+Australian states, and Indian, Indonesian, Mexican and Argentine macro-regions.
+These training areas are not a statement about political boundaries.
+
+Pano IDs determine the stable probe 10%, drill 60%, study 30% split. A panorama
+never moves between study and games. All duel panoramas and all locations in
+other private/configured/public packs are excluded. Local attempt exports
+(`training/attempts.json`, `win/*attempts*.json`, `.scratch/*attempts*.json`, or
+`trainingAttemptsPath`) and `training/exposures.json` extend that exclusion ledger.
+The browser must still enforce its own current attempt/exposure ledger.
+
+Known non-rural panoramas are filtered everywhere. Top-40 ACoW countries require
+a cached rural verdict. Unlabelled tail-country spots remain available with
+`rural:null` and `ruralStatus:'unlabelled'`, never a fabricated rural claim.
+Unlabeled locations have `verified:false` and no meta annotations.
+
+The labeler receives applicable Plonk It tips, visual descriptions and scoped
+Learnable Meta notes. Named subdivisions in unmatched LM notes provide candidate
+scope, never automatic proof. Subdivision-restricted tips must match the actual
+subdivision. City-specific or unscoped regional tips are not promoted to states.
+Sol labels the exact 640-by-400 opening view. Astra independently checks the
+image, claim, tight box, cited text and diagnostic value.
+
+Magnifiers must distinguish a region/state group or the country from plausible
+look-alike neighbours. Each carries `narrowsTo` and `vs`. Generic forest, grass,
+road markings or architecture belong only in the landscape note, not a magnifier.
+Object boxes cover at most 20% of the frame. At most one region-diagnostic
+landscape cue is permitted per image. An honest empty magnifier list is valid.
+Version-1 generic annotations are excluded from the pack, even though their
+separately verified rural/landscape evidence remains usable.
+Thumbnail API pitch is the negative of the stored Street View POV pitch.
+
+Labels and drafts are cached by view, tip text/scope and model fingerprint.
+There are at most two workers by default, six images per call, and three attempts
+for a transient rate-limit/timeout error with exponential backoff. Spot caps count
+attempted spots, including image failures. The call ledger is `training/calls.jsonl`.
+Create `training/PAUSE` to stop scheduling batches after those in flight finish.
+No pack-build command invokes a model.
+
+`npm run refresh` updates duels, labels only missing duel views (up to its explicit
+cap), and rebuilds focus/exclusions and the private pack before the normal build.
+It never automatically generates more Vali locations. Pool refill is separate:
+
+```sh
+python3 tools/world-pack/training.py refill --countries US BR CA --count 1000
+```
+
+Refill generates into a temporary directory, merges new pano IDs with the original
+cache, and atomically replaces the pool only after successful generation.
+
+Focus uses the last 14 days of ACoW NoMoveDuels, including wins and zero deficits
+in the denominator. A country gets its ACoW share times its positive point deficit,
+smoothed by ten rounds at the overall mean deficit. Exported Training attempts
+with world-scale points also count, using their deficit against 5,000 because
+practice has no opponent. `training/report.json` records counts and every score.
+
+`training/qa.html` is a seeded random 60-spot sheet with exact images, boxes and
+claims. `training/qa-pilot.html` is the fixed pilot. Independent model agreement
+is not a measured human accuracy score. Visual inspection results belong in the
+build log, with numerator and denominator, not an invented percentage.
