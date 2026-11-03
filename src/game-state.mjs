@@ -16,6 +16,6 @@ export function stateFromGameData(data) {
     // Never expose unguessed panorama data to the feedback path.
     rounds:data.rounds.slice(0,Math.min(guesses.length,data.round)).map((location,index)=>({
       location:{lat:location.lat,lng:location.lng,panoId:decode(location.panoId)},
-      player_guess:{lat:guesses[index].lat,lng:guesses[index].lng},
+      player_guess:{lat:guesses[index].lat,lng:guesses[index].lng,...(Number.isFinite(guesses[index].time)?{time:guesses[index].time}:{})},
     }))};
 }

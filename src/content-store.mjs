@@ -139,7 +139,7 @@ export function createContentStore({get:gmGet,set:gmSet,list:gmList,remove:gmRem
   }
   function pinSet(id,setValue,pack){
     const key=pack?versions.get(pack):get(headKey(id),null)?.key;if(!key)throw Error('Practice content is not cached.');
-    set(activeKey(id),{locationIds:setValue.selectedLocations.map(location=>location.id),preparedAt:new Date(now()).toISOString(),contentKey:key});
+    set(activeKey(id),{locationIds:setValue.selectedLocations.map(location=>location.id),...(setValue.slots?{slots:setValue.slots}:{}),preparedAt:new Date(now()).toISOString(),contentKey:key});
   }
   function pinGame(id,gameId){
     const key=gameKey(id,gameId);if(get(key,null))return;

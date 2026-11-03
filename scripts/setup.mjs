@@ -6,7 +6,7 @@ export function configurePack(template,map) {
   const id=/^https:\/\/www\.geoguessr\.com\/(?:maps|map-maker)\/([a-f\d]{24})\/?$/i.exec(map)?.[1]??map;
   if(!/^[a-f\d]{24}$/i.test(id)||/^0+$/.test(id))throw Error('Provide your owned practice map URL or 24-character map ID.');
   validatePack(template);
-  if(template.pools.some(p=>p.id===id||p.mapUrl.endsWith('/'+id))||template.locations.some(l=>l.sourceMapId===id))throw Error('Use a separate owned practice map, never a source map.');
+  if((template.pools??[]).some(p=>p.id===id||p.mapUrl.endsWith('/'+id))||template.locations.some(l=>l.sourceMapId===id))throw Error('Use a separate owned practice map, never a source map.');
   return {...template,practiceMapId:id};
 }
 async function main(){

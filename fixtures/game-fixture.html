@@ -5,6 +5,53 @@ const params=new URL(location.href).searchParams;
 // per-tree labels (the pilot's schema); open=<n> opens the viewer on the card's n-th image (0 = the still).
 // region=<code> picks the round's region (default Coast Range); veg-wrong pins the nearest pano of another region (pin=<code>: of that one).
 // tree=<card> (e.g. ponderosa-pine) plays that tree deck clue's first panorama instead (pano=<id> to choose).
+if(params.get('mode')==='training'){
+// mode=training: the real training screens from a checked-in sample pack (or pack=<url>, e.g. /dist/training-pack.json).
+// screen=right | wrong (default) | recap | session | start | look | debug. seed=<n> fixes the set. No map is changed.
+const ui=await import('/dist/preview-ui.js'),random=ui.seeded(Number(params.get('seed')??1));
+const pack={...await (await fetch(params.get('pack')??'/fixtures/training-sample-pack.json')).json(),practiceMapId:'000000000000000000000001'};
+const view=params.get('screen')??'wrong',now=Date.now(),regionOf=name=>name.split(' — ').at(-1);
+let attempts=[],game=0;const shown=new Set();
+// Plays one completed round through completedRound (the real grading path) and records it like the userscript does.
+const play=(location,pin,index,set,occurredAt)=>{
+  const state={map:{id:pack.practiceMapId},current_game_id:'fixture-'+game,current_round:index+1,round_in_progress:false,
+    rounds:Array.from({length:index+1},()=>({location:{panoId:location.panoId},player_guess:{lat:pin.lat,lng:pin.lng,time:12}}))};
+  const round=ui.completedRound(pack,state,set.selectedLocations.map(item=>item.id));
+  attempts=ui.recordDeal(pack,attempts,round,{slot:set.slots?.[location.id]},new Date(occurredAt));
+  return round;
+};
+const otherRegion=location=>pack.locations.find(item=>item.split==='study'&&item.country===location.country&&item.region!==location.region
+  &&(!params.get('pin')||regionOf(item.region)===params.get('pin')));
+const playSet=(pattern,start)=>{
+  const set=ui.makeNextSet(pack,attempts,{size:5,random,now:start});game++;
+  return set.selectedLocations.map((location,index)=>play(location,pattern[index]?{lat:location.lat+0.02,lng:location.lng+0.02}:otherRegion(location),index,set,start+index*60000));
+};
+document.body.style.background='#fff';
+if(view==='right'||view==='wrong'){
+  const set=ui.makeNextSet(pack,[],{size:5,random,now});game++;
+  const location=params.get('region')?pack.locations.find(item=>item.split!=='study'&&regionOf(item.region)===params.get('region')):set.selectedLocations[0];
+  if(!set.selectedLocations.includes(location))set.selectedLocations[0]=location;
+  const round=play(location,view==='right'?{lat:location.lat+0.02,lng:location.lng+0.02}:otherRegion(location),0,set,now);
+  document.title=`training ${view} ${round.correct} ${round.guessedRegion}`;
+  ui.trainingCard(pack,round,{attempt:attempts.at(-1),manual:params.has('manual'),shown,random,onGrade:(metaId,used)=>{attempts=ui.recordDeal(pack,attempts,round,{metaGrades:{[metaId]:used}})},
+    onDone:()=>{document.title='training closed'}});
+  for(let i=0;i<Number(params.get('beat')??0);i++)window.dispatchEvent(new KeyboardEvent('keydown',{key:' ',code:'Space',bubbles:true}));
+  if(params.has('open'))setTimeout(()=>[...document.getElementById('fieldwork-training').shadowRoot.querySelectorAll('.beat.on .mk')][Number(params.get('open'))]?.dispatchEvent(new MouseEvent('mouseenter')),1200);
+}else if(view==='recap'){
+  playSet([true,false,true,false,true],now-5*60000);
+  ui.recapScreen(pack,attempts.slice(-5),{onNext:()=>{document.title='training next set'}});
+}else if(view==='session'){
+  for(let i=0;i<4;i++)playSet(i<2?[true,true,true,false,true]:[false,true,false,false,true],now-(20-i*5)*60000);
+  ui.sessionScreen(ui.sessionCheck(attempts,now),{onContinue:()=>{document.title='training continue'}});
+}else{
+  // start / look / debug: the start panel after two played sets (one with a Mid-Atlantic → South Atlantic confusion).
+  playSet([true,false,true,true,false],now-30*60000);playSet([true,true,false,true,true],now-20*60000);
+  const start=ui.trainingStart(pack,{attempts,now,random,onPlay:()=>{document.title='training play'},onManual:value=>{document.title='training manual '+value},
+    debugPlan:()=>ui.planDeal(pack,attempts,{now,random:ui.seeded(7)})});
+  if(view==='look')window.dispatchEvent(new KeyboardEvent('keydown',{key:'l',bubbles:true}));
+  if(view==='debug')start.toggleDebug();
+}
+}else
 if(params.get('mode')?.startsWith('veg')){
 const {reviewPanel,completedRound}=await import('/dist/preview-ui.js');
 const entry=(await (await fetch('/catalog.json')).json()).packs.find(item=>item.id==='us-vegetation');

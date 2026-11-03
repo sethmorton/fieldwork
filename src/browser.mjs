@@ -11,6 +11,10 @@ import {ruleCheckFor,closeCall} from './sprint.mjs';
 import {fail,classified,retryDelay,canRetry,loadMessage,plainMessage,notice} from './load-errors.mjs';
 import {stateFromGameData} from './game-state.mjs';
 import {observeGameResponses} from './game-responses.mjs';
+import {trainingCard,recapScreen,sessionScreen,HOST_ID as TRAINING_HOST} from './training-ui.mjs';
+import {trainingStart,PILL_ID} from './training-start.mjs';
+import {recordDeal,planDeal} from './deal.mjs';
+import {sessionCheck,checkDue} from './deal-stats.mjs';
 const gameResponses=unsafeWindow.GEFFetchEvents;
 
 // Anonymous GM requests run in fetch mode, where Chromium ignores details.timeout: enforce our own deadline and abort.
@@ -131,10 +135,45 @@ function startPreparedGame() {
   setTimeout(scheduleRender,1600);
   return true;
 }
-let preparing=null;
-// Single flight: a remounted panel or a second click joins the publication already in progress.
-const prepare=()=>preparing??=preparePractice().finally(()=>{preparing=null});
-async function preparePractice() {
+let preparing=null,preparingLaunches=false;
+const launchPrepared=chosen=>{GM_setValue(key('launch-request',chosen.id),launchRequest(chosen));go(`/maps/${chosen.practiceMapId}`)};
+// Single flight: a remounted panel or a second click joins the publication already in progress. Joining a publish-ahead
+// (training round 5) launches its set once it is published.
+const prepare=()=>{
+  if(preparing&&!preparingLaunches)return preparing.then(chosen=>chosen&&launchPrepared(chosen));
+  if(!preparing){preparingLaunches=true;preparing=preparePractice().finally(()=>{preparing=null})}
+  return preparing;
+};
+const publishAhead=()=>{if(!preparing){preparingLaunches=false;preparing=preparePractice({launch:false}).finally(()=>{preparing=null})}return preparing};
+// Training pack (scheduler 'deal'): the card after every round, then the 15-minute session check when due, then (round 5)
+// the recap. Round 5 publishes the next set ahead while the card is up. Study photos shown on cards are remembered
+// (latest 3,000), so boards prefer ones not seen yet.
+const ahead=new Map();
+function showTrainingCard(round){
+  const shownIds=GM_getValue(key('study-shown'),[]),cardPack=pack;
+  if(round.round===5&&!ahead.has(round.id)){const job=publishAhead();ahead.set(round.id,job);job.catch(error=>console.warn('Fieldwork could not publish the next set ahead.',error))}
+  trainingCard(cardPack,round,{attempt:history().find(item=>item.id===round.id),manual:GM_getValue(key('manual-metas'),false),shown:new Set(shownIds),
+    onGrade:(metaId,used)=>GM_setValue(key('attempts',cardPack.id),recordDeal(cardPack,history(cardPack.id),round,{metaGrades:{[metaId]:used}})),
+    onShown:ids=>GM_setValue(key('study-shown',cardPack.id),[...shownIds,...ids].slice(-3000)),
+    onDone:()=>afterCard(cardPack,round)});
+}
+function afterCard(cardPack,round){
+  const recap=()=>{if(round.round!==5)return;
+    recapScreen(cardPack,history(cardPack.id).filter(item=>item.id.startsWith(`${cardPack.id}:${round.gameId}:`)),{onNext:()=>nextDealSet(cardPack,round)})};
+  if(checkDue(history(cardPack.id),GM_getValue(key('session-check-at',cardPack.id),0))){
+    GM_setValue(key('session-check-at',cardPack.id),Date.now());sessionScreen(sessionCheck(history(cardPack.id)),{onContinue:recap});return;
+  }
+  recap();
+}
+// Next set from the recap: launch the set published ahead; if that publication failed, prepare (publish + launch) now.
+async function nextDealSet(cardPack,round){
+  let chosen;
+  try{chosen=await ahead.get(round.id)}catch{return prepare()}
+  return chosen?launchPrepared(chosen):prepare();
+}
+// launch: false (training pack, round 5): publish the next set while the card is up, without launching; the recap's Next
+// set then only launches it (nextDealSet), so Continue is instant. The set is planned from every round, including round 5.
+async function preparePractice({launch=true}={}) {
   if(GM_getValue(key('pending-review'),null)?.round.round===5)commitPendingReview(null,true);
   // A pack built by the local installer is re-checked here, so a rebuild reaches this set (never a game in progress).
   const route=location.pathname,routeGame=gameId(),chosen=await store.latest(pack.id),set=nextSet(chosen),chosenKey=suffix=>key(suffix,chosen.id);
@@ -144,6 +183,7 @@ async function preparePractice() {
   // On the practice map the page keeps showing this content (a game page keeps its own pinned version).
   if(!routeGame&&chosen.id===pack.id)pack=chosen;
   prefetchImages(chosen,set).catch(error=>console.warn('Fieldwork could not prefetch card images.',error));
+  if(!launch)return chosen;
   GM_setValue(chosenKey('launch-request'),launchRequest(chosen));
   // Opening the finished game's summary meanwhile is still this request; another page is the learner's choice.
   if(location.pathname!==route&&!(routeGame&&gameId()===routeGame))return;
@@ -165,7 +205,7 @@ function offerBinding() {
   if((ok===true||ok===REGIONS_MAP)&&mounted!=='bind:'+mapId){bindPanel(ok===true?choices:[],{error:ok===true?null:ok,onBind:id=>{store.bind(id,mapId);context='';remove();render()}});mounted='bind:'+mapId}
   return true;
 }
-const remove=()=>{for(const id of ['fieldwork-practice','fieldwork-atlas'])document.getElementById(id)?.remove();mounted=''};
+const remove=()=>{for(const id of ['fieldwork-practice','fieldwork-atlas',TRAINING_HOST,PILL_ID])document.getElementById(id)?.remove();mounted=''};
 // One content load per route and pack, shared by render() and receiveState(). DOM mutations and repeated game responses
 // join it, so they never restart a download or reset the retry schedule. A route change drops it and its callbacks.
 let load=null;
@@ -243,6 +283,13 @@ function render() {
   if(mapPage){
     if(startPreparedGame()){if(mounted!=='launch'){loadingPanel(pack,{message:'Starting your next set…'});mounted='launch'}return}
     if(mounted==='start'||mounted==='quick')return;
+    if(pack.scheduler==='deal'){
+      trainingStart(pack,{attempts:history(),onPlay:prepare,manual:GM_getValue(key('manual-metas'),false),onManual:value=>GM_setValue(key('manual-metas'),value),
+        packs:packs.filter(item=>item.practiceMapId),onChoosePack:choosePack,message:launchError,
+        onExport:()=>download({packId:pack.id,attempts:history(),exposures:exposures()},`fieldwork-progress-${pack.id}.json`),
+        debugPlan:()=>planDeal(pack,history(),{seenLocationRefs:exposures().map(item=>item.locationRef)})});
+      mounted='start';launchError=null;return;
+    }
     // A failed API launch (gameSettings packs) is shown once on the start panel; Continue prepares a fresh set.
     startPanel(pack,{onNext:prepare,attempts:history(),getAttempts:history,packs:packs.filter(item=>item.practiceMapId),onChoosePack:choosePack,message:launchError,
       learn:GM_getValue(key('learn-mode'),false),onLearn:value=>GM_setValue(key('learn-mode'),value),
@@ -263,6 +310,12 @@ function render() {
   if(mounted===round.id)return;
   const seen=exposures();const familiar=seen.some(item=>item.locationRef===round.location.id&&item.id!==round.id);
   if(!seen.some(item=>item.id===round.id))GM_setValue(key('exposures'),[...seen,{id:round.id,locationRef:round.location.id}]);
+  // Training pack: graded and saved at once from the pin (with the slot the plan picked it for), then the card.
+  if(pack.scheduler==='deal'){
+    if(!history().some(item=>item.id===round.id))
+      GM_setValue(key('attempts'),recordDeal(pack,history(),round,{slot:GM_getValue(key('active-set'),null)?.slots?.[round.location.id]??null}));
+    showTrainingCard(round);mounted=lastShown=round.id;return;
+  }
   // Region packs: whether this round checks a recent miss's rule, and (warming up) whether the pin is close, both from the
   // history before it, so every re-render agrees.
   if(pack.scheduler==='sprint'&&round.guessedRegion!==undefined){const prior=history().filter(item=>item.id!==round.id);

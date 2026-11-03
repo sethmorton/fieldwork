@@ -1,4 +1,5 @@
 import {regionAt,countryAt} from './geo.mjs';
+import {gradeDeal,PLAYABLE} from './deal.mjs';
 import {MAX_PER_FAMILY} from './lib/adaptive.ts';
 import {skillStatus} from './lib/mastery.ts';
 import {notice} from './load-errors.mjs';
@@ -27,6 +28,9 @@ export function completedRound(pack,state,active=[]) {
   const matches=pack.locations.filter(location=>location.panoId===round.location.panoId);
   const location=matches.find(location=>active.includes(location.id))??matches[0];
   if(!location) return null;
+  // Deal packs: pinned macro-region, distance, world-scale points and the guess time (seconds) when GeoGuessr sent one.
+  if(pack.scheduler==='deal')return {id:`${pack.id}:${state.current_game_id}:${state.current_round}`,location,round:state.current_round,
+    gameId:state.current_game_id,...gradeDeal(pack,location,round.player_guess,round.player_guess.time??round.time)};
   const {lat,lng}=round.player_guess,guessedRegion=regionAt(lat,lng,pack.regionFeatures??[]);
   // A sprint pack whose locations carry regions (us-vegetation) tiles its whole answer area, so a guess off every region
   // is wrong; elsewhere an off-region guess stays unknown. The card shows the guessed region and the guess itself.
@@ -118,17 +122,19 @@ export function advanceRecognition(pack,history,pending,nextState,now=new Date()
 
 export async function publishPracticeSet(pack,set,request,backup) {
   const id=pack.practiceMapId;
-  if(!/^[a-f\d]{24}$/i.test(id??'') || pack.pools.some(pool=>pool.id===id||pool.mapUrl.endsWith('/'+id))
+  if(!/^[a-f\d]{24}$/i.test(id??'') || (pack.pools??[]).some(pool=>pool.id===id||pool.mapUrl.endsWith('/'+id))
     || pack.locations.some(location=>location.sourceMapId===id)) throw notice('Use a separate owned practice map, never the source map.');
   const coordinates=set.mapMaking.customCoordinates;
   if(coordinates.length!==5 || new Set(coordinates.map(location=>location.panoId)).size!==5
     || coordinates.some(location=>!pack.locations.some(source=>source.panoId===location.panoId&&source.lat===location.lat&&source.lng===location.lng))) throw Error('A practice map requires five distinct source panoramas.');
-  const families=coordinates.map(location=>{
-    const source=pack.locations.find(source=>source.panoId===location.panoId);
+  const sources=coordinates.map(location=>pack.locations.find(source=>source.panoId===location.panoId));
+  // Deal packs: a study spot (card material) is never played.
+  if(pack.scheduler==='deal'&&sources.some(source=>!PLAYABLE.has(source.split)))throw Error('Study spots are never played.');
+  const families=sources.map(source=>{
     const skill=pack.skills.find(skill=>skill.id===source.skillIds[0]);
     return skill.practiceFamily??skill.id;
   });
-  if(pack.scheduler!=='sprint'&&families.some(family=>families.filter(value=>value===family).length>MAX_PER_FAMILY))throw Error(`A practice map allows at most ${MAX_PER_FAMILY} clues per family.`);
+  if(pack.scheduler!=='sprint'&&pack.scheduler!=='deal'&&families.some(family=>families.filter(value=>value===family).length>MAX_PER_FAMILY))throw Error(`A practice map allows at most ${MAX_PER_FAMILY} clues per family.`);
   if(pack.maxLocationsPerCountry){
     const countries=coordinates.map(location=>pack.locations.find(source=>source.panoId===location.panoId).country);
     if(countries.some(country=>!country||countries.filter(value=>value===country).length>pack.maxLocationsPerCountry))throw Error('This practice pack requires a varied set of known countries.');

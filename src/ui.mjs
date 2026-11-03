@@ -7,6 +7,12 @@ import {GRADES,gradeOf,cardStatus,setRecap,sessionBar,drillKey,mostMissed} from 
 import {dayChecks} from './sprint.mjs';
 import {vegCard} from './vegcard.mjs';
 export {completedRound} from './session.mjs'; // fixtures grade through dist/preview-ui.js
+// The training fixture (fixtures/game-fixture.html?mode=training) renders the real screens through the preview bundle.
+export {trainingCard,recapScreen,sessionScreen} from './training-ui.mjs';
+export {trainingStart,lookBoard} from './training-start.mjs';
+export {makeNextSet} from './next-set.mjs';
+export {recordDeal,seeded,planDeal} from './deal.mjs';
+export {sessionCheck} from './deal-stats.mjs';
 const notSaved='This change could not be saved. Try again.';
 // Compact post-guess UI. Source HTML is converted to text, never executed.
 // Panel size: compact by default, expanded (wide, full images and text) when the learner asks; remembered per browser.

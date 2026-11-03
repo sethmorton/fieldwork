@@ -22,8 +22,9 @@ export async function checkHostedContent(publicCatalog,manifest,readBody){
 }
 // The smallest hosted pack body is over 800 KB, so an engine under ENGINE_MAX cannot be carrying one. The bundled
 // catalog (personal bindings and missed duel clues in local builds) is configuration, not engine, so it does not count.
-// 150 KB until the us-vegetation card (src/vegcard.mjs, ~12 KB) took the engine to ~160 KB.
-const ENGINE_MAX=200000;
+// 150 KB until the us-vegetation card (src/vegcard.mjs, ~12 KB) took the engine to ~160 KB; 200 KB until the training
+// pack's scheduler and screens (src/deal*.mjs, training-*.mjs, region-map.mjs, ~57 KB) took it to ~258 KB.
+const ENGINE_MAX=300000;
 async function verifyBuild(){
   const script=await readFile('dist/fieldwork.user.js','utf8');
   const catalogBytes=Buffer.byteLength(await readFile('dist/practice-catalog.json','utf8'));
