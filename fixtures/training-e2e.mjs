@@ -36,9 +36,17 @@ try{
   const first=await page.evaluate(()=>fixture.games[0]);
   assert.deepEqual(first.settings.forbidMoving,true);assert.equal(first.settings.timeLimit,60);assert.equal(first.coordinates.length,5);
   await sleep(1500);await geoKeys();
-  const plays=['wrong','right','wrong','right','right'],boards=[];
+  const plays=['wrong','right','timeout','right','right'],boards=[];
+  const publishedNow=()=>page.evaluate(()=>fixture.published.length);
   for(let round=1;round<=5;round++){
-    await sleep(300);const start=Date.now();await page.click('#'+plays[round-1]);
+    await sleep(300);
+    // Nothing is published while the game is between rounds: GeoGuessr takes each next round from the map.
+    assert.equal(await publishedNow(),1,`round ${round}: published during the game`);
+    if(round===4){
+      // A late round_end for round 3 while round 4 is being played never brings back round 3's card.
+      await page.click('#stale');await sleep(1200);assert.equal(await screenName(),null,'a stale card showed during the next round');
+    }
+    const start=Date.now();await page.click('#'+plays[round-1]);
     await until(async()=>await screenName()==='result',`round ${round} card`);timings.push(['result',Date.now()-start]);
     if(round===1)await shot('02-round1-result');
     if(round===2){
@@ -48,19 +56,26 @@ try{
       await space();assert.ok((await geoKeys()).includes('keydown:Space'),'after the card, Space is GeoGuessr\'s again');
       await page.click('#native-next');continue;
     }
+    if(plays[round-1]==='timeout'){
+      // The timed-out round's card shows at once on its result screen: no pin, no km, then the answer region.
+      const text=await page.evaluate(()=>document.getElementById('fieldwork-training').shadowRoot.querySelector('.beat.on .km').textContent);
+      assert.match(text,/Timed out/);assert.doesNotMatch(text,/km/);await shot('03b-timeout-result');
+    }
     if(plays[round-1]==='wrong'){await advance('pinned');boards.push(await photos());if(round===1)await shot('03-round1-pinned')}
     await advance('answer');boards.push(await photos());if(round===1)await shot('04-round1-answer');
     await space();
     if(round<5){await until(async()=>await screenName()===null,`round ${round} card closed`);
       assert.deepEqual(await geoKeys(),[],`round ${round}: card keys leaked to GeoGuessr`);await page.click('#native-next')}
   }
+  assert.deepEqual(await page.evaluate(()=>fixture.publishedDuring),{},'a round started after a mid-game publication');
   // Four photos unless the whole country has fewer (checked against the pack: card material plus unplayed spots).
   const short=boards.filter(count=>!count.startsWith('4/4'));
   if(short.length)console.error('boards under 4 photos (country has fewer?):',short);
   await until(async()=>await screenName()==='recap','recap');await shot('05-recap');
   const saved=await page.evaluate(()=>fixture.data['fieldwork:training:attempts']);
   assert.equal(saved.length,5);assert.deepEqual(saved.map(item=>item.correct),plays.map(play=>play==='right'));
-  assert.ok(saved.every(item=>Number.isFinite(item.points)&&item.elapsedMs>0&&item.slot));
+  assert.ok(saved.every(item=>Number.isFinite(item.points)&&item.slot));
+  const timedOut=saved[2];assert.equal(timedOut.timedOut,true);assert.equal(timedOut.guess,null);assert.equal(timedOut.km,null);assert.equal(timedOut.points,0);
   await until(()=>page.evaluate(()=>fixture.published.length===2),'next set published ahead');
   await space();
   await until(()=>page.evaluate(()=>fixture.games.length===2&&location.pathname==='/game/'+fixture.games[1].token),'game 2 started');

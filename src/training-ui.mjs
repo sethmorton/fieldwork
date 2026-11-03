@@ -156,12 +156,14 @@ export function trainingCard(pack,round,{attempt=null,manual=false,shown=new Set
   const location=round.location,answerCountry=location.country,pinned=round.guessedRegion&&round.guessedRegion!==location.region?round.guessedRegion:null;
   const beats=[];
   // Beat 1: the panorama just played, the map with your pin (black) and the answer (green), the answer region red.
+  // A timed-out round: the answer only (no pin, no distance), "Timed out" instead of the km.
   {const el=node(scr,'div','beat');el.dataset.beat='result';
-    const {markers}=photo(el,pack,location,popover,'cell bleed');
+    const {markers}=photo(el,pack,location,popover,'cell bleed'),guess=round.timedOut?null:round.guess;
     const countries=[...new Set([answerCountry,round.guessedCountry].filter(Boolean))];
     const map=node(el,'div','ov corner');map.append(regionMap(pack,{countries,shade:{...(pinned?{[pinned]:'#c9c3b6'}:{}),[location.region]:'#c0392b'},
-      points:[{lat:round.guess.lat,lng:round.guess.lng,color:'#121212'},{lat:location.lat,lng:location.lng,color:'#2e7d4f'}],line:[round.guess,location]}).node);
-    const km=node(el,'div','km'),big=node(km,'b');node(big,'i',round.correct?'ok':'no',round.correct?'✓':'✗');big.append(`${round.km.toLocaleString('en-US')} km`);
+      points:[...(guess?[{lat:guess.lat,lng:guess.lng,color:'#121212'}]:[]),{lat:location.lat,lng:location.lng,color:'#2e7d4f'}],line:guess?[guess,location]:null}).node);
+    const km=node(el,'div','km'),big=node(km,'b');node(big,'i',round.correct?'ok':'no',round.correct?'✓':'✗');
+    big.append(guess?`${round.km.toLocaleString('en-US')} km`:'Timed out');
     node(km,'span',null,`${round.points.toLocaleString('en-US')} pts`);
     beats.push({el,markers});}
   const used=new Set([location.id]);
@@ -209,7 +211,7 @@ export function recapScreen(pack,rounds,{onNext,onClose}={}){
     const fig=node(strip,'figure'),shot=node(fig,'div','shot'),img=node(shot,'img');img.src=photoUrl(pack,location,640);img.alt='';img.referrerPolicy='no-referrer';
     node(shot,'b',null,round.correct?'✓':'✗').style.color=round.correct?'#7ee2a8':'#ff8a7a';
     const cap=node(fig,'figcaption');node(cap,'strong',null,round.region);
-    node(cap,'span',null,`${(round.km??0).toLocaleString('en-US')} km · ${(round.points??0).toLocaleString('en-US')} pts`);
+    node(cap,'span',null,`${round.timedOut?'timed out':`${(round.km??0).toLocaleString('en-US')} km`} · ${(round.points??0).toLocaleString('en-US')} pts`);
     const metas=node(cap,'ul');for(const meta of round.metas??[])node(metas,'li',null,`${meta.used?'✓':'✗'} ${pack.metas?.[meta.metaId]?.title??meta.metaId}`);
   }
   const actions=node(page,'div','actions'),next=node(actions,'button','go ink','Next set');next.type='button';node(next,'kbd',null,'Space');

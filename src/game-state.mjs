@@ -16,6 +16,8 @@ export function stateFromGameData(data) {
     // Never expose unguessed panorama data to the feedback path.
     rounds:data.rounds.slice(0,Math.min(guesses.length,data.round)).map((location,index)=>({
       location:{lat:location.lat,lng:location.lng,panoId:decode(location.panoId)},
-      player_guess:{lat:guesses[index].lat,lng:guesses[index].lng,...(Number.isFinite(guesses[index].time)?{time:guesses[index].time}:{})},
+      // A timed-out round (no pin placed) is marked; GeoGuessr reports its guess at 0,0.
+      player_guess:{lat:guesses[index].lat,lng:guesses[index].lng,...(Number.isFinite(guesses[index].time)?{time:guesses[index].time}:{}),
+        ...(guesses[index].timedOut&&!guesses[index].timedOutWithGuess?{timedOut:true}:{})},
     }))};
 }

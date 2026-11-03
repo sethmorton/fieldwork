@@ -24,13 +24,15 @@ export function completedRound(pack,state,active=[]) {
   if(!state || state.map?.id!==pack.practiceMapId || state.round_in_progress!==false
     || !Number.isInteger(state.current_round) || state.current_round<1 || !state.current_game_id) return null;
   const round=state.rounds?.[state.current_round-1];
-  if(!round?.location?.panoId || !Number.isFinite(round.player_guess?.lat) || !Number.isFinite(round.player_guess?.lng)) return null;
+  // A deal round that timed out has no pin: GeoGuessr marks it (timedOut) or reports the guess at exactly 0,0.
+  const timedOut=pack.scheduler==='deal'&&(round?.player_guess?.timedOut===true||(round?.player_guess?.lat===0&&round?.player_guess?.lng===0));
+  if(!round?.location?.panoId || (!timedOut&&(!Number.isFinite(round.player_guess?.lat) || !Number.isFinite(round.player_guess?.lng)))) return null;
   const matches=pack.locations.filter(location=>location.panoId===round.location.panoId);
   const location=matches.find(location=>active.includes(location.id))??matches[0];
   if(!location) return null;
   // Deal packs: pinned macro-region, distance, world-scale points and the guess time (seconds) when GeoGuessr sent one.
   if(pack.scheduler==='deal')return {id:`${pack.id}:${state.current_game_id}:${state.current_round}`,location,round:state.current_round,
-    gameId:state.current_game_id,...gradeDeal(pack,location,round.player_guess,round.player_guess.time??round.time)};
+    gameId:state.current_game_id,...gradeDeal(pack,location,timedOut?null:round.player_guess,round.player_guess?.time??round.time)};
   const {lat,lng}=round.player_guess,guessedRegion=regionAt(lat,lng,pack.regionFeatures??[]);
   // A sprint pack whose locations carry regions (us-vegetation) tiles its whole answer area, so a guess off every region
   // is wrong; elsewhere an off-region guess stays unknown. The card shows the guessed region and the guess itself.
@@ -120,6 +122,17 @@ export function advanceRecognition(pack,history,pending,nextState,now=new Date()
   return recordRecognition(pack,history,pending.round,{recognized:true,familiar:pending.familiar,correct:pending.correct,assumed:true},now);
 }
 
+/** True while a game on this map is between its first round and round 5's result. Publishing replaces the map's five
+ *  locations, and GeoGuessr picks each next round from the map when the previous one ends, so a publication then would
+ *  swap a game's remaining rounds. Publish only before a game (map page) or after round 5. Unknown state counts as
+ *  in progress. */
+export function gameInProgress(pathname,state,mapId){
+  const game=/^\/game\/([^/]+)$/.exec(pathname)?.[1];
+  if(!game)return false;
+  if(!state||state.current_game_id!==game)return true;
+  if(state.map?.id!==mapId)return false;
+  return !(state.current_round===5&&state.round_in_progress===false);
+}
 export async function publishPracticeSet(pack,set,request,backup) {
   const id=pack.practiceMapId;
   if(!/^[a-f\d]{24}$/i.test(id??'') || (pack.pools??[]).some(pool=>pool.id===id||pool.mapUrl.endsWith('/'+id))

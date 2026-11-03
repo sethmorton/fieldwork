@@ -37,8 +37,10 @@ export function distanceKm(a,b){
 export const COAST_KM=25;
 
 /** Grades a completed deal round: region by regionFeatures (macro-region = region), country by the region's country,
- *  distance, world-scale points and the guess time when GeoGuessr sent one. */
+ *  distance, world-scale points and the guess time when GeoGuessr sent one. `guess` null: the round timed out without
+ *  a pin, a miss with no guess location, no distance and 0 points. */
 export function gradeDeal(pack,location,guess,seconds){
+  if(!guess)return {timedOut:true,guess:null,guessedRegion:null,guessedCountry:null,regionCorrect:false,countryCorrect:false,correct:false,km:null,points:0};
   const km=distanceKm(guess,location);
   const guessedRegion=km<=COAST_KM?location.region:regionAt(guess.lat,guess.lng,pack.regionFeatures??[]);
   const guessedCountry=guessedRegion?pack.regions?.[guessedRegion]?.country??guessedRegion:null;
@@ -60,7 +62,7 @@ export function recordDeal(pack,history,round,{slot=null,metaGrades={}}={},now=n
   const attempt={id:round.id,skillId:location.skillIds[0],occurredAt:prior?.occurredAt??now.toISOString(),correct:round.correct,
     regionCorrect:round.regionCorrect,countryCorrect:round.countryCorrect,evidenceValid:round.correct,region:location.region,country:location.country,
     guessedRegion:round.guessedRegion,guessedCountry:round.guessedCountry,guess:round.guess,km:round.km,points:round.points,
-    ...(round.elapsedMs?{elapsedMs:round.elapsedMs}:{}),metas,locationRef:location.id,mode:'assessment',feedbackSource:'auto',
+    ...(round.elapsedMs?{elapsedMs:round.elapsedMs}:{}),...(round.timedOut?{timedOut:true}:{}),metas,locationRef:location.id,mode:'assessment',feedbackSource:'auto',
     ...(picked?{slot:picked.slot,retest:!!picked.retest}:{}),reason:'Deal round graded automatically from the pinned region.'};
   return prior?history.map(item=>item.id===attempt.id?attempt:item):[...history,attempt];
 }

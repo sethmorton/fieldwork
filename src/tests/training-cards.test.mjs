@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import {createKeyGuard} from '../key-guard.mjs';
 import {boardSpots} from '../boards.mjs';
 import {validatePack,makeNextSet} from '../next-set.mjs';
+import {gameInProgress,completedRound} from '../session.mjs';
+import {stateFromGameData} from '../game-state.mjs';
+import {recordDeal,retests} from '../deal.mjs';
 
 const key=(type,code)=>({type,code,key:code===' '?' ':code,stopped:false,prevented:false,
   stopImmediatePropagation(){this.stopped=true},preventDefault(){this.prevented=true}});
@@ -55,4 +58,27 @@ test('seen spots are card material only: never dealt into a game',()=>{
   p.acow={X:0.6,Y:0.4};p.focus={country:'X'};
   const set=makeNextSet(p,[],{size:5,random:()=>0.3});
   assert.ok(set.selectedLocations.every(location=>location.split!=='seen'&&location.split!=='study'));
+});
+test('nothing is published while a game on the practice map is between rounds 1 and 5',()=>{
+  const map='0123456789abcdef01234567',at=(round,inProgress,game='g1')=>({current_game_id:game,map:{id:map},current_round:round,round_in_progress:inProgress});
+  for(const [round,inProgress] of [[1,true],[1,false],[2,true],[4,false],[5,true]])assert.equal(gameInProgress('/game/g1',at(round,inProgress),map),true,`${round} ${inProgress}`);
+  assert.equal(gameInProgress('/game/g1',at(5,false),map),false,'after round 5');
+  assert.equal(gameInProgress('/game/g1',null,map),true,'unknown state');
+  assert.equal(gameInProgress('/game/g1',at(2,true,'other'),map),true,'a state of another game');
+  assert.equal(gameInProgress('/maps/'+map,null,map),false);assert.equal(gameInProgress('/results/g1',null,map),false);
+});
+test('a timed-out round is a miss with no guess location, no distance and no points',()=>{
+  const p={...pack({'X — A':['drill','study'],'X — B':['study'],Y:['study']}),practiceMapId:'0123456789abcdef01234567'},spot=p.locations[0];
+  // GeoGuessr's data: guess at 0,0 with timedOut, and the next round already added.
+  const state=stateFromGameData({token:'g',map:p.practiceMapId,round:2,rounds:[{lat:spot.lat,lng:spot.lng,panoId:spot.panoId},{lat:1,lng:1,panoId:'next'}],
+    player:{guesses:[{lat:0,lng:0,timedOut:true,timedOutWithGuess:false,time:60}]}});
+  assert.equal(state.rounds[0].player_guess.timedOut,true);
+  const round=completedRound(p,{...state,current_round:1,round_in_progress:false},[spot.id]);
+  assert.deepEqual([round.timedOut,round.correct,round.guess,round.km,round.points,round.guessedRegion],[true,false,null,null,0,null]);
+  // A bare 0,0 guess (the event framework's view of a timeout) is the same.
+  const bare=completedRound(p,{map:{id:p.practiceMapId},current_game_id:'g',current_round:1,round_in_progress:false,rounds:[{location:{panoId:spot.panoId},player_guess:{lat:0,lng:0}}]},[]);
+  assert.equal(bare.timedOut,true);
+  const attempts=recordDeal(p,[],round);
+  assert.deepEqual([attempts[0].timedOut,attempts[0].correct,attempts[0].guess,attempts[0].points],[true,false,null,0]);
+  assert.ok(retests(p,attempts,Date.now()+60000).some(item=>item.kind==='region'&&item.key==='X — A'&&item.due),'the region is retested');
 });

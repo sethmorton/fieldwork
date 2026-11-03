@@ -4,7 +4,7 @@ import {indexedDbCache} from './content-cache.mjs';
 import {sourceNote} from './source-note.mjs';
 import {makeNextSet} from './next-set.mjs';
 import {packForPage} from './packs.mjs';
-import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,launchRequest,startPracticeGame,quickCheckQueue,recordKnown,recordMissed,REGIONS_MAP} from './session.mjs';
+import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,launchRequest,startPracticeGame,quickCheckQueue,recordKnown,recordMissed,REGIONS_MAP,gameInProgress} from './session.mjs';
 import {reviewPanel,startPanel,loadingPanel,bindPanel,quickCheckPanel} from './ui.mjs';
 import {cardImages} from './vegcard.mjs';
 import {ruleCheckFor,closeCall} from './sprint.mjs';
@@ -195,6 +195,8 @@ async function nextDealSet(cardPack,round){
 // set then only launches it (nextDealSet), so Continue is instant. The set is planned from every round, including round 5.
 async function preparePractice({launch=true}={}) {
   if(GM_getValue(key('pending-review'),null)?.round.round===5)commitPendingReview(null,true);
+  // Never while a game on this map is still between rounds (gameInProgress): the map's locations are its next rounds.
+  if(gameInProgress(location.pathname,stateOf(gameId()),pack.practiceMapId))throw notice('Finish this game first: the next set is published after round 5.');
   // A pack built by the local installer is re-checked here, so a rebuild reaches this set (never a game in progress).
   const route=location.pathname,routeGame=gameId(),chosen=await store.latest(pack.id),set=nextSet(chosen),chosenKey=suffix=>key(suffix,chosen.id);
   await publishPracticeSet(chosen,set,request,draft=>{if(!GM_getValue(chosenKey('pending-backup'),null))GM_setValue(chosenKey('pending-backup'),draft)});
@@ -282,16 +284,32 @@ function scheduleRender() {
   if(renderQueued)return;
   renderQueued=true;requestAnimationFrame(()=>{renderQueued=false;render()});
 }
+// Rounds GeoGuessr has started, per game, from the event framework's round_start (the client's own round change).
+const startedRounds=new Map();
+const noteRoundStart=detail=>{const game=detail?.current_game_id,round=detail?.current_round;
+  if(game&&Number.isInteger(round)&&round>(startedRounds.get(game)??0)){startedRounds.set(game,round);scheduleRender()}};
+const stateOf=game=>{const frameworkState=unsafeWindow.GeoGuessrEventFramework?.state;
+  return gameStates.get(game)??(lastState?.current_game_id===game?lastState:null)??(frameworkState?.current_game_id===game?frameworkState:null)};
+const visible=selector=>{const node=document.querySelector(selector);return !!node&&(!node.getClientRects||node.getClientRects().length>0)};
 function render() {
   if(load&&load.route!==location.pathname)dropLoad();
   const currentGame=gameId();
   const frameworkState=unsafeWindow.GeoGuessrEventFramework?.state;
-  const state=gameStates.get(currentGame)??(lastState?.current_game_id===currentGame?lastState:null)??(frameworkState?.current_game_id===currentGame?frameworkState:null);
+  let state=gameStates.get(currentGame)??(lastState?.current_game_id===currentGame?lastState:null)??(frameworkState?.current_game_id===currentGame?frameworkState:null);
   // A clicked launch is done once any game page opens, even before that game's first response arrives.
   if(pack&&currentGame&&GM_getValue(key('launch-request'),null)?.clickedAt)GM_setValue(key('launch-request'),null);
   const marker=document.querySelector('[data-qa="result-view-top"], [class*="result-list_listWrapper"]');
   const resultsVisible=!!marker&&(!marker.getClientRects||marker.getClientRects().length>0);
   const shownRound=location.pathname.startsWith('/results/')?5:Number(marker?.textContent?.match(/\bROUND\s+([1-5])\s*\/\s*5\b/i)?.[1])||null;
+  // Training pack. A round GeoGuessr is playing (its Guess button visible, or a later round_start) never shows a card:
+  // an open card is removed and a late one is discarded. GeoGuessr can answer a guess or a timeout with the next round
+  // already in its data; while its result view shows round N and round N has a guess (or timed out), round N is the one.
+  if(currentGame&&pack?.scheduler==='deal'&&state?.current_game_id===currentGame&&state.map?.id===pack.practiceMapId){
+    if(visible('[data-qa="perform-guess"]')){if(mounted)remove();return}
+    if(resultsVisible&&shownRound&&shownRound<=state.current_round&&(state.round_in_progress||shownRound!==state.current_round)
+      &&state.rounds?.[shownRound-1]?.player_guess&&!((startedRounds.get(currentGame)??0)>shownRound))
+      state={...state,current_round:shownRound,round_in_progress:false};
+  }
   if(currentGame&&(!state||state.current_game_id!==currentGame||(resultsVisible&&(state.round_in_progress||shownRound&&shownRound!==state.current_round)))){
     if(mounted)remove();return;
   }
@@ -335,6 +353,8 @@ function render() {
   if(pack.scheduler==='deal'){
     if(!history().some(item=>item.id===round.id))
       GM_setValue(key('attempts'),recordDeal(pack,history(),round,{slot:GM_getValue(key('active-set'),null)?.slots?.[round.location.id]??null}));
+    // Saved either way; the card only while this round's result is still the one on screen.
+    if((startedRounds.get(round.gameId)??0)>round.round){lastShown=round.id;if(mounted)remove();return}
     showTrainingCard(round);mounted=lastShown=round.id;return;
   }
   // Region packs: whether this round checks a recent miss's rule, and (warming up) whether the pin is close, both from the
@@ -354,6 +374,7 @@ function render() {
 const atlasNote=(skill,location)=>sourceNote(skill,location,{fetchText,get:GM_getValue,set:GM_setValue,revision:pack.contentRevision});
 function start() {
   const framework=unsafeWindow.GeoGuessrEventFramework;
+  framework?.events?.addEventListener('round_start',event=>noteRoundStart(event.detail));
   if(framework&&!gameResponses){
     framework.events.addEventListener('round_start',event=>receiveState(structuredClone(event.detail)));
     framework.events.addEventListener('round_end',event=>receiveState(structuredClone(event.detail)));
