@@ -19,6 +19,7 @@ from training_pano import official_id
 
 OUT = HERE / 'training'
 CACHE = OUT / 'thumb-checks.jsonl'
+PIXEL_VERSION = 2
 
 
 def view_key(view):
@@ -36,7 +37,8 @@ def states():
                     break
                 if line.strip():
                     rec = json.loads(line)
-                    out[rec['key']] = rec
+                    out[rec['key']] = ({**rec, 'ok': None} if rec['ok'] is True and
+                        rec.get('pixelVersion', 0) < PIXEL_VERSION else rec)
     return out
 
 
@@ -48,16 +50,36 @@ def save(rec):
         f.flush()
 
 
+def pixel_quality(image):
+    """Ignore credit text at the edges, then reject dark or nearly uniform unusable views."""
+    width, height = image.size
+    gray = image.convert('L').crop((int(width * .02), int(height * .02),
+                                   int(width * .98), int(height * .93))).resize((128, 80))
+    hist = gray.histogram()
+    total = sum(hist)
+    mean = sum(i * n for i, n in enumerate(hist)) / total
+    variance = sum((i - mean) ** 2 * n for i, n in enumerate(hist)) / total
+    dark = sum(hist[:16]) / total
+    uniform = max(sum(hist[i:i + 8]) for i in range(249)) / total
+    bad = mean < 12 or dark >= .95 or variance < 4 or uniform >= .98
+    return {'ok': not bad, 'reason': 'black-or-uniform-frame' if bad else 'available',
+            'mean': round(mean, 2), 'variance': round(variance, 2),
+            'darkFraction': round(dark, 4), 'uniformFraction': round(uniform, 4)}
+
+
 def check(view, known=None):
     """False is a known bad frame. None is a transient network failure, never a false claim of availability."""
     known = known if known is not None else states()
     key = view_key(view)
-    if key in known and known[key]['ok'] is not None:
-        return known[key]
-    from PIL import Image, ImageStat, UnidentifiedImageError
+    previous = known.get(key, {})
+    if previous.get('ok') is False or (previous.get('ok') is True and
+                                      previous.get('pixelVersion', 0) >= PIXEL_VERSION):
+        return previous
+    from PIL import Image, UnidentifiedImageError
     pano = official_id(view.get('panoId'))
     rec = {'key': key, 'panoId': pano or view.get('panoId'), 'heading': view.get('heading') or 0,
-           'pitch': view.get('pitch') or 0, 'fov': view.get('fov') or 90, 'at': time.time()}
+           'pitch': view.get('pitch') or 0, 'fov': view.get('fov') or 90,
+           'pixelVersion': PIXEL_VERSION, 'at': time.time()}
     try:
         if not pano:
             rec.update(ok=False, reason='non-official-panorama')
@@ -69,11 +91,7 @@ def check(view, known=None):
             else:
                 with Image.open(path) as image:
                     image.load()
-                    stat = ImageStat.Stat(image.convert('L').resize((64, 40)))
-                    mean, variance = stat.mean[0], stat.var[0]
-                black = mean < 8 and variance < 20
-                rec.update(ok=not black, reason='black-frame' if black else 'available',
-                           mean=round(mean, 2), variance=round(variance, 2))
+                    rec.update(pixel_quality(image))
     except HTTPError as e:
         rec.update(ok=False if e.code in (404, 410) else None, reason=f'http-{e.code}')
     except UnidentifiedImageError:

@@ -1168,3 +1168,64 @@ No new app, scheduler upgrade or public personal-data pack. Read-only inspection
 - After these follow-up changes, both the portable and private data self-checks
   passed. `npm run check` again passed 266 tests, one skipped, zero failures,
   and TypeScript checks.
+
+### 2026-11-03, BuilderData, first adaptive seeding pass complete
+
+- The refill-aware adaptive pass completed 2,930 new verified records in 1,266
+  model calls, below its 1,600-call cap. It ran for 9,405 seconds, approximately
+  1,122 accepted labels/hour. Every call and verdict is cached. Regions reaching
+  four stopped scheduling, with at most six after a batch. This does not mean
+  all regions reached the target: 35 of 71 did, while 36 remain below four.
+- The following counts are unique rural study/seen photos with at least one
+  accepted diagnostic magnifier at the end of that pass, not all labelled photos.
+  Zero means honest no diagnostic evidence found, not fabricated coverage.
+
+| Country | Region: meta-bearing photos |
+| --- | --- |
+| US | East North Central 2, East South Central 4, Middle Atlantic 2, Mountain 4, New England 2, Pacific 4, South Atlantic 3, West North Central 4, West South Central 3 |
+| Brazil | Central-West 0, North 5, Northeast 5, South 4, Southeast 4 |
+| India | Central 4, East 4, North 5, Northeast 4, South 4, West 4 |
+| Australia | ACT 0, New South Wales 2, Northern Territory 1, Queensland 0, South Australia 0, Tasmania 1, Victoria 0, Western Australia 3 |
+| Russia | Central 0, Far Eastern 2, North Caucasian 0, Northwestern 4, Siberian 4, Southern 0, Ural 1, Volga 0 |
+| Canada | Atlantic 3, Northern territories 0, Ontario 0, Pacific 4, Prairies 4, Quebec 4 |
+| Mexico | Central 1, Northeast 2, Northwest 4, South 4, Southeast 4, West 4 |
+| Indonesia | Bali and Nusa Tenggara 4, Java 5, Kalimantan 3, Maluku 0, Papua 0, Sulawesi 4, Sumatra 4 |
+| Argentina | Cuyo 0, Northeast 3, Northwest 5, Pampas 1, Patagonia 4 |
+| South Africa | Whole country 1 |
+| Turkey | Whole country 2 |
+| France | Whole country 2 |
+| Thailand | Whole country 4 |
+| Spain | Whole country 4 |
+| Japan | Whole country 4 |
+| Colombia | Whole country 0 |
+| Philippines | Whole country 1 |
+| Vietnam | Whole country 4 |
+| Peru | Whole country 4 |
+| Germany | Whole country 4 |
+
+- The remaining duel-loss pass starts next, with zero pool spots and a separate
+  500-call ceiling. Known non-rural and unavailable views are skipped. Label
+  absence is never converted into an invented magnifier or a false rural claim.
+
+### 2026-11-03, BuilderData, final pixel and playable-meta cutover
+
+- Main reported another black board image. The old pixel test required both
+  low mean brightness and low variance, so credit text could rescue a black
+  frame. Pixel algorithm v2 crops edge credits and independently rejects low
+  brightness, mostly dark pixels or a near-uniform image. All old positive
+  verdicts are invalidated and re-decoded. Known false/reported frames stay false.
+- Added real Pillow fixtures for black with white credit text, uniform grey and
+  a visible two-tone scene. Added pure tests for due-region/meta priorities,
+  playable-only hash selection and an expired model deadline causing zero calls.
+- New `label.py playable` selects only unplayed drill/probe spots, never changes
+  splits, and targets three rural diagnostic-meta photos per top-20 region.
+  Synced missed metas and answer/guessed confusion regions lead. US-first
+  ACoW/focus is the fallback. Separate reports distinguish playable from board
+  coverage so a study-only meta can never masquerade as a game retest supply.
+- The remaining loss-only pass was paused after its current batch and resumed
+  with a hard model deadline. The subsequent playable pass has a 500-call cap.
+  Both use `TRAINING_MODEL_DEADLINE=2026-11-03T14:50:00Z`, stopping new calls and
+  limiting in-flight subprocess timeouts to 06:50 PST, ten minutes before Main's
+  07:00 stop. Caches and unverified drafts survive the cutoff.
+- Portable and Pillow-enabled private self-checks pass. `npm run check` passes
+  270 tests, one skipped, zero failures, with TypeScript checks.

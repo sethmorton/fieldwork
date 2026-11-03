@@ -198,6 +198,10 @@ def schemas():
 def ask(prompt, schema, images, model, keys):
     global CALLS
     for attempt in range(3):
+        try:
+            curate.model_timeout()
+        except TimeoutError as e:
+            raise ModelBudgetExhausted(str(e)) from e
         with LOCK:
             if CALLS >= CALL_LIMIT:
                 raise ModelBudgetExhausted('Per-run model-call budget exhausted')
@@ -206,6 +210,10 @@ def ask(prompt, schema, images, model, keys):
         try:
             return curate.ask(prompt, schema, images, model=model)
         except Exception as e:
+            try:
+                curate.model_timeout()
+            except TimeoutError as deadline:
+                raise ModelBudgetExhausted(str(deadline)) from deadline
             message = str(e)
             append('errors.jsonl', {'at': time.time(), 'keys': keys, 'error': message[:300]})
             if attempt == 2 or not any(s in message.lower() for s in ('429', 'rate', 'timeout', 'timed out', 'overload')):
@@ -248,7 +256,9 @@ def run(args):
     jobs = defaultdict(list)
     pending = 0
     seed_counts, seed_candidates, seed_counted = {}, {}, {}
-    if args.command == 'seed':
+    seeding = args.command in ('seed', 'playable')
+    target = 3 if args.command == 'playable' else 4
+    if seeding:
         from training_seed import batch_limit, source_jobs
         selected, seed_counts, seed_candidates, seed_counted = source_jobs(
             args, names, regions, by_sub, admin1, metas, latest, known)
@@ -259,13 +269,13 @@ def run(args):
         previous = latest.get(spot['panoId'], {})
         setting = previous.get('setting') or known.get(spot['panoId'])
         if not args.pilot and (previous.get('indoor') or previous.get('urbanFlag') or setting == 'urban'
-                              or ((spot['kind'] == 'pool' or args.command == 'seed') and setting == 'suburban')):
+                              or ((spot['kind'] == 'pool' or seeding) and setting == 'suburban')):
             continue
         spot.update({'heading': spot.get('heading') or 0, 'pitch': spot.get('pitch') or 0, 'fov': 90})
         tips = candidates(spot, metas, by_country)
         fingerprint = cache_key(spot, tips, metas)
         if fingerprint not in done and failures[fingerprint] < 3:
-            group = spot['region'] if args.command == 'seed' else spot['kind']
+            group = spot['region'] if seeding else spot['kind']
             jobs[(spot['countryCode'], group)].append((fingerprint, spot, tips))
             pending += 1
             if pending >= args.new_limit:
@@ -276,9 +286,12 @@ def run(args):
     focused = json.loads(focus_path.read_text()).get('focus', {}).get('scores', []) if focus_path.exists() else []
     focus_scores = {row['country']: max(1, row['score']) for row in focused}
     order = {'duel': 0, 'pool': 1, 'seen': 2}
+    from training_seed import due_feedback
+    due_regions, _ = due_feedback() if args.command == 'playable' else ({}, {})
     queues = {key: iter([jobs[key][k:k + args.batch_size] for k in range(0, len(jobs[key]), args.batch_size)])
               for key in sorted(jobs, key=lambda key: (
-                  key[0] != 'US', -weights.get(key[0], 0) * focus_scores.get(names.get(key[0]), 1),
+                  -due_regions.get(key[1], 0), key[0] != 'US',
+                  -weights.get(key[0], 0) * focus_scores.get(names.get(key[0]), 1),
                   order.get(key[1], 0), key[1]))}
     batches = []
     while queues:
@@ -294,6 +307,10 @@ def run(args):
     def one(batch):
         keys = [key for key, _, _ in batch]
         if (OUT / 'PAUSE').exists() or CALLS >= CALL_LIMIT:
+            return 0
+        try:
+            curate.model_timeout()
+        except TimeoutError:
             return 0
         try:
             images, active = [], []
@@ -393,7 +410,7 @@ def run(args):
                        'verified': True, 'qualityVersion': VERSION, 'labeler': LABELER,
                        'verifier': VERIFIER, 'at': time.time()}
                 append('labels.jsonl', rec)
-                if (args.command == 'seed' and accepted and rec['setting'] == 'rural' and not rec['indoor']
+                if (seeding and accepted and rec['setting'] == 'rural' and not rec['indoor']
                         and spot['panoId'] not in seed_counted[spot['region']]):
                     seed_counted[spot['region']].add(spot['panoId'])
                     seed_counts[spot['region']] += 1
@@ -407,11 +424,11 @@ def run(args):
             print('batch failed: ' + str(e)[:180], flush=True)
             return 0
     def work(batch):
-        if args.command != 'seed':
+        if not seeding:
             return one(batch)
         region = batch[0][1]['region']
         with region_locks[region]:
-            size = batch_limit(seed_counts[region], len(batch))
+            size = batch_limit(seed_counts[region], len(batch), target)
             return one(batch[:size]) if size else 0
 
     completed = 0
@@ -430,9 +447,10 @@ def run(args):
                 append('build-updates.jsonl', json.loads(result.stdout))
             if seed_counts:
                 report = {'counts': seed_counts, 'candidateCounts': seed_candidates,
-                          'belowFour': {r: n for r, n in seed_counts.items() if n < 4},
+                          'target': target, 'belowTarget': {r: n for r, n in seed_counts.items() if n < target},
                           'newVerified': completed, 'modelCalls': CALLS, 'at': time.time()}
-                (OUT / 'seed-report.json').write_text(json.dumps(report, ensure_ascii=False, indent=2))
+                name = 'playable-seed-report.json' if args.command == 'playable' else 'seed-report.json'
+                (OUT / name).write_text(json.dumps(report, ensure_ascii=False, indent=2))
 
 
 def qa(pilot=False):
@@ -469,7 +487,7 @@ def qa(pilot=False):
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('command', choices=['run', 'seed', 'qa'])
+    ap.add_argument('command', choices=['run', 'seed', 'playable', 'qa'])
     ap.add_argument('--pool-limit', type=int, default=3000)
     ap.add_argument('--duel-limit', type=int, default=3000)
     ap.add_argument('--seen-limit', type=int, default=0)
@@ -489,11 +507,11 @@ if __name__ == '__main__':
         ap.error('New spots must be 1..6000 and model calls 1..2000')
     if not 0 <= args.seen_limit <= 6000 or args.rebuild_every < 0:
         ap.error('Seen cap must be 0..6000, rebuild interval nonnegative')
-    if args.command in ('run', 'seed') and not args.pilot:
+    if args.command in ('run', 'seed', 'playable') and not args.pilot:
         approval = OUT / 'pilot-approved.json'
         if not approval.exists() or json.loads(approval.read_text()).get('version') != VERSION:
             ap.error('Inspect the diagnostic pilot and record pilot-approved.json before scaling')
-    if args.command in ('run', 'seed'):
+    if args.command in ('run', 'seed', 'playable'):
         OUT.mkdir(parents=True, exist_ok=True)
         with (OUT / 'label.lock').open('w') as lock:
             try:

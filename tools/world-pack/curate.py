@@ -11,12 +11,14 @@ All steps are cached by content fingerprint and resumable.
 """
 import collections
 import concurrent.futures as cf
+import datetime as dt
 import hashlib
 import json
 import os
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 import text
@@ -46,13 +48,25 @@ def fingerprint(*parts):
     return hashlib.sha1(json.dumps(parts, sort_keys=True).encode()).hexdigest()[:12]
 
 
+def model_timeout():
+    """Optional hard deadline for an operator-bounded overnight labeling run."""
+    value = os.environ.get('TRAINING_MODEL_DEADLINE')
+    if not value:
+        return 1200
+    remaining = dt.datetime.fromisoformat(value.replace('Z', '+00:00')).timestamp() - time.time()
+    if remaining <= 0:
+        raise TimeoutError('Training model deadline reached')
+    return min(1200, remaining)
+
+
 def ask(prompt, schema, images=(), model=None):
+    timeout = model_timeout()
     with tempfile.NamedTemporaryFile('w', suffix='.json', delete=False) as f:
         json.dump(schema, f)
     args = [a for path in images for a in ('-i', str(path))]
     try:
         out = subprocess.run(['codex', 'exec', '--skip-git-repo-check', '--ignore-rules', '-s', 'read-only', '-m', model or MODEL,
-                              '--output-schema', f.name, *args, '--', prompt], capture_output=True, text=True, timeout=1200,
+                              '--output-schema', f.name, *args, '--', prompt], capture_output=True, text=True, timeout=timeout,
                              cwd=tempfile.gettempdir())
     finally:
         Path(f.name).unlink(missing_ok=True)

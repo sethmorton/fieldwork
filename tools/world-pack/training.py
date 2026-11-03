@@ -298,6 +298,9 @@ def build():
     game_counts = collections.Counter(l['region'] for l in locations if l['split'] in ('drill', 'probe'))
     top40_counts = {r: game_counts[r] for r, info in regions.items()
                     if info['iso2'] in top and not info.get('studyOnly')}
+    game_metas = collections.Counter(l['region'] for l in locations
+        if l['split'] in ('drill', 'probe') and l['verified'] and l['metaCount'])
+    top20_game_metas = {r: game_metas[r] for r in top20_counts}
     report = {'pack': str(path), 'locations': len(locations), 'splits': dict(collections.Counter(l['split'] for l in locations)),
         'countries': len({l['country'] for l in locations}), 'regions': len(active),
         'focus': pack['focus'], 'labelledLocations': sum(l['verified'] for l in locations),
@@ -305,6 +308,8 @@ def build():
             r['view']['country'] for r in labels.values())), 'unlabelledTail': sum(l['rural'] is None for l in locations),
         'metaBearingStudySeenPerRegion': dict(meta_bearing), 'top20MetaBearingPerRegion': top20_counts,
         'playablePerRegion': dict(game_counts), 'top40PlayablePerRegion': top40_counts,
+        'metaBearingPlayablePerRegion': dict(game_metas), 'top20MetaBearingPlayablePerRegion': top20_game_metas,
+        'regionsBelowThreeMetaPlayable': {r: n for r, n in top20_game_metas.items() if n < 3},
         'playableRegionMin': min(top40_counts.values(), default=0),
         'playableRegionMedian': statistics.median(top40_counts.values()) if top40_counts else 0,
         'verifiedMetaLocations': sum(bool(l['metaCount']) for l in locations),
@@ -427,9 +432,30 @@ def test():
             jobs, counts, _, _ = training_seed.source_jobs(
                 SimpleNamespace(pool_limit=0), *fake_geo[:3], fake_admin1, {}, {}, {})
             assert len(jobs) == 6 and counts[region] == 0
+            game_ids = [chr(97 + i) * 22 for i in range(26) if split(chr(97 + i) * 22) != 'study'][:3]
+            (folder / 'gap/pools/US-locations.json').write_text(json.dumps({'customCoordinates': [
+                {'panoId': p, 'lat': 0, 'lng': 0, 'extra': {'tags': ['US-X']}} for p in game_ids]}))
+            (folder / 'training/region-features.json').write_text(json.dumps({'features': [
+                {'properties': {'name': region}, 'geometry': {'coordinates': [
+                    [[[-1, -1], [1, -1], [1, 1], [-1, 1], [-1, -1]]]]}}]}))
+            jobs, _, _, _ = training_seed.source_jobs(SimpleNamespace(command='playable', pool_limit=10),
+                *fake_geo[:3], fake_admin1, {}, {}, {})
+            assert {s['panoId'] for s in jobs} == set(game_ids)
         assert training_seed.batch_limit(0, 8) == 6
         assert training_seed.batch_limit(3, 8) == 3
         assert training_seed.batch_limit(4, 8) == 0
+        assert training_seed.batch_limit(0, 8, 3) == 5 and training_seed.batch_limit(3, 8, 3) == 0
+        due, metas_due = training_seed.feedback_priority([{
+            'region': 'answer', 'guessedRegion': 'guess', 'regionCorrect': False,
+            'metas': [{'metaId': 'cue', 'used': False}]}])
+        assert due == {'answer': 1, 'guess': 1} and metas_due == {'cue': 1}
+        with patch.dict(label.curate.os.environ, {'TRAINING_MODEL_DEADLINE': '2000-01-01T00:00:00Z'}), patch.object(
+                label.curate, 'ask') as ask:
+            try:
+                label.ask('test', {}, [], 'model', [])
+                assert False, 'Expired deadline must stop before a paid call'
+            except label.ModelBudgetExhausted:
+                assert not ask.called
         with patch.object(label, 'CALLS', 2), patch.object(label, 'CALL_LIMIT', 2), patch.object(label.curate, 'ask') as ask:
             try:
                 label.ask('test', {}, [], 'model', [])
@@ -444,6 +470,19 @@ def test():
     query = parse_qs(urlsplit(image_url({'panoId': 'a' * 22, 'heading': 15, 'pitch': 10})).query)
     assert query['pitch'] == ['-10.00'] and query['thumbfov'] == ['90']
     assert 'yaw=0.00' in image_url({'panoId': 'a' * 22, 'heading': None, 'pitch': None})
+    try:
+        from PIL import Image
+    except ImportError:
+        pass  # Portable core checks do not require Pillow. The documented uv check exercises pixels.
+    else:
+        from training_images import pixel_quality
+        black = Image.new('RGB', (640, 400), 'black')
+        black.paste('white', (0, 390, 120, 400))
+        assert not pixel_quality(black)['ok']  # Credit text must not rescue a black view.
+        assert not pixel_quality(Image.new('RGB', (640, 400), '#999999'))['ok']
+        visible = Image.new('RGB', (640, 400), '#779933')
+        visible.paste('#66aaff', (0, 0, 640, 150))
+        assert pixel_quality(visible)['ok']
     pack = load(OUT / 'pack.json')
     if pack:
         ids = {l['panoId'] for l in pack['locations']}

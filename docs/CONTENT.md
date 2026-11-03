@@ -340,7 +340,7 @@ uv run --with pillow --with shapely tools/world-pack/label.py seed --pool-limit 
 uv run --with pillow --with shapely tools/world-pack/label.py run --pool-limit 0 --all-duels --duel-limit 3000 --workers 2 --max-calls 500
 python3 tools/world-pack/label.py qa
 uv run --with pillow --with shapely tools/world-pack/training.py build
-python3 tools/world-pack/training.py test
+uv run --with pillow --with shapely tools/world-pack/training.py test
 npm run check
 npm run build
 ```
@@ -398,6 +398,8 @@ for a transient rate-limit/timeout error with exponential backoff. Spot caps cou
 attempted spots, including image failures. The call ledger is `training/calls.jsonl`.
 Create `training/PAUSE` to stop scheduling batches after those in flight finish.
 No pack-build command invokes a model.
+`TRAINING_MODEL_DEADLINE` can set an ISO-8601 UTC hard stop. No call starts after
+it, and each model subprocess timeout is shortened to the remaining time.
 
 Board seeding prioritizes top-20 countries by ACoW weight and focus. It counts
 unique rural study/seen photos with verified diagnostic magnifiers per region,
@@ -407,6 +409,26 @@ honest shortages are in `training/seed-report.json` and `training/report.json`.
 `metaCount` is the number of accepted magnifiers on each location. A region with
 fewer than four study/seen photos declares `studyFallbackCountry` for an honestly
 labelled parent-country board.
+
+Playable seeding is separate:
+
+```sh
+uv run --with pillow --with shapely tools/world-pack/label.py playable --pool-limit 3000 --max-calls 500 --workers 2 --rebuild-every 48
+```
+
+It only selects immutable drill/probe hashes,
+never study or seen spots, and targets three rural diagnostic-meta photos per
+top-20 region. Missed metas and true/guessed confusion regions in
+`training/attempts.json` lead, with US-first ACoW/focus ordering as fallback.
+It writes `training/playable-seed-report.json`; published counts and shortages
+are also in `training/report.json`.
+
+Thumbnail availability is pixel-checked, not inferred from HTTP success. The
+checker ignores credit text at image edges, rejects low brightness, mostly dark
+pixels and nearly uniform frames independently, and records the pixel algorithm
+version. Upgrading that version invalidates old positive verdicts and re-decodes
+cached images. Known false verdicts, including user-reported black frames, remain
+false without a redundant fetch.
 
 Every used meta has `appliesToAdmin1` and `footprint`. When source admin1 scope is
 available, the footprint is a simplified GeoJSON Feature containing the union of
