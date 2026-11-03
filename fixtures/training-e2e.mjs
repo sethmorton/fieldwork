@@ -45,7 +45,9 @@ try{
   const first=await page.evaluate(()=>fixture.games[0]);
   assert.deepEqual(first.settings.forbidMoving,true);assert.equal(first.settings.timeLimit,60);assert.equal(first.coordinates.length,5);
   await sleep(1500);await geoKeys();
-  const plays=['wrong','right','timeout','right','right'],boards=[];
+  // Round 3 times out the way the real event framework reports it (round_start for round 4 before the result view);
+  // round 4 the other way (round_end after it).
+  const plays=['wrong','right','timeout','timeout-end','right'],boards=[];
   const publishedNow=()=>page.evaluate(()=>fixture.published.length);
   for(let round=1;round<=5;round++){
     await sleep(300);
@@ -65,13 +67,18 @@ try{
       await space();assert.ok((await geoKeys()).includes('keydown:Space'),'after the card, Space is GeoGuessr\'s again');
       await page.click('#native-next');continue;
     }
-    if(plays[round-1]==='timeout'){
+    if(plays[round-1].startsWith('timeout')){
       // The timed-out round's card shows at once on its result screen: no pin, no km, then the answer region.
       const text=await page.evaluate(()=>document.getElementById('fieldwork-training').shadowRoot.querySelector('.beat.on .km').textContent);
       assert.match(text,/Timed out/);assert.doesNotMatch(text,/km/);await shot('03b-timeout-result');
     }
     if(plays[round-1]==='wrong'){await advance('pinned');boards.push(await photos());if(round===1)await shot('03-round1-pinned')}
-    await advance('answer');boards.push(await photos());if(round===1)await shot('04-round1-answer');
+    if(round===5){
+      // Holding Space: the first press moves one beat, its auto-repeats do nothing (the card stays open on the answer).
+      await page.keyboard.down('Space');for(let i=0;i<4;i++){await sleep(60);await page.keyboard.down('Space')}await page.keyboard.up('Space');
+      await until(async()=>await screenName()==='answer','held Space: answer beat');await sleep(400);
+      assert.equal(await screenName(),'answer','a held Space ran past the answer beat');boards.push(await photos());
+    }else{await advance('answer');boards.push(await photos());if(round===1)await shot('04-round1-answer')}
     await space();
     if(round<5){await until(async()=>await screenName()===null,`round ${round} card closed`);
       assert.deepEqual(await geoKeys(),[],`round ${round}: card keys leaked to GeoGuessr`);await page.click('#native-next')}
@@ -87,12 +94,13 @@ try{
   const saved=await page.evaluate(()=>fixture.data['fieldwork:training:attempts']);
   assert.equal(saved.length,5);assert.deepEqual(saved.map(item=>item.correct),plays.map(play=>play==='right'));
   assert.ok(saved.every(item=>Number.isFinite(item.points)&&item.slot));
-  const timedOut=saved[2];assert.equal(timedOut.timedOut,true);assert.equal(timedOut.guess,null);assert.equal(timedOut.km,null);assert.equal(timedOut.points,0);
+  for(const timedOut of [saved[2],saved[3]]){assert.equal(timedOut.timedOut,true);assert.equal(timedOut.guess,null);assert.equal(timedOut.km,null);assert.equal(timedOut.points,0)}
   // After the set, the progress goes once (debounced) to the installer's /training-sync for the nightly focus.
   await until(()=>page.evaluate(()=>fixture.synced.length>0),'progress synced after the set');
   const synced=await page.evaluate(()=>fixture.synced);
   assert.equal(synced.length,1);assert.match(synced[0].url,/^http:\/\/127\.0\.0\.1:8787\/training-sync$/);
   assert.equal(synced[0].body.packId,'training');assert.equal(synced[0].body.attempts.length,5);assert.ok(synced[0].body.exposures.length>=5);
+  assert.equal(synced[0].contentType,'application/json','the installer only accepts application/json');
   await until(()=>page.evaluate(()=>fixture.published.length===2),'next set published ahead');
   await space();
   await until(()=>page.evaluate(()=>fixture.games.length===2&&location.pathname==='/game/'+fixture.games[1].token),'game 2 started');

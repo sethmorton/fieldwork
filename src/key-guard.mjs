@@ -15,7 +15,8 @@ export function createKeyGuard(){
       else{event.preventDefault();if(event.type==='keyup')held.delete(id(event))}
       return;
     }
-    if(event.type==='keydown'){held.delete(id(event));return}
+    // A fresh press goes to GeoGuessr; the auto-repeat of a key held since an overlay was open does not.
+    if(event.type==='keydown'&&!(event.repeat&&held.has(id(event)))){held.delete(id(event));return}
     if(held.has(id(event))){event.stopImmediatePropagation();event.preventDefault();if(event.type==='keyup')held.delete(id(event))}
   }
   return {

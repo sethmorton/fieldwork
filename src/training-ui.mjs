@@ -66,7 +66,8 @@ export function screen({onKey=()=>false,onClose,settle=0}={}){
   node(root,'style',null,CSS);const scr=node(root,'section','scr');scr.tabIndex=-1;
   const close=()=>{keyGuard.close(keys);host.remove();onClose?.()};
   const openedAt=performance.now();
-  const keys=event=>{if(performance.now()-openedAt<settle)return true;if(event.key==='Escape'){close();return true}return onKey(event)};
+  // A held key (auto-repeat) acts once: repeats are swallowed, so holding Space cannot run through beats or screens.
+  const keys=event=>{if(event.repeat||performance.now()-openedAt<settle)return true;if(event.key==='Escape'){close();return true}return onKey(event)};
   keyGuard.open(keys,()=>host.isConnected);
   const exit=node(scr,'button','exit','×');exit.type='button';exit.setAttribute('aria-label','Close');exit.onclick=close;
   document.body.append(host);scr.focus({preventScroll:true});

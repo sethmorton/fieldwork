@@ -29,6 +29,13 @@ test('keys never leak to GeoGuessr while a card is open, nor the keyup of the ke
   // An overlay removed without close() releases the guard at the next key.
   guard.open(handler,()=>alive);alive=false;const late=key('keydown','KeyN');guard.guard(late);assert.equal(late.stopped,false);assert.equal(guard.active,false);
 });
+test('a held key acts once: its auto-repeat never reaches GeoGuessr after the card it closed',()=>{
+  const guard=createKeyGuard(),handler=()=>true;guard.open(handler);
+  guard.guard(key('keydown','Space'));guard.close(handler);
+  const repeat={...key('keydown','Space'),repeat:true};guard.guard(repeat);assert.equal(repeat.stopped,true);assert.equal(repeat.prevented,true);
+  const up=key('keyup','Space');guard.guard(up);assert.equal(up.stopped,true);
+  const fresh=key('keydown','Space');guard.guard(fresh);assert.equal(fresh.stopped,false,'a new press is GeoGuessr\'s');
+});
 
 const region=(name,country,lat)=>({type:'Feature',properties:{name,country},geometry:{type:'Polygon',coordinates:[[[0,lat],[1,lat],[1,lat+1],[0,lat+1],[0,lat]]]}});
 function pack(spots){

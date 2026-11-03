@@ -90,7 +90,9 @@ function go(path) {
   // Next's router resolves false when a navigation is cancelled; then load the page directly.
   Promise.resolve(router.push(path)).then(ok=>{if(ok===false)location.assign(path)},()=>location.assign(path));
 }
-const choosePack=id=>go(`/maps/${packs.find(item=>item.id===id).practiceMapId}`);
+// Leaving the training start panel: drop its full-screen overlay first, so a failed load of the other pack never leaves
+// keys swallowed behind it.
+const choosePack=id=>{remove();go(`/maps/${packs.find(item=>item.id===id).practiceMapId}`)};
 const importPack=async imported=>{
   await store.add(imported);
   // Load the imported content even on this same route, whose own load may have failed or be waiting to retry.
@@ -294,10 +296,12 @@ function scheduleRender() {
   if(renderQueued)return;
   renderQueued=true;requestAnimationFrame(()=>{renderQueued=false;render()});
 }
-// Rounds GeoGuessr has started, per game, from the event framework's round_start (the client's own round change).
-const startedRounds=new Map();
-const noteRoundStart=detail=>{const game=detail?.current_game_id,round=detail?.current_round;
-  if(game&&Number.isInteger(round)&&round>(startedRounds.get(game)??0)){startedRounds.set(game,round);scheduleRender()}};
+// Rounds GeoGuessr is playing, per game: the highest round seen live (its Guess button visible). The event framework's
+// round_start is not used: it fires as soon as GeoGuessr's data holds the next round, which a timeout does while its
+// result is still on screen.
+const liveRounds=new Map();
+const noteLiveRound=(game,state)=>{const guessed=(state?.rounds??[]).filter(round=>round?.player_guess).length;
+  if(guessed+1>(liveRounds.get(game)??0))liveRounds.set(game,guessed+1)};
 const stateOf=game=>{const frameworkState=unsafeWindow.GeoGuessrEventFramework?.state;
   return gameStates.get(game)??(lastState?.current_game_id===game?lastState:null)??(frameworkState?.current_game_id===game?frameworkState:null)};
 const visible=selector=>{const node=document.querySelector(selector);return !!node&&(!node.getClientRects||node.getClientRects().length>0)};
@@ -311,13 +315,13 @@ function render() {
   const marker=document.querySelector('[data-qa="result-view-top"], [class*="result-list_listWrapper"]');
   const resultsVisible=!!marker&&(!marker.getClientRects||marker.getClientRects().length>0);
   const shownRound=location.pathname.startsWith('/results/')?5:Number(marker?.textContent?.match(/\bROUND\s+([1-5])\s*\/\s*5\b/i)?.[1])||null;
-  // Training pack. A round GeoGuessr is playing (its Guess button visible, or a later round_start) never shows a card:
-  // an open card is removed and a late one is discarded. GeoGuessr can answer a guess or a timeout with the next round
+  // Training pack. A round GeoGuessr is playing (its Guess button visible) never shows a card: an open card is removed
+  // and a late one for an earlier round is discarded. GeoGuessr can answer a guess or a timeout with the next round
   // already in its data; while its result view shows round N and round N has a guess (or timed out), round N is the one.
   if(currentGame&&pack?.scheduler==='deal'&&state?.current_game_id===currentGame&&state.map?.id===pack.practiceMapId){
-    if(visible('[data-qa="perform-guess"]')){if(mounted)remove();return}
+    if(visible('[data-qa="perform-guess"]')){noteLiveRound(currentGame,state);if(mounted)remove();return}
     if(resultsVisible&&shownRound&&shownRound<=state.current_round&&(state.round_in_progress||shownRound!==state.current_round)
-      &&state.rounds?.[shownRound-1]?.player_guess&&!((startedRounds.get(currentGame)??0)>shownRound))
+      &&state.rounds?.[shownRound-1]?.player_guess&&!((liveRounds.get(currentGame)??0)>shownRound))
       state={...state,current_round:shownRound,round_in_progress:false};
   }
   if(currentGame&&(!state||state.current_game_id!==currentGame||(resultsVisible&&(state.round_in_progress||shownRound&&shownRound!==state.current_round)))){
@@ -366,7 +370,7 @@ function render() {
     // After each set (round 5 saved), progress goes to the local installer for the nightly focus; never blocks play.
     if(round.round===5)syncTraining(pack);
     // Saved either way; the card only while this round's result is still the one on screen.
-    if((startedRounds.get(round.gameId)??0)>round.round){lastShown=round.id;if(mounted)remove();return}
+    if((liveRounds.get(round.gameId)??0)>round.round){lastShown=round.id;if(mounted)remove();return}
     showTrainingCard(round);mounted=lastShown=round.id;return;
   }
   // Region packs: whether this round checks a recent miss's rule, and (warming up) whether the pin is close, both from the
@@ -386,7 +390,6 @@ function render() {
 const atlasNote=(skill,location)=>sourceNote(skill,location,{fetchText,get:GM_getValue,set:GM_setValue,revision:pack.contentRevision});
 function start() {
   const framework=unsafeWindow.GeoGuessrEventFramework;
-  framework?.events?.addEventListener('round_start',event=>noteRoundStart(event.detail));
   if(framework&&!gameResponses){
     framework.events.addEventListener('round_start',event=>receiveState(structuredClone(event.detail)));
     framework.events.addEventListener('round_end',event=>receiveState(structuredClone(event.detail)));

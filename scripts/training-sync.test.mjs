@@ -25,9 +25,12 @@ test('POST /training-sync writes attempts.json atomically; bad, oversized or off
   const dir=await mkdtemp(path.join(tmpdir(),'fw-sync-')),target=path.join(dir,'training','attempts.json');await mkdir(path.dirname(target));
   const server=http.createServer((req,res)=>handleSync(req,res,target,{max:4096}));
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
-  const post=data=>fetch(`http://127.0.0.1:${server.address().port}/training-sync`,{method:'POST',headers:{'Content-Type':'application/json'},body:data}).then(response=>response.status);
+  const post=(data,type='application/json')=>fetch(`http://127.0.0.1:${server.address().port}/training-sync`,{method:'POST',headers:{'Content-Type':type},body:data}).then(response=>response.status);
   try{
     assert.equal(await post(body),204);
+    // A web page can POST text/plain without a CORS preflight: refused, so only JSON (preflighted, never answered) works.
+    assert.equal(await post(body,'text/plain'),415);assert.equal(await post(body,'application/x-www-form-urlencoded'),415);
+    assert.equal(await post(body,'application/json; charset=utf-8'),204);
     const saved=JSON.parse(await readFile(target,'utf8'));assert.deepEqual(saved.attempts,[attempt]);assert.equal(saved.exposures.length,1);
     assert.equal(await post('{"packId":"training"}'),400);
     assert.equal(await post(JSON.stringify({packId:'training',attempts:Array.from({length:200},(_,i)=>({...attempt,id:'a'+i})),exposures:[]})),413);

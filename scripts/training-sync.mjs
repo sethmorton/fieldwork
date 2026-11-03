@@ -23,12 +23,15 @@ export function parseSync(text){
   if(!value.exposures.every(item=>item&&typeof item.id==='string'))return null;
   return {packId:'training',syncedAt:new Date().toISOString(),attempts:value.attempts,exposures:value.exposures};
 }
-/** Handles one request (the caller routes POST /training-sync here). 204 on write; 403 off loopback; 413 too large;
- *  400 bad shape; 404 when no target is configured. */
+/** Handles one request (the caller routes POST /training-sync here). 204 on write; 403 off loopback; 415 unless
+ *  Content-Type is application/json (a web page can then only send it after a CORS preflight, which this server never
+ *  answers; the userscript's GM request is not a web page request); 413 too large; 400 bad shape; 404 when no target
+ *  is configured. */
 export async function handleSync(req,res,target,{max=SYNC_MAX_BYTES}={}){
   const reply=(status,text='')=>{res.writeHead(status,{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'});res.end(text)};
   if(!LOOPBACK.has(req.socket.remoteAddress))return reply(403,'Loopback only.');
   if(!target)return reply(404,'No training data folder configured.');
+  if(!/^application\/json\s*(;|$)/i.test(req.headers['content-type']??''))return reply(415,'Send application/json.');
   if(Number(req.headers['content-length'])>max)return reply(413,'Too large.');
   const chunks=[];let size=0;
   for await(const chunk of req){size+=chunk.length;if(size>max)return reply(413,'Too large.');chunks.push(chunk)}
