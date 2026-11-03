@@ -231,10 +231,13 @@ def build():
             'metas': magnifiers, 'metaCount': len(magnifiers),
             'vegetation': label.get('vegetation', ''), 'regionConsistency': label.get('regionConsistency', ''),
             'verified': bool(label.get('verified'))})
-    from training_images import states, view_key
+    from training_images import DISPLAY_SIZE, states, view_key
     thumb_states = states()
     for loc in locations:
-        loc['thumbOk'] = thumb_states.get(view_key(loc), {}).get('ok')
+        label_ok = thumb_states.get(view_key(loc), {}).get('ok')
+        display_ok = thumb_states.get(view_key(loc, DISPLAY_SIZE), {}).get('ok')
+        loc['thumbOk'] = False if label_ok is False or display_ok is False else display_ok
+        loc['thumbSize'] = list(DISPLAY_SIZE)
     skipped['badThumbnail'] = sum(l['thumbOk'] is False for l in locations)
     locations = [l for l in locations if l['thumbOk'] is not False]
     active = {l['region'] for l in locations}
@@ -483,6 +486,32 @@ def test():
         visible = Image.new('RGB', (640, 400), '#779933')
         visible.paste('#66aaff', (0, 0, 640, 150))
         assert pixel_quality(visible)['ok']
+        import collect
+        import training_images
+        with TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            image_path = folder / 'black.jpg'
+            black.save(image_path)
+            known = {training_images.view_key(view): {'ok': True, 'pixelVersion': 2}}
+            with patch.object(training_images, 'OUT', folder), patch.object(
+                    training_images, 'CACHE', folder / 'checks.jsonl'), patch.object(
+                    collect, 'thumb', return_value=image_path) as thumb:
+                checked = training_images.check(view, known, refresh=True)
+                assert checked['ok'] is False and 'networkCheckedAt' in checked
+                training_images.check(view, known, refresh=True)
+                assert thumb.call_count == 1 and thumb.call_args.kwargs['refresh'] is True
+                original = image_url(view) + '&extra=kept'
+                displayed = training_images.display_url({**view, 'image': original})
+                original_params = parse_qs(urlsplit(original).query)
+                display_params = parse_qs(urlsplit(displayed).query)
+                assert display_params == {**original_params, 'w': ['1280'], 'h': ['800']}
+                assert training_images.view_key(view) != training_images.view_key(view, (1280, 800))
+                encoded = training_images.BytesIO()
+                black.save(encoded, format='PNG')
+                with patch.object(collect, 'fetch', return_value=('image/png', encoded.getvalue())) as fetch:
+                    checked = training_images.check(view, known, size=(1280, 800))
+                    assert checked['ok'] is False and checked['size'] == [1280, 800]
+                    assert fetch.call_args.args[0] == training_images.display_url(view)
     pack = load(OUT / 'pack.json')
     if pack:
         ids = {l['panoId'] for l in pack['locations']}

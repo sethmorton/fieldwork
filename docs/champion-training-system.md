@@ -1229,3 +1229,26 @@ No new app, scheduler upgrade or public personal-data pack. Read-only inspection
   07:00 stop. Caches and unverified drafts survive the cutoff.
 - Portable and Pillow-enabled private self-checks pass. `npm run check` passes
   270 tests, one skipped, zero failures, with TypeScript checks.
+
+### 2026-11-03, BuilderData, authoritative high-resolution display contract
+
+- The pixel-v2 CPU sweep decoded 46,340 retained cached 640-by-400 photos and
+  found no additional bad frames. This did not invalidate Main's black-board
+  observation. BuilderUI identified a check/display mismatch: the card had been
+  synthesizing a separate 1280-by-800 URL with different camera rounding.
+- Main's final decision keeps high resolution. Cards and the Data checker now
+  derive the exact same URL from authoritative `location.image`, changing only
+  width and height to 1280 by 800. BuilderUI's cutover is `5a4234a`.
+  Fractional box geometry and the original label view stay unchanged.
+- Display checks fetch and decode that high-resolution URL, not the old label
+  bytes. Cache keys include resolution and authoritative camera parameters.
+  `thumbOk` refers to the display verdict, while either resolution's known bad
+  flag removes a location. Untested generic game display views stay null.
+- The superseded low-resolution fresh-network pass was cancelled. A bounded
+  high-resolution sweep covers all study/seen and meta-bearing playable photos,
+  with four workers. A final catch-up covers newly accepted playable metas.
+- Added tests proving only width/height change, camera/query parameters survive,
+  resolutions have independent cache identities, and a high-resolution black
+  response is rejected even when a low-resolution verdict exists.
+- Portable and Pillow-enabled private self-checks pass. `npm run check` passes
+  271 tests, one skipped, zero failures, plus TypeScript checks.

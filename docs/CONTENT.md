@@ -366,9 +366,9 @@ its current attempt/exposure ledger.
 Only official 22-character Street View panorama IDs are eligible. Hex-encoded
 44-character game IDs are decoded first. User-uploaded photospheres, known
 urban/suburban/indoor scenes and cached bad thumbnails are dropped from every
-split. `thumbOk` is true for checked valid views, null for a transient/untried
-check. A false verdict is cached even though that location is omitted from the
-pack. Thumbnail verdicts are keyed by exact camera view, not just panorama ID.
+split. `thumbOk` is the 1280-by-800 display verdict: true for checked valid
+views, null for a transient/untried display check. A known false at either
+resolution drops the location. Verdicts are keyed by exact camera and size.
 
 Rural evidence is explicit: `rural:true` is verified, `rural:null` is unknown,
 and false never enters the pack. Unknown drill/probe spots are playable so model
@@ -382,6 +382,10 @@ scope, never automatic proof. Subdivision-restricted tips must match the actual
 subdivision. City-specific or unscoped regional tips are not promoted to states.
 Sol labels the exact 640-by-400 opening view. Astra independently checks the
 image, claim, tight box, cited text and diagnostic value.
+Cards preserve the authoritative `location.image` panoid, yaw, pitch and
+thumbfov, changing only width and height to 1280 by 800. This is the same 1.6
+aspect and framing, so fractional boxes do not move. Display availability is
+checked at that exact high-resolution URL, independently of the 640 label cache.
 
 Magnifiers must distinguish a region/state group or the country from plausible
 look-alike neighbours. Each carries `narrowsTo` and `vs`. Generic forest, grass,
@@ -427,8 +431,9 @@ Thumbnail availability is pixel-checked, not inferred from HTTP success. The
 checker ignores credit text at image edges, rejects low brightness, mostly dark
 pixels and nearly uniform frames independently, and records the pixel algorithm
 version. Upgrading that version invalidates old positive verdicts and re-decodes
-cached images. Known false verdicts, including user-reported black frames, remain
-false without a redundant fetch.
+cached label images. The default CLI checks high-resolution display URLs over
+the network; `--board-only` limits it to study/seen and meta-bearing playable
+photos. Known false verdicts remain false without a redundant fetch.
 
 Every used meta has `appliesToAdmin1` and `footprint`. When source admin1 scope is
 available, the footprint is a simplified GeoJSON Feature containing the union of
@@ -442,7 +447,7 @@ It never automatically generates more Vali locations. Pool refill is separate:
 
 ```sh
 uv run --with pillow --with shapely tools/world-pack/training_refill.py --minimum 40 --large-min 80 --passes 2 --max-new 400
-uv run --with pillow --with shapely tools/world-pack/training_images.py --workers 4 --rebuild-every 512
+uv run --with pillow --with shapely tools/world-pack/training_images.py --workers 4 --board-only --rebuild-every 500
 CURATE_MODEL=gpt-6-luna uv run --with pillow --with shapely tools/world-pack/training_rural.py --limit 8000 --workers 2
 ```
 

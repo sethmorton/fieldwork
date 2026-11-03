@@ -66,12 +66,12 @@ def parse_view(url):
     return text.parse_maps_view(url)
 
 
-def thumb(view, fov):
+def thumb(view, fov, refresh=False):
     """Exact source view. Thumbnail pitch is positive-down; source pitch is Street View POV (positive-up)."""
     pitch = -(view.get('pitch') or 0)
-    key = f"{view['panoId']}_{view.get('heading') or 0:.1f}_{pitch:.1f}_{fov:.0f}"
+    key = f"{view['panoId']}_{view.get('heading') or 0:.2f}_{pitch:.2f}_{fov:.0f}"
     path = HERE / 'thumbs' / (hashlib.sha1(key.encode()).hexdigest()[:16] + '.jpg')
-    if not path.exists():
+    if refresh or not path.exists():
         q = urllib.parse.urlencode({'cb_client': 'maps_sv.share', 'panoid': view['panoId'], 'w': 640, 'h': 400,
                                     'yaw': f"{view.get('heading') or 0:.2f}", 'pitch': f'{pitch:.2f}', 'thumbfov': f'{fov:.0f}'})
         _, body = fetch('https://streetviewpixels-pa.googleapis.com/v1/thumbnail?' + q)
