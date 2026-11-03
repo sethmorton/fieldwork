@@ -67,6 +67,9 @@ try{
     if(round<5){await until(async()=>await screenName()===null,`round ${round} card closed`);
       assert.deepEqual(await geoKeys(),[],`round ${round}: card keys leaked to GeoGuessr`);await page.click('#native-next')}
   }
+  // A stray second Space right after the round-5 card closes lands on the recap's 600 ms settle and starts nothing.
+  await space();await sleep(2000);
+  assert.equal(await page.evaluate(()=>fixture.games.length),1,'a stray Space skipped the recap');
   assert.deepEqual(await page.evaluate(()=>fixture.publishedDuring),{},'a round started after a mid-game publication');
   // Four photos unless the whole country has fewer (checked against the pack: card material plus unplayed spots).
   const short=boards.filter(count=>!count.startsWith('4/4'));

@@ -51,14 +51,16 @@ export const keyGuard=createKeyGuard();
 if(typeof window!=='undefined')for(const type of KEY_EVENTS)window.addEventListener(type,keyGuard.guard,true);
 
 /** One full-viewport screen in the training shadow root (replacing any other). While it is open the key guard stops
- *  every key before GeoGuessr sees it; `onKey(event)` gets keydowns and returns true for keys it handled. Esc closes. */
-export function screen({onKey=()=>false,onClose}={}){
+ *  every key before GeoGuessr sees it; `onKey(event)` gets keydowns and returns true for keys it handled. Esc closes.
+ *  settle: keys in the first `settle` ms are swallowed, so a stray Space from the card before cannot act on this one. */
+export function screen({onKey=()=>false,onClose,settle=0}={}){
   document.getElementById(HOST_ID)?.remove();
   if(!document.querySelector(`link[href="${FONTS}"]`)){const link=document.createElement('link');link.rel='stylesheet';link.href=FONTS;document.head.append(link)}
   const host=document.createElement('div');host.id=HOST_ID;const root=host.attachShadow({mode:'open'});
   node(root,'style',null,CSS);const scr=node(root,'section','scr');scr.tabIndex=-1;
   const close=()=>{keyGuard.close(keys);host.remove();onClose?.()};
-  const keys=event=>{if(event.key==='Escape'){close();return true}return onKey(event)};
+  const openedAt=performance.now();
+  const keys=event=>{if(performance.now()-openedAt<settle)return true;if(event.key==='Escape'){close();return true}return onKey(event)};
   keyGuard.open(keys,()=>host.isConnected);
   const exit=node(scr,'button','exit','×');exit.type='button';exit.setAttribute('aria-label','Close');exit.onclick=close;
   document.body.append(host);scr.focus({preventScroll:true});
@@ -199,9 +201,11 @@ export function preload(urls){
   }
 }
 
+// Screens that follow a card ignore keys this long, so the Space that closed the card (or a double press) never skips them.
+export const SETTLE_MS=600;
 /** After round 5: the five rounds, ✓/✗, km, points and the metas each one showed. Space or Next set continues. */
 export function recapScreen(pack,rounds,{onNext,onClose}={}){
-  const {scr,close}=screen({onClose,onKey:event=>{if(event.code==='Space'||event.key==='Enter'){next.click();return true}return false}});
+  const {scr,close}=screen({onClose,settle:SETTLE_MS,onKey:event=>{if(event.code==='Space'||event.key==='Enter'){next.click();return true}return false}});
   const page=node(scr,'div','page');const mast=node(page,'div','mast');node(mast,'h1',null,'Set complete');
   const total=rounds.reduce((sum,round)=>sum+(round.points??0),0),hits=rounds.filter(round=>round.correct).length;
   node(mast,'span','date',`${hits}/${rounds.length} regions · ${total.toLocaleString('en-US')} pts`);
@@ -221,7 +225,7 @@ export function recapScreen(pack,rounds,{onNext,onClose}={}){
 const pct=value=>value===null||value===undefined?'–':Math.round(value*100)+'%';
 /** The 15-minute session check: progress so far and one recommendation. Space keeps going. */
 export function sessionScreen(check,{onContinue}={}){
-  const {scr,close}=screen({onClose:onContinue,onKey:event=>{if(event.code==='Space'||event.key==='Enter'){close();return true}return false}});
+  const {scr,close}=screen({onClose:onContinue,settle:SETTLE_MS,onKey:event=>{if(event.code==='Space'||event.key==='Enter'){close();return true}return false}});
   const page=node(scr,'div','page'),{progress,advice}=check;const mast=node(page,'div','mast');node(mast,'h1',null,'Session check');
   node(mast,'span','date',`${progress.activeMinutes} min · ${progress.n} new spots`);
   node(page,'p','advice',advice.title).dataset.kind=advice.kind;node(page,'p','detail',advice.detail);

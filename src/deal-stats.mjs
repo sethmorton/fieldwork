@@ -62,9 +62,14 @@ export function sessionCheck(attempts,now=Date.now()){
     :{kind:'continue',title:'Keep going',detail:dropping?'Accuracy dipped. Slow down on the next set.':'Steady. Next set.'};
   return {progress,advice};
 }
-/** True when a session check is due: CHECK_EVERY of session time since its start or the last check. */
+/** True when a session check is due: CHECK_EVERY of play since the session started (a gap over SESSION_GAP starts a new
+ *  one) or since the last check. Play is time on task: gaps between rounds count, breaks of BREAK_GAP or more do not, so
+ *  a session that resumes after a 20-minute pause is not "15 minutes in" after its first round back. */
 export function checkDue(attempts,lastCheckAt,now=Date.now()){
-  const {startedAt}=currentSession(attempts,now),nowMs=new Date(now).getTime();
+  const {rounds,startedAt}=currentSession(attempts,now);
   if(startedAt===null)return false;
-  return nowMs-Math.max(startedAt,lastCheckAt??0)>=CHECK_EVERY;
+  const from=Math.max(startedAt,lastCheckAt??0),times=rounds.map(item=>Date.parse(item.occurredAt)).filter(time=>time>=from);
+  let played=0;
+  for(let i=1;i<times.length;i++){const gap=times[i]-times[i-1];if(gap<BREAK_GAP)played+=gap}
+  return played>=CHECK_EVERY;
 }

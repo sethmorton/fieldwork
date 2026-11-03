@@ -213,9 +213,25 @@ test('tiles, session check and its recommendation',()=>{
   assert.equal(session.rounds.length,40);assert.ok(session.activeMinutes>=55);
   const check=sessionCheck(attempts,now);assert.equal(check.advice.kind,'break');assert.equal(check.progress.n,40);
   assert.ok(check.progress.lateRate<check.progress.earlyRate);
-  assert.equal(checkDue(attempts,now-5*60000,now),false);assert.equal(checkDue(attempts,now-16*60000,now),true);
+  assert.equal(checkDue(attempts,now-5*60000,now),false);assert.equal(checkDue(attempts,now-20*60000,now),true);
   const tiles=dealTiles(attempts,{now});assert.equal(tiles.n,40);assert.equal(tiles.fixN,8);assert.ok(tiles.points>0&&tiles.pointsSe>0);
   assert.equal(sessionCheck(attempts.slice(0,8),T0-60*60000+8*90000).advice.kind,'continue');
+});
+test('the session check first comes after 15 minutes of play, then every 15 minutes; never after a first round back',()=>{
+  const pack=world(),drills=pack.locations.filter(location=>location.split==='drill'),MIN=60000;let attempts=[];
+  const round=(i,at)=>{attempts=play(pack,attempts,drills[i],{at})};
+  // Three rounds, a 20-minute pause (same session: under 30), then one round back: 4 new spots, about 1 minute of play.
+  [0,1,2].forEach(i=>round(i,T0+i*30000));round(3,T0+21*MIN);
+  assert.equal(checkDue(attempts,0,T0+21*MIN),false,'not after the first round back');
+  // A fresh session (over 30 minutes later): its first round never triggers it.
+  round(4,T0+60*MIN);assert.equal(checkDue(attempts,0,T0+60*MIN),false);
+  // Rounds every 90 s: due once 15 minutes of play have passed, then again 15 minutes after that check.
+  for(let i=1;i<=10;i++)round(4+i,T0+60*MIN+i*90000);
+  assert.equal(checkDue(attempts,0,T0+75*MIN),true,'15 minutes in');
+  const checkedAt=T0+75*MIN;round(15,checkedAt+60000);
+  assert.equal(checkDue(attempts,checkedAt,checkedAt+60000),false,'just checked');
+  for(let i=1;i<=11;i++)round(15+i,checkedAt+60000+i*90000);
+  assert.equal(checkDue(attempts,checkedAt,checkedAt+60000+11*90000),true,'15 minutes after the last check');
 });
 test('the checked-in sample pack validates and deals a set',async()=>{
   const pack=JSON.parse(await readFile(new URL('../../fixtures/training-sample-pack.json',import.meta.url),'utf8'));
