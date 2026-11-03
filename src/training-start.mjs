@@ -1,7 +1,8 @@
 // Training pack start panel (the practice map page) and the look board, in the proto-v2 style: tiles with n, the focus
 // country map shaded by current miss probability, due counts, Play, Look board, the manual-meta-keys setting.
 // Key D toggles the debug view: the ranked candidates of the next set with every score term.
-import {screen,node,board,studySpots,shortRegion,metaPopover,HOST_ID} from './training-ui.mjs';
+import {screen,node,board,shortRegion,metaPopover,HOST_ID} from './training-ui.mjs';
+import {boardSpots} from './boards.mjs';
 import {regionMap} from './region-map.mjs';
 import {learnerModel} from './deal.mjs';
 import {dealTiles,dueCounts} from './deal-stats.mjs';
@@ -36,14 +37,15 @@ export function trainingStart(pack,options={}){
     [tiles.points?.toLocaleString('en-US')??'–',tiles.change&&signed(tiles.change.points),`points per round${tiles.pointsSe!==null?` · ±${tiles.pointsSe}`:''}`],
     [pct(tiles.fixRate),null,`fix rate · n=${tiles.fixN}`]]){
     const tile=node(row,'div','tile'),big=node(tile,'b',null,value+' ');if(change)node(big,'span',change.startsWith('-')?'down':'up',change);node(tile,'small',null,label)}
-  const due=dueCounts(pack,attempts,now);
-  node(left,'p','kick',`Due now · ${due.metas} meta${due.metas===1?'':'s'} · ${due.regions} region${due.regions===1?'':'s'}`).style.marginTop='22px';
+  // Only real misses are due: Fieldwork misses (regions and metas) and metas seen in lost duel rounds.
+  const due=dueCounts(pack,attempts,now),parts=[[due.metas,'meta'],[due.regions,'region']].filter(([n])=>n).map(([n,label])=>`${n} ${label}${n===1?'':'s'}`);
+  node(left,'p','kick',parts.length?`Due now · ${parts.join(' · ')}`:'New · nothing due yet').style.marginTop='22px';
   const actions=node(left,'div','actions'),play=node(actions,'button','go ink','Play');play.type='button';node(play,'kbd',null,'Enter');
   const look=node(actions,'button','go','Look board');look.type='button';node(look,'kbd',null,'L');
   const status=node(left,'p','detail',message??'');status.setAttribute('role','status');status.style.fontSize='14px';
   play.onclick=async()=>{play.disabled=true;status.textContent='Starting your next set…';
     try{await onPlay?.()}catch(error){status.textContent=String(error?.message??error);play.disabled=false}};
-  look.onclick=()=>lookBoard(pack,{random,onBack:()=>trainingStart(pack,{...options,message:null}),region:weakest(pack,attempts,now)});
+  look.onclick=()=>lookBoard(pack,{random,seen:options.seen,onBack:()=>trainingStart(pack,{...options,message:null}),region:weakest(pack,attempts,now)});
   const settings=node(left,'label');Object.assign(settings.style,{display:'block',marginTop:'18px',fontSize:'13px',color:'#727272'});
   const box=node(settings,'input');box.type='checkbox';box.checked=manual;box.onchange=()=>{options.manual=box.checked;onManual?.(box.checked)};
   settings.append(' Manual meta keys (U used it / N didn’t notice); off = graded from your pin');
@@ -94,11 +96,12 @@ function pill(pack,reopen){
   Object.assign(button.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,font:'700 14px Libre Franklin,Arial',padding:'10px 16px',background:'#121212',color:'#fff',border:0,cursor:'pointer'});
   button.onclick=()=>{button.remove();reopen()};document.body.append(button);
 }
-/** Look board: four study photos of one region, the country map with it shaded red. Space reshuffles, ← → change region
- *  (the focus country first, then by ACoW share), Esc goes back. */
-export function lookBoard(pack,{region=null,onBack,random=Math.random}={}){
+/** Look board: four photos of one region (study, then panoramas already seen; browsing never burns a playable spot), the
+ *  country map with it shaded red. Space reshuffles, ← → change region (the focus country first, then by ACoW share),
+ *  Esc goes back. `seen`: location ids the learner has already been shown. */
+export function lookBoard(pack,{region=null,onBack,random=Math.random,seen=new Set()}={}){
   const share=pack.acow??{},focus=pack.focus?.country;
-  const withStudy=new Set(pack.locations.filter(location=>location.split==='study').map(location=>location.region));
+  const withStudy=new Set(pack.locations.filter(location=>location.split==='study'||location.split==='seen').map(location=>location.region));
   const regions=Object.keys(pack.regions??{}).filter(name=>withStudy.has(name))
     .sort((a,b)=>(pack.regions[b].country===focus)-(pack.regions[a].country===focus)||(share[pack.regions[b].country]??0)-(share[pack.regions[a].country]??0)||a.localeCompare(b));
   let index=Math.max(0,regions.indexOf(region)),shown=new Set();
@@ -112,7 +115,8 @@ export function lookBoard(pack,{region=null,onBack,random=Math.random}={}){
   const holder=node(scr,'div','beat on'),popover=metaPopover(scr,pack,{manual:false,grades:{}});
   function draw(){
     holder.replaceChildren();const name=regions[index];if(!name)return;
-    let spots=studySpots(pack,name,{shown,random});if(spots.every(spot=>shown.has(spot.id))){shown=new Set();spots=studySpots(pack,name,{random})}
+    const pick=exclude=>boardSpots(pack,name,{seen,exclude,random,burn:false}).spots;
+    let spots=pick(shown);if(spots.length<4){shown=new Set();spots=pick(shown)}
     spots.forEach(spot=>shown.add(spot.id));scr.dataset.region=name;
     board(holder,pack,name,spots,{popover});
   }

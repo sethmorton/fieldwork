@@ -16,12 +16,13 @@ export function validatePack(pack) {
   if(pack.maxLocationsPerCountry!==undefined&&(!Number.isInteger(pack.maxLocationsPerCountry)||pack.maxLocationsPerCountry<1))throw Error('Country limit must be a positive integer.');
   if(pack.gradingPolicy!==undefined&&pack.gradingPolicy!=='recognition')throw Error('Unknown grading policy.');
   if(pack.scheduler!==undefined&&pack.scheduler!=='sprint'&&!deal)throw Error('Unknown scheduler.');
-  // Deal packs: study spots only ever appear on cards, drill/probe spots only in games; metas name pack.metas entries.
+  // Deal packs: study spots (and 'seen' ones: duel/Sprint panoramas already played elsewhere) appear only on cards,
+  // drill/probe spots only in games; metas name pack.metas entries.
   if(deal){
     if(!Array.isArray(pack.regionFeatures)||!pack.regions||typeof pack.regions!=='object')throw Error('A deal pack needs regionFeatures and regions.');
-    for(const location of pack.locations)if(!['probe','drill','study'].includes(location.split)
+    for(const location of pack.locations)if(!['probe','drill','study','seen'].includes(location.split)
       ||(location.metas!==undefined&&(!Array.isArray(location.metas)||location.metas.some(meta=>meta.metaId!=null&&!pack.metas?.[meta.metaId]))))
-      throw Error('Deal locations need a probe, drill or study split and known metas.');
+      throw Error('Deal locations need a probe, drill, study or seen split and known metas.');
   }
   // cellCoverage: true. 0.14.24-25 builds wrote a share (0.1); a cached copy of one must still load, under the same rule.
   if(pack.cellCoverage!==undefined&&(pack.scheduler!=='sprint'||!(pack.cellCoverage===true||(typeof pack.cellCoverage==='number'&&pack.cellCoverage>0&&pack.cellCoverage<=1))))throw Error('Cell coverage is true, and only for sprint packs.');

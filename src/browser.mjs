@@ -15,6 +15,8 @@ import {trainingCard,recapScreen,sessionScreen,HOST_ID as TRAINING_HOST} from '.
 import {trainingStart,PILL_ID} from './training-start.mjs';
 import {recordDeal,planDeal} from './deal.mjs';
 import {sessionCheck,checkDue} from './deal-stats.mjs';
+import {boardSpots} from './boards.mjs';
+import {preload,photoUrl} from './training-ui.mjs';
 const gameResponses=unsafeWindow.GEFFetchEvents;
 
 // Anonymous GM requests run in fetch mode, where Chromium ignores details.timeout: enforce our own deadline and abort.
@@ -148,11 +150,29 @@ const publishAhead=()=>{if(!preparing){preparingLaunches=false;preparing=prepare
 // Training pack (scheduler 'deal'): the card after every round, then the 15-minute session check when due, then (round 5)
 // the recap. Round 5 publishes the next set ahead while the card is up. Study photos shown on cards are remembered
 // (latest 3,000), so boards prefer ones not seen yet.
-const ahead=new Map();
+const ahead=new Map(),boards=new Map();
+const seenRefs=cardPack=>new Set([...history(cardPack.id).map(item=>item.locationRef),...exposures(cardPack.id).map(item=>item.locationRef)]);
+// A round's board for one region: chosen once (at publication for the answer region, at the guess for the pinned one)
+// and preloaded. An unseen drill spot it had to use is burned into exposures, so it never appears in a game.
+function boardFor(cardPack,region,roundRef,exclude=[]){
+  const id=`${roundRef}|${region}`;if(boards.has(id))return boards.get(id);
+  const {spots,burned}=boardSpots(cardPack,region,{shown:new Set(GM_getValue(key('study-shown',cardPack.id),[])),seen:seenRefs(cardPack),exclude:new Set([roundRef,...exclude])});
+  if(burned.length)GM_setValue(key('exposures',cardPack.id),[...exposures(cardPack.id),...burned.map(ref=>({id:`${cardPack.id}:board:${ref}`,locationRef:ref}))]);
+  boards.set(id,spots);preload(spots.map(spot=>photoUrl(cardPack,spot)));
+  return spots;
+}
+// At publication: the five panoramas (beat 1) and each answer region's board (beat 3), so cards open at once.
+function preloadSet(chosen,set){
+  if(chosen.scheduler!=='deal')return;
+  const ids=set.selectedLocations.map(location=>location.id);
+  preload(set.selectedLocations.map(location=>photoUrl(chosen,location)));
+  for(const location of set.selectedLocations)boardFor(chosen,location.region,location.id,ids);
+}
 function showTrainingCard(round){
-  const shownIds=GM_getValue(key('study-shown'),[]),cardPack=pack;
+  const shownIds=GM_getValue(key('study-shown'),[]),cardPack=pack,inFlight=GM_getValue(key('active-set'),null)?.locationIds??[];
   if(round.round===5&&!ahead.has(round.id)){const job=publishAhead();ahead.set(round.id,job);job.catch(error=>console.warn('Fieldwork could not publish the next set ahead.',error))}
   trainingCard(cardPack,round,{attempt:history().find(item=>item.id===round.id),manual:GM_getValue(key('manual-metas'),false),shown:new Set(shownIds),
+    boardFor:region=>boardFor(cardPack,region,round.location.id,inFlight),
     onGrade:(metaId,used)=>GM_setValue(key('attempts',cardPack.id),recordDeal(cardPack,history(cardPack.id),round,{metaGrades:{[metaId]:used}})),
     onShown:ids=>GM_setValue(key('study-shown',cardPack.id),[...shownIds,...ids].slice(-3000)),
     onDone:()=>afterCard(cardPack,round)});
@@ -183,6 +203,7 @@ async function preparePractice({launch=true}={}) {
   // On the practice map the page keeps showing this content (a game page keeps its own pinned version).
   if(!routeGame&&chosen.id===pack.id)pack=chosen;
   prefetchImages(chosen,set).catch(error=>console.warn('Fieldwork could not prefetch card images.',error));
+  try{preloadSet(chosen,set)}catch(error){console.warn('Fieldwork could not preload card photos.',error)}
   if(!launch)return chosen;
   GM_setValue(chosenKey('launch-request'),launchRequest(chosen));
   // Opening the finished game's summary meanwhile is still this request; another page is the learner's choice.
@@ -285,7 +306,7 @@ function render() {
     if(mounted==='start'||mounted==='quick')return;
     if(pack.scheduler==='deal'){
       trainingStart(pack,{attempts:history(),onPlay:prepare,manual:GM_getValue(key('manual-metas'),false),onManual:value=>GM_setValue(key('manual-metas'),value),
-        packs:packs.filter(item=>item.practiceMapId),onChoosePack:choosePack,message:launchError,
+        packs:packs.filter(item=>item.practiceMapId),onChoosePack:choosePack,message:launchError,seen:seenRefs(pack),
         onExport:()=>download({packId:pack.id,attempts:history(),exposures:exposures()},`fieldwork-progress-${pack.id}.json`),
         debugPlan:()=>planDeal(pack,history(),{seenLocationRefs:exposures().map(item=>item.locationRef)})});
       mounted='start';launchError=null;return;

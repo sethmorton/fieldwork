@@ -3,15 +3,17 @@
 // After every round: the card. Beat 1 result, beat 2 where you guessed (wrong pins only), beat 3 what the answer region
 // looks like. Space advances, ← goes back, × or Esc closes. Round 5 adds the recap; every 15 minutes the session check.
 import {regionMap,MAP_CSS} from './region-map.mjs';
+import {createKeyGuard,KEY_EVENTS} from './key-guard.mjs';
+import {boardSpots} from './boards.mjs';
 
 const CSS=`:host{all:initial}*{box-sizing:border-box}
 .scr{position:fixed;inset:0;z-index:2147483000;background:#fff;color:#121212;font:15px/1.4 'Libre Franklin',Helvetica,Arial,sans-serif;overflow:hidden}
 .exit{position:fixed;top:14px;left:14px;z-index:30;width:40px;height:40px;border-radius:50%;background:rgba(18,18,18,.6);color:#fff;font:28px/38px Georgia,serif;text-align:center;cursor:pointer;border:0;padding:0}.exit:hover{background:#121212}
 .beat{position:absolute;inset:0;display:none}.beat.on{display:block}
 .grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:3px;height:100%;background:#fff}
-.cell{position:relative;overflow:hidden;container-type:size;background:#d9d6cf}.bleed{position:absolute;inset:0}
+.cell{position:relative;overflow:hidden;container-type:size;background:#fff}.bleed{position:absolute;inset:0}
 .frame{position:absolute;left:50%;top:50%;width:max(100cqw,calc(100cqh*var(--ar)));height:max(100cqh,calc(100cqw/var(--ar)));transform:translate(-50%,-50%)}
-.frame img{display:block;width:100%;height:100%}
+.frame img{display:block;width:100%;height:100%;opacity:0;transition:opacity .2s}.frame img.in{opacity:1}
 .mk{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 1px 6px rgba(0,0,0,.45);cursor:pointer;display:grid;place-items:center;z-index:2}
 .mk svg{width:17px;height:17px}.mk:hover,.mk.open{background:#121212}.mk:hover path,.mk.open path,.mk:hover circle,.mk.open circle{stroke:#fff}
 .box{position:absolute;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.5);pointer-events:none;display:none;z-index:1}.box.on{display:block}
@@ -44,25 +46,27 @@ export const HOST_ID='fieldwork-training';
 export const node=(parent,tag,cls,text)=>{const item=document.createElement(tag);if(cls)item.className=cls;if(text!=null)item.textContent=text;parent?.append(item);return item};
 export const shortRegion=name=>String(name??'').split(' — ').at(-1);
 
-/** One full-viewport screen in the training shadow root (replacing any other). Keys stop at the overlay, so GeoGuessr
- *  never sees Space or arrows while it is open; `onKey(event)` returns true for keys it handled. */
+// Installed when the userscript loads (document-start), before GeoGuessr registers its own key listeners.
+export const keyGuard=createKeyGuard();
+if(typeof window!=='undefined')for(const type of KEY_EVENTS)window.addEventListener(type,keyGuard.guard,true);
+
+/** One full-viewport screen in the training shadow root (replacing any other). While it is open the key guard stops
+ *  every key before GeoGuessr sees it; `onKey(event)` gets keydowns and returns true for keys it handled. Esc closes. */
 export function screen({onKey=()=>false,onClose}={}){
   document.getElementById(HOST_ID)?.remove();
   if(!document.querySelector(`link[href="${FONTS}"]`)){const link=document.createElement('link');link.rel='stylesheet';link.href=FONTS;document.head.append(link)}
   const host=document.createElement('div');host.id=HOST_ID;const root=host.attachShadow({mode:'open'});
   node(root,'style',null,CSS);const scr=node(root,'section','scr');scr.tabIndex=-1;
-  const close=()=>{window.removeEventListener('keydown',keys,true);host.remove();onClose?.()};
-  const keys=event=>{if(!host.isConnected){window.removeEventListener('keydown',keys,true);return}
-    if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();return}
-    if(onKey(event)){event.preventDefault()}event.stopPropagation()};
-  window.addEventListener('keydown',keys,true);
+  const close=()=>{keyGuard.close(keys);host.remove();onClose?.()};
+  const keys=event=>{if(event.key==='Escape'){close();return true}return onKey(event)};
+  keyGuard.open(keys,()=>host.isConnected);
   const exit=node(scr,'button','exit','×');exit.type='button';exit.setAttribute('aria-label','Close');exit.onclick=close;
   document.body.append(host);scr.focus({preventScroll:true});
   return {root,scr,close};
 }
 
 /** The exact view a location's metas were labelled on, at display size: same aspect, heading, pitch and fov. */
-export function photoUrl(pack,location,width=1600){
+export function photoUrl(pack,location,width=1280){
   const [w,h]=pack.thumbSize??[1600,1000],height=Math.round(width*h/w);
   if(!Number.isFinite(location.heading)&&location.image)return location.image;
   return `https://streetviewpixels-pa.googleapis.com/v1/thumbnail?cb_client=maps_sv.share&panoid=${encodeURIComponent(location.panoId)}&w=${width}&h=${height}`
@@ -98,7 +102,8 @@ export function metaPopover(root,pack,{manual,grades,onGrade}){
 /** A photo cell: the labelled view cropped to cover the cell, with a magnifier on each meta box. Returns its markers. */
 function photo(parent,pack,location,popover,cls='cell'){
   const cell=node(parent,'div',cls),frame=node(cell,'div','frame');frame.style.setProperty('--ar',aspect(pack));
-  const img=node(frame,'img');img.src=photoUrl(pack,location);img.alt='';img.referrerPolicy='no-referrer';img.decoding='async';
+  const img=node(frame,'img');img.alt='';img.referrerPolicy='no-referrer';img.decoding='async';
+  img.onload=()=>img.classList.add('in');img.src=photoUrl(pack,location);if(img.complete&&img.naturalWidth)img.classList.add('in');
   const markers=[];
   for(const meta of location.verified===false?[]:location.metas??[]){
     if(!Array.isArray(meta.box)||meta.box.length!==4)continue;
@@ -109,12 +114,6 @@ function photo(parent,pack,location,popover,cls='cell'){
     marker.onmouseenter=open;marker.onfocus=open;marker.onclick=open;markers.push({marker,open});
   }
   return {cell,markers};
-}
-/** Up to n study spots of a region for a board: unshown first, then ones with metas, then random. */
-export function studySpots(pack,region,{shown=new Set(),n=4,random=Math.random,exclude=new Set()}={}){
-  const list=pack.locations.filter(location=>location.split==='study'&&location.region===region&&!exclude.has(location.id))
-    .map(location=>({location,key:(shown.has(location.id)?2:0)+((location.metas??[]).length?0:1)+random()}));
-  return list.sort((a,b)=>a.key-b.key).slice(0,n).map(item=>item.location);
 }
 /** A board of one region: up to four study photos (2x2; fewer fill the screen in one row), the country map in the centre
  *  with the region shaded, its name. A region with no study photos shows the map alone. */
@@ -137,20 +136,22 @@ export function tellFor(pack,round){
   return separating.length?`${[...new Set(separating.map(info=>info.title))].slice(0,2).join(', ')}: ${shortRegion(round.location.region)}, not ${shortRegion(round.guessedRegion)}.`:null;
 }
 
-/** The card after a round. options: manual (meta keys), shown (study ids already shown), onGrade(metaId, used),
- *  onShown(ids), onDone() after the last beat (Space) or a close. */
-export function trainingCard(pack,round,{attempt=null,manual=false,shown=new Set(),onGrade,onShown,onDone,random=Math.random}={}){
+/** The card after a round. options: manual (meta keys), shown (study ids already shown), boardFor(region) (the board's
+ *  photos; default: boardSpots, nothing burned), onGrade(metaId, used), onShown(ids), onDone() after the last beat
+ *  (Space) or a close. A beat shows once its photos have decoded (at most BEAT_WAIT ms), so it never opens blank. */
+export function trainingCard(pack,round,{attempt=null,manual=false,shown=new Set(),boardFor=null,onGrade,onShown,onDone,random=Math.random}={}){
   let beat=0,finished=false;
   const finish=()=>{if(finished)return;finished=true;onDone?.()};
   const grades=Object.fromEntries((attempt?.metas??[]).filter(item=>item.source==='manual').map(item=>[item.metaId,item.used]));
   const {root,scr,close}=screen({onClose:finish,onKey:event=>{
-    if(event.code==='Space'||event.key==='ArrowRight'){if(beat<beats.length-1)go(beat+1);else{close()}return true}
+    if(event.code==='Space'||event.key==='ArrowRight'||event.key==='Enter'){if(beat<beats.length-1)go(beat+1);else{close()}return true}
     if(event.key==='ArrowLeft'){if(beat>0)go(beat-1);return true}
     // Tab walks the magnifiers (each opens its meta on focus); with manual keys on, U / N grade the open one.
     if(popover.open&&manual&&/^[un]$/i.test(event.key)){root.querySelectorAll('.pop .keys button')[event.key.toLowerCase()==='u'?0:1]?.click();return true}
-    return false;
+    // Digits, arrows up/down and the rest are swallowed too (the guard stops every key while a card is open).
+    return /^(\d|ArrowUp|ArrowDown|[un])$/i.test(event.key);
   }});
-  scr.dataset.round=round.round;scr.dataset.correct=String(round.correct);
+  scr.dataset.round=round.round;scr.dataset.correct=String(round.correct);scr.style.visibility='hidden';
   const popover=metaPopover(scr,pack,{manual,grades,onGrade});
   const location=round.location,answerCountry=location.country,pinned=round.guessedRegion&&round.guessedRegion!==location.region?round.guessedRegion:null;
   const beats=[];
@@ -166,7 +167,7 @@ export function trainingCard(pack,round,{attempt=null,manual=false,shown=new Set
   const used=new Set([location.id]);
   const boardBeat=(region,name,color,muted)=>{
     const el=node(scr,'div','beat');el.dataset.beat=name;
-    const spots=studySpots(pack,region,{shown,random,exclude:used});spots.forEach(spot=>used.add(spot.id));
+    const spots=boardFor?boardFor(region):boardSpots(pack,region,{shown,random,exclude:used}).spots;spots.forEach(spot=>used.add(spot.id));
     const markers=board(el,pack,region,spots,{color,popover,muted});beats.push({el,markers,spots});return el;
   };
   // Beat 2 (wrong pins in a pack region): what the region you pinned looks like, shaded grey.
@@ -175,10 +176,25 @@ export function trainingCard(pack,round,{attempt=null,manual=false,shown=new Set
   const answer=boardBeat(location.region,'answer','#c0392b',false);
   const tell=tellFor(pack,round);if(tell)node(answer,'div','tell',tell);
   const dots=node(scr,'div','dots');for(const _ of beats)node(dots,'i');
-  const go=index=>{beat=index;popover.hide();beats.forEach((item,i)=>item.el.classList.toggle('on',i===index));[...dots.children].forEach((dot,i)=>dot.classList.toggle('on',i===index));scr.dataset.beatName=beats[index].el.dataset.beat};
-  go(0);
+  const show=index=>{popover.hide();beats.forEach((item,i)=>item.el.classList.toggle('on',i===index));[...dots.children].forEach((dot,i)=>dot.classList.toggle('on',i===index));
+    scr.dataset.beatName=beats[index].el.dataset.beat;scr.style.visibility=''};
+  // `beat` is the beat asked for; it shows when its photos are ready, unless another key moved on meanwhile.
+  const go=index=>{beat=index;return decoded(beats[index].el).then(()=>{if(beat===index&&!finished)show(index)})};
+  const opened=go(0);
   onShown?.(beats.flatMap(item=>item.spots??[]).map(spot=>spot.id));
-  return {close,go,get beat(){return beat}};
+  return {close,go,opened,get beat(){return beat}};
+}
+export const BEAT_WAIT=1500;
+const decoded=(el,ms=BEAT_WAIT)=>Promise.race([Promise.all([...el.querySelectorAll('img')].map(img=>img.decode().catch(()=>{}))),new Promise(resolve=>setTimeout(resolve,ms))]);
+// Photos fetched ahead (set publication, the guess) so a beat opens at once. The browser cache keeps the bytes; this map
+// keeps the latest 300 requests alive and deduplicated.
+const preloaded=new Map();
+export function preload(urls){
+  for(const url of urls){
+    if(preloaded.has(url))continue;
+    const img=new Image();img.referrerPolicy='no-referrer';img.decoding='async';img.src=url;preloaded.set(url,img.decode().catch(()=>{}));
+    if(preloaded.size>300)preloaded.delete(preloaded.keys().next().value);
+  }
 }
 
 /** After round 5: the five rounds, ✓/✗, km, points and the metas each one showed. Space or Next set continues. */

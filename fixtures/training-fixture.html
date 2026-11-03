@@ -11,7 +11,7 @@
 const catalog=await (await fetch('/dist/practice-catalog.json')).json(),entry=catalog.find(item=>item.id==='training');
 const manifest=await (await fetch('/catalog.json')).json(),pack=await (await fetch('/'+manifest.packs.find(item=>item.id==='training').url)).json();
 const mapId=entry.practiceMapId,data={},log=line=>{document.querySelector('#log').textContent+=line+'\n'};
-const fixture=window.fixture={published:[],games:[],data,pack,errors:[]};
+const fixture=window.fixture={published:[],games:[],data,pack,errors:[],geoKeys:[]};
 window.addEventListener('error',event=>fixture.errors.push(String(event.message)));
 window.GM_getValue=(key,fallback)=>key in data?structuredClone(data[key]):fallback;window.GM_setValue=(key,value)=>{data[key]=structuredClone(value)};
 window.GM_listValues=()=>Object.keys(data);window.GM_deleteValue=key=>{delete data[key]};window.unsafeWindow=window;
@@ -23,6 +23,8 @@ let version=1,coordinates=[];
 const realFetch=window.fetch.bind(window);
 window.fetch=async(url,options={})=>{
   const path=typeof url==='string'?url:url.url;
+  // Content the build points at the installer (http://127.0.0.1:8787) comes from this fixture's own server instead.
+  if(path.startsWith('http://127.0.0.1:8787/'))return realFetch(location.origin+path.slice('http://127.0.0.1:8787'.length),options);
   if(!path.startsWith('/api/'))return realFetch(url,options);
   if(path===`/api/v4/user-maps/drafts/${mapId}`&&!options.method)return Response.json({name:'Fieldwork - Training',mode:'coordinates',version,customCoordinates:coordinates});
   if(path===`/api/v4/user-maps/drafts/${mapId}`&&options.method==='PUT'){const body=JSON.parse(options.body);coordinates=body.customCoordinates;version=body.version;
@@ -61,5 +63,10 @@ document.querySelector('#native-next').onclick=()=>{
   if(state.current_round===5){window.next.router.push('/results/'+state.current_game_id);return}
   state.current_round++;state.round_in_progress=true;events.dispatchEvent(new CustomEvent('round_start',{detail:structuredClone(state)}));
 };
-const script=document.createElement('script');script.src='/dist/fieldwork.user.js';document.body.append(script);
+// GeoGuessr's key listeners, registered after the userscript (as on the real page, where it runs at document-start):
+// fixture.geoKeys lists every key event that reached them.
+const script=document.createElement('script');script.src='/dist/fieldwork.user.js';
+script.onload=()=>{for(const type of ['keydown','keypress','keyup']){window.addEventListener(type,event=>fixture.geoKeys.push(`${type}:${event.code}`),true);
+  document.addEventListener(type,event=>fixture.geoKeys.push(`document ${type}:${event.code}`))}};
+document.body.append(script);
 </script>

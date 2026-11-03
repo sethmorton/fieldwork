@@ -20,7 +20,7 @@ try{
     await page.setUserAgent((await browser.userAgent()).replace('HeadlessChrome','Chrome'));
     page.on('pageerror',error=>errors.push(`${name}: ${error.message}`));
     page.on('console',message=>{if(message.type()==='error'&&!/Failed to load resource/.test(message.text()))errors.push(`${name}: ${message.text()}`)});
-    await page.goto(`http://127.0.0.1:8787/fixtures/game-fixture.html?mode=training&${query}${extra}`,{waitUntil:'networkidle2',timeout:60000});
+    await page.goto(`${process.env.BASE??'http://127.0.0.1:8787'}/fixtures/game-fixture.html?mode=training&${query}${extra}`,{waitUntil:'networkidle2',timeout:60000});
     await new Promise(resolve=>setTimeout(resolve,1800));
     const state=await page.evaluate(()=>{const scr=document.getElementById('fieldwork-training')?.shadowRoot?.querySelector('.scr');
       return {title:document.title,beat:scr?.dataset.beatName??null,images:[...(scr?.querySelectorAll('img')??[])].filter(img=>img.offsetParent!==null||img.closest('.beat.on')).map(img=>img.complete&&img.naturalWidth>0)}});

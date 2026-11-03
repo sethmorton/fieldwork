@@ -127,12 +127,13 @@ function retestState(events,now){
   return stage?{stage,missAt,dueAt:dueAt(),due:now>=dueAt()}:null;
 }
 /** Every key with an open retest: {kind, key (region name or meta id), stage 1-3, missAt, dueAt, due}. A miss is due at
- *  once (stage 1: any later round), then on the next day, then 3 days after it. Due ones first, newest miss first. */
+ *  once (stage 1: any later round), then on the next day, then 3 days after it. Due ones first, newest miss first.
+ *  Duel losses schedule their metas only: a lost duel region raises that region's miss posterior (learnerModel) but is
+ *  not a retest, or every region of a long duel history would be "due" before the first Fieldwork round. */
 export function retests(pack,attempts,now=Date.now()){
   const nowMs=new Date(now).getTime(),events=new Map(),push=(key,event)=>{const list=events.get(key);if(list)list.push(event);else events.set(key,[event])};
   for(const loss of pack.duelLosses??[]){
     const time=Date.parse(loss.occurredAt);if(!Number.isFinite(time))continue;
-    if(loss.region)push('region:'+loss.region,{ok:false,time});
     for(const metaId of loss.metaIds??[])push('meta:'+metaId,{ok:false,time});
   }
   for(const attempt of attempts){

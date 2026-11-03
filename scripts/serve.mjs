@@ -11,4 +11,5 @@ http.createServer(async(req,res)=>{
   const file=image?images&&path.join(images,image):pathname==='/'?'dist/index.html':/^\/(?:dist|fixtures|dist\/content-host)\/[\w.-]+$/.test(pathname)?pathname.slice(1):/^\/[\w.-]+$/.test(pathname)?'dist'+pathname:null;
   if(!file){res.writeHead(404);res.end('Not found');return;}
   try{const data=await readFile(file);res.writeHead(200,{'Content-Type':types[path.extname(file)]??'application/octet-stream','Cache-Control':image?'max-age=86400':'no-store'});res.end(data)}catch{res.writeHead(404);res.end('Not found. Run npm run setup first.');}
-}).listen(8787,'127.0.0.1',()=>console.log('Fieldwork installer: http://127.0.0.1:8787 (Ctrl+C to stop)'));
+// PORT: a second server for fixture runs (the installer the userscript updates from stays on 8787).
+}).listen(Number(process.env.PORT??8787),'127.0.0.1',()=>console.log(`Fieldwork installer: http://127.0.0.1:${process.env.PORT??8787} (Ctrl+C to stop)`));

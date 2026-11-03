@@ -129,9 +129,11 @@ test('retest timing: due in the next set, then the next day, then 3 days after t
   assert.equal(state(T0+5*DAY,done),undefined,'three retests passed: closed');
   const restarted=play(pack,attempts,spots[3],{pinRegion:'A — R2',at:nextDay+5*3600e3});
   assert.equal(state(nextDay+6*3600e3,restarted).stage,1);
-  // Duel losses are misses: their metas and region are due at once.
+  // Duel losses make their metas due at once; their region only gets a higher miss posterior, never a retest (a long
+  // duel history would otherwise make every region "due" on a cold start).
   const duel={...pack,duelLosses:[{id:'duel:1',occurredAt:new Date(T0-DAY).toISOString(),region:'B — R2',metaIds:['m:B2']}]};
-  assert.deepEqual(retests(duel,[],T0).filter(item=>item.due).map(item=>item.kind+':'+item.key).sort(),['meta:m:B2','region:B — R2']);
+  assert.deepEqual(retests(duel,[],T0).filter(item=>item.due).map(item=>item.kind+':'+item.key),['meta:m:B2']);
+  assert.ok(learnerModel(duel,[],T0).regions.get('B — R2').misses>0);
 });
 test('due metas: at least two spots that show a due meta, from duel losses or misses',()=>{
   const pack={...world(),duelLosses:[{id:'duel:1',occurredAt:new Date(T0-DAY).toISOString(),metaIds:['m:C0','m:B1']}]};
@@ -156,9 +158,12 @@ test('composition: ≥1 focus spot, ≥2 world spots, ≤2 per country, one per 
   }
 });
 test('without labelled metas, due region retests fill the two due slots',()=>{
-  const base=world(),pack={...base,locations:base.locations.map(location=>({...location,metas:[]})),
-    duelLosses:[{id:'duel:1',occurredAt:new Date(T0-DAY).toISOString(),region:'B — R2'},{id:'duel:2',occurredAt:new Date(T0-DAY).toISOString(),region:'C — R1'}]};
-  const next=plan(pack,[]),locations=byId(pack);
+  const base=world(),pack={...base,locations:base.locations.map(location=>({...location,metas:[]}))};
+  // Two Fieldwork misses pinned far out at sea: due regions, but no confusion pair.
+  let attempts=[];
+  for(const [n,name] of ['B — R2','C — R1'].entries()){const location=pack.locations.find(item=>item.region===name&&item.split==='drill');
+    attempts=recordDeal(pack,attempts,{id:'training:sea:'+n,location,round:1,gameId:'sea',...gradeDeal(pack,location,{lat:-40,lng:-40},9)},{},new Date(T0-60000))}
+  const next=plan(pack,attempts),locations=byId(pack);
   assert.deepEqual(next.locationIds.filter(id=>next.slots[id].slot==='due').map(id=>locations.get(id).region).sort(),['B — R2','C — R1']);
 });
 test('fade: three fast right answers in a row make a region rarer; a slow or wrong one does not',()=>{
