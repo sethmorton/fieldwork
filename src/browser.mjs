@@ -314,12 +314,19 @@ function scheduleRender() {
   if(renderQueued)return;
   renderQueued=true;requestAnimationFrame(()=>{renderQueued=false;render()});
 }
-// Rounds GeoGuessr is playing, per game: the highest round seen live (its Guess button visible). The event framework's
+// Rounds GeoGuessr is playing, per game: the highest round seen live. A round is live only when no result view is on
+// screen AND the Guess button is shown and usable (laid out, not hidden or transparent, not disabled): GeoGuessr can
+// keep the button in the page behind its result view. Live round = rounds already guessed + 1. The event framework's
 // round_start is not used: it fires as soon as GeoGuessr's data holds the next round, which a timeout does while its
 // result is still on screen.
 const liveRounds=new Map();
 const noteLiveRound=(game,state)=>{const guessed=(state?.rounds??[]).filter(round=>round?.player_guess).length;
   if(guessed+1>(liveRounds.get(game)??0))liveRounds.set(game,guessed+1)};
+function guessButtonLive(){
+  const button=document.querySelector('[data-qa="perform-guess"]');
+  if(!button||button.disabled||!button.getClientRects||!button.getClientRects().length)return false;
+  const style=getComputedStyle(button);return style.visibility!=='hidden'&&style.display!=='none'&&Number(style.opacity)!==0;
+}
 const stateOf=game=>{const frameworkState=unsafeWindow.GeoGuessrEventFramework?.state;
   return gameStates.get(game)??(lastState?.current_game_id===game?lastState:null)??(frameworkState?.current_game_id===game?frameworkState:null)};
 const visible=selector=>{const node=document.querySelector(selector);return !!node&&(!node.getClientRects||node.getClientRects().length>0)};
@@ -337,7 +344,7 @@ function render() {
   // and a late one for an earlier round is discarded. GeoGuessr can answer a guess or a timeout with the next round
   // already in its data; while its result view shows round N and round N has a guess (or timed out), round N is the one.
   if(currentGame&&pack?.scheduler==='deal'&&state?.current_game_id===currentGame&&state.map?.id===pack.practiceMapId){
-    if(visible('[data-qa="perform-guess"]')){noteLiveRound(currentGame,state);if(mounted)remove();return}
+    if(!resultsVisible&&guessButtonLive()){noteLiveRound(currentGame,state);if(mounted)remove();return}
     if(resultsVisible&&shownRound&&shownRound<=state.current_round&&(state.round_in_progress||shownRound!==state.current_round)
       &&state.rounds?.[shownRound-1]?.player_guess&&!((liveRounds.get(currentGame)??0)>shownRound))
       state={...state,current_round:shownRound,round_in_progress:false};
