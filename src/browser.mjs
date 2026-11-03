@@ -17,6 +17,16 @@ import {recordDeal,planDeal} from './deal.mjs';
 import {sessionCheck,checkDue} from './deal-stats.mjs';
 import {boardSpots,boardHistory} from './boards.mjs';
 import {preload,photoUrl} from './training-ui.mjs';
+import {syncUrl,syncPayload,createSync} from './training-sync.mjs';
+// Fire-and-forget POST to the local installer (GM request: the page is https, the installer http://127.0.0.1).
+const postJson=(url,data)=>typeof GM_xmlhttpRequest==='function'
+  ?GM_xmlhttpRequest({url,method:'POST',anonymous:true,timeout:5000,headers:{'Content-Type':'application/json'},data,onerror(){},ontimeout(){},onabort(){}})
+  :fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:data}).catch(()=>{});
+const trainingSync=createSync(({url,data})=>postJson(url,data));
+function syncTraining(subject){
+  const url=syncUrl(catalog.find(entry=>entry.id===subject.id));if(!url)return;
+  trainingSync.schedule(()=>({url,data:syncPayload(subject.id,history(subject.id),exposures(subject.id))}));
+}
 const gameResponses=unsafeWindow.GEFFetchEvents;
 
 // Anonymous GM requests run in fetch mode, where Chromium ignores details.timeout: enforce our own deadline and abort.
@@ -353,6 +363,8 @@ function render() {
   if(pack.scheduler==='deal'){
     if(!history().some(item=>item.id===round.id))
       GM_setValue(key('attempts'),recordDeal(pack,history(),round,{slot:GM_getValue(key('active-set'),null)?.slots?.[round.location.id]??null}));
+    // After each set (round 5 saved), progress goes to the local installer for the nightly focus; never blocks play.
+    if(round.round===5)syncTraining(pack);
     // Saved either way; the card only while this round's result is still the one on screen.
     if((startedRounds.get(round.gameId)??0)>round.round){lastShown=round.id;if(mounted)remove();return}
     showTrainingCard(round);mounted=lastShown=round.id;return;

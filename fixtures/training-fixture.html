@@ -12,7 +12,7 @@
 const catalog=await (await fetch('/dist/practice-catalog.json')).json(),entry=catalog.find(item=>item.id==='training');
 const manifest=await (await fetch('/catalog.json')).json(),pack=await (await fetch('/'+manifest.packs.find(item=>item.id==='training').url)).json();
 const mapId=entry.practiceMapId,data={},log=line=>{document.querySelector('#log').textContent+=line+'\n'};
-const fixture=window.fixture={published:[],games:[],data,pack,errors:[],geoKeys:[],publishedDuring:{}};
+const fixture=window.fixture={published:[],games:[],data,pack,errors:[],geoKeys:[],publishedDuring:{},synced:[]};
 window.addEventListener('error',event=>fixture.errors.push(String(event.message)));
 window.GM_getValue=(key,fallback)=>key in data?structuredClone(data[key]):fallback;window.GM_setValue=(key,value)=>{data[key]=structuredClone(value)};
 window.GM_listValues=()=>Object.keys(data);window.GM_deleteValue=key=>{delete data[key]};window.unsafeWindow=window;
@@ -24,6 +24,8 @@ let version=1,coordinates=[];
 const realFetch=window.fetch.bind(window);
 window.fetch=async(url,options={})=>{
   const path=typeof url==='string'?url:url.url;
+  // The progress sync never reaches a real installer from here (it would overwrite the learner's attempts.json).
+  if(path.endsWith('/training-sync')){fixture.synced.push({url:path,body:JSON.parse(options.body)});return new Response(null,{status:204})}
   // Content the build points at the installer (http://127.0.0.1:8787) comes from this fixture's own server instead.
   if(path.startsWith('http://127.0.0.1:8787/'))return realFetch(location.origin+path.slice('http://127.0.0.1:8787'.length),options);
   if(!path.startsWith('/api/'))return realFetch(url,options);

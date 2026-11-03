@@ -88,6 +88,11 @@ try{
   assert.equal(saved.length,5);assert.deepEqual(saved.map(item=>item.correct),plays.map(play=>play==='right'));
   assert.ok(saved.every(item=>Number.isFinite(item.points)&&item.slot));
   const timedOut=saved[2];assert.equal(timedOut.timedOut,true);assert.equal(timedOut.guess,null);assert.equal(timedOut.km,null);assert.equal(timedOut.points,0);
+  // After the set, the progress goes once (debounced) to the installer's /training-sync for the nightly focus.
+  await until(()=>page.evaluate(()=>fixture.synced.length>0),'progress synced after the set');
+  const synced=await page.evaluate(()=>fixture.synced);
+  assert.equal(synced.length,1);assert.match(synced[0].url,/^http:\/\/127\.0\.0\.1:8787\/training-sync$/);
+  assert.equal(synced[0].body.packId,'training');assert.equal(synced[0].body.attempts.length,5);assert.ok(synced[0].body.exposures.length>=5);
   await until(()=>page.evaluate(()=>fixture.published.length===2),'next set published ahead');
   await space();
   await until(()=>page.evaluate(()=>fixture.games.length===2&&location.pathname==='/game/'+fixture.games[1].token),'game 2 started');
