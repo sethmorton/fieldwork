@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createKeyGuard} from '../key-guard.mjs';
 import {boardSpots,boardHistory} from '../boards.mjs';
 import {validatePack,makeNextSet} from '../next-set.mjs';
-import {gameInProgress,completedRound} from '../session.mjs';
+import {gameInProgress,completedRound,readySet} from '../session.mjs';
 import {stateFromGameData} from '../game-state.mjs';
 import {recordDeal,retests} from '../deal.mjs';
 import {cropFocus} from '../training-ui.mjs';
@@ -122,4 +122,15 @@ test('a meta footprint can be any GeoJSON shape: its rings are drawn over the co
   assert.equal(geometryRings({type:'FeatureCollection',features:[{type:'Feature',geometry:{type:'Polygon',coordinates:[square(0)]}},
     {type:'Feature',geometry:{type:'MultiPolygon',coordinates:[[square(2)],[square(4),square(4.2)]]}}]}).length,4);
   assert.deepEqual(geometryRings(null),[]);assert.deepEqual(geometryRings({type:'Point',coordinates:[0,0]}),[]);
+});
+test('a placed but unplayed set stays the next set for 12 hours; a played, partial or stale one does not',()=>{
+  const now=Date.parse('2026-11-03T12:00:00Z'),ids=['a','b','c','d','e'].map(id=>'pano:'+id);
+  const set=(hours,locationIds=ids)=>({locationIds,preparedAt:new Date(now-hours*3600e3).toISOString()});
+  assert.equal(readySet(set(1),[],[],now),true);
+  assert.equal(readySet(set(11.9),[],[],now),true);
+  assert.equal(readySet(set(12.1),[],[],now),false,'stale: replaced when the panel next opens');
+  assert.equal(readySet(set(1),[{locationRef:'pano:c'}],[],now),false,'a round of it was played');
+  assert.equal(readySet(set(1),[],[{id:'training:g:1',locationRef:'pano:e'}],now),false,'a round of it was shown');
+  assert.equal(readySet(set(1,ids.slice(0,4)),[],[],now),false);assert.equal(readySet(null,[],[],now),false);
+  assert.equal(readySet({locationIds:ids},[],[],now),false,'no placement time');
 });

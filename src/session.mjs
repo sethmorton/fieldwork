@@ -122,6 +122,17 @@ export function advanceRecognition(pack,history,pending,nextState,now=new Date()
   return recordRecognition(pack,history,pending.round,{recognized:true,familiar:pending.familiar,correct:pending.correct,assumed:true},now);
 }
 
+/** The active set (content-store pinSet: {locationIds, preparedAt}) is still the next set to play: five spots, placed
+ *  under READY_HOURS ago, none of them played or shown since. A published but unplayed set is kept (Play only starts
+ *  it); a stale one is replaced when the start panel next opens. */
+export const READY_HOURS=12;
+export function readySet(active,attempts,exposures,now=Date.now()){
+  if(!active||!Array.isArray(active.locationIds)||active.locationIds.length!==5)return false;
+  const age=new Date(now).getTime()-Date.parse(active.preparedAt);
+  if(!(age>=0&&age<READY_HOURS*3600e3))return false;
+  const shown=new Set([...attempts.map(item=>item.locationRef),...exposures.map(item=>item.locationRef)]);
+  return !active.locationIds.some(id=>shown.has(id));
+}
 /** True while a game on this map is between its first round and round 5's result. Publishing replaces the map's five
  *  locations, and GeoGuessr picks each next round from the map when the previous one ends, so a publication then would
  *  swap a game's remaining rounds. Publish only before a game (map page) or after round 5. Unknown state counts as

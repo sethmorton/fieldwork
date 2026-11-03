@@ -20,7 +20,7 @@ const events=new EventTarget(),state={map:{id:mapId},current_game_id:null,curren
 window.GeoGuessrEventFramework={events,state};
 // GeoGuessr's router: client-side navigation, no reload (the userscript keeps its state).
 window.next={router:{push:path=>{history.pushState(null,'',path);window.dispatchEvent(new PopStateEvent('popstate'));onRoute();return Promise.resolve(true)}}};
-let version=1,coordinates=[];
+let version=1,coordinates=[];const slow=Number(new URL(location.href).searchParams.get('slow')??0);
 const realFetch=window.fetch.bind(window);
 window.fetch=async(url,options={})=>{
   const path=typeof url==='string'?url:url.url;
@@ -30,7 +30,9 @@ window.fetch=async(url,options={})=>{
   if(path.startsWith('http://127.0.0.1:8787/'))return realFetch(location.origin+path.slice('http://127.0.0.1:8787'.length),options);
   if(!path.startsWith('/api/'))return realFetch(url,options);
   if(path===`/api/v4/user-maps/drafts/${mapId}`&&!options.method)return Response.json({name:'Fieldwork - Training',mode:'coordinates',version,customCoordinates:coordinates});
-  if(path===`/api/v4/user-maps/drafts/${mapId}`&&options.method==='PUT'){const body=JSON.parse(options.body);coordinates=body.customCoordinates;version=body.version;
+  if(path===`/api/v4/user-maps/drafts/${mapId}`&&options.method==='PUT'){const body=JSON.parse(options.body);
+    // ?slow=<ms>: a slow GeoGuessr publish, to press Play while the set is still being placed.
+    if(slow)await new Promise(resolve=>setTimeout(resolve,slow));coordinates=body.customCoordinates;version=body.version;
     fixture.published.push(coordinates.map(item=>item.panoId));log(`published set ${fixture.published.length}: ${coordinates.map(item=>item.panoId).join(' ')}`);return Response.json({})}
   if(path===`/api/v4/user-maps/drafts/${mapId}/publish`)return Response.json({});
   if(path==='/api/v3/games'&&options.method==='POST'){const body=JSON.parse(options.body),token='fxgame'+(fixture.games.length+1);

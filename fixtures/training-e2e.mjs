@@ -40,8 +40,11 @@ const advance=async name=>{const start=Date.now();await space();await until(asyn
 try{
   await page.goto(base+'/fixtures/training-fixture.html',{waitUntil:'networkidle2',timeout:60000});
   await until(async()=>await screenName()==='start','start panel');await shot('01-start');
-  await page.keyboard.press('Enter');
+  // The next set is placed on the map while the panel is open, before Play; Play then only starts the game.
+  await until(()=>page.evaluate(()=>fixture.published.length===1),'set placed in the background');
+  const playAt=Date.now();await page.keyboard.press('Enter');
   await until(()=>page.evaluate(()=>location.pathname.startsWith('/game/')),'game 1 started');
+  timings.push(['play',Date.now()-playAt]);assert.equal(await page.evaluate(()=>fixture.published.length),1,'Play published again');
   const first=await page.evaluate(()=>fixture.games[0]);
   assert.deepEqual(first.settings.forbidMoving,true);assert.equal(first.settings.timeLimit,60);assert.equal(first.coordinates.length,5);
   await sleep(1500);await geoKeys();
@@ -113,6 +116,15 @@ try{
   const cardOnly=await page.evaluate(()=>fixture.published.flat().filter(pano=>['study','seen'].includes(fixture.pack.locations.find(item=>item.panoId===pano)?.split)).length);
   assert.equal(cardOnly,0,'study and seen spots are never played');
   await shot('06-game2');
+  // A fresh start with a slow GeoGuessr publish: Play pressed while the set is still being placed shows the slim progress
+  // line, waits for that one publication and starts the game. Never a second publication.
+  await page.goto(base+'/fixtures/training-fixture.html?slow=2500',{waitUntil:'networkidle2',timeout:60000});
+  await until(async()=>await screenName()==='start','start panel (slow publish)');
+  await page.keyboard.press('Enter');
+  await until(()=>page.evaluate(()=>/Placing 5 new spots/.test(document.getElementById('fieldwork-training')?.shadowRoot?.querySelector('[role=status]')?.textContent??'')),'progress line while placing');
+  await shot('07-placing');
+  await until(()=>page.evaluate(()=>location.pathname.startsWith('/game/')),'game started after the slow publish');
+  assert.equal(await page.evaluate(()=>fixture.published.length),1,'Play during placement published twice');
   console.log(JSON.stringify({ok:true,boards,burned:burned.length,timingsMs:timings,sets:published,
     attempts:saved.map(item=>({region:item.region,guessed:item.guessedRegion,correct:item.correct,km:item.km,points:item.points,slot:item.slot}))},null,1));
 }finally{

@@ -43,8 +43,10 @@ export function trainingStart(pack,options={}){
   const actions=node(left,'div','actions'),play=node(actions,'button','go ink','Play');play.type='button';node(play,'kbd',null,'Enter');
   const look=node(actions,'button','go','Look board');look.type='button';node(look,'kbd',null,'L');
   const status=node(left,'p','detail',message??'');status.setAttribute('role','status');status.style.fontSize='14px';
-  play.onclick=async()=>{play.disabled=true;status.textContent='Starting your next set…';
-    try{await onPlay?.()}catch(error){status.textContent=String(error?.message??error);play.disabled=false}};
+  // onPlay(progress): starts the game at once when the next set is already on the map; else it calls progress(text)
+  // while the set is placed (a slim status line), then starts.
+  play.onclick=async()=>{play.disabled=true;status.textContent='';
+    try{await onPlay?.(text=>{status.textContent=text})}catch(error){status.textContent=String(error?.message??error);play.disabled=false}};
   look.onclick=()=>lookBoard(pack,{random,history:options.history,onBack:()=>trainingStart(pack,{...options,message:null}),region:weakest(pack,attempts,now)});
   const settings=node(left,'label');Object.assign(settings.style,{display:'block',marginTop:'18px',fontSize:'13px',color:'#727272'});
   const box=node(settings,'input');box.type='checkbox';box.checked=manual;box.onchange=()=>{options.manual=box.checked;onManual?.(box.checked)};

@@ -4,7 +4,7 @@ import {indexedDbCache} from './content-cache.mjs';
 import {sourceNote} from './source-note.mjs';
 import {makeNextSet} from './next-set.mjs';
 import {packForPage} from './packs.mjs';
-import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,launchRequest,startPracticeGame,quickCheckQueue,recordKnown,recordMissed,REGIONS_MAP,gameInProgress} from './session.mjs';
+import {completedRound,recordRecognition,advanceRecognition,publishPracticeSet,launchRequest,startPracticeGame,quickCheckQueue,recordKnown,recordMissed,REGIONS_MAP,gameInProgress,readySet} from './session.mjs';
 import {reviewPanel,startPanel,loadingPanel,bindPanel,quickCheckPanel} from './ui.mjs';
 import {cardImages} from './vegcard.mjs';
 import {ruleCheckFor,closeCall} from './sprint.mjs';
@@ -150,7 +150,12 @@ function startPreparedGame() {
   return true;
 }
 let preparing=null,preparingLaunches=false;
-const launchPrepared=chosen=>{GM_setValue(key('launch-request',chosen.id),launchRequest(chosen));go(`/maps/${chosen.practiceMapId}`)};
+const launchPrepared=chosen=>{
+  GM_setValue(key('launch-request',chosen.id),launchRequest(chosen));
+  const mapPath=`/maps/${chosen.practiceMapId}`;
+  if(location.pathname===mapPath){mounted='';render();return}
+  go(mapPath);
+};
 // Single flight: a remounted panel or a second click joins the publication already in progress. Joining a publish-ahead
 // (training round 5) launches its set once it is published.
 const prepare=()=>{
@@ -159,6 +164,19 @@ const prepare=()=>{
   return preparing;
 };
 const publishAhead=()=>{if(!preparing){preparingLaunches=false;preparing=preparePractice({launch:false}).finally(()=>{preparing=null})}return preparing};
+// Training start panel: the next set is placed on the map in the background as soon as the panel opens, so Play only
+// starts the game. A set already placed and not played yet (readySet: under 12 h old, none of its spots shown) is kept.
+const placing='Placing 5 new spots…';
+function primeTrainingSet(subject){
+  if(preparing||readySet(GM_getValue(key('active-set',subject.id),null),history(subject.id),exposures(subject.id)))return;
+  if(gameInProgress(location.pathname,stateOf(gameId()),subject.practiceMapId))return;
+  publishAhead().catch(error=>console.warn('Fieldwork could not place the next set ahead.',error));
+}
+async function playTraining(progress){
+  if(preparing&&!preparingLaunches){progress(placing);const chosen=await preparing.catch(()=>null);return chosen?launchPrepared(chosen):prepare()}
+  if(!preparing&&readySet(GM_getValue(key('active-set'),null),history(),exposures()))return launchPrepared(await store.latest(pack.id));
+  progress(placing);return prepare();
+}
 // Training pack (scheduler 'deal'): the card after every round, then the 15-minute session check when due, then (round 5)
 // the recap. Round 5 publishes the next set ahead while the card is up. Study photos shown on cards are remembered
 // (latest 3,000), so boards prefer ones not seen yet.
@@ -337,10 +355,11 @@ function render() {
     if(startPreparedGame()){if(mounted!=='launch'){loadingPanel(pack,{message:'Starting your next set…'});mounted='launch'}return}
     if(mounted==='start'||mounted==='quick')return;
     if(pack.scheduler==='deal'){
-      trainingStart(pack,{attempts:history(),onPlay:prepare,manual:GM_getValue(key('manual-metas'),false),onManual:value=>GM_setValue(key('manual-metas'),value),
+      trainingStart(pack,{attempts:history(),onPlay:playTraining,manual:GM_getValue(key('manual-metas'),false),onManual:value=>GM_setValue(key('manual-metas'),value),
         packs:packs.filter(item=>item.practiceMapId),onChoosePack:choosePack,message:launchError,history:boardSeen(pack),
         onExport:()=>download({packId:pack.id,attempts:history(),exposures:exposures()},`fieldwork-progress-${pack.id}.json`),
         debugPlan:()=>planDeal(pack,history(),{seenLocationRefs:exposures().map(item=>item.locationRef)})});
+      primeTrainingSet(pack);
       mounted='start';launchError=null;return;
     }
     // A failed API launch (gameSettings packs) is shown once on the start panel; Continue prepares a fresh set.
