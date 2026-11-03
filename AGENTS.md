@@ -111,6 +111,10 @@ installation or successful live publication based on a build passing.
   ≤2 per country. Rounds are graded at once from the pinned macro-region (`regionFeatures`) with world-scale points.
   Cards are full-viewport shadow-root overlays (src/training-ui.mjs, training-start.mjs) in the proto-v2 style;
   keys stop at the overlay so GeoGuessr never sees Space or arrows while one is open.
+  After each set the userscript POSTs the training pack's {packId, attempts, exposures} to the local installer's
+  `/training-sync` (debounced, fire-and-forget, only when the pack is served from 127.0.0.1). `npm run serve` accepts it
+  from loopback only (16 MB cap, shape-checked) and writes `$WORLD_PACK_DATA/training/attempts.json` atomically (or next
+  to the configured training pack) for the nightly focus. Fixtures intercept it and never write the real file.
 
 ## Verification
 
