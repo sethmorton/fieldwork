@@ -442,7 +442,9 @@ must not promote that scope to whole macro-regions. Macro shading is a fallback
 only when `appliesToAdmin1` is empty.
 
 `npm run refresh` updates duels, labels only missing duel views (up to its explicit
-cap), and rebuilds focus/exclusions and the private pack before the normal build.
+cap), rebuilds focus/exclusions, and checks new board/meta photos at the exact
+1280-by-800 display URL before the normal build. Cached valid display views incur
+no new request. It rebuilds once more after exclusions from the pixel pass.
 It never automatically generates more Vali locations. Pool refill is separate:
 
 ```sh

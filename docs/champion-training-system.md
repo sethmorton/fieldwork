@@ -1252,3 +1252,68 @@ No new app, scheduler upgrade or public personal-data pack. Read-only inspection
   response is rejected even when a low-resolution verdict exists.
 - Portable and Pillow-enabled private self-checks pass. `npm run check` passes
   271 tests, one skipped, zero failures, plus TypeScript checks.
+
+### 2026-11-03 14:50 UTC, BuilderData, final handoff
+
+- Final private pack revision **316**, at
+  `$WORLD_PACK_DATA/training/pack.json`: 46,239 locations in 117 countries and
+  174 regions. Splits: 28,198 drill, 4,694 probe, 8,297 study, 5,050 seen.
+  The 32,892 playable locations exclude all exported attempts, duel panoramas
+  and other-pack reservations. Seen remains strictly card-only.
+- Dedicated map binding is `6ae996c3e2700bdd18e5d352`. Settings are No Move,
+  60 seconds, rotation and zoom allowed. Focus is US, score 79.4462 with n=96,
+  followed by Brazil 51.6025 (n=73) and Canada 44.8950 (n=36).
+- There are 5,676 cached verified label records and 4,880 labelled pack locations.
+  Retained magnifiers: 164 LM, 108 Plonk It, two readable observed identifiers,
+  across 273 locations. Of those locations, 57 are playable. All matched IDs
+  resolve in the source registry. There are 145 precise admin1 footprints and
+  one honest missing geometry scope, the Indonesian oil-palm tip including ID-KU.
+- Diagnostic calls across the bounded runs total 2,495: Sol 1,249 and Astra 1,246.
+  Last call started at 14:47:49 UTC (06:47:49 PST). All model processes finished
+  before 06:50 PST. The final playable pass accepted 1,169 new records using its
+  full 500-call cap. No model loop remains running.
+- All 1,180 eligible official duel-loss rounds were resolved: 1,077 have cached
+  verified labels and the remaining 103 unique panoramas have explicit
+  unavailable-placeholder failures. The other 14 loss rounds have ineligible
+  panorama IDs. Unavailable/indoor/urban content is not invented or substituted.
+- High-resolution display sweep plus catch-up checked **13,414** views:
+  13,404 valid and ten genuinely black at 1280 by 800, with zero network errors.
+  Those ten had valid 640 label bytes, proving the resolution-specific problem.
+  Every retained study/seen and meta-bearing game photo now has a checked display
+  verdict. A total of 482 bad candidate views are omitted. The 32,835 untested
+  generic game display views stay null, never falsely claimed checked.
+- Supply targets are met for every supported top-40 region: at least 40 games,
+  or 80 in the eight large countries. Papua remains the sole unsupported source
+  gap. Including Papua, region playable min/median is 0/151, nonempty minimum 42.
+- **Diagnostic-density targets are not fully met.** Board coverage reaches four
+  rural meta-bearing photos in 35/71 top-20 regions. Playable coverage reaches
+  three in only 4/71, with 67 below target. Exact final per-region counts are in
+  `training/report.json`, including `regionsBelowThreeMetaPlayable`. No generic
+  cue was promoted to make the count look complete.
+- Study/seen photo shortages after all filtering: Belarus 0, Indonesia Maluku 2.
+  Maluku declares the honest parent-country fallback. Belarus has no replacement
+  official study supply in the approved sources. Split hashes were not moved.
+- Per-country verified label counts for the top 20:
+
+  | Countries | Label records |
+  | --- | --- |
+  | US, Brazil, India, Australia | 804, 325, 328, 530 |
+  | Russia, Indonesia, Canada, Mexico | 662, 236, 379, 394 |
+  | Argentina, South Africa, Turkey, France | 234, 169, 176, 189 |
+  | Thailand, Spain, Japan, Colombia | 145, 119, 88, 189 |
+  | Philippines, Vietnam, Germany, Peru | 168, 73, 47, 47 |
+
+  Complete per-country counts, including the tail and one unknown-country
+  cached record, remain in `training/report.json` under `labelledPerCountry`.
+- QA evidence remains the approved diagnostic pilot and the inspected random
+  60 sheet. The random sample had five source-backed diagnostic magnifiers,
+  55 honest empty lists, zero clearly false/generic retained claims. This is
+  qualitative visual inspection, not measured human accuracy or recall.
+  Artifacts: `training/qa.html`, `qa-sample.json`, `qa-inspection.json`,
+  `qa-random-1.png` through `qa-random-8.png`, and the diagnostic pilot screenshot.
+- Final Pillow-enabled private self-check passed. Shell syntax check passed.
+  `npm run check` passed 271 tests, one skipped, zero failures, and TypeScript.
+  Nightly refresh now includes size-correct pixel validation of new board/meta
+  photos before compiling assets. No map publication or Dia installation was
+  performed by Data. Main must rebuild and install the local userscript using
+  the configured additional pack, then perform the account playtest.

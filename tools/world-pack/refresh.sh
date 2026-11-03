@@ -15,6 +15,7 @@ PATH="$ROOT/.scratch/nocodex:$PATH" python3 sprint.py
 if [[ -f "$WORLD_PACK_DATA/training/pack.json" ]]; then
   uv run --with pillow --with shapely label.py run --pool-limit 0 --all-duels --duel-limit 3000 --new-limit 200 --max-calls 100 --workers 2 --skip-if-running
   uv run --with pillow --with shapely training.py build
+  uv run --with pillow --with shapely training_images.py --board-only --workers 2 --rebuild-every 0
 fi
 cd "$ROOT"
 npm run build
