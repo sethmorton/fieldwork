@@ -75,14 +75,21 @@ export function screen({onKey=()=>false,onClose,settle=0}={}){
   return {root,scr,close};
 }
 
-/** The exact view a location's metas were labelled on, at display size: same aspect, heading, pitch and fov. */
-export function photoUrl(pack,location,width=1280){
-  const [w,h]=pack.thumbSize??[1600,1000],height=Math.round(width*h/w);
-  if(!Number.isFinite(location.heading)&&location.image)return location.image;
-  return `https://streetviewpixels-pa.googleapis.com/v1/thumbnail?cb_client=maps_sv.share&panoid=${encodeURIComponent(location.panoId)}&w=${width}&h=${height}`
-    +`&yaw=${(location.heading??0).toFixed(1)}&pitch=${(-(location.pitch??0)).toFixed(1)}&thumbfov=${location.fov??100}`;
+/** The exact view a location was checked and labelled on, at full-screen size. The pack's own `location.image` (the
+ *  640×400 label view) supplies panoid, yaw, pitch and thumbfov exactly as written; only the size becomes DISPLAY_WIDTH
+ *  wide at the same aspect, so the framing and the meta boxes (image fractions) are unchanged. Without an image the
+ *  same contract is synthesized: yaw and pitch (thumbnail pitch = −Street View pitch) to 2 decimals, fov 90. */
+export const DISPLAY_WIDTH=1280;
+export function photoUrl(pack,location){
+  const [w,h]=pack.thumbSize??[640,400],height=Math.round(DISPLAY_WIDTH*h/w);
+  if(location.image){
+    const url=new URL(location.image);url.searchParams.set('w',String(DISPLAY_WIDTH));url.searchParams.set('h',String(height));
+    return url.href;
+  }
+  return `https://streetviewpixels-pa.googleapis.com/v1/thumbnail?cb_client=maps_sv.share&panoid=${encodeURIComponent(location.panoId)}&w=${DISPLAY_WIDTH}&h=${height}`
+    +`&yaw=${(location.heading??0).toFixed(2)}&pitch=${(-(location.pitch??0)).toFixed(2)}&thumbfov=${location.fov??90}`;
 }
-const aspect=pack=>{const [w,h]=pack.thumbSize??[1600,1000];return w/h};
+const aspect=pack=>{const [w,h]=pack.thumbSize??[640,400];return w/h};
 
 // Where a meta applies, on its countries' map: its own footprint (metas[id].footprint, admin-1 union) when the pack has
 // one. A meta scoped to admin-1 codes without a resolved footprint shows the country outline only (never broader macro

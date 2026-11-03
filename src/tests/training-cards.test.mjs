@@ -6,7 +6,7 @@ import {validatePack,makeNextSet} from '../next-set.mjs';
 import {gameInProgress,completedRound,readySet,trainingResetKeys} from '../session.mjs';
 import {stateFromGameData} from '../game-state.mjs';
 import {recordDeal,retests,playableDueMetas} from '../deal.mjs';
-import {cropFocus,metaShading,firstSentence} from '../training-ui.mjs';
+import {cropFocus,metaShading,firstSentence,photoUrl} from '../training-ui.mjs';
 import {dueCounts} from '../deal-stats.mjs';
 import {geometryRings} from '../region-map.mjs';
 
@@ -178,4 +178,16 @@ test('reset training history deletes only the training pack\'s learner state',()
   assert.deepEqual(trainingResetKeys(keys,'training'),['fieldwork:training:attempts','fieldwork:training:exposures','fieldwork:training:board-shown',
     'fieldwork:training:study-shown','fieldwork:training:session-check-at','fieldwork:training:pending-review']);
   assert.deepEqual(trainingResetKeys(keys,'sprint'),['fieldwork:sprint:attempts']);
+});
+test('photos show the exact label view at 1280×800: same panoid, yaw, pitch and fov, same aspect, so meta boxes align',()=>{
+  const image='https://streetviewpixels-pa.googleapis.com/v1/thumbnail?cb_client=maps_sv.share&panoid=abc-_X&w=640&h=400&yaw=252.37&pitch=-1.50&thumbfov=90';
+  const shown=new URL(photoUrl({thumbSize:[640,400]},{panoId:'abc-_X',heading:999,pitch:7,fov:60,image})),label=new URL(image);
+  for(const name of ['cb_client','panoid','yaw','pitch','thumbfov'])assert.equal(shown.searchParams.get(name),label.searchParams.get(name),name);
+  assert.deepEqual([shown.searchParams.get('w'),shown.searchParams.get('h')],['1280','800']);
+  // Same aspect: a box in image fractions covers the same pixels of the scene at either size.
+  assert.equal(1280/800,640/400);
+  const box=[0.25,0.6,0.1,0.2],scale=1280/640;assert.deepEqual(box.map((v,i)=>v*(i%2?800:1280)),box.map((v,i)=>v*(i%2?400:640)*scale));
+  // Without an image: the same contract, synthesized.
+  assert.equal(photoUrl({},{panoId:'p q',heading:12.346,pitch:3.2}),
+    'https://streetviewpixels-pa.googleapis.com/v1/thumbnail?cb_client=maps_sv.share&panoid=p%20q&w=1280&h=800&yaw=12.35&pitch=-3.20&thumbfov=90');
 });
