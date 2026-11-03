@@ -38,9 +38,20 @@ function countryFrame(state,country){
 }
 const el=(parent,tag,attrs={},ns=SVG)=>{const node=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))node.setAttribute(k,v);parent?.append(node);return node};
 
+// Outer and inner rings of any GeoJSON geometry, Feature or FeatureCollection (even-odd fill draws the holes).
+export function geometryRings(value){
+  if(!value)return [];
+  if(value.type==='FeatureCollection')return (value.features??[]).flatMap(geometryRings);
+  if(value.type==='Feature')return geometryRings(value.geometry);
+  if(value.type==='GeometryCollection')return (value.geometries??[]).flatMap(geometryRings);
+  const polys=value.type==='Polygon'?[value.coordinates]:value.type==='MultiPolygon'?value.coordinates:[];
+  return polys.flatMap(rings=>rings??[]).filter(ring=>ring?.length>2);
+}
 /** A map element: {node, at(lat,lng) -> [x%, y%]}.
- *  countries: names to frame; shade: {regionName: colour}; points: [{lat,lng,color}]; line: [{lat,lng},{lat,lng}]. */
-export function regionMap(pack,{countries=[],shade={},points=[],line=null,aspect=MAP_ASPECT,pad=0.06}={}){
+ *  countries: names to frame; shade: {regionName: colour}; points: [{lat,lng,color}]; line: [{lat,lng},{lat,lng}];
+ *  overlays: [{geometry (GeoJSON geometry, Feature or FeatureCollection), color}] drawn over the regions (a meta's own
+ *  footprint, e.g. two states). */
+export function regionMap(pack,{countries=[],shade={},points=[],line=null,overlays=[],aspect=MAP_ASPECT,pad=0.06}={}){
   const state=prepare(pack.regionFeatures??[],pack.regions);
   let box=null;
   for(const country of countries){const frame=countryFrame(state,country);if(frame)box=union(box,frame)}
@@ -64,6 +75,10 @@ export function regionMap(pack,{countries=[],shade={},points=[],line=null,aspect
   for(const item of [...visible.filter(item=>!shade[item.name]),...visible.filter(item=>shade[item.name])]){
     const rings=item.rings.filter(ring=>gap(ring.box,view)===0);
     el(svg,'path',{d:path(rings),fill:shade[item.name]??'#fbf8ef',stroke:'#8a8a8a','stroke-width':0.7,'vector-effect':'non-scaling-stroke','fill-rule':'evenodd'});
+  }
+  for(const {geometry,color='#c0392b'} of overlays){
+    const rings=geometryRings(geometry).map(ring=>({ring,box:ringBox(ring)})).filter(ring=>gap(ring.box,view)===0);
+    if(rings.length)el(svg,'path',{d:path(rings),fill:color,stroke:'#8a8a8a','stroke-width':0.7,'vector-effect':'non-scaling-stroke','fill-rule':'evenodd'});
   }
   const at=(lat,lng)=>[((lng*k-x0)/w)*100,((-lat-y0)/h)*100];
   if(line){const [a,b]=line.map(p=>[p.lng*k,-p.lat]);el(svg,'line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:'#121212','stroke-width':1.5,'stroke-dasharray':'4 4','vector-effect':'non-scaling-stroke'})}

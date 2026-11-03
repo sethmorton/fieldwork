@@ -1,11 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createKeyGuard} from '../key-guard.mjs';
-import {boardSpots} from '../boards.mjs';
+import {boardSpots,boardHistory} from '../boards.mjs';
 import {validatePack,makeNextSet} from '../next-set.mjs';
 import {gameInProgress,completedRound} from '../session.mjs';
 import {stateFromGameData} from '../game-state.mjs';
 import {recordDeal,retests} from '../deal.mjs';
+import {cropFocus} from '../training-ui.mjs';
+import {geometryRings} from '../region-map.mjs';
 
 const key=(type,code)=>({type,code,key:code===' '?' ':code,stopped:false,prevented:false,
   stopImmediatePropagation(){this.stopped=true},preventDefault(){this.prevented=true}});
@@ -36,32 +38,43 @@ function pack(spots){
   return {id:'training',title:'T',subject:'G',scheduler:'deal',regions,regionFeatures:[region('X — A','X',0),region('X — B','X',2),region('Y','Y',4)],metas:{},
     skills:Object.keys(regions).map(name=>({id:'s:'+name,title:name,phase:'Regions',prerequisites:[]})),locations};
 }
-test('a board always has four photos: study, then seen, then burned drill spots, then the rest of the country',()=>{
+test('a board has four photos: fresh study, then burned drill spots, then seen (duel/Sprint), then the rest of the country',()=>{
   const p=pack({'X — A':['study','seen','drill','drill','drill'],'X — B':['study','study','study'],Y:['study','study','study','study']});
   validatePack(p);
   const one=boardSpots(p,'X — A',{random:()=>0.5});
-  assert.deepEqual(one.spots.map(spot=>spot.split),['study','seen','drill','drill']);
-  assert.equal(one.burned.length,2);assert.ok(one.burned.every(id=>id.includes('-drill-')));
-  // A panorama the learner already played counts as seen (no burn), and the round's own spot and the set are excluded.
-  const played=p.locations.find(location=>location.split==='drill').id,next=p.locations.filter(location=>location.split==='drill')[1].id;
-  const two=boardSpots(p,'X — A',{seen:new Set([played]),exclude:new Set([next]),random:()=>0.5});
-  assert.ok(two.spots.some(spot=>spot.id===played)&&!two.spots.some(spot=>spot.id===next));
-  assert.deepEqual(two.burned.length,1);
-  // Look boards never burn: they fall back to the country instead.
+  assert.deepEqual(one.spots.map(spot=>spot.split),['study','drill','drill','drill']);
+  assert.equal(one.burned.length,3);assert.ok(one.burned.every(id=>id.includes('-drill-')));
+  // The round's own spot and the in-flight set are excluded; then 'seen' fills in before the country.
+  const drills=p.locations.filter(location=>location.split==='drill').map(location=>location.id);
+  const two=boardSpots(p,'X — A',{exclude:new Set(drills.slice(0,2)),random:()=>0.5});
+  assert.deepEqual(two.spots.map(spot=>spot.split),['study','drill','seen','study']);assert.equal(two.spots[3].region,'X — B');
+  // Look boards never burn: study, then seen, then the country.
   const look=boardSpots(p,'X — A',{burn:false,random:()=>0.5});
-  assert.equal(look.burned.length,0);assert.deepEqual(look.spots.map(spot=>spot.region),['X — A','X — A','X — B','X — B']);
+  assert.equal(look.burned.length,0);assert.deepEqual(look.spots.map(spot=>[spot.region,spot.split]),[['X — A','study'],['X — A','seen'],['X — B','study'],['X — B','study']]);
   // Fewer than four only when the whole country has fewer.
   assert.equal(boardSpots(pack({'X — A':['study'],'X — B':[],Y:['study','study','study','study']}),'X — A').spots.length,1);
 });
-test('within a region, verified photos with a magnifier come first, then verified with none, then unverified',()=>{
-  const p=pack({'X — A':['study','study','study','seen','seen','drill'],'X — B':['study'],Y:['study']});
-  const [plain1,plain2,noneStudy,magnifierSeen,noneSeen]=p.locations;
-  magnifierSeen.verified=true;magnifierSeen.metas=[{metaId:null,what:'pole bands',box:[0.1,0.1,0.2,0.3]}];
-  noneStudy.verified=true;noneSeen.verified=true;
-  const {spots,burned}=boardSpots(p,'X — A',{random:()=>0.5});
-  assert.deepEqual(spots.map(spot=>spot.id),[magnifierSeen.id,noneStudy.id,noneSeen.id,plain1.id],'labelled seen beats unlabelled study');
-  assert.equal(burned.length,0,'card material still comes before burning a drill spot');
-  assert.ok(!spots.includes(plain2));
+test('a board never shows a panorama played or shown as a training round; earlier board burns are reused',()=>{
+  const p=pack({'X — A':['study','drill','drill','drill','drill','seen'],'X — B':['study','study'],Y:['study']});
+  const [study,played1,played2,burnedBefore,fresh]=p.locations;
+  const attempts=[{locationRef:played1.id}],exposures=[{id:'training:g:2',locationRef:played2.id},{id:'training:board:'+burnedBefore.id,locationRef:burnedBefore.id}];
+  const history=boardHistory(attempts,exposures);
+  assert.deepEqual([...history.played].sort(),[played1.id,played2.id].sort());assert.deepEqual([...history.burned],[burnedBefore.id]);
+  for(const burn of [true,false]){
+    const {spots,burned}=boardSpots(p,'X — A',{...history,burn,random:()=>0.5});
+    assert.ok(!spots.some(spot=>spot.id===played1.id||spot.id===played2.id),'played panoramas never on a board');
+    assert.ok(spots.slice(0,2).map(spot=>spot.id).includes(burnedBefore.id),'an earlier burn is card material');assert.ok(spots.includes(study));
+    assert.ok(!burned.includes(burnedBefore.id));if(burn)assert.deepEqual(burned,[fresh.id]);
+  }
+});
+test('board order within a group: verified magnifier, verified none, unverified; rural before unclassified; never urban or a bad thumb',()=>{
+  const p=pack({'X — A':['study','study','study','study','study','study','study'],'X — B':['study'],Y:['study']});
+  const [plain,none,magnifier,ruralPlain,urban,badThumb,nullPlain]=p.locations;
+  magnifier.verified=true;magnifier.metas=[{metaId:null,what:'pole bands',box:[0.1,0.1,0.2,0.3]}];none.verified=true;
+  ruralPlain.rural=true;plain.rural=null;nullPlain.rural=null;urban.rural=false;urban.verified=true;badThumb.thumbOk=false;badThumb.verified=true;
+  const {spots}=boardSpots(p,'X — A',{random:()=>0.5});
+  assert.deepEqual(spots.map(spot=>spot.id),[magnifier.id,none.id,ruralPlain.id,plain.id]);
+  assert.ok(!boardSpots(p,'X — A',{n:10,random:()=>0.5}).spots.some(spot=>spot===urban||spot===badThumb));
 });
 test('seen spots are card material only: never dealt into a game',()=>{
   const p=pack({'X — A':['seen','seen','seen','drill','drill','drill'],'X — B':['seen','drill','drill'],Y:['seen','drill','drill','probe']});
@@ -91,4 +104,15 @@ test('a timed-out round is a miss with no guess location, no distance and no poi
   const attempts=recordDeal(p,[],round);
   assert.deepEqual([attempts[0].timedOut,attempts[0].correct,attempts[0].guess,attempts[0].points],[true,false,null,0]);
   assert.ok(retests(p,attempts,Date.now()+60000).some(item=>item.kind==='region'&&item.key==='X — A'&&item.due),'the region is retested');
+});
+test('photos crop toward their meta boxes: the focus is the middle of the boxes\' union',()=>{
+  assert.deepEqual(cropFocus([]),[0.5,0.5]);
+  assert.deepEqual(cropFocus([[0,0.4,0.06,0.5]]),[0.03,0.65]);
+  assert.deepEqual(cropFocus([[0.1,0.2,0.1,0.1],[0.7,0.6,0.2,0.2]]).map(value=>+value.toFixed(3)),[0.5,0.5]);
+});
+test('a meta footprint can be any GeoJSON shape: its rings are drawn over the country map',()=>{
+  const square=(x)=>[[x,0],[x+1,0],[x+1,1],[x,1],[x,0]];
+  assert.equal(geometryRings({type:'FeatureCollection',features:[{type:'Feature',geometry:{type:'Polygon',coordinates:[square(0)]}},
+    {type:'Feature',geometry:{type:'MultiPolygon',coordinates:[[square(2)],[square(4),square(4.2)]]}}]}).length,4);
+  assert.deepEqual(geometryRings(null),[]);assert.deepEqual(geometryRings({type:'Point',coordinates:[0,0]}),[]);
 });

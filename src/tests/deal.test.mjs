@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import {makeNextSet,validatePack} from '../next-set.mjs';
 import {completedRound,publishPracticeSet} from '../session.mjs';
 import {planDeal,recordDeal,retests,learnerModel,fadedRegions,worldPoints,distanceKm,gradeDeal,seeded,betaSample,
-  RETEST_DAYS,FADE_WEIGHT,HALF_LIFE_DAYS,SESSION_WEIGHT} from '../deal.mjs';
+  RETEST_DAYS,FADE_WEIGHT,HALF_LIFE_DAYS,SESSION_WEIGHT,RURAL_UNKNOWN} from '../deal.mjs';
 import {dealTiles,sessionCheck,checkDue,currentSession} from '../deal-stats.mjs';
 
 // Synthetic world: three countries, square regions on a grid, 12 drill + 4 study spots each. Region r of country c is
@@ -183,6 +183,48 @@ test('weak regions are picked more: Thompson sampling follows the miss posterior
   for(let seed=0;seed<200;seed++){const next=planDeal({...pack,focus:null},attempts,{now:T0,random:seeded(seed),size:1});
     const region=locations.get(next.locationIds[0]).region;counts.set(region,(counts.get(region)??0)+1)}
   assert.ok((counts.get('A — R0')??0)>(counts.get('A — R2')??0)*2,JSON.stringify([...counts]));
+});
+test('verified rural spots are preferred to unclassified ones (rural null); known urban ones are never dealt',()=>{
+  const base=world({acow:{A:1},regionsPer:1});
+  // Region A — R0: odd drill spots unclassified, one known urban, the rest verified rural.
+  const pack={...base,focus:null,locations:base.locations.map((location,i)=>location.split==='study'?location:{...location,rural:i===5?false:i%2?null:true})};
+  const counts={true:0,null:0};
+  for(let seed=0;seed<200;seed++){const next=planDeal(pack,[],{now:T0,random:seeded(seed),size:1}),location=byId(pack).get(next.locationIds[0]);
+    assert.notEqual(location.rural,false);counts[location.rural]++;
+    assert.equal(next.candidates[0].terms.rural,location.rural===true?1:RURAL_UNKNOWN)}
+  assert.ok(counts.true>counts.null*3,JSON.stringify(counts));
+  // Only unclassified spots left: still dealt (supply stays healthy).
+  const unknown={...pack,locations:pack.locations.map(location=>location.split==='study'?location:{...location,rural:null})};
+  assert.equal(planDeal(unknown,[],{now:T0,random:seeded(1)}).locationIds.length,5);
+});
+test('world slots draw countries in proportion to ACoW share: the long tail is dealt too',()=>{
+  // 60 countries with Zipf-like shares; C0 is the focus. 500 cold-start sets (different seeds).
+  const shares=Object.fromEntries(Array.from({length:60},(_,i)=>['C'+i,1/(i+1)**0.8]));
+  const pack={...world({acow:shares,regionsPer:2,drill:6,study:1}),focus:{country:'C0'}},locations=byId(pack),counts=new Map();
+  let worldSlots=0;
+  for(let seed=0;seed<500;seed++){const next=planDeal(pack,[],{now:T0,random:seeded(seed)});
+    for(const id of next.locationIds)if(next.slots[id].slot==='world'){const country=locations.get(id).country;counts.set(country,(counts.get(country)??0)+1);worldSlots++}}
+  assert.ok(counts.size>=40,`${counts.size} distinct countries`);assert.ok(!counts.has('C0'),'the focus country is not a world slot');
+  const total=Object.entries(shares).filter(([country])=>country!=='C0').reduce((sum,[,share])=>sum+share,0);
+  for(const [country,share] of Object.entries(shares)){
+    if(country==='C0')continue;
+    const expected=worldSlots*share/total,seen=counts.get(country)??0;
+    if(expected>=10)assert.ok(seen<=2.5*expected&&seen>=expected/2.5,`${country}: ${seen} vs expected ${expected.toFixed(1)}`);
+  }
+});
+test('meta mastery drives selection: spots showing a weak meta are boosted, a faded meta stops boosting',()=>{
+  const pack={...world({acow:{A:1},regionsPer:1}),focus:null},drills=pack.locations.filter(location=>location.split==='drill');
+  // Every drill spot shows m:A0; odd ones also m:poles. Make m:poles weak: three rounds missed while it was shown.
+  const withPoles=drills.filter(location=>location.metas.some(meta=>meta.metaId==='m:poles'));
+  let attempts=[];withPoles.slice(0,3).forEach((location,n)=>{attempts=recordDeal(pack,attempts,{id:'training:sea:'+n,location,round:1,gameId:'sea',
+    ...gradeDeal(pack,location,{lat:-40,lng:-40},9)},{},new Date(T0-2*DAY))});
+  const terms=plan(pack,attempts,{size:1}).candidates[0].terms,chosen=byId(pack).get(plan(pack,attempts,{size:1}).locationIds[0]);
+  assert.ok(chosen.metas.some(meta=>meta.metaId==='m:poles'),'the spot shows the weak meta');assert.ok(terms.metaWeak>1);
+  // m:A0 used in three fast right rounds: faded, so it adds nothing (no due, weak or novelty boost).
+  let good=[];for(const spot of drills.slice(0,3))good=play(pack,good,spot,{at:T0-DAY,seconds:5});
+  const metaId='m:A0',fresh=drills.slice(3).find(location=>location.metas.length===1);
+  const one=planDeal({...pack,locations:pack.locations.filter(location=>location===fresh||location.split==='study')},good,{now:T0,random:seeded(2),size:1}).candidates[0].terms;
+  assert.equal(one.metaWeak,1);assert.equal(one.metaNovelty,1,`${metaId} faded: no novelty either`);
 });
 test('planning is deterministic for a seed and linear in the pool (50,000 spots)',()=>{
   const pack=world({acow:Object.fromEntries(Array.from({length:50},(_,i)=>['C'+i,1/50])),regionsPer:4,drill:240,study:10});

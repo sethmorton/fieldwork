@@ -22,9 +22,18 @@ const until=async(test,label,ms=20000)=>{const end=Date.now()+ms;while(Date.now(
 const shot=async name=>{await sleep(600);await page.screenshot({path:`${out}/${name}.png`})};
 const space=()=>page.keyboard.press('Space');
 const geoKeys=()=>page.evaluate(()=>fixture.geoKeys.splice(0));
-// Photos on the open beat: "loaded/elements".
-const photos=()=>page.evaluate(()=>{const beat=document.getElementById('fieldwork-training').shadowRoot.querySelector('.beat.on'),imgs=[...beat.querySelectorAll('.grid img')];
-  return `${imgs.filter(img=>img.complete&&img.naturalWidth>0).length}/${imgs.length} ${beat.querySelector('.cap')?.textContent}`});
+// Photos on the open beat: "loaded/elements region". Also checks that no board photo is a panorama already played in
+// this game (fixture rounds so far) and that every magnifier sits inside its photo cell.
+const photos=async()=>{
+  const result=await page.evaluate(()=>{const beat=document.getElementById('fieldwork-training').shadowRoot.querySelector('.beat.on'),imgs=[...beat.querySelectorAll('.grid img')];
+    const played=fixture.games.flatMap(game=>game.rounds??[]),panos=imgs.map(img=>new URL(img.src).searchParams.get('panoid'));
+    const outside=[...beat.querySelectorAll('.mk')].filter(marker=>{const m=marker.getBoundingClientRect(),c=marker.closest('.cell').getBoundingClientRect();
+      return m.left<c.left-1||m.right>c.right+1||m.top<c.top-1||m.bottom>c.bottom+1}).length;
+    return {text:`${imgs.filter(img=>img.complete&&img.naturalWidth>0).length}/${imgs.length} ${beat.querySelector('.cap')?.textContent}`,
+      replayed:panos.filter(pano=>played.includes(pano)),outside}});
+  assert.deepEqual(result.replayed,[],'a board showed a panorama already played');assert.equal(result.outside,0,'a magnifier outside its photo');
+  return result.text;
+};
 const timings=[];
 // Presses Space and records how long the next beat took to show (it waits for its photos, at most 1.5 s).
 const advance=async name=>{const start=Date.now();await space();await until(async()=>await screenName()===name,`beat ${name}`);timings.push([name,Date.now()-start])};

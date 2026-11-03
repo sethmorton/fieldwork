@@ -45,7 +45,7 @@ export function trainingStart(pack,options={}){
   const status=node(left,'p','detail',message??'');status.setAttribute('role','status');status.style.fontSize='14px';
   play.onclick=async()=>{play.disabled=true;status.textContent='Starting your next set…';
     try{await onPlay?.()}catch(error){status.textContent=String(error?.message??error);play.disabled=false}};
-  look.onclick=()=>lookBoard(pack,{random,seen:options.seen,onBack:()=>trainingStart(pack,{...options,message:null}),region:weakest(pack,attempts,now)});
+  look.onclick=()=>lookBoard(pack,{random,history:options.history,onBack:()=>trainingStart(pack,{...options,message:null}),region:weakest(pack,attempts,now)});
   const settings=node(left,'label');Object.assign(settings.style,{display:'block',marginTop:'18px',fontSize:'13px',color:'#727272'});
   const box=node(settings,'input');box.type='checkbox';box.checked=manual;box.onchange=()=>{options.manual=box.checked;onManual?.(box.checked)};
   settings.append(' Manual meta keys (U used it / N didn’t notice); off = graded from your pin');
@@ -76,9 +76,9 @@ export function trainingStart(pack,options={}){
     if(!plan){node(debug,'p',null,'No plan available.');return}
     node(debug,'p',null,`Next set: ${plan.reasons.join(' · ')}`).style.fontWeight='700';
     const table=node(debug,'table');table.style.borderCollapse='collapse';
-    const head=node(table,'tr');for(const label of ['picked','region','score','acow','miss','confusion','novelty','fade','due','metaNovelty'])node(head,'th',null,label).style.textAlign='left';
+    const head=node(table,'tr');for(const label of ['picked','region','score','acow','miss','confusion','novelty','fade','due','metaNovelty','rural'])node(head,'th',null,label).style.textAlign='left';
     for(const item of plan.candidates){const tr=node(table,'tr');if(item.picked)tr.style.background='#fbeee4';
-      const cells=[item.picked??'',item.region,item.score.toExponential(2),...['acow','miss','confusion','novelty','fade','due','metaNovelty'].map(key=>Number(item.terms[key]).toFixed(3))];
+      const cells=[item.picked??'',item.region,item.score.toExponential(2),...['acow','miss','confusion','novelty','fade','due','metaNovelty','rural'].map(key=>Number(item.terms[key]).toFixed(3))];
       for(const value of cells){const td=node(tr,'td',null,value);td.style.padding='2px 10px 2px 0'}}
   }
   return {close,scr,toggleDebug};
@@ -96,10 +96,10 @@ function pill(pack,reopen){
   Object.assign(button.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,font:'700 14px Libre Franklin,Arial',padding:'10px 16px',background:'#121212',color:'#fff',border:0,cursor:'pointer'});
   button.onclick=()=>{button.remove();reopen()};document.body.append(button);
 }
-/** Look board: four photos of one region (study, then panoramas already seen; browsing never burns a playable spot), the
- *  country map with it shaded red. Space reshuffles, ← → change region (the focus country first, then by ACoW share),
- *  Esc goes back. `seen`: location ids the learner has already been shown. */
-export function lookBoard(pack,{region=null,onBack,random=Math.random,seen=new Set()}={}){
+/** Look board: four photos of one region (study, earlier board photos, then duel/Sprint panoramas; never a panorama
+ *  played in training, and browsing never burns a playable spot), the country map with it shaded red. Space reshuffles,
+ *  ← → change region (the focus country first, then by ACoW share), Esc goes back. `history`: boardHistory(). */
+export function lookBoard(pack,{region=null,onBack,random=Math.random,history={}}={}){
   const share=pack.acow??{},focus=pack.focus?.country;
   const withStudy=new Set(pack.locations.filter(location=>location.split==='study'||location.split==='seen').map(location=>location.region));
   const regions=Object.keys(pack.regions??{}).filter(name=>withStudy.has(name))
@@ -115,7 +115,7 @@ export function lookBoard(pack,{region=null,onBack,random=Math.random,seen=new S
   const holder=node(scr,'div','beat on'),popover=metaPopover(scr,pack,{manual:false,grades:{}});
   function draw(){
     holder.replaceChildren();const name=regions[index];if(!name)return;
-    const pick=exclude=>boardSpots(pack,name,{seen,exclude,random,burn:false}).spots;
+    const pick=exclude=>boardSpots(pack,name,{...history,exclude,random,burn:false}).spots;
     let spots=pick(shown);if(spots.length<4){shown=new Set();spots=pick(shown)}
     spots.forEach(spot=>shown.add(spot.id));scr.dataset.region=name;
     board(holder,pack,name,spots,{popover});

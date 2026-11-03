@@ -12,7 +12,13 @@ const CSS=`:host{all:initial}*{box-sizing:border-box}
 .beat{position:absolute;inset:0;display:none}.beat.on{display:block}
 .grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:3px;height:100%;background:#fff}
 .cell{position:relative;overflow:hidden;container-type:size;background:#fff}.bleed{position:absolute;inset:0}
-.frame{position:absolute;left:50%;top:50%;width:max(100cqw,calc(100cqh*var(--ar)));height:max(100cqh,calc(100cqw/var(--ar)));transform:translate(-50%,-50%)}
+/* Cover crop centred on --cx/--cy (image fractions) but never past the image edge; boxes and markers use the same frame
+   (declared on each child, so the cq units resolve against the cell). Markers stay 16px inside the cell. */
+.frame,.box,.mk{--w:max(100cqw,calc(100cqh*var(--ar)));--h:max(100cqh,calc(100cqw/var(--ar)));
+  --fl:clamp(calc(100cqw - var(--w)),calc(50cqw - var(--cx,.5)*var(--w)),0px);--ft:clamp(calc(100cqh - var(--h)),calc(50cqh - var(--cy,.5)*var(--h)),0px)}
+.frame{position:absolute;left:var(--fl);top:var(--ft);width:var(--w);height:var(--h)}
+.box{left:calc(var(--fl) + var(--bx)*var(--w));top:calc(var(--ft) + var(--by)*var(--h));width:calc(var(--bw)*var(--w));height:calc(var(--bh)*var(--h))}
+.mk{left:clamp(16px,calc(var(--fl) + var(--mx)*var(--w)),calc(100cqw - 16px));top:clamp(16px,calc(var(--ft) + var(--my)*var(--h)),calc(100cqh - 16px))}
 .frame img{display:block;width:100%;height:100%;opacity:0;transition:opacity .2s}.frame img.in{opacity:1}
 .mk{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 1px 6px rgba(0,0,0,.45);cursor:pointer;display:grid;place-items:center;z-index:2}
 .mk svg{width:17px;height:17px}.mk:hover,.mk.open{background:#121212}.mk:hover path,.mk.open path,.mk:hover circle,.mk.open circle{stroke:#fff}
@@ -76,6 +82,11 @@ export function photoUrl(pack,location,width=1280){
 }
 const aspect=pack=>{const [w,h]=pack.thumbSize??[1600,1000];return w/h};
 
+// Where a meta applies, on its countries' map: its own footprint (metas[id].footprint, admin-1 union) when the pack has
+// one, else the macro-regions it lists (appliesTo).
+const metaCountries=(pack,info)=>info?.countries?.length?info.countries:[...new Set((info?.appliesTo??[]).map(name=>pack.regions?.[name]?.country??name))];
+export const metaMap=(pack,info)=>regionMap(pack,{countries:metaCountries(pack,info),
+  ...(info?.footprint?{overlays:[{geometry:info.footprint}]}:{shade:Object.fromEntries((info?.appliesTo??[]).map(name=>[name,'#c0392b']))})});
 // The meta popover: title, the Plonk It / Learnable Meta image, a mini map of where it applies, the source link and, with
 // manual keys on, "Used it" / "Didn't notice".
 export function metaPopover(root,pack,{manual,grades,onGrade}){
@@ -87,8 +98,7 @@ export function metaPopover(root,pack,{manual,grades,onGrade}){
     node(pop,'h3',null,info?.title??meta.what??'Observed');
     if(info?.title&&meta.what&&meta.what!==info.title)node(pop,'div','kick',meta.what);
     if(info?.img){const img=node(pop,'img');img.src=info.img;img.alt='';img.referrerPolicy='no-referrer'}
-    const countries=info?.countries?.length?info.countries:[...new Set((info?.appliesTo??[]).map(name=>pack.regions?.[name]?.country??name))];
-    if(countries.length)pop.append(regionMap(pack,{countries,shade:Object.fromEntries((info?.appliesTo??[]).map(name=>[name,'#c0392b']))}).node);
+    if(metaCountries(pack,info).length)pop.append(metaMap(pack,info).node);
     if(info?.url){const link=node(pop,'a',null,info.source==='learnablemeta'?'Learnable Meta ↗':'Plonk It ↗');link.href=info.url;link.target='_blank';link.rel='noreferrer'}
     if(manual&&meta.metaId&&onGrade){
       const keys=node(pop,'div','keys');
@@ -101,21 +111,32 @@ export function metaPopover(root,pack,{manual,grades,onGrade}){
   };
   return {show,hide,get open(){return current}};
 }
-/** A photo cell: the labelled view cropped to cover the cell, with a magnifier on each meta box. Returns its markers. */
+/** A photo cell: the labelled view cropped to cover the cell, with a magnifier on each meta box. The crop is centred on
+ *  the boxes (union), so a box at the image edge stays in view, and markers are clamped inside the cell. Returns its
+ *  markers. */
 function photo(parent,pack,location,popover,cls='cell'){
-  const cell=node(parent,'div',cls),frame=node(cell,'div','frame');frame.style.setProperty('--ar',aspect(pack));
+  const cell=node(parent,'div',cls),frame=node(cell,'div','frame');
+  const boxes=(location.verified===false?[]:location.metas??[]).filter(meta=>Array.isArray(meta.box)&&meta.box.length===4);
+  const [cx,cy]=cropFocus(boxes.map(meta=>meta.box));
+  cell.style.setProperty('--ar',aspect(pack));cell.style.setProperty('--cx',cx.toFixed(4));cell.style.setProperty('--cy',cy.toFixed(4));
   const img=node(frame,'img');img.alt='';img.referrerPolicy='no-referrer';img.decoding='async';
   img.onload=()=>img.classList.add('in');img.src=photoUrl(pack,location);if(img.complete&&img.naturalWidth)img.classList.add('in');
   const markers=[];
-  for(const meta of location.verified===false?[]:location.metas??[]){
-    if(!Array.isArray(meta.box)||meta.box.length!==4)continue;
-    const [x,y,w,h]=meta.box,box=node(frame,'div','box');Object.assign(box.style,{left:x*100+'%',top:y*100+'%',width:w*100+'%',height:h*100+'%'});
-    const marker=node(frame,'button','mk');marker.type='button';marker.innerHTML=LENS;marker.setAttribute('aria-label',pack.metas?.[meta.metaId]?.title??meta.what??'Meta');
-    Object.assign(marker.style,{left:(x+w/2)*100+'%',top:(y+h/2)*100+'%'});
+  for(const meta of boxes){
+    const [x,y,w,h]=meta.box,box=node(cell,'div','box');
+    for(const [name,value] of [['--bx',x],['--by',y],['--bw',w],['--bh',h]])box.style.setProperty(name,value);
+    const marker=node(cell,'button','mk');marker.type='button';marker.innerHTML=LENS;marker.setAttribute('aria-label',pack.metas?.[meta.metaId]?.title??meta.what??'Meta');
+    marker.style.setProperty('--mx',x+w/2);marker.style.setProperty('--my',y+h/2);
     const open=()=>popover.show(marker,box,meta);
     marker.onmouseenter=open;marker.onfocus=open;marker.onclick=open;markers.push({marker,open});
   }
   return {cell,markers};
+}
+/** The point (image fractions) a cover crop centres on: the middle of the meta boxes' union, else the image centre. */
+export function cropFocus(boxes){
+  if(!boxes.length)return [0.5,0.5];
+  const x0=Math.min(...boxes.map(b=>b[0])),y0=Math.min(...boxes.map(b=>b[1])),x1=Math.max(...boxes.map(b=>b[0]+b[2])),y1=Math.max(...boxes.map(b=>b[1]+b[3]));
+  return [(x0+x1)/2,(y0+y1)/2];
 }
 /** A board of one region: up to four study photos (2x2; fewer fill the screen in one row), the country map in the centre
  *  with the region shaded, its name. A region with no study photos shows the map alone. */

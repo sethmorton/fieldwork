@@ -4,9 +4,11 @@
 //   region / meta mastery  Beta(1 + misses, 1 + hits), each outcome weighted by recency (half-life 3 days, ×2 in session)
 //   confusions             true region → pinned region, same recency weights
 //   retests                a miss is retested on a fresh spot later in the session, the next day and 3 days after
-// Each fresh spot scores ACoW weight × Thompson sample of its region's miss probability × due-meta boost × confusion
-// boost × novelty × fade (planDeal). A set then satisfies, in order: the latest confusion as a contrast pair, ≥2 spots
-// showing due metas, ≥1 focus-country spot, ≥2 world spots, ≤2 per country, one per region except a contrast pair.
+// Each fresh spot scores ACoW weight × Thompson sample of its region's miss probability × due-meta boost × weak-meta
+// boost × confusion boost × novelty × fade × rurality (planDeal). A set then satisfies, in order: the latest confusion as
+// a contrast pair, ≥2 spots showing due metas (else due regions), ≥1 focus-country spot (all priority-ranked), then
+// world spots: a country drawn in proportion to its ACoW share, its best-scoring spot. ≤2 per country, one per region
+// except a contrast pair.
 import {regionAt} from './geo.mjs';
 
 export const PLAYABLE=new Set(['drill','probe']);
@@ -18,9 +20,13 @@ export const HALF_LIFE_DAYS=3,SESSION_WEIGHT=2,SESSION_GAP=30*60000;
 // A right answer slower than FAST_MS counts SLOW_HIT of a hit (the rest a miss). Fade: the latest FADE_HITS rounds of a
 // region all fast and right; such a region scores FADE_WEIGHT. A round without a recorded time counts as fast.
 export const FAST_MS=20000,SLOW_HIT=0.7,FADE_HITS=3,FADE_WEIGHT=0.25;
-// Score terms: each due meta a verified spot shows adds DUE_BOOST; confusion adds CONFUSION_BOOST × min(2, weight);
-// a region or meta not met for NOVELTY_DAYS (or never) multiplies by NOVELTY.
-export const DUE_BOOST=1.5,CONFUSION_BOOST=1,NOVELTY=1.3,NOVELTY_DAYS=7;
+// Score terms: each due meta a verified spot shows adds DUE_BOOST; its weakest known meta (posterior mean miss above
+// 0.5) adds up to META_WEAK_BOOST; confusion adds CONFUSION_BOOST × min(2, weight); a region or meta not met for
+// NOVELTY_DAYS (or never) multiplies by NOVELTY. Faded metas add nothing.
+export const DUE_BOOST=1.5,META_WEAK_BOOST=1,CONFUSION_BOOST=1,NOVELTY=1.3,NOVELTY_DAYS=7;
+// Rurality (ACoW is ~87% rural): a verified rural spot scores 1, an unclassified one (rural null) RURAL_UNKNOWN. Known
+// urban spots (rural false) are never dealt.
+export const RURAL_UNKNOWN=0.6;
 const COUNTRY_CAP=2;
 const dayStart=time=>{const date=new Date(time);date.setHours(0,0,0,0);return date.getTime()};
 export const isDealAttempt=attempt=>attempt.feedbackSource==='auto'&&typeof attempt.correct==='boolean';
@@ -152,13 +158,29 @@ export function retests(pack,attempts,now=Date.now()){
   }
   return open.sort((a,b)=>b.due-a.due||b.missAt-a.missAt);
 }
-/** Regions whose latest FADE_HITS rounds were fast and right. */
-export function fadedRegions(attempts){
-  const recent=new Map();
-  for(const attempt of attempts)if(isDealAttempt(attempt)&&attempt.region){
-    const list=recent.get(attempt.region)??[];list.push(attempt);if(list.length>FADE_HITS)list.shift();recent.set(attempt.region,list);
+/** Regions and metas whose latest FADE_HITS rounds were fast and right (for a meta: shown and used in a fast right
+ *  round). Faded ones are picked FADE_WEIGHT as often (regions) or stop boosting a spot (metas). */
+export function faded(attempts){
+  const regions=new Map(),metas=new Map(),push=(map,key,ok)=>{const list=map.get(key)??[];list.push(ok);if(list.length>FADE_HITS)list.shift();map.set(key,list)};
+  for(const attempt of attempts){
+    if(!isDealAttempt(attempt))continue;
+    const fast=attempt.correct&&!(attempt.elapsedMs>FAST_MS);
+    if(attempt.region)push(regions,attempt.region,fast);
+    for(const meta of attempt.metas??[])push(metas,meta.metaId,fast&&meta.used);
   }
-  return new Set([...recent].filter(([,list])=>list.length===FADE_HITS&&list.every(item=>item.correct&&!(item.elapsedMs>FAST_MS))).map(([region])=>region));
+  const done=map=>new Set([...map].filter(([,list])=>list.length===FADE_HITS&&list.every(Boolean)).map(([key])=>key));
+  return {regions:done(regions),metas:done(metas)};
+}
+export const fadedRegions=attempts=>faded(attempts).regions;
+// Posterior mean miss probability of a key with evidence; null without.
+const meanMiss=stats=>stats&&stats.misses+stats.hits>0?(1+stats.misses)/(2+stats.misses+stats.hits):null;
+// One item drawn with probability proportional to its weight; null when no weight is positive. Linear.
+function weighted(items,random){
+  const total=items.reduce((sum,item)=>sum+Math.max(0,item.weight),0);
+  if(!(total>0))return null;
+  let r=random()*total;
+  for(const item of items){r-=Math.max(0,item.weight);if(r<0)return item}
+  return items.at(-1);
 }
 
 /** The next set: {locationIds, slots: {locationId: {slot: 'pair'|'due'|'focus'|'world'|'top', retest}}, reasons,
@@ -166,10 +188,10 @@ export function fadedRegions(attempts){
 export function planDeal(pack,attempts,{size=5,now=Date.now(),seenLocationRefs=[],random=Math.random}={}){
   const nowMs=new Date(now).getTime(),seen=new Set(seenLocationRefs);
   for(const attempt of attempts)if(attempt.locationRef)seen.add(attempt.locationRef);
-  const model=learnerModel(pack,attempts,nowMs),open=retests(pack,attempts,nowMs),faded=fadedRegions(attempts);
+  const model=learnerModel(pack,attempts,nowMs),open=retests(pack,attempts,nowMs),fade=faded(attempts);
   const dueMetas=new Set(open.filter(item=>item.due&&item.kind==='meta').map(item=>item.key));
   const openRegions=new Set(open.filter(item=>item.kind==='region').map(item=>item.key));
-  const verifiedMetas=location=>location.verified===false?[]:[...new Set((location.metas??[]).map(meta=>meta.metaId).filter(Boolean))];
+  const verifiedMetas=location=>location.verified===false?[]:[...new Set((location.metas??[]).map(meta=>meta.metaId).filter(id=>id&&!fade.metas.has(id)))];
   // One pass: fresh playable spots grouped by region, with each region's count per country for the ACoW split.
   const byRegion=new Map(),countryCount=new Map();
   for(const location of pack.locations){
@@ -185,11 +207,15 @@ export function planDeal(pack,attempts,{size=5,now=Date.now(),seenLocationRefs=[
   for(const [region,list] of byRegion){
     const country=list[0].country,stats=model.regions.get(region)??{misses:0,hits:0};
     const terms={acow:(acow[country]??0)/acowTotal*list.length/countryCount.get(country),miss:betaSample(1+stats.misses,1+stats.hits,random),
-      confusion:1+CONFUSION_BOOST*Math.min(2,model.confusions.get(region)??0),novelty:novel(model.regions,region)?NOVELTY:1,fade:faded.has(region)?FADE_WEIGHT:1};
+      confusion:1+CONFUSION_BOOST*Math.min(2,model.confusions.get(region)??0),novelty:novel(model.regions,region)?NOVELTY:1,fade:fade.regions.has(region)?FADE_WEIGHT:1};
     const base=terms.acow*terms.miss*terms.confusion*terms.novelty*terms.fade;
     for(const location of list){
       const metas=verifiedMetas(location),due=metas.filter(id=>dueMetas.has(id)).length,newMetas=metas.filter(id=>novel(model.metas,id)).length;
-      const spot={location,region,country,due,score:base*(1+DUE_BOOST*due)*(newMetas?NOVELTY:1),terms:{...terms,due:1+DUE_BOOST*due,metaNovelty:newMetas?NOVELTY:1},
+      // The spot's weakest known meta: posterior mean miss above 0.5 scales up to META_WEAK_BOOST.
+      const weakest=Math.max(0.5,...metas.map(id=>meanMiss(model.metas.get(id))??0.5)),metaWeak=1+META_WEAK_BOOST*2*(weakest-0.5);
+      const rural=location.rural===true?1:RURAL_UNKNOWN;
+      const spot={location,region,country,due,score:base*(1+DUE_BOOST*due)*metaWeak*(newMetas?NOVELTY:1)*rural,
+        terms:{...terms,due:1+DUE_BOOST*due,metaWeak,metaNovelty:newMetas?NOVELTY:1,rural},
         retest:openRegions.has(region)};
       candidates.push(spot);
     }
@@ -208,15 +234,23 @@ export function planDeal(pack,attempts,{size=5,now=Date.now(),seenLocationRefs=[
     const spot=dueRanked.find(item=>item.region===region)??ranked.find(item=>item.region===region);
     if(spot&&picks.length<size&&fits(spot,true))take(spot,'pair');
   }
-  // 2. At least two spots showing due metas. 3. At least one focus-country spot. 4. At least two world spots.
+  // 2. At least two spots showing due metas. 3. At least one focus-country spot. All priority-ranked.
   const count=test=>picks.filter(test).length;
   fill(dueRanked,'due',2-count(spot=>spot.due>0));
   // Too few due-meta spots (unlabelled pools): due region retests fill the two due slots, best score first.
   const dueRegions=new Set(open.filter(item=>item.due&&item.kind==='region').map(item=>item.key));
   fill(ranked,'due',2-count(spot=>spot.due>0||dueRegions.has(spot.region)),spot=>dueRegions.has(spot.region));
   if(focus)fill(ranked,'focus',1-count(spot=>spot.country===focus),spot=>spot.country===focus);
-  fill(ranked,'world',2-count(spot=>spot.country!==focus),spot=>spot.country!==focus);
-  // 5. The rest by score; a short pool relaxes the per-country cap, never the never-repeat rule.
+  // 4. World spots for the rest (at least two): a country drawn in proportion to its ACoW share among countries that
+  // still fit, then its best-scoring spot. Sampling (not ranking) keeps the long tail of ACoW in the mix.
+  const byCountry=Map.groupBy(ranked,spot=>spot.country);
+  const worldSpot=()=>{
+    const options=[...byCountry].filter(([country])=>country!==focus).map(([country,list])=>({list,weight:acow[country]??0,spot:list.find(spot=>fits(spot))}))
+      .filter(option=>option.spot);
+    return (weighted(options,random)??weighted(options.map(option=>({...option,weight:1})),random))?.spot??null;
+  };
+  for(let guard=0;picks.length<size&&guard<size*2;guard++){const spot=worldSpot();if(!spot)break;take(spot,'world')}
+  // 5. A short pool: the rest by score, relaxing the per-country cap, never the never-repeat rule.
   fill(ranked,'top',size-picks.length);
   if(picks.length<size){candidates.sort((a,b)=>b.score-a.score);
     for(const spot of candidates){if(picks.length>=size)break;if(!slots[spot.location.id]&&!regionsUsed.has(spot.region))take(spot,'top')}
@@ -225,7 +259,7 @@ export function planDeal(pack,attempts,{size=5,now=Date.now(),seenLocationRefs=[
   const reasons=[['pair','contrast pair'],['due','due meta'],['focus','focus'],['world','world'],['top','top ranked']].filter(([label])=>by(label)).map(([label,text])=>`${by(label)} ${text}`).join(', ');
   // Debug view: the 20 best regions (their best spot's terms), each marked with the slot a pick from that region filled.
   const pickedRegion=new Map(picks.map(spot=>[spot.region,slots[spot.location.id].slot]));
-  return {locationIds:picks.map(spot=>spot.location.id),slots,reasons:[reasons,`${open.filter(item=>item.due).length} due, ${faded.size} faded`],
+  return {locationIds:picks.map(spot=>spot.location.id),slots,reasons:[reasons,`${open.filter(item=>item.due).length} due, ${fade.regions.size} faded regions, ${fade.metas.size} faded metas`],
     candidates:ranked.slice(0,20).map(spot=>({locationId:spot.location.id,region:spot.region,country:spot.country,score:spot.score,terms:spot.terms,
       picked:pickedRegion.get(spot.region)??null}))};
 }
