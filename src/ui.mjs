@@ -4,11 +4,13 @@ import {curriculumProgress} from './lib/adaptive.ts';
 import {plainMessage} from './load-errors.mjs';
 const notSaved='This change could not be saved. Try again.';
 const scriptVersion=()=>typeof GM_info==='undefined'?'unknown':GM_info?.script?.version??'unknown';
-export function locationReport(pack,location,skill,version){
+const REPORT_ENDPOINT='https://fieldwork-reports.vercel.app/api/report';
+export function locationReport(pack,location,skill,version,reason='',note=''){
   const pano=new URL('https://www.google.com/maps/@');pano.search=new URLSearchParams({api:'1',map_action:'pano',pano:location.panoId,heading:String(location.heading??0)}).toString();
-  const where=`Pack: ${pack.id}\nLocation: ${location.id}\npanoId: ${location.panoId}\nCoordinates: ${location.lat},${location.lng}\n${pano.href}`,clue=`${skill.id} — ${skill.title}`;
-  const url=new URL('https://github.com/sethmorton/fieldwork/issues/new');url.search=new URLSearchParams({template:'location.yml',title:`Practice location: ${skill.title}`,location:where,clue,version}).toString();
-  return {text:`${where}\nClue: ${clue}\nScript version: ${version}`,url:url.href};
+  const payload={packId:pack.id,locationId:location.id,panoId:location.panoId,lat:location.lat,lng:location.lng,streetViewUrl:pano.href,skillId:skill.id,skillTitle:skill.title,reason,note,version};
+  const where=`Pack: ${pack.id}\nLocation: ${location.id}\npanoId: ${location.panoId}\nCoordinates: ${location.lat},${location.lng}\n${pano.href}`,clue=`${skill.id} — ${skill.title}`,details=`Reason: ${reason}\nNote: ${note}`;
+  const url=new URL('https://github.com/sethmorton/fieldwork/issues/new');url.search=new URLSearchParams({template:'location.yml',title:`Practice location: ${skill.title}${reason?' — '+reason:''}`,location:where,clue,version,details}).toString();
+  return {payload,text:`${where}\nClue: ${clue}\nScript version: ${version}\n${details}`,url:url.href};
 }
 // Compact post-guess UI. Source HTML is converted to text, never executed.
 // Panel size: compact by default, expanded (wide, full images and text) when the learner asks; remembered per browser.
@@ -39,7 +41,16 @@ export function panel() {
     .preview{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}.wide .preview{display:block}
     .auto{margin:8px 0 0;font-weight:700;font-size:15px}.auto.right{color:#276b50}.auto.wrong{color:#c0571a}
     .wide img{max-height:none;cursor:zoom-out}img{cursor:zoom-in}header .size{margin-left:auto}
-    .report button{border:0;background:none;padding:0;color:inherit;text-decoration:underline}.report a{color:inherit}
+    header .flag{margin-left:auto;display:grid;place-items:center;width:28px;height:28px}header .flag+.size{margin-left:0}.flag svg{width:16px;height:16px}.flag.reported{color:#176b86}.flag.reported .flag-fill{fill:currentColor}
+    .report-sheet{display:grid;grid-template-rows:0fr;opacity:0;transform:translateY(-6px) scale(.98);transform-origin:top right;transition:grid-template-rows 250ms ease-out,opacity 250ms ease-out,transform 250ms ease-out}
+    .report-sheet.open{grid-template-rows:1fr;opacity:1;transform:none}.report-clip{min-height:0;overflow:hidden}.report-body{margin-top:12px;padding:12px 0;border-top:1px solid #a9c2cb;border-bottom:1px solid #a9c2cb}
+    .report-body h3{font:600 13px/1.25 'Trebuchet MS',Arial,sans-serif;margin:0 0 10px}.report-options{display:flex;flex-wrap:wrap;gap:6px}.report-options button{border-radius:20px;font-size:12px;padding:7px 10px;color:#176b86;background:transparent;transition:transform 100ms ease-out}
+    .report-options button:active{transform:scale(.97)}.report-options button[aria-pressed=true]{border-color:#176b86;box-shadow:inset 0 0 0 1px #176b86}.report-note{width:100%;margin:0 0 10px;padding:8px 10px;border:1px solid #9bb7c2;border-radius:7px;font:12px Arial,sans-serif;color:#153946;background:#fff}
+    .report-status:empty{display:none}.report-status{margin:10px 0 0;font-size:12px}.report-error{color:#c0571a}.report-fallback{display:flex;gap:14px;margin-top:8px;font-size:12px}.report-fallback button{padding:0;border:0;background:none;color:#176b86;text-decoration:underline}.report-sent{color:#276b50;font-weight:600}.report-sent p{margin:0}.report-sent .muted{font-weight:400;margin-top:6px}.report-check{font-size:18px;margin-right:6px}.version{font-size:11px;color:#496b79}.update-pill{display:flex;align-items:center;gap:8px;width:max-content;margin-top:10px;border:1px solid #a9c2cb;border-radius:20px;padding:3px 8px;font-size:12px;color:#496b79;transition:opacity 250ms ease-out}.update-pill.fading{opacity:0}.update-pill button{font-size:14px;padding:0 3px;color:#496b79}
+    @media(prefers-reduced-motion:reduce){.report-sheet{transform:none;transition:opacity 150ms ease-out}.report-options button:active{transform:none}}
+    [hidden]{display:none!important}
+    .report-options button:focus-visible{outline-offset:-3px}
+    .actions button[aria-pressed=true]{border-color:#176b86;box-shadow:inset 0 0 0 1px #176b86}
   `;root.append(style);const section=document.createElement('section');root.append(section);document.body.append(host);
   applySize(section);
   return {host,section};
@@ -57,6 +68,41 @@ function treeDetails(section,pack,getAttempts,title){
   const refresh=()=>{if(details.open)renderProgressTree(tree,pack,getAttempts());};
   details.ontoggle=()=>{applySize(section,details.open);refresh();};
   return {details,refresh};
+}
+function reportSheet(section,pack,location,skill){
+  const head=section.querySelector('header'),key=`fieldwork:reported:${location.id}`;
+  let sent=localStorage.getItem(key)==='1',sending=false,reason='',timer;
+  const flag=button(head,'',()=>setOpen(!sheet.classList.contains('open')),'close flag');
+  flag.innerHTML='<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 18V3"/><path class="flag-fill" d="M4 3c4-3 7 3 12 0v9c-5 3-8-3-12 0z"/></svg>';
+  head.insertBefore(flag,head.querySelector('.size'));
+  const sheet=text(section,'div','','report-sheet');sheet.id='location-report';flag.setAttribute('aria-controls',sheet.id);
+  const clip=text(sheet,'div','','report-clip'),body=text(clip,'div','','report-body');head.after(sheet);
+  const updateFlag=()=>{flag.classList.toggle('reported',sent);flag.setAttribute('aria-label',sent?'Reported':'Report this location')};
+  const setOpen=open=>{clearTimeout(timer);sheet.classList.toggle('open',open);sheet.inert=!open;flag.setAttribute('aria-expanded',String(open));if(open){if(sent)showSent();else body.querySelector('button')?.focus()}else flag.focus()};
+  const showSent=async()=>{await body.animate([{opacity:1},{opacity:0}],{duration:100}).finished;body.replaceChildren();const success=text(body,'div','','report-sent');success.setAttribute('role','status');const line=text(success,'p','');text(line,'span','✓','report-check');line.append('Thanks. Seth will take a look.');text(success,'p',"Packs update on their own once it's fixed.",'muted');body.animate([{opacity:0},{opacity:1}],{duration:150});if(sheet.classList.contains('open'))timer=setTimeout(()=>{if(sheet.isConnected&&sheet.classList.contains('open'))setOpen(false)},2500)};
+  updateFlag();sheet.inert=true;flag.setAttribute('aria-expanded','false');
+  text(body,'h3',"What's off with this spot?");
+  const note=text(body,'input','','report-note');note.type='text';note.placeholder='Add a note (optional)';note.setAttribute('aria-label','Add a note (optional)');
+  const group=text(body,'div','','report-options');group.setAttribute('role','group');group.setAttribute('aria-label','Send a location report');
+  const status=text(body,'p','','report-status');status.setAttribute('role','status');
+  const fallback=text(body,'div','','report-fallback');fallback.hidden=true;
+  const copy=button(fallback,'Copy details',async()=>{try{await navigator.clipboard.writeText(locationReport(pack,location,skill,scriptVersion(),reason,note.value).text);copy.textContent='Copied';status.textContent="Couldn't send."}catch{status.textContent="Couldn't copy. Open on GitHub to use the details."}});
+  const github=text(fallback,'a','Open on GitHub');github.target='_blank';github.rel='noopener noreferrer';
+  const finish=ok=>{
+    sending=false;note.disabled=false;for(const chip of group.children){chip.disabled=false;chip.textContent=chip.dataset.reason;chip.style.minWidth=''}
+    if(ok){sent=true;localStorage.setItem(key,'1');updateFlag();if(sheet.classList.contains('open'))showSent();return}
+    status.textContent="Couldn't send.";status.classList.add('report-error');fallback.hidden=false;
+  };
+  for(const label of ['Clue not visible','Wrong clue','Something else']){
+    const chip=button(group,label,()=>{
+      if(sending||sent)return;reason=label;sending=true;note.disabled=true;fallback.hidden=true;copy.textContent='Copy details';status.classList.remove('report-error');status.textContent='Sending…';
+      chip.style.minWidth=`${chip.offsetWidth}px`;for(const item of group.children){item.disabled=true;item.setAttribute('aria-pressed',String(item===chip))}chip.textContent='Sending…';
+      const report=locationReport(pack,location,skill,scriptVersion(),reason,note.value);github.href=report.url;
+      try{GM_xmlhttpRequest({method:'POST',url:REPORT_ENDPOINT,headers:{'Content-Type':'application/json',Accept:'application/json'},data:JSON.stringify(report.payload),anonymous:true,timeout:15000,onload:response=>{let ok=false;try{ok=response.status>=200&&response.status<300&&JSON.parse(response.responseText).ok===true}catch{}finish(ok)},onerror:()=>finish(false),ontimeout:()=>finish(false),onabort:()=>finish(false)})}catch{finish(false)}
+    });chip.dataset.reason=label;chip.setAttribute('aria-pressed','false');
+  }
+  if(sent)body.replaceChildren();
+  section.addEventListener('keydown',event=>{if(event.key==='Escape'&&sheet.classList.contains('open')){event.preventDefault();event.stopPropagation();setOpen(false)}});
 }
 function clue(section,skill,sourceUrl) {
   sourceUrl=skill.notesSourceUrl??sourceUrl;
@@ -78,6 +124,7 @@ export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],g
   const {section}=panel();header(section,`Fieldwork · round ${round.round}/5`);
   const source=document.createElement('div');section.append(source);
   const currentSkill=pack.skills.find(skill=>skill.id===round.location.skillIds[0]);
+  reportSheet(section,pack,round.location,currentSkill);
   clue(source,currentSkill,pack.notesSourceUrl);
   if(loadNote&&!currentSkill.sourceNoteHtml&&currentSkill.noteOrigin!=='fieldwork-authored'){
     const status=text(source,'p','Loading source explanation…','muted');
@@ -99,18 +146,14 @@ export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],g
   const label=document.createElement('label');const seen=document.createElement('input');seen.type='checkbox';seen.checked=familiar;label.append(seen,document.createTextNode('I had seen this panorama before'));section.append(label);
   let result=round.correct;
   seen.onchange=()=>onChange({familiar:seen.checked,correct:result});
-  if(result===null&&!currentSkill.recognitionOnly){text(section,'p','Was your guess in the right region?','muted');const choices=document.createElement('div');choices.className='actions';section.append(choices);for(const [title,value] of [['Yes',true],['No',false]])button(choices,title,()=>{result=value;onChange({familiar:seen.checked,correct:result});for(const child of choices.children)child.classList.remove('primary');choices.children[value?0:1].classList.add('primary');});}
+  if(result===null&&!currentSkill.recognitionOnly){text(section,'p','Was your guess in the right region?','muted');const choices=document.createElement('div');choices.className='actions';section.append(choices);for(const [title,value] of [['Yes',true],['No',false]])button(choices,title,()=>{result=value;onChange({familiar:seen.checked,correct:result});for(const child of choices.children)child.setAttribute('aria-pressed','false');choices.children[value?0:1].setAttribute('aria-pressed','true');});}
   const status=text(section,'p',saved?'Saved on this device.':'','muted');status.setAttribute('role','status');
   const actions=document.createElement('div');actions.className='actions';section.append(actions);
   const save=(recognized,knew=false)=>{try{onSave({recognized,knew,familiar:seen.checked,correct:result});tree.refresh();for(const child of actions.children)child.disabled=true;status.textContent='Saved on this device.';}catch(error){status.textContent=plainMessage(error,notSaved)}};
   button(actions,'Missed it',()=>save(false),'primary');button(actions,'Spotted it',()=>save(true));button(actions,'Knew it',()=>save(true,true));
   for(const child of actions.children)child.disabled=saved;
-  if(round.round===5){const next=button(section,'Continue practice',async()=>{next.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=plainMessage(error);next.disabled=false}},'primary');next.style.marginTop='12px';}
+  if(round.round===5){const next=button(section,'Continue practice',async()=>{next.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=plainMessage(error);next.disabled=false}});next.style.marginTop='12px';}
   const tree=treeDetails(section,pack,getAttempts,'Your progress tree');
-  const report=locationReport(pack,round.location,currentSkill,scriptVersion()),links=text(section,'p','','muted report');
-  const link=text(links,'a','Report this location');link.href=report.url;link.target='_blank';link.rel='noopener noreferrer';text(links,'span',' · ');
-  const copied=text(section,'p','','muted');copied.setAttribute('role','status');
-  button(links,'Copy details',async()=>{try{await navigator.clipboard.writeText(report.text);copied.textContent='Copied. Paste it in a GitHub issue or DM.'}catch{copied.textContent='Could not copy. Use Report this location to get the details.'}});
 }
 function packImport(parent,onImport,status){
   const label=text(parent,'label','Import a practice pack');const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async()=>{try{if(!input.files[0])return;await onImport(JSON.parse(await input.files[0].text()));status.textContent='Pack imported.';}catch(error){status.textContent=plainMessage(error)}};label.append(input);
@@ -131,6 +174,12 @@ export function bindPanel(packs,{onBind,error=null}){
 }
 export function startPanel(pack,{onNext,onQuickCheck,onExport,onImport,onCoverage,attempts=[],getAttempts=()=>attempts,packs=[],onChoosePack,learn=false,onLearn}) {
   const {section}=panel();header(section,'Fieldwork · practice');text(section,'h2',pack.title);
+  const version=scriptVersion(),seenVersion=localStorage.getItem('fieldwork:seenVersion');
+  if(version!=='unknown'){localStorage.setItem('fieldwork:seenVersion',version);if(seenVersion&&seenVersion!==version){
+    const pill=text(section,'div',`Updated to ${version}`,'update-pill');pill.setAttribute('role','status');
+    const dismiss=()=>{pill.classList.add('fading');setTimeout(()=>pill.remove(),250)};
+    const close=button(pill,'×',dismiss,'close');close.setAttribute('aria-label','Dismiss update notice');setTimeout(dismiss,7000);
+  }}
   if(packs.length>1)packChoice(section,pack,packs,onChoosePack);
   text(section,'p',curriculumProgress(pack,attempts).message,'muted');
   const status=text(section,'p',`${pack.answerAreaLabel??pack.title}. At most two clues per family. New clues adapt to recent practice.`,'muted');status.setAttribute('role','status');
@@ -143,7 +192,7 @@ export function startPanel(pack,{onNext,onQuickCheck,onExport,onImport,onCoverag
   if(pack.coverageSummary){const coverage=document.createElement('details');text(coverage,'summary','Source coverage');text(coverage,'p',pack.coverageSummary,'muted');details.append(coverage);}
   if(onCoverage)button(details,'Export source inventory',async()=>{try{await onCoverage()}catch(error){status.textContent=plainMessage(error)}});
   button(details,'Export progress',onExport);packImport(details,onImport,status);
-  const footer=text(section,'p',`Version ${scriptVersion()} · `,'muted'),update=text(footer,'a','Check for updates');update.href='https://sethmorton.github.io/fieldwork/fieldwork.user.js';update.target='_blank';update.rel='noopener noreferrer';
+  const footer=text(section,'p',`Version ${scriptVersion()} · `,'version'),update=text(footer,'a','Check for updates');update.href='https://sethmorton.github.io/fieldwork/fieldwork.user.js';update.target='_blank';update.rel='noopener noreferrer';
 }
 /** Clear clues you already know without spending rounds: one card at a time, K = knew it, N = not yet. */
 export function quickCheckPanel(pack,queue,{onKnown,onDone}) {

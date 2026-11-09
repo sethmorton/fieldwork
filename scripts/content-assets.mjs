@@ -31,6 +31,7 @@ export const userscriptHeader=(version,{local=true}={})=>`// ==UserScript==
 // @grant        unsafeWindow
 // @connect      sethmorton.github.io
 // @connect      learnablemeta.com
+// @connect      fieldwork-reports.vercel.app
 ${local?'// @connect      127.0.0.1\n':`// @downloadURL  ${publicScriptUrl}\n// @updateURL    ${publicScriptUrl}\n`}// @run-at       document-start
 // @require      https://raw.githubusercontent.com/miraclewhips/geoguessr-event-framework/5e449d6b64c828fce5d2915772d61c7f95263e34/geoguessr-event-framework.js
 // ==/UserScript==`;

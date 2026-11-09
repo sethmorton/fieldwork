@@ -9,7 +9,7 @@ Fieldwork is a Tampermonkey userscript. It turns a GeoGuessr map you own into a 
 ## What you get
 
 - **The World pack.** About 2,150 Plonk It clues across 118 countries, each with two or three real Street View locations. New clues come landscape and utility poles first, then in order of how often a small vision model sees them on about 1,270 rounds shaped like A Competitive World, the ranked No Move map. Practice locations prefer rural scenes like the ranked map, except for phone-number and sign clues.
-- **A clue card after every guess.** The Plonk It text and image, a link to the guide page, and three buttons: **Missed it**, **Spotted it**, **Knew it**. **Report this location** flags a wrong clue or outdated panorama.
+- **A clue card after every guess.** The Plonk It text and image, a link to the guide page, and three buttons: **Missed it**, **Spotted it**, **Knew it**. Tap the flag and choose a reason to report a bad location in place, while the game carries on. Reports you choose to send create a public GitHub issue containing only the location and clue details; no account needed.
 - **Quick check.** Flip through clue cards without playing rounds and clear the ones you already know.
 - **An expandable card.** Press ⤢ (or click the image) to see the image full size over the map. Fieldwork remembers your choice.
 - **FSRS spacing.** Reviews are scheduled with FSRS-6, the algorithm Anki uses. Clues you miss come back soon. Clues you know come back later and later.
@@ -64,9 +64,9 @@ Packs update in the background without reinstalling the script. Each pack needs 
 
 ## Privacy
 
-- Progress, history and map bindings are stored in Tampermonkey's script storage. Downloaded packs are cached in your browser's IndexedDB. Nothing is uploaded. Export a backup under **Content & progress**.
+- Progress, history and map bindings are stored in Tampermonkey's script storage. Downloaded packs are cached in your browser's IndexedDB. These stay on your device. Reports you choose to send create a public GitHub issue with only the location and clue details, your chosen reason, optional note and script version; no account needed. Do not include private information in your note. Export a backup under **Content & progress**.
 - The script works through your signed-in GeoGuessr page. There is no Fieldwork account, and it never exports cookies or tokens.
-- Besides GeoGuessr, the script contacts `sethmorton.github.io` (pack downloads) and `learnablemeta.com` (clue explanations for the older packs). Card images load from `www.plonkit.net`, `learnablemeta.com` and, for two Australia clues, `geohints.com`. Tampermonkey fetches the GeoGuessr Event Framework from `raw.githubusercontent.com`.
+- Besides GeoGuessr, the script contacts `sethmorton.github.io` (pack downloads), `learnablemeta.com` (clue explanations for the older packs), and `fieldwork-reports.vercel.app` (only when you send a report; the relay in [`relay/`](relay/api/report.js) files it as a GitHub issue). Card images load from `www.plonkit.net`, `learnablemeta.com` and, for two Australia clues, `geohints.com`. Tampermonkey fetches the GeoGuessr Event Framework from `raw.githubusercontent.com`.
 - Fieldwork only edits the map you bound, and backs up its draft before each set. GeoGuessr's map-editing API is unofficial and may change.
 
 ## Credits and licence
@@ -102,4 +102,4 @@ npm run build && node --check dist/fieldwork.user.js && node scripts/verify-buil
 - [docs/CONTENT.md](docs/CONTENT.md): authoring and importing packs.
 - [tools/world-pack/README.md](tools/world-pack/README.md): the pipeline that builds the World pack.
 
-Every `content/*.json` file is a public pack served from GitHub Pages. Wrong clue or outdated location? Choose **Report this location** on the card for a prefilled GitHub issue. No GitHub account? **Copy details** and send a DM on Discord. Other bugs: open an [issue](https://github.com/sethmorton/fieldwork/issues). Please leave out credentials and progress exports.
+Every `content/*.json` file is a public pack served from GitHub Pages. Wrong clue or outdated location? Tap the card's flag, optionally add a note, then choose a reason to send. Reports create a public GitHub issue containing only the location and clue details; no account needed. If sending fails, retry the reason, **Copy details**, or **Open on GitHub**. Other bugs: open an [issue](https://github.com/sethmorton/fieldwork/issues). Please leave out credentials and progress exports.
