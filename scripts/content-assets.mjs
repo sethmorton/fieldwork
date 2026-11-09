@@ -59,7 +59,8 @@ export async function buildPublicContent(){
   // One installable script for everyone: packs ship unbound and each learner binds their own map in Map Maker.
   await writeFile('dist/public-catalog.json',JSON.stringify(packs.map(pack=>({id:pack.id,title:pack.title,subject:pack.subject,minimumRevision:pack.contentRevision??0,manifestUrl:new URL('catalog.json',contentHost).href}))));
   const {version}=JSON.parse(await readFile('package.json','utf8'));
-  await bundleUserscript('dist/public-catalog.json','dist/content-host/fieldwork.user.js',userscriptHeader(version,{local:false}));
+  const publicVersion=process.env.GITHUB_RUN_NUMBER?`${version}.${process.env.GITHUB_RUN_NUMBER}`:version;
+  await bundleUserscript('dist/public-catalog.json','dist/content-host/fieldwork.user.js',userscriptHeader(publicVersion,{local:false}));
   await writeFile('dist/content-host/index.html',`<!doctype html><meta charset="utf-8"><title>Fieldwork</title><p><a href="fieldwork.user.js">Install Fieldwork</a> (Tampermonkey or Violentmonkey) · <a href="https://github.com/sethmorton/fieldwork">Fieldwork adaptive practice</a> and its versioned content.</p>`);
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href)buildPublicContent().catch(error=>{console.error(error);process.exitCode=1});

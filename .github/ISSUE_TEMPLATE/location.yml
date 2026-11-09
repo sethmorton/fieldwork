@@ -1,0 +1,40 @@
+name: Report a practice location
+description: Report outdated imagery, a wrong clue, or a wrong country or region.
+title: "Practice location: "
+labels: [location]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for helping fix a practice location. The clue card can prefill the details below. Please do not include credentials, cookies, tokens, practice-map IDs or progress exports."
+  - type: dropdown
+    id: problem
+    attributes:
+      label: Problem
+      options:
+        - Clue not visible / outdated imagery
+        - Wrong clue or note
+        - Wrong country or region
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: What's wrong?
+      description: Optional extra context, such as the imagery date or what changed.
+  - type: textarea
+    id: location
+    attributes:
+      label: Location
+      description: Pack ID, location ID, panoId, coordinates and Street View link.
+    validations:
+      required: true
+  - type: input
+    id: clue
+    attributes:
+      label: Clue
+      description: Skill ID and title.
+  - type: input
+    id: version
+    attributes:
+      label: Script version

@@ -3,6 +3,13 @@ import {practiceFeedback} from './session.mjs';
 import {curriculumProgress} from './lib/adaptive.ts';
 import {plainMessage} from './load-errors.mjs';
 const notSaved='This change could not be saved. Try again.';
+const scriptVersion=()=>typeof GM_info==='undefined'?'unknown':GM_info?.script?.version??'unknown';
+export function locationReport(pack,location,skill,version){
+  const pano=new URL('https://www.google.com/maps/@');pano.search=new URLSearchParams({api:'1',map_action:'pano',pano:location.panoId,heading:String(location.heading??0)}).toString();
+  const where=`Pack: ${pack.id}\nLocation: ${location.id}\npanoId: ${location.panoId}\nCoordinates: ${location.lat},${location.lng}\n${pano.href}`,clue=`${skill.id} — ${skill.title}`;
+  const url=new URL('https://github.com/sethmorton/fieldwork/issues/new');url.search=new URLSearchParams({template:'location.yml',title:`Practice location: ${skill.title}`,location:where,clue,version}).toString();
+  return {text:`${where}\nClue: ${clue}\nScript version: ${version}`,url:url.href};
+}
 // Compact post-guess UI. Source HTML is converted to text, never executed.
 // Panel size: compact by default, expanded (wide, full images and text) when the learner asks; remembered per browser.
 const isWide=()=>localStorage.getItem('fieldwork:wide')==='1';
@@ -32,6 +39,7 @@ export function panel() {
     .preview{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}.wide .preview{display:block}
     .auto{margin:8px 0 0;font-weight:700;font-size:15px}.auto.right{color:#276b50}.auto.wrong{color:#c0571a}
     .wide img{max-height:none;cursor:zoom-out}img{cursor:zoom-in}header .size{margin-left:auto}
+    .report button{border:0;background:none;padding:0;color:inherit;text-decoration:underline}.report a{color:inherit}
   `;root.append(style);const section=document.createElement('section');root.append(section);document.body.append(host);
   applySize(section);
   return {host,section};
@@ -99,6 +107,10 @@ export function reviewPanel(pack,round,{familiar=false,saved=false,attempts=[],g
   for(const child of actions.children)child.disabled=saved;
   if(round.round===5){const next=button(section,'Continue practice',async()=>{next.disabled=true;status.textContent='Starting your next set…';try{await onNext();}catch(error){status.textContent=plainMessage(error);next.disabled=false}},'primary');next.style.marginTop='12px';}
   const tree=treeDetails(section,pack,getAttempts,'Your progress tree');
+  const report=locationReport(pack,round.location,currentSkill,scriptVersion()),links=text(section,'p','','muted report');
+  const link=text(links,'a','Report this location');link.href=report.url;link.target='_blank';link.rel='noopener noreferrer';text(links,'span',' · ');
+  const copied=text(section,'p','','muted');copied.setAttribute('role','status');
+  button(links,'Copy details',async()=>{try{await navigator.clipboard.writeText(report.text);copied.textContent='Copied. Paste it in a GitHub issue or DM.'}catch{copied.textContent='Could not copy. Use Report this location to get the details.'}});
 }
 function packImport(parent,onImport,status){
   const label=text(parent,'label','Import a practice pack');const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async()=>{try{if(!input.files[0])return;await onImport(JSON.parse(await input.files[0].text()));status.textContent='Pack imported.';}catch(error){status.textContent=plainMessage(error)}};label.append(input);
@@ -131,6 +143,7 @@ export function startPanel(pack,{onNext,onQuickCheck,onExport,onImport,onCoverag
   if(pack.coverageSummary){const coverage=document.createElement('details');text(coverage,'summary','Source coverage');text(coverage,'p',pack.coverageSummary,'muted');details.append(coverage);}
   if(onCoverage)button(details,'Export source inventory',async()=>{try{await onCoverage()}catch(error){status.textContent=plainMessage(error)}});
   button(details,'Export progress',onExport);packImport(details,onImport,status);
+  const footer=text(section,'p',`Version ${scriptVersion()} · `,'muted'),update=text(footer,'a','Check for updates');update.href='https://sethmorton.github.io/fieldwork/fieldwork.user.js';update.target='_blank';update.rel='noopener noreferrer';
 }
 /** Clear clues you already know without spending rounds: one card at a time, K = knew it, N = not yet. */
 export function quickCheckPanel(pack,queue,{onKnown,onDone}) {

@@ -9,7 +9,7 @@ Fieldwork is a Tampermonkey userscript. It turns a GeoGuessr map you own into a 
 ## What you get
 
 - **The World pack.** About 2,150 Plonk It clues across 118 countries, each with two or three real Street View locations. New clues come landscape and utility poles first, then in order of how often a small vision model sees them on about 1,270 rounds shaped like A Competitive World, the ranked No Move map. Practice locations prefer rural scenes like the ranked map, except for phone-number and sign clues.
-- **A clue card after every guess.** The Plonk It text and image, a link to the guide page, and three buttons: **Missed it**, **Spotted it**, **Knew it**.
+- **A clue card after every guess.** The Plonk It text and image, a link to the guide page, and three buttons: **Missed it**, **Spotted it**, **Knew it**. **Report this location** flags a wrong clue or outdated panorama.
 - **Quick check.** Flip through clue cards without playing rounds and clear the ones you already know.
 - **An expandable card.** Press ⤢ (or click the image) to see the image full size over the map. Fieldwork remembers your choice.
 - **FSRS spacing.** Reviews are scheduled with FSRS-6, the algorithm Anki uses. Clues you miss come back soon. Clues you know come back later and later.
@@ -102,4 +102,4 @@ npm run build && node --check dist/fieldwork.user.js && node scripts/verify-buil
 - [docs/CONTENT.md](docs/CONTENT.md): authoring and importing packs.
 - [tools/world-pack/README.md](tools/world-pack/README.md): the pipeline that builds the World pack.
 
-Every `content/*.json` file is a public pack served from GitHub Pages. Found a bug or a wrong clue? Open an [issue](https://github.com/sethmorton/fieldwork/issues). Please leave out credentials and progress exports.
+Every `content/*.json` file is a public pack served from GitHub Pages. Wrong clue or outdated location? Choose **Report this location** on the card for a prefilled GitHub issue. No GitHub account? **Copy details** and send a DM on Discord. Other bugs: open an [issue](https://github.com/sethmorton/fieldwork/issues). Please leave out credentials and progress exports.

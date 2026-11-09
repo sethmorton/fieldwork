@@ -3,7 +3,7 @@
   "title": "World · foundations & intermediate",
   "subject": "GeoGuessr",
   "schemaVersion": 1,
-  "contentRevision": 3,
+  "contentRevision": 4,
   "practiceMapId": "000000000000000000000000",
   "answerAreaLabel": "Worldwide. Country accuracy; regional clue distinctions are tracked through recognition",
   "maxLocationsPerCountry": 1,
@@ -58223,31 +58223,6 @@
       "lat": 63.89188,
       "lng": 16.366507,
       "heading": 331.24554,
-      "pitch": 0,
-      "zoom": 0,
-      "skillIds": [
-        "world:lm:131"
-      ],
-      "country": "Sweden",
-      "sourceMapId": "66fda2e27e08dc03b5bb3d6e",
-      "sourceReferenceUrl": "https://learnablemeta.com/maps/66fda2e27e08dc03b5bb3d6e",
-      "assessmentEligible": false,
-      "provenance": {
-        "kind": "permitted-shared-Learnable-Meta-native-export",
-        "sourceMetaId": 131,
-        "sourceCountry": "Sweden",
-        "countryBasis": "Natural Earth 50m polygon",
-        "visualChecked": false,
-        "acquiredAt": "2026-10-21"
-      },
-      "region": "Sweden"
-    },
-    {
-      "id": "pano:QUG0KCQGNBnaNOP25BpKKg",
-      "panoId": "QUG0KCQGNBnaNOP25BpKKg",
-      "lat": 60.720867,
-      "lng": 16.795248,
-      "heading": 136.73224,
       "pitch": 0,
       "zoom": 0,
       "skillIds": [
@@ -243438,7 +243413,6 @@
         "pano:_lPsbT439BlR-ycYwqSQsA",
         "pano:oBBgYn82Vm_vrmLT2lRWMg",
         "pano:pWiXfR_GvbFWxpPLaq3EHA",
-        "pano:QUG0KCQGNBnaNOP25BpKKg",
         "pano:RrPuELMcGnlxfEjSKb2_hg",
         "pano:su8DvChMArNzGj-9ZpfD4w",
         "pano:TOOa6S0pGRrNU1jW1f8XbQ",
@@ -250778,7 +250752,7 @@
       ]
     }
   ],
-  "coverageSummary": "535 active targets, 13 clue families, 8120 practice panoramas across 86 source countries. Five countries and five families per set. Partial coverage; source teaching pools do not establish unseen mastery.",
+  "coverageSummary": "535 active targets, 13 clue families, 8119 practice panoramas across 86 source countries. Five countries and five families per set. Partial coverage; source teaching pools do not establish unseen mastery.",
   "regionFeatures": [
     {
       "type": "Feature",

@@ -214,9 +214,12 @@ the current UI imports packs, not progress backups. Do not commit exports.
 
 ## Engine and content updates
 
-Engine updates still require installing the regenerated userscript. Content is
-separate: the supplied packs load from `https://sethmorton.github.io/fieldwork/`
-and cache in the userscript manager. First use requires a download; after that,
+Public installs receive engine updates through Tampermonkey; **Check for updates**
+on the start panel opens the latest script. Each main-branch deployment stamps
+`package.json`'s version with the increasing CI run number; hand bumps must increase
+the base version, never lower it. Local builds keep the base version and require reinstalling.
+Content is separate: supplied packs load from `https://sethmorton.github.io/fieldwork/`
+and cache in IndexedDB. First use requires a download; after that,
 the content host can be unavailable and cached practice still works (GeoGuessr
 itself still needs internet). A failed first download keeps one panel open:
 network, timeout and server errors retry automatically after 10 s, 30 s, 2 min,
